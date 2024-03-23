@@ -10,16 +10,18 @@ generator client {
 model Organisation {
   orgId           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name            String       @db.VarChar(255)
-  dateformat      String       @db.VarChar(255)
-  timeformat      String       @db.VarChar(255)
-  location        String       @db.VarChar(255)
+  dateformat      String       @db.VarChar(255) @default("DD-MM-YYYY")
+  timeformat      String       @db.VarChar(255) @default("HH:MM")
+  location        String?      @db.VarChar(255)
   teams           Team[]
   leaveTypes      LeaveType[]
+  leavePolicies   LeavePolicy[]
   holidays        Holiday[]
-  visibiity       Visibility
-  startOfWorkWeek DaysOfWeek
-  workweek        DaysOfWeek[]
+  visibiity       Visibility   @default(SELF)
+  startOfWorkWeek DaysOfWeek   @default(MONDAY)
+  workweek        DaysOfWeek[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
   timeZone        String       @db.VarChar(255)
+  ownerId         String?      @db.Uuid
   createdOn       DateTime?    @default(now()) @db.Timestamp
   createdBy       String?      @db.VarChar(255)
   updatedBy       String?      @db.VarChar(255)
@@ -32,9 +34,8 @@ model Team {
   orgId      String       @db.Uuid
   org        Organisation @relation(fields: [orgId], references: [orgId])
   users      User[]
-  leaveTypes LeaveType[]
   isActive   Boolean      @default(true)
-  manager    String       @db.Uuid
+  manager    String?      @db.Uuid
   createdOn  DateTime?    @default(now()) @db.Timestamp
   createdBy  String?      @db.VarChar(255)
   updatedBy  String?      @db.VarChar(255)
@@ -53,6 +54,8 @@ model User {
   createdBy String?   @db.VarChar(255)
   updatedBy String?   @db.VarChar(255)
   updatedOn DateTime? @updatedAt @db.Timestamp
+  accruedLeave Int
+  usedLeave Int
 }
 
 model Leave {
@@ -62,9 +65,11 @@ model Leave {
   to         DateTime      @db.Timestamp
   duration   LeaveDuration
   shift      Shift
-  isApproved Boolean       @default(false)
+  isApproved LeaveStatus @default(PENDING)
   userId     String        @db.Uuid
+  teamId     String        @db.Uuid
   user       User          @relation(fields: [userId], references: [userId])
+  reason     String        @db.VarChar(255)
   createdOn  DateTime?     @default(now()) @db.Timestamp
   createdBy  String?       @db.VarChar(255)
   updatedBy  String?       @db.VarChar(255)
@@ -77,11 +82,13 @@ model LeavePolicy {
   unlimited        Boolean                 @default(false)
   maxLeaves        Int
   accurals         Boolean                 @default(false)
-  accuralFrequency AccuralFrequencyOptions
-  accrueOn         AccrueOnOptions
+  accuralFrequency AccuralFrequencyOptions?
+  accrueOn         AccrueOnOptions?
   rollOver         Boolean                 @default(false)
-  rollOverLimit    Int
-  rollOverExpiry   DateTime                @db.Timestamp
+  rollOverLimit    Int?
+  orgId            String       @db.Uuid
+  org              Organisation @relation(fields: [orgId], references: [orgId])
+  rollOverExpiry   DateTime?                @db.Timestamp
   autoApprove      Boolean                 @default(false)
   isActive         Boolean                 @default(true)
   createdOn        DateTime?               @default(now()) @db.Timestamp
@@ -100,8 +107,6 @@ model LeaveType {
   setSlackStatus Boolean      @default(true)
   emoji          String       @db.Text
   statusMsg      String       @db.VarChar(255)
-  teamId         String       @db.Uuid
-  team           Team         @relation(fields: [teamId], references: [teamId])
   createdOn      DateTime?    @default(now()) @db.Timestamp
   createdBy      String?      @db.VarChar(255)
   updatedBy      String?      @db.VarChar(255)
@@ -160,4 +165,10 @@ enum AccuralFrequencyOptions {
 enum AccrueOnOptions {
   BEGINNING
   END
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
