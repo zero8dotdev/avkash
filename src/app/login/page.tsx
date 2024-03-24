@@ -38,7 +38,7 @@ export default function Login() {
       <div className="text-center space-x-3">
         <h1 className="font-bold">Sign in to Avkash</h1>
         <a
-          href="https://slack.com/openid/connect/authorize?scope=openid%20email%20profile&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Flocalhost:3000%2Flogin&amp;client_id=6356258938273.6852130512611"
+          href="https://slack.com/openid/connect/authorize?scope=openid%20email%20profile&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Favkash.zero8.dev%2Flogin&amp;client_id=6356258938273.6852130512611"
           className="w-72 rounded-md m-4 p-1 bg-pink-700"
         >
           Sign in with Slack
