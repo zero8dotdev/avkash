@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 interface User {
@@ -15,7 +16,9 @@ interface UserCardProps {
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
   return (
     <div className="p-4 border  flex flex-row">
-      <img
+      <Image
+        height={48}
+        width={48}
         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkAQP9TuNF8Haa3dGgNGwG8svris3fZq784g&usqp=CAU"
         className="rounded-full h-12 mr-5"
         alt="User avatar"
