@@ -20,7 +20,7 @@ export default function UserListItem({
         <span className="">{userName}</span>
       </div>
       <div className="flex flex-col">
-        <div className="text-black">{leaveType}</div>
+        <div>{leaveType}</div>
         <div className="text-gray-500">{leaveRange}</div>
       </div>
       <div className="flex flex-col text-green-500">{leaveStatus}</div>
