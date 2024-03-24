@@ -8,23 +8,21 @@ export default function Timeline() {
           <button className="p-4 bg-sky-500 hover:bg-sky-700 mr-2">
             Add Leave
           </button>
-          <button className="p-4 bg-white border-rose-400 hover:bg-sky-100 text-black">
+          <button className="p-4 bg-white border-rose-400 hover:bg-sky-100 ">
             Navigate to today
           </button>
         </div>
         <div>
-          <select className="p-2 p-x-3 cursor-pointer border-sky-500 text-black">
+          <select className="p-2 p-x-3 cursor-pointer border-sky-500 ">
             <option key="1">Team One</option>
             <option key="2">Team Two</option>
           </select>
         </div>
         <div>
-          <button className="p-2 border-2 hover:bg-sky-100 border-sky-300 text-black">
+          <button className="p-2 border-2 hover:bg-sky-100 border-sky-300 ">
             Month
           </button>
-          <button className="p-2 border-2 hover:bg-sky-100 text-black">
-            Year
-          </button>
+          <button className="p-2 border-2 hover:bg-sky-100 ">Year</button>
         </div>
       </div>
       <div className="h-96 border-2"></div>
@@ -36,7 +34,7 @@ export default function Timeline() {
           Calendar Feed
         </a>
       </div>
-      <div className="border-2 min-h-10 text-black">
+      <div className="border-2 min-h-10">
         <div className="flex">
           <div className="p-2 border-b-2 border-sky-500 cursor-pointer mr-1">
             Today
