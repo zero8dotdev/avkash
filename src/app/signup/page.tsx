@@ -1,21 +1,165 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+import { useRouter } from "next/navigation";
+
+const supabaseUrl = "https://cmdxjdjcazwuevappeku.supabase.co";
+const supabaseKey ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHhqZGpjYXp3dWV2YXBwZWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMxMTM1NzcsImV4cCI6MjAyODY4OTU3N30.8mRmHq3JPiyRoF58dFnf-M4QkaTj8T_5Vk23PUFeoeA";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function SignUp() {
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    company: "",
+    team: "",
+    email: "",
+  });
+
+  const handleChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    
+
+    try {
+      const { data: orgData, error: orgError } = await supabase
+        .from("Organisation")
+        .insert([
+          {
+            name: formData.company,
+            
+          },
+        ])
+        .select();
+
+      if (orgError) {
+        throw orgError;
+      }
+      
+      localStorage.setItem("orgId",orgData[0].orgId)
+
+      
+
+
+    
+      const { data: teamData, error: teamError } = await supabase
+        .from("Team")
+        .insert([
+          {
+            name: formData.team,
+            orgId: orgData[0].orgId,
+          },
+        ])
+        .select();
+       
+      if (teamData) {
+        
+        localStorage.setItem("teamId",teamData[0].teamId)
+        const { data: userData, error: userError } = await supabase
+          .from("User")
+          .insert([
+            {
+              name: formData.name,
+              email: formData.email,
+              teamId: teamData[0].teamId,
+              isManager: true,
+              accruedLeave: 0,
+              usedLeave: 0,
+            },
+          ])
+          .select();
+          if (userData){
+            localStorage.setItem("userId",userData[0].userId)
+          const { data, error } = await supabase
+          
+          .from("Team")
+          .update({ manager: userData[0].userId})
+          .eq("teamId", userData[0].teamId)
+          .select();
+          }
+      }
+      
+
+     
+      setFormData({
+        name: "",
+        company: "",
+        team: "",
+        email: "",
+      });
+      router.push("/welcome");
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen  flex flex-col justify-center items-center bg-gray-100">
-      <h2 className="text-xl font-bold mb-4 ">Welcome to Avkash</h2>
+      <h1 className="text-xl font-bold mb-4">Avkash</h1>
 
-      <div className="h-16 w-16 m-2">
-        <Image
-          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJgAAACUCAMAAABY3hBoAAAAhFBMVEX/AGb/////AGL/AGD/AGT/AFz/AF7/AFr/AFf/AFT/s8v/AFL/n7z/9fn/WYj/+/3/6e//x9n/MHH/XI7/0+H/fKX/7vT/zd3/JnP/J2z/3uj/qcL/bJj/lbP/wdX/Nnj/dJz/QX7/SHr/Yo3/FGz/h6r/TIb/AEr/5fD/uc7/AD//jaug8cW3AAACxUlEQVR4nO3Z23KbMBAGYFYHjgaBkcHGYOwYE6jf//0qSOM4aabTi85IM/2/m2Ry9c9qtZKI5wEAAAAAAAAAAAAAAAAAwP9BcJ/ZzvAd3p93mXAumpCblIiK3rFkQsykijinyRO2szwT4YaqMkkGTRtpO8wTfpiJSpOIX5U+2E7zgfUNVW0SCo9dqmZrO84HNlOx9briIviZCttpntXq5ToR7Xweu9VjdRqnpDOPbUntHdqVfmwm2CZgXjhTHNpO84T1Wpfc7MlSpS8OFcyMsSjiyw8zxXzbWb4hd1Qxpwr2hu0ral0sGD9S4dgJvmIZpZdfwQTj3JlFDQvarKOCyXC4XMvLEAbcgQrylvLl+OZeOy8XMyOt79dB2i6cOFFnOl/22kSqdFHoyvyimm4IrJZNZJQPwvPPRM1tH0VJEkVDeVxSzpnNaOaiaA4j1is6Ht5XT3A5XM1plcZDYC1YkNPIPL+hzeunv7NkOJo17TxuJ5cYVHVYzspp+7XZhRxPRHprp2g8Iy083tHx99Ev/NeL6bXOt7E/ebkG26w78zlTkoh+bNuzSXa0sQXEXqmt+FKxwMvup4oetI2rWtRQF5kbf/1YLxnetVpG2VTPcTyfdB7buHTzK6k2GHIq37YfEzdTqyZu9zIJAyllGCV2HgPmpZTefnSkkzXnwezE4jwEVjr+M2lGaXOe1i7jfUpNG3L7qRb+LjdTntQ9FP1E+uDOM46LnV4uFmezE05ufY+SLLsXU3annDmVyzBXV/+lUqWlo/GPzJitAzfa/jN+UzQ7t5TectO5VlT3zj3k2Nh1hZkbo2s1Y83bkX1zZ46tWJZW3a4tR9fan99pjqTvzHP3gc90c67vF7wi1/4HsWIj5ZHtEN8JzO3apY+dD35NrYsrKfrKsa+w74aTlVfaXwjtfaYAAAAAAAAAAAAAAAAAAPjnfgKmBCM0vVmVeQAAAABJRU5ErkJggg=="
-          alt="Logo"
-          height={64}
-          width={64}
-          className="h-16 w-16"
+      <form className="flex flex-col" onSubmit={handleSubmit}>
+        <label htmlFor="name">Name</label>
+        <input
+          required
+          type="text"
+          name="name"
+          placeholder="Name"
+          id="name"
+          className="mt-2 mb-3 p-2"
+          value={formData.name}
+          onChange={handleChange}
         />
-      </div>
 
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
+        <label htmlFor="company-name">Company Name</label>
+        <input
+          required
+          className="mt-2 mb-3 p-2"
+          placeholder="Company Name"
+          id="company-name"
+          name="company"
+          value={formData.company}
+          onChange={handleChange}
+        />
+        <label htmlFor="team">Team Name</label>
+        <input
+          required
+          type="text"
+          name="team"
+          placeholder="Team name"
+          id="team"
+          className="mt-2 mb-3 p-2"
+          value={formData.team}
+          onChange={handleChange}
+        />
+
+        <label htmlFor="email">Working Email</label>
+        <input
+          required
+          type="email"
+          name="email"
+          placeholder="Email"
+          id="email"
+          className="mt-2 mb-3 p-2"
+          value={formData.email}
+          onChange={handleChange}
+        />
+
+        <input
+          type="submit"
+          value="Singup"
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md w-full"
+        />
+      </form>
+
+      {/* <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-xl font-bold mb-4">Sign-Up for Avkash</h2>
         <div className=" bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
           <p className="font-bold">Caution:</p>
@@ -76,7 +220,7 @@ export default function SignUp() {
         <p>
           Already an account <span className="text-blue-500">Sign-In</span>
         </p>
-      </div>
+      </div> */}
     </div>
   );
 }
