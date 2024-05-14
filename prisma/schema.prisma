@@ -58,8 +58,8 @@ model User {
   createdBy    String?   @db.VarChar(255)
   updatedBy    String?   @db.VarChar(255)
   updatedOn    DateTime? @updatedAt @db.Timestamp
-  accruedLeave Int
-  usedLeave    Int
+  accruedLeave Int       @default(0)
+  usedLeave    Int       @default(0)
 }
 
 model Leave {

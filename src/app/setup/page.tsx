@@ -1,11 +1,9 @@
 "use client";
 import { DeleteOutlined } from "@ant-design/icons";
 import {
-
   Button,
   Card,
   Checkbox,
- 
   DatePicker,
   Divider,
   Flex,
@@ -19,7 +17,6 @@ import {
   Switch,
   Table,
   message,
-  
 } from "antd";
 import moment from "moment-timezone";
 import { useEffect, useState } from "react";
@@ -27,11 +24,12 @@ import { createClient } from "@supabase/supabase-js";
 import { countries } from "countries-list";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { SettingPage } from "./steps/settings";
 
-const supabaseUrl = "https://cmdxjdjcazwuevappeku.supabase.co";
-const supabaseKey ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHhqZGpjYXp3dWV2YXBwZWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMxMTM1NzcsImV4cCI6MjAyODY4OTU3N30.8mRmHq3JPiyRoF58dFnf-M4QkaTj8T_5Vk23PUFeoeA";
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 export default function InitialSettings() {
   const [current, setCurrent] = useState(0);
@@ -100,7 +98,6 @@ export default function InitialSettings() {
     setTimezones(allTimezones);
   }, []);
 
-  
   const next = () => {
     form
       .validateFields()
@@ -119,97 +116,8 @@ export default function InitialSettings() {
     setTitle(steps[current - 1].title);
   };
   const Done = () => {
-    console.log("yes iam done")
+    console.log("yes iam done");
     form.submit();
-  };
-
-  const SettingPage = () => {
-    return (
-      <Card className="justify-center flex flex-col shadow-xl ">
-        <Form.Item
-          label="Start of work week"
-          name="startOfWorkWeek"
-          rules={[
-            { required: true, message: "Please select start of work week" },
-          ]}
-        >
-          <Select className="ml-4 w-56" placeholder="Select start of work week">
-            <Select.Option value="MONDAY">Monday</Select.Option>
-            <Select.Option value="TUESDAY">Tuesday</Select.Option>
-            <Select.Option value="WEDNESDAY">Wednesday</Select.Option>
-            <Select.Option value="THURSDAY">Thursday</Select.Option>
-            <Select.Option value="FRIDAY">Friday</Select.Option>
-            <Select.Option value="SATURDAY">Saturday</Select.Option>
-            <Select.Option value="SUNDAY">Sunday</Select.Option>
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="Work week"
-          name="workWeek"
-          rules={[
-            {
-              required: true,
-              message: "Please select atleast one working day",
-            },
-          ]}
-        >
-          <Checkbox.Group>
-            <Checkbox className="ml-16" value="MONDAY">
-              Monday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="TUESDAY">
-              Tuesday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="WEDNESDAY">
-              Wednesday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="THURSDAY">
-              Thursday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="FRIDAY">
-              Friday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="SATURDAY">
-              Saturday
-            </Checkbox>
-
-            <Checkbox className="ml-16" value="SUNDAY">
-              Sunday
-            </Checkbox>
-          </Checkbox.Group>
-        </Form.Item>
-        <Form.Item
-          label="Time Zone"
-          name="timeZone"
-          rules={[{ required: true, message: "Please select your timezone" }]}
-        >
-          <Select
-            style={{ width: "200px" }}
-            className="ml-16"
-            showSearch
-            placeholder="Search to Select"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              (option?.label ?? "").includes(input)
-            }
-            filterSort={(optionA, optionB) =>
-              (optionA?.label ?? "")
-                .toLowerCase()
-                .localeCompare((optionB?.label ?? "").toLowerCase())
-            }
-            options={timezones.map((timezone) => ({
-              value: timezone,
-              label: timezone,
-            }))}
-          />
-        </Form.Item>
-      </Card>
-    );
   };
 
   const LeavePolicyPage = () => {
@@ -523,7 +431,7 @@ export default function InitialSettings() {
   const steps = [
     {
       title: "Settings",
-      content: <SettingPage />,
+      content: <SettingPage timezones={timezones}/>,
     },
     {
       title: "Leave Policy",
@@ -546,7 +454,7 @@ export default function InitialSettings() {
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   const onFinish = async (values: any) => {
-    console.log(values)
+    console.log(values);
     try {
       const orgId = localStorage.getItem("orgId");
       //settings
@@ -562,7 +470,6 @@ export default function InitialSettings() {
 
       //leaveType
 
-      
       const { data: existingLeaveTypes } = await supabase
         .from("LeaveType")
         .select("*")
@@ -611,70 +518,66 @@ export default function InitialSettings() {
           console.log(error);
         }
       }
-        const { data: existingHolidaysData } = await supabase
+      const { data: existingHolidaysData } = await supabase
+        .from("Holiday")
+        .select("*")
+        .eq("orgId", orgId);
+      if (!existingHolidaysData || existingHolidaysData.length == -0) {
+        const holidaysToInsert = holidays.map((holiday: any) => ({
+          name: holiday.name,
+          date: holiday.date,
+          isRecurring: holiday.isRecurring,
+          orgId,
+        }));
+        const { data, error } = await supabase
           .from("Holiday")
-          .select("*")
-          .eq("orgId", orgId);
-        if (!existingHolidaysData || existingHolidaysData.length == -0) {
-          const holidaysToInsert = holidays.map((holiday: any) => ({
-            name: holiday.name,
-            date: holiday.date,
-            isRecurring: holiday.isRecurring,
-            orgId,
-          }));
-          const { data, error } = await supabase
-            .from("Holiday")
-            .insert(holidaysToInsert);
-          if (data) {
-            console.log("holidays list inserted successfully");
-          } else {
-            console.log(error);
-          }
-        
+          .insert(holidaysToInsert);
+        if (data) {
+          console.log("holidays list inserted successfully");
+        } else {
+          console.log(error);
+        }
+
         //notification
       }
-        const { data: updatedNotificationData } = await supabase
-          .from("Organisation")
-          .update({
-            notificationDailySummary: values.dailySummary,
-            notificationLeaveChanged: values.leaveChanged,
-            notificationToWhom: values.sendNtf[0],
-            notificationWeeklySummary: values.weeklySummary,
-          })
-          .eq("orgId", orgId);
-        //inviter users
-        
-        const usersData: any[] = [];
-        const keys = Object.keys(values);
-        const teamId = localStorage.getItem("teamId");
-        for (let i = 0; i < keys.length / 3; i++) {
-          const index = String(i);
-          usersData.push({
-            name: values[`firstName${index}`],
-            email: values[`workEmail${index}`],
-            isManager: values[`isManger${index}`],
-            teamId,
-          });
-        }
+      const { data: updatedNotificationData } = await supabase
+        .from("Organisation")
+        .update({
+          notificationDailySummary: values.dailySummary,
+          notificationLeaveChanged: values.leaveChanged,
+          notificationToWhom: values.sendNtf[0],
+          notificationWeeklySummary: values.weeklySummary,
+        })
+        .eq("orgId", orgId);
+      //inviter users
 
-        const { data: userData, error: userError } = await supabase
-          .from("User")
-          .insert(usersData)
-          .select();
+      const usersData: any[] = [];
+      const keys = Object.keys(values);
+      const teamId = localStorage.getItem("teamId");
+      for (let i = 0; i < keys.length / 3; i++) {
+        const index = String(i);
+        usersData.push({
+          name: values[`firstName${index}`],
+          email: values[`workEmail${index}`],
+          isManager: values[`isManger${index}`],
+          teamId,
+        });
+      }
 
-        if (userError) {
-          console.log(userError);
-        } else {
-          console.log(userData);
-        }
-      
-      
+      const { data: userData, error: userError } = await supabase
+        .from("User")
+        .insert(usersData)
+        .select();
+
+      if (userError) {
+        console.log(userError);
+      } else {
+        console.log(userData);
+      }
     } catch (error) {
       console.error(error);
     }
   };
-  
-  
 
   return (
     <div className="p-5 bg-white h-screen">
