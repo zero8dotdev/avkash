@@ -11,10 +11,14 @@ export default function WithSlack() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "slack",
       options: {
-        redirectTo: "https://flounder-wise-completely.ngrok-free.app/login",
+        redirectTo: "https://flounder-wise-completely.ngrok-free.app/welcome",
         scopes: "",
       },
     });
+
+    if (error) {
+      console.log(error);
+    }
   };
 
   return (
