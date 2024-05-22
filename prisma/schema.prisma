@@ -30,6 +30,8 @@ model Organisation {
   createdBy                 String?       @db.VarChar(255)
   updatedBy                 String?       @db.VarChar(255)
   updatedOn                 DateTime?     @updatedAt @db.Timestamp
+  halfDayLeave              Boolean       @default(false)
+  
 }
 
 model Team {
