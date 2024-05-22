@@ -1,55 +1,199 @@
+import {
+  CheckCircleOutlined,
+  CloseSquareOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
+import { Button, Card, Flex, Form, Input, Modal, Space, Tag, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { ChromePicker, ColorResult } from "react-color";
+import { createClient } from "@supabase/supabase-js";
+
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
+
 const LeaveTypesSettings = () => {
+  const [teamsData, setTeamData] = useState<any[]>([]);
+  const [isPaidModalOpen, setIsPaidModalOpen] = useState(false);
+  const [isSickModalOpen, setIsSickModalOpen] = useState(false);
+  const [isUnpaidModalOpen, setIsUnpaidModalOpen] = useState(false);
+  const [isPaidEditModalOpen, setIsPaidEditModalOpen] = useState(false);
+  const [isSickEditModalOpen, setIsSickEditModalOpen] = useState(false);
+  const [isUnpaidEditModalOpen, setIsUnpaidEditModalOpen] = useState(false);
+  
+  const fetchData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("Team")
+        .select("*")
+        .eq("orgId", "01bf568b-12a3-4bae-966b-36409729ab10");
+
+      if (data) {
+        setTeamData(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handlePaidShowModal = () => {
+    setIsPaidModalOpen(true);
+  };
+  const handleSickShowModal = () => {
+    setIsSickModalOpen(true);
+  };
+  const handleUnpaidShowModal = () => {
+    setIsUnpaidModalOpen(true);
+  };
+  const handleCancel = () => {
+    setIsPaidModalOpen(false);
+    setIsSickModalOpen(false);
+    setIsUnpaidModalOpen(false);
+  };
+ 
+  const handlePaidEditShowModal = () => {
+    setIsPaidEditModalOpen(true);
+  };
+  const handleSickEditShowModal = () => {
+    setIsSickEditModalOpen(true);
+  };
+  const handleUnpaidEditShowModal = () => {
+    setIsUnpaidEditModalOpen(true);
+  };
+  
   return (
-    <div className="text-gray-700 flex flex-col justify-start items-start border-x border-y border-gray-400 p-4 rounded-md gap-8">
-      <div className="flex flex-col items-start gap-4 w-[100%]">
-        <h1 className="font-bold text-black text-2xl">Leave Types</h1>
-        <div className="inline-flex">
-          <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
-            Acitve
-          </button>
-          <button className="bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
-            InActive
-          </button>
-        </div>
+    <Card title="Leave Types" className="w-5/12">
+      <Space size={12}>
+        <Button icon={<CheckCircleOutlined style={{ color: "green" }} />}>
+          Active
+        </Button>
+        <Button icon={<CloseSquareOutlined style={{ color: "red" }} />}>
+          In Active
+        </Button>
+      </Space>
+      <Card>
+        <Flex className="p-4 justify-between" gap={5}>
+          <Space>
+            <div className="bg-blue-900 rounded-full w-6 h-6" />
+            <Typography.Title level={5} className="mt-2">
+              Paid time Of
+            </Typography.Title>
+          </Space>
+          <Space>
+            <Button className="bg-pink-500 text-pink-50" onClick={handlePaidEditShowModal}>Edit</Button>
+            <Button
+              className="bg-pink-500 text-pink-50"
+              onClick={handlePaidShowModal}
+            >
+              Disable
+            </Button>
+          </Space>
+        </Flex>
+        <Modal open={isPaidEditModalOpen} title="Edit Leave Type">
+           <Form>
+            <Form.Item label="Leave">
+            <Input/>
+            </Form.Item>
+              
+           </Form>
 
-        <div className="flex justify-between w-[98%] border-x border-y border-gray-100 px-4 py-4 rounded-lg shadow-md shadow-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-            <p className="font-bold">Paid time off</p>
-          </div>
-          <div className="flex gap-2 text-red-500 underline">
-            <a href="#">
-              <small>Edit</small>
-            </a>
-            <a href="#">
-              <small>disable</small>
-            </a>
-          </div>
-        </div>
-        <div className="flex justify-between w-[98%] border-x border-y border-gray-100 px-4 py-4 rounded-lg shadow-md shadow-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-pink-300 rounded-full"></div>
-            <p className="font-bold">sick</p>
-          </div>
-          <div className="flex gap-2 text-red-500 underline">
-            <a href="#">
-              <small>Edit</small>
-            </a>
-            <a href="#">
-              <small>disable</small>
-            </a>
-          </div>
-        </div>
+           
+        </Modal>
+        <Modal
+          title="Are you sure you want ot disable Paid time off leave type?"
+          open={isPaidModalOpen}
+          onCancel={handleCancel}
+        >
+          <Typography.Paragraph>
+            The following teams will be affected if you disable Paid time of
+            leave type. Are you sure?
+          </Typography.Paragraph>
+          {teamsData.map((each) => {
+            return (
+              <>
+                <h1>{each.name}</h1>
+              </>
+            );
+          })}
+          
+        </Modal>
+      </Card>
+      <Card>
+        <Flex className="p-4 justify-between" gap={5}>
+          <Space>
+            <div className="bg-yellow-500 rounded-full w-6 h-6" />
+            <Typography.Title level={5} className="mt-2">
+              Sick
+            </Typography.Title>
+          </Space>
 
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded-md">
-          Add Leave Type
-        </button>
-        <small>To set a leave policy (ie. number of days off), go to the Leave Policy settings under <span className="text-red-500">teams</span> </small>
-      </div>
-      <button className="text-white bg-red-500 self-end p-1 rounded-lg">
-        Save
-      </button>
-    </div>
+          <Space>
+            <Button className="bg-pink-500 text-pink-50" onClick={handleSickEditShowModal}>Edit</Button>
+            <Button
+              className="bg-pink-500 text-pink-50"
+              onClick={handleSickShowModal}
+            >
+              Disable
+            </Button>
+          </Space>
+        </Flex>
+        <Modal
+          title="Are you sure you want ot disable sick leave type?"
+          open={isSickModalOpen}
+          onCancel={handleCancel}
+        >
+          <Typography.Paragraph>
+            The following teams will be affected if you disable Paid time of
+            leave type. Are you sure?
+          </Typography.Paragraph>
+          {teamsData.map((each) => {
+            return (
+              <>
+                <h1>{each.name}</h1>
+              </>
+            );
+          })}
+        </Modal>
+      </Card>
+      <Card>
+        <Flex className="p-4 flex-row justify-between" gap={5}>
+          <Space>
+            <div className="bg-red-500 rounded-full w-6 h-6" />
+            <Typography.Title level={5} className="mt-2">
+              Unpaid
+            </Typography.Title>
+          </Space>
+
+          <Space>
+            <Button className="bg-pink-500 text-pink-50" onClick={handleUnpaidEditShowModal}>Edit</Button>
+            <Button
+              className="bg-pink-500 text-pink-50"
+              onClick={handleUnpaidShowModal}
+            >
+              Disable
+            </Button>
+          </Space>
+        </Flex>
+        <Modal
+          title="Are you sure you want to disable Unpaid leave type?"
+          open={isUnpaidModalOpen}
+          onCancel={handleCancel}
+        >
+          <Typography.Paragraph>
+            The following teams will be affected if you disable Unpaid leave
+            type. Are you sure?
+          </Typography.Paragraph>
+          {teamsData.map((each) => (
+            <h1 key={each.id}>{each.name}</h1>
+          ))}
+        </Modal>
+      </Card>
+    </Card>
   );
 };
 
