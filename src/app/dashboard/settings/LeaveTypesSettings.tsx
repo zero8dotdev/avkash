@@ -1,11 +1,9 @@
 import {
   CheckCircleOutlined,
   CloseSquareOutlined,
-  ThunderboltOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Flex, Form, Input, Modal, Space, Tag, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { ChromePicker, ColorResult } from "react-color";
 import { createClient } from "@supabase/supabase-js";
 
 
@@ -22,7 +20,7 @@ const LeaveTypesSettings = () => {
   const [isPaidEditModalOpen, setIsPaidEditModalOpen] = useState(false);
   const [isSickEditModalOpen, setIsSickEditModalOpen] = useState(false);
   const [isUnpaidEditModalOpen, setIsUnpaidEditModalOpen] = useState(false);
-  
+
   const fetchData = async () => {
     try {
       const { data, error } = await supabase
@@ -55,7 +53,7 @@ const LeaveTypesSettings = () => {
     setIsSickModalOpen(false);
     setIsUnpaidModalOpen(false);
   };
- 
+
   const handlePaidEditShowModal = () => {
     setIsPaidEditModalOpen(true);
   };
@@ -65,7 +63,7 @@ const LeaveTypesSettings = () => {
   const handleUnpaidEditShowModal = () => {
     setIsUnpaidEditModalOpen(true);
   };
-  
+
   return (
     <Card title="Leave Types" className="w-5/12">
       <Space size={12}>
@@ -99,10 +97,10 @@ const LeaveTypesSettings = () => {
             <Form.Item label="Leave">
             <Input/>
             </Form.Item>
-              
+
            </Form>
 
-           
+
         </Modal>
         <Modal
           title="Are you sure you want ot disable Paid time off leave type?"
@@ -120,7 +118,7 @@ const LeaveTypesSettings = () => {
               </>
             );
           })}
-          
+
         </Modal>
       </Card>
       <Card>
