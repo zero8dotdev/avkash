@@ -6,6 +6,7 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,
   },
   images: {
+    domains: ['encrypted-tbn0.gstatic.com'],
     remotePatterns: [
       {
         protocol: "https",
