@@ -8,54 +8,60 @@ generator client {
 }
 
 model Organisation {
-  orgId           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String       @db.VarChar(255)
-  dateformat      String       @db.VarChar(255) @default("DD-MM-YYYY")
-  timeformat      String       @db.VarChar(255) @default("HH:MM")
-  location        String?      @db.VarChar(255)
-  teams           Team[]
-  leaveTypes      LeaveType[]
-  leavePolicies   LeavePolicy[]
-  holidays        Holiday[]
-  visibiity       Visibility   @default(SELF)
-  startOfWorkWeek DaysOfWeek   @default(MONDAY)
-  workweek        DaysOfWeek[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
-  timeZone        String       @db.VarChar(255)
-  ownerId         String?      @db.Uuid
-  createdOn       DateTime?    @default(now()) @db.Timestamp
-  createdBy       String?      @db.VarChar(255)
-  updatedBy       String?      @db.VarChar(255)
-  updatedOn       DateTime?    @updatedAt @db.Timestamp
+  orgId                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String        @db.VarChar(255)
+  dateformat                String        @default("DD-MM-YYYY") @db.VarChar(255)
+  timeformat                String        @default("HH:MM") @db.VarChar(255)
+  location                  String?       @db.VarChar(255)
+  teams                     Team[]
+  leaveTypes                LeaveType[]
+  leavePolicies             LeavePolicy[]
+  holidays                  Holiday[]
+  visibiity                 Visibility    @default(SELF)
+  startOfWorkWeek           DaysOfWeek    @default(MONDAY)
+  workweek                  DaysOfWeek[]  @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
+  timeZone                  String?       @db.VarChar(255)
+  notificationLeaveChanged  Boolean       @default(false)
+  notificationDailySummary  Boolean       @default(false)
+  notificationWeeklySummary Boolean       @default(false)
+  notificationToWhom        Role          @default(MANAGER)
+  ownerId                   String?       @db.Uuid
+  createdOn                 DateTime?     @default(now()) @db.Timestamp
+  createdBy                 String?       @db.VarChar(255)
+  updatedBy                 String?       @db.VarChar(255)
+  updatedOn                 DateTime?     @updatedAt @db.Timestamp
+  halfDayLeave              Boolean       @default(false)
+  
 }
 
 model Team {
-  teamId     String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String       @db.VarChar(255)
-  orgId      String       @db.Uuid
-  org        Organisation @relation(fields: [orgId], references: [orgId])
-  users      User[]
-  isActive   Boolean      @default(true)
-  manager    String?      @db.Uuid
-  createdOn  DateTime?    @default(now()) @db.Timestamp
-  createdBy  String?      @db.VarChar(255)
-  updatedBy  String?      @db.VarChar(255)
-  updatedOn  DateTime?    @updatedAt @db.Timestamp
+  teamId    String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String       @db.VarChar(255)
+  orgId     String       @db.Uuid
+  org       Organisation @relation(fields: [orgId], references: [orgId])
+  users     User[]
+  isActive  Boolean      @default(true)
+  manager   String?      @db.Uuid
+  createdOn DateTime?    @default(now()) @db.Timestamp
+  createdBy String?      @db.VarChar(255)
+  updatedBy String?      @db.VarChar(255)
+  updatedOn DateTime?    @updatedAt @db.Timestamp
 }
 
 model User {
-  userId    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String    @db.VarChar(255)
-  email     String    @unique @db.VarChar(255)
-  teamId    String    @db.Uuid
-  team      Team      @relation(fields: [teamId], references: [teamId])
-  isManager Boolean   @default(false)
-  leaves    Leave[]
-  createdOn DateTime? @default(now()) @db.Timestamp
-  createdBy String?   @db.VarChar(255)
-  updatedBy String?   @db.VarChar(255)
-  updatedOn DateTime? @updatedAt @db.Timestamp
-  accruedLeave Int
-  usedLeave Int
+  userId       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String    @db.VarChar(255)
+  email        String    @unique @db.VarChar(255)
+  teamId       String    @db.Uuid
+  team         Team      @relation(fields: [teamId], references: [teamId])
+  isManager    Boolean   @default(false)
+  leaves       Leave[]
+  createdOn    DateTime? @default(now()) @db.Timestamp
+  createdBy    String?   @db.VarChar(255)
+  updatedBy    String?   @db.VarChar(255)
+  updatedOn    DateTime? @updatedAt @db.Timestamp
+  accruedLeave Int       @default(0)
+  usedLeave    Int       @default(0)
 }
 
 model Leave {
@@ -65,7 +71,7 @@ model Leave {
   to         DateTime      @db.Timestamp
   duration   LeaveDuration
   shift      Shift
-  isApproved LeaveStatus @default(PENDING)
+  isApproved LeaveStatus   @default(PENDING)
   userId     String        @db.Uuid
   teamId     String        @db.Uuid
   user       User          @relation(fields: [userId], references: [userId])
@@ -77,36 +83,36 @@ model Leave {
 }
 
 model LeavePolicy {
-  leavePolicyId    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  leaveTypeId      String                  @db.Uuid
-  unlimited        Boolean                 @default(false)
+  leavePolicyId    String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  leaveTypeId      String                   @db.Uuid
+  unlimited        Boolean                  @default(false)
   maxLeaves        Int
-  accurals         Boolean                 @default(false)
+  accurals         Boolean                  @default(false)
   accuralFrequency AccuralFrequencyOptions?
   accrueOn         AccrueOnOptions?
-  rollOver         Boolean                 @default(false)
+  rollOver         Boolean                  @default(false)
   rollOverLimit    Int?
-  orgId            String       @db.Uuid
-  org              Organisation @relation(fields: [orgId], references: [orgId])
+  orgId            String                   @db.Uuid
+  org              Organisation             @relation(fields: [orgId], references: [orgId])
   rollOverExpiry   DateTime?                @db.Timestamp
-  autoApprove      Boolean                 @default(false)
-  isActive         Boolean                 @default(true)
-  createdOn        DateTime?               @default(now()) @db.Timestamp
-  createdBy        String?                 @db.VarChar(255)
-  updatedBy        String?                 @db.VarChar(255)
-  updatedOn        DateTime?               @updatedAt @db.Timestamp
+  autoApprove      Boolean                  @default(false)
+  isActive         Boolean                  @default(true)
+  createdOn        DateTime?                @default(now()) @db.Timestamp
+  createdBy        String?                  @db.VarChar(255)
+  updatedBy        String?                  @db.VarChar(255)
+  updatedOn        DateTime?                @updatedAt @db.Timestamp
 }
 
 model LeaveType {
   leaveTypeId    String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String       @db.VarChar(255)
-  color          String       @db.VarChar(6)
+  color          String?      @db.VarChar(6)
   isActive       Boolean      @default(true)
   orgId          String       @db.Uuid
   org            Organisation @relation(fields: [orgId], references: [orgId])
   setSlackStatus Boolean      @default(true)
-  emoji          String       @db.Text
-  statusMsg      String       @db.VarChar(255)
+  emoji          String?      @db.Text
+  statusMsg      String?      @db.VarChar(255)
   createdOn      DateTime?    @default(now()) @db.Timestamp
   createdBy      String?      @db.VarChar(255)
   updatedBy      String?      @db.VarChar(255)
@@ -171,4 +177,10 @@ enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  USER
 }
