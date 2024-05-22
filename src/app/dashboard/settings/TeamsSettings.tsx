@@ -1,6 +1,6 @@
 const TeamSettings = () => {
   return (
-    <div className="text-gray-700 flex flex-col justify-start items-start border-x border-y border-gray-400 p-4 rounded-md gap-8">
+    <div className="text-gray-700 flex flex-col justify-start items-start border-x border-y border-gray-400 p-4 rounded-md gap-8 w-5/12">
       <div className="flex flex-col items-start gap-4 w-[100%]">
         <h1 className="font-bold text-black text-2xl">Locations</h1>
         <div className="inline-flex">
