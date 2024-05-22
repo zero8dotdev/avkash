@@ -1,82 +1,124 @@
-import Image from "next/image";
+"use client";
+
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { Button, Form, Input, Typography } from "antd";
+
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 export default function SignUp() {
+  const router = useRouter();
+
+  // Step 1: Check if that org with same name is alreay created?
+  // Then creation step as it is
+
+  const onFinish = async (values: any) => {
+    try {
+      //  Check if the organisation already exists
+      const { data: existingOrgData, error: existingOrgError } = await supabase
+        .from("Organisation")
+        .select("*")
+        .eq("name", values.companyName);
+
+      if (existingOrgError) {
+        throw existingOrgError;
+      }
+
+      if (existingOrgData && existingOrgData.length > 0) {
+        alert("Company name already exists!");
+        return;
+      }
+
+      // Create the organisation
+      const { data: orgData, error: orgError } = await supabase
+        .from("Organisation")
+        .insert([{ name: values.companyName }])
+        .select();
+
+      if (orgError) {
+        throw orgError;
+      }
+
+      const organisation = orgData[0];
+      localStorage.setItem("orgId", organisation.orgId);
+
+      //Create the team
+      const { data: teamData, error: teamError } = await supabase
+        .from("Team")
+        .insert([{ orgId: organisation.orgId, name: values.teamName }])
+        .select();
+
+      if (teamError) {
+        await supabase
+          .from("Organisation")
+          .delete()
+          .eq("orgId", organisation.orgId);
+        throw teamError;
+      }
+
+      const team = teamData[0];
+      localStorage.setItem("teamId", team.teamId);
+
+      //  create user
+
+      const { data: userData, error: userError } = await supabase
+        .from("User")
+        .insert([
+          {
+            name: values.userName,
+            email: values.email,
+            teamId: team.teamId,
+            isManager: true,
+            accruedLeave: 0,
+            usedLeave: 0,
+          },
+        ])
+        .select();
+
+      if (userError) {
+        await supabase.from("Team").delete().eq("teamId", team.teamId);
+
+        await supabase
+          .from("Organisation")
+          .delete()
+          .eq("orgId", organisation.orgId);
+        throw userError;
+      }
+
+      localStorage.setItem("userId", userData[0].userId);
+
+      router.push("/welcome");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
+  };
+
   return (
-    <div className="min-h-screen  flex flex-col justify-center items-center bg-gray-100">
-      <h2 className="text-xl font-bold mb-4 ">Welcome to Avkash</h2>
-
-      <div className="h-16 w-16 m-2">
-        <Image
-          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJgAAACUCAMAAABY3hBoAAAAhFBMVEX/AGb/////AGL/AGD/AGT/AFz/AF7/AFr/AFf/AFT/s8v/AFL/n7z/9fn/WYj/+/3/6e//x9n/MHH/XI7/0+H/fKX/7vT/zd3/JnP/J2z/3uj/qcL/bJj/lbP/wdX/Nnj/dJz/QX7/SHr/Yo3/FGz/h6r/TIb/AEr/5fD/uc7/AD//jaug8cW3AAACxUlEQVR4nO3Z23KbMBAGYFYHjgaBkcHGYOwYE6jf//0qSOM4aabTi85IM/2/m2Ry9c9qtZKI5wEAAAAAAAAAAAAAAAAAwP9BcJ/ZzvAd3p93mXAumpCblIiK3rFkQsykijinyRO2szwT4YaqMkkGTRtpO8wTfpiJSpOIX5U+2E7zgfUNVW0SCo9dqmZrO84HNlOx9briIviZCttpntXq5ToR7Xweu9VjdRqnpDOPbUntHdqVfmwm2CZgXjhTHNpO84T1Wpfc7MlSpS8OFcyMsSjiyw8zxXzbWb4hd1Qxpwr2hu0ral0sGD9S4dgJvmIZpZdfwQTj3JlFDQvarKOCyXC4XMvLEAbcgQrylvLl+OZeOy8XMyOt79dB2i6cOFFnOl/22kSqdFHoyvyimm4IrJZNZJQPwvPPRM1tH0VJEkVDeVxSzpnNaOaiaA4j1is6Ht5XT3A5XM1plcZDYC1YkNPIPL+hzeunv7NkOJo17TxuJ5cYVHVYzspp+7XZhRxPRHprp2g8Iy083tHx99Ev/NeL6bXOt7E/ebkG26w78zlTkoh+bNuzSXa0sQXEXqmt+FKxwMvup4oetI2rWtRQF5kbf/1YLxnetVpG2VTPcTyfdB7buHTzK6k2GHIq37YfEzdTqyZu9zIJAyllGCV2HgPmpZTefnSkkzXnwezE4jwEVjr+M2lGaXOe1i7jfUpNG3L7qRb+LjdTntQ9FP1E+uDOM46LnV4uFmezE05ufY+SLLsXU3annDmVyzBXV/+lUqWlo/GPzJitAzfa/jN+UzQ7t5TectO5VlT3zj3k2Nh1hZkbo2s1Y83bkX1zZ46tWJZW3a4tR9fan99pjqTvzHP3gc90c67vF7wi1/4HsWIj5ZHtEN8JzO3apY+dD35NrYsrKfrKsa+w74aTlVfaXwjtfaYAAAAAAAAAAAAAAAAAAPjnfgKmBCM0vVmVeQAAAABJRU5ErkJggg=="
-          alt="Logo"
-          height={64}
-          width={64}
-          className="h-16 w-16"
-        />
-      </div>
-
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-xl font-bold mb-4">Sign-Up for Avkash</h2>
-        <div className=" bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
-          <p className="font-bold">Caution:</p>
-          <p>Is your organization using slack? Caution content goes here</p>
-        </div>
-        <form>
-          <div className="mb-4">
-            <label htmlFor="firstName" className="block mb-1">
-              First Name
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              className="border border-gray-300 rounded-md p-2 w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="lastName" className="block mb-1">
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              className="border border-gray-300 rounded-md p-2 w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="companyName" className="block mb-1">
-              Company Name
-            </label>
-            <input
-              type="text"
-              id="companyName"
-              name="companyName"
-              className="border border-gray-300 rounded-md p-2 w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="email" className="block mb-1">
-              Work Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="border border-gray-300 rounded-md p-2 w-full"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md w-full"
-          >
-            Sign Up
-          </button>
-        </form>
-        <p>
-          Already an account <span className="text-blue-500">Sign-In</span>
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
+      <Typography.Title level={3}>Avkash</Typography.Title>
+      <Form layout="vertical" onFinish={onFinish}>
+        <Form.Item name="userName" label="User Name">
+          <Input placeholder="Enter user name" />
+        </Form.Item>
+        <Form.Item name="companyName" label="Comapany Name">
+          <Input placeholder="Enter company name" />
+        </Form.Item>
+        <Form.Item name="teamName" label="Team Name">
+          <Input placeholder="Enter team name" />
+        </Form.Item>
+        <Form.Item name="email" label="Working Email">
+          <Input type="email" placeholder="Enter mail id" />
+        </Form.Item>
+        <Form.Item style={{ textAlign: "center" }}>
+          <Button htmlType="submit" type="primary" danger>
+            Singup
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 }

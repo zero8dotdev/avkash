@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      height: {
+        "full-h-minus-header": "calc(100lvh - 64px)"
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -15,6 +18,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [ ],
+  plugins: [],
 };
 export default config;
