@@ -1,11 +1,19 @@
+import { CheckCircleOutlined, CloseSquareOutlined } from "@ant-design/icons";
 import {
-  CheckCircleOutlined,
-  CloseSquareOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Flex, Form, Input, Modal, Space, Tag, Typography } from "antd";
+  Button,
+  Card,
+  Checkbox,
+  ColorPicker,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Space,
+  
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -14,12 +22,26 @@ const supabase = createClient(
 
 const LeaveTypesSettings = () => {
   const [teamsData, setTeamData] = useState<any[]>([]);
-  const [isPaidModalOpen, setIsPaidModalOpen] = useState(false);
-  const [isSickModalOpen, setIsSickModalOpen] = useState(false);
-  const [isUnpaidModalOpen, setIsUnpaidModalOpen] = useState(false);
-  const [isPaidEditModalOpen, setIsPaidEditModalOpen] = useState(false);
-  const [isSickEditModalOpen, setIsSickEditModalOpen] = useState(false);
-  const [isUnpaidEditModalOpen, setIsUnpaidEditModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
+  const [leaveTypeData, setLeaveTypeData] = useState<any[]>([]);
+  const [selectedLeaveType, setSelectedLeaveType] = useState<any>("k");
+
+
+  const [form] = Form.useForm();
+  const fetchLeaveTypeData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("LeaveType")
+        .select("*")
+        .eq("orgId", "01bf568b-12a3-4bae-966b-36409729ab10");
+      if (data) {
+        setLeaveTypeData(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -37,32 +59,33 @@ const LeaveTypesSettings = () => {
   };
   useEffect(() => {
     fetchData();
+    fetchLeaveTypeData();
   }, []);
 
-  const handlePaidShowModal = () => {
-    setIsPaidModalOpen(true);
+  
+  const handleEditLeaveType = (name: any) => {
+    setIsModalOpen(true);
+    setSelectedLeaveType(name);
+    console.log(name)
   };
-  const handleSickShowModal = () => {
-    setIsSickModalOpen(true);
-  };
-  const handleUnpaidShowModal = () => {
-    setIsUnpaidModalOpen(true);
-  };
-  const handleCancel = () => {
-    setIsPaidModalOpen(false);
-    setIsSickModalOpen(false);
-    setIsUnpaidModalOpen(false);
+  const handleDisableLeaveType = (leaveType: any) => {
+    setSelectedLeaveType(leaveType);
+    setIsDisableModalOpen(true);
   };
 
-  const handlePaidEditShowModal = () => {
-    setIsPaidEditModalOpen(true);
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setIsDisableModalOpen(false);
   };
-  const handleSickEditShowModal = () => {
-    setIsSickEditModalOpen(true);
-  };
-  const handleUnpaidEditShowModal = () => {
-    setIsUnpaidEditModalOpen(true);
-  };
+  const handleOk=()=>{
+    setIsModalOpen(false)
+    form.submit();
+  }
+
+  const onFinish=(values:any)=>{
+    console.log(values)
+
+  }
 
   return (
     <Card title="Leave Types" className="w-5/12">
@@ -74,123 +97,65 @@ const LeaveTypesSettings = () => {
           In Active
         </Button>
       </Space>
-      <Card>
-        <Flex className="p-4 justify-between" gap={5}>
-          <Space>
-            <div className="bg-blue-900 rounded-full w-6 h-6" />
-            <Typography.Title level={5} className="mt-2">
-              Paid time Of
-            </Typography.Title>
-          </Space>
-          <Space>
-            <Button className="bg-pink-500 text-pink-50" onClick={handlePaidEditShowModal}>Edit</Button>
-            <Button
-              className="bg-pink-500 text-pink-50"
-              onClick={handlePaidShowModal}
+      {leaveTypeData.map((each) => {
+        return (
+          <Card key={each.leaveTypeId}>
+            <Flex justify="space-between">
+              <Space>
+                <div
+                  style={{
+                    backgroundColor: each.color === null ? "green" : "red",
+                    borderRadius: "50%",
+                    height: "25px",
+                    width: "25px",
+                  }}
+                />
+
+                <Typography.Title level={5} className="mt-2">
+                  {each.name}
+                </Typography.Title>
+              </Space>
+              <Space>
+                <Button onClick={() => handleEditLeaveType(each)}>Edit</Button>
+                <Button>Disable</Button>
+              </Space>
+            </Flex>
+
+            <Modal
+              open={isModalOpen}
+              title="Edit Leave Type"
+              onCancel={handleCancel}
+              onOk={handleOk}
             >
-              Disable
-            </Button>
-          </Space>
-        </Flex>
-        <Modal open={isPaidEditModalOpen} title="Edit Leave Type">
-           <Form>
-            <Form.Item label="Leave">
-            <Input/>
-            </Form.Item>
-
-           </Form>
-
-
-        </Modal>
-        <Modal
-          title="Are you sure you want ot disable Paid time off leave type?"
-          open={isPaidModalOpen}
-          onCancel={handleCancel}
-        >
-          <Typography.Paragraph>
-            The following teams will be affected if you disable Paid time of
-            leave type. Are you sure?
-          </Typography.Paragraph>
-          {teamsData.map((each) => {
-            return (
-              <>
-                <h1>{each.name}</h1>
-              </>
-            );
-          })}
-
-        </Modal>
-      </Card>
-      <Card>
-        <Flex className="p-4 justify-between" gap={5}>
-          <Space>
-            <div className="bg-yellow-500 rounded-full w-6 h-6" />
-            <Typography.Title level={5} className="mt-2">
-              Sick
-            </Typography.Title>
-          </Space>
-
-          <Space>
-            <Button className="bg-pink-500 text-pink-50" onClick={handleSickEditShowModal}>Edit</Button>
-            <Button
-              className="bg-pink-500 text-pink-50"
-              onClick={handleSickShowModal}
+              {selectedLeaveType && (
+                <Form name={each.name} onFinish={onFinish} form={form}>
+                  <Form.Item label="Leave Type Name" name="name">
+                    <Input value={selectedLeaveType.name} />
+                  </Form.Item>
+                  <Form.Item label="Leave Color" name="color" initialValue={"#000"}>
+                    <ColorPicker />
+                  </Form.Item>
+                  <Form.Item label="Enable in teams" name="teamsEnable" valuePropName="checked" initialValue={false}>
+                    <Checkbox />
+                  </Form.Item>
+                </Form>
+              )}
+            </Modal>
+            <Modal
+              open={isDisableModalOpen}
+              title="Disable Leave Type"
+              onCancel={handleCancel}
             >
-              Disable
-            </Button>
-          </Space>
-        </Flex>
-        <Modal
-          title="Are you sure you want ot disable sick leave type?"
-          open={isSickModalOpen}
-          onCancel={handleCancel}
-        >
-          <Typography.Paragraph>
-            The following teams will be affected if you disable Paid time of
-            leave type. Are you sure?
-          </Typography.Paragraph>
-          {teamsData.map((each) => {
-            return (
-              <>
-                <h1>{each.name}</h1>
-              </>
-            );
-          })}
-        </Modal>
-      </Card>
-      <Card>
-        <Flex className="p-4 flex-row justify-between" gap={5}>
-          <Space>
-            <div className="bg-red-500 rounded-full w-6 h-6" />
-            <Typography.Title level={5} className="mt-2">
-              Unpaid
-            </Typography.Title>
-          </Space>
-
-          <Space>
-            <Button className="bg-pink-500 text-pink-50" onClick={handleUnpaidEditShowModal}>Edit</Button>
-            <Button
-              className="bg-pink-500 text-pink-50"
-              onClick={handleUnpaidShowModal}
-            >
-              Disable
-            </Button>
-          </Space>
-        </Flex>
-        <Modal
-          title="Are you sure you want to disable Unpaid leave type?"
-          open={isUnpaidModalOpen}
-          onCancel={handleCancel}
-        >
-          <Typography.Paragraph>
-            The following teams will be affected if you disable Unpaid leave
-            type. Are you sure?
-          </Typography.Paragraph>
-          {teamsData.map((each) => (
-            <h1 key={each.id}>{each.name}</h1>
-          ))}
-        </Modal>
-      </Card>
+              {selectedLeaveType && (
+                <Typography>
+                  Are you sure you want to disable leave type
+                  {selectedLeaveType.name}
+                </Typography>
+              )}
+            </Modal>
+          </Card>
+        );
+      })}
     </Card>
   );
 };
