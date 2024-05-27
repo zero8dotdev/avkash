@@ -1,4 +1,4 @@
-CREATE  TABLE IF NOT EXISTS "OrgActivityLog2" (
+CREATE  TABLE IF NOT EXISTS "OrgActivityLog" (
     "id" SERIAL PRIMARY KEY,
     "orgId" UUID,
     "changedColumns" TEXT[],
