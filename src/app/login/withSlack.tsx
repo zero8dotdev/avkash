@@ -2,6 +2,7 @@
 
 import { createClient } from "@/app/_utils/supabase/client";
 import useAuthState from "@/app/_hooks/useAuthState";
+import { Button } from "antd";
 
 export default function WithSlack() {
   const [authState] = useAuthState();
@@ -22,12 +23,8 @@ export default function WithSlack() {
   };
 
   return (
-    <a
-      href="#"
-      onClick={authWithSlack}
-      className="w-[296px] block rounded-md p-2 text-white bg-pink-500"
-    >
+    <Button type="primary" onClick={authWithSlack} block>
       Sign In with Slack
-    </a>
+    </Button>
   );
 }
