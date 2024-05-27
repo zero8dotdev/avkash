@@ -1,6 +1,6 @@
 "use client";
 
-import { Row, Col, Modal, Segmented, List, Avatar, Button } from "antd";
+import { Row, Col, Modal, Segmented, List, Avatar, Button, Form, Input, ColorPicker, Checkbox } from "antd";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
@@ -25,7 +25,23 @@ const LeaveTypeEdit = ({
 }) => {
   const visible = !!item;
   return visible ? (
-    <Modal open={true} title={item.name} onCancel={() => onCancel()}></Modal>
+    <Modal open={true} title={`Edit ${item.name} Leave Type`} onCancel={() => onCancel()}>
+      <Form>
+        <Form.Item label="Leave Type name" >
+          <Input value={item.name}/>
+        </Form.Item>
+        <Form.Item label="Leave Color" >
+          <ColorPicker />
+        </Form.Item>
+        <Form.Item label="Leave Type Emoji">
+        <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+        </Form.Item>
+        <Form.Item label="Enabel in Temas">
+            <Checkbox />
+        </Form.Item>
+
+      </Form>
+    </Modal>
   ) : (
     false
   );
@@ -76,7 +92,7 @@ export default function Page() {
   // leve types
   const data = [
     { name: "Paid Leave", isActive: true },
-    { name: "Sick", isActive: false },
+    { name: "Sick", isActive: true },
   ];
 
   return (
