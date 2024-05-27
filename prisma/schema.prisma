@@ -17,7 +17,7 @@ model Organisation {
   leaveTypes                LeaveType[]
   leavePolicies             LeavePolicy[]
   holidays                  Holiday[]
-  visibiity                 Visibility    @default(SELF)
+  visibility                 Visibility    @default(SELF)
   startOfWorkWeek           DaysOfWeek    @default(MONDAY)
   workweek                  DaysOfWeek[]  @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
   timeZone                  String?       @db.VarChar(255)
@@ -67,8 +67,8 @@ model User {
 model Leave {
   leaveId    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   leaveType  String        @db.VarChar(255)
-  from       DateTime      @db.Timestamp
-  to         DateTime      @db.Timestamp
+  startDate       DateTime      @db.Timestamp
+  endDate         DateTime      @db.Timestamp
   duration   LeaveDuration
   shift      Shift
   isApproved LeaveStatus   @default(PENDING)
@@ -87,8 +87,8 @@ model LeavePolicy {
   leaveTypeId      String                   @db.Uuid
   unlimited        Boolean                  @default(false)
   maxLeaves        Int
-  accurals         Boolean                  @default(false)
-  accuralFrequency AccuralFrequencyOptions?
+  accruals         Boolean                  @default(false)
+  accrualFrequency AccuralFrequencyOptions?
   accrueOn         AccrueOnOptions?
   rollOver         Boolean                  @default(false)
   rollOverLimit    Int?
