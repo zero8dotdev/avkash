@@ -1,56 +1,93 @@
 "use client";
-import React, { useState } from "react";
-import { Tabs } from "antd";
+import React from "react";
+import { Row, Tabs, Col, Card } from "antd";
 import GeneralSettings from "./GeneralSettings";
 import BillingSettings from "./BillingSettings";
 import LeaveTypesSettings from "./LeaveTypesSettings";
 import TeamsSettings from "./TeamsSettings";
 import LocationsSettings from "./LocationsSettings";
+import LeaveTypes from "./leave-types/page";
 
 import type { TabsProps } from "antd";
 
 const onChange = (key: string) => {
   console.log(key);
 };
+
+const TabWrapper = ({
+  title,
+  children,
+}: {
+  title: String;
+  children: React.ReactElement;
+}) => {
+  return (
+    <Col span={18}>
+      <Card title={title}>{children}</Card>;
+    </Col>
+  );
+};
+
 const items: TabsProps["items"] = [
   {
     key: "1",
     label: "General",
-    children: <GeneralSettings />,
+    children: (
+      <TabWrapper title={"General"}>
+        <GeneralSettings />
+      </TabWrapper>
+    ),
   },
   {
     key: "2",
     label: "Billing",
-    children: <BillingSettings />,
+    children: (
+      <TabWrapper title="Billing">
+        <BillingSettings />
+      </TabWrapper>
+    ),
   },
   {
     key: "3",
     label: "Leave Types",
-    children: <LeaveTypesSettings />,
+    children: (
+      <TabWrapper title="Leave Types">
+        <LeaveTypes />
+      </TabWrapper>
+    ),
   },
   {
     key: "4",
     label: "Teams",
-    children: <TeamsSettings />,
+    children: (
+      <TabWrapper title="Teams">
+        <TeamsSettings />
+      </TabWrapper>
+    ),
   },
   {
     key: "5",
     label: "Locations",
-    children: <LocationsSettings />,
+    children: (
+      <TabWrapper title="Locations">
+        <LocationsSettings />
+      </TabWrapper>
+    ),
   },
 ];
 
 const SettingsPage: React.FC = () => {
   return (
-    <div className=" bg-white min-h-screen w-screen">
-      <Tabs
-        defaultActiveKey="1"
-        items={items}
-        onChange={onChange}
-        
-        className="w-full p-5"
-      />
-    </div>
+    <Row gutter={8} style={{ paddingTop: "24px" }}>
+      <Col span={20} push={4}>
+        <Tabs
+          tabPosition="left"
+          defaultActiveKey="1"
+          items={items}
+          onChange={onChange}
+        />
+      </Col>
+    </Row>
   );
 };
 
