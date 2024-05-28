@@ -1,14 +1,12 @@
 "use client";
-import { createClient } from "@supabase/supabase-js";
+
 import { Form, Input, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
 import useAuthState from "../_hooks/useAuthState";
+import { createClient } from "../_utils/supabase/client";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+const supabase = createClient();
 
 export default function Welcome() {
   const router = useRouter();

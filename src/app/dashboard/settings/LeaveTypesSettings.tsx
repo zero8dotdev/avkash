@@ -1,3 +1,4 @@
+import { createClient } from "@/app/_utils/supabase/client";
 import { CheckCircleOutlined, CloseSquareOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -12,12 +13,8 @@ import {
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+const supabase = createClient();
 
 const LeaveTypesSettings = () => {
   const [teamsData, setTeamData] = useState<any[]>([]);
