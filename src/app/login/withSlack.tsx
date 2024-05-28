@@ -8,6 +8,7 @@ export default function WithSlack() {
   const [authState] = useAuthState();
 
   const supabase = createClient();
+
   const authWithSlack = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "slack",
