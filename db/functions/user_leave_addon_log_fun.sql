@@ -6,9 +6,9 @@ BEGIN
     -- Check if the operation is an update
     IF TG_OP = 'UPDATE' THEN
         -- Check if accruedLeave has changed
-        IF OLD.accruedLeave IS DISTINCT FROM NEW.accruedLeave THEN
+        IF OLD."accruedLeave" IS DISTINCT FROM NEW."accruedLeave" THEN
             -- Insert log entry with complete old and new row
-            INSERT INTO "OrgActivityLog" (
+            INSERT INTO public."OrgActivityLog" (
                 "tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy", keyword
             ) VALUES (
                 tableName, 
