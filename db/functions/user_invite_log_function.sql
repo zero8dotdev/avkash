@@ -5,18 +5,32 @@ DECLARE
 BEGIN
     -- Check if the operation is an INSERT
     IF TG_OP = 'INSERT' THEN
-        -- Since it's an insert, old values do not exist (will be null)
-        INSERT INTO "OrgActivityLog" (
-            "tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy", keyword
-        ) VALUES (
-            tableName,
-            NEW."userId",
-            NULL,
-            NULL::jsonb,
-            row_to_json(NEW)::jsonb,
-            NEW."updatedBy",
-            'invitation'
-        );
+        -- Determine the keyword and insert accordingly
+        IF NEW.keyword = 'joined' THEN
+            INSERT INTO public."OrgActivityLog" (
+                "tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy", keyword
+            ) VALUES (
+                tableName,
+                NEW."userId",
+                NULL,
+                NULL::jsonb,
+                row_to_json(NEW)::jsonb,
+                NEW."updatedBy",
+                'joined'
+            );
+        ELSE
+            INSERT INTO public."OrgActivityLog" (
+                "tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy", keyword
+            ) VALUES (
+                tableName,
+                NEW."userId",
+                NULL,
+                NULL::jsonb,
+                row_to_json(NEW)::jsonb,
+                NEW."updatedBy",
+                'invitation'
+            );
+        END IF;
     END IF;
     RETURN NEW;
 END;

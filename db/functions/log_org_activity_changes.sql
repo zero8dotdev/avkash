@@ -1,6 +1,7 @@
 -- Function to log changes to the Organisation table
 CREATE OR REPLACE FUNCTION log_org_activity_changes() RETURNS TRIGGER AS
 $$
+
 DECLARE
     changedColumns TEXT[] := '{}';
     oldValues JSONB := '{}'::jsonb;
@@ -90,7 +91,7 @@ BEGIN
 
         -- Insert the log entry only if there are changes
         IF array_length(changedColumns, 1) > 0 THEN
-            INSERT INTO "OrgActivityLog" ("tableName", "orgId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
+            INSERT INTO public."OrgActivityLog" ("tableName", "orgId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
             VALUES (tableName, NEW."orgId", changedColumns, oldValues, newValues, NEW."updatedBy",'change');
         END IF;
     END IF;
