@@ -1,17 +1,30 @@
-"use client";
-
 import Link from "next/link";
-import { Layout } from "antd";
-const { Header: AntHeader } = Layout;
+import { Layout, Button, Space } from "antd";
+import Title from "antd/es/typography/Title";
+import LogoutButton from "./logout";
+import { Header } from "antd/es/layout/layout";
 
-export default function Header() {
+export default function AppHeader() {
   return (
-    <AntHeader
-      style={{ display: "flex", alignItems: "center", backgroundColor: "#fff" }}
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        backgroundColor: "#fff",
+      }}
     >
       <Link href="/">
-        <h1 className="text-red-500 text-lg">Avkash</h1>
+        <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
+          Avkash
+        </Title>
       </Link>
-    </AntHeader>
+      <Space>
+        <Link href="/login">
+          <Button type="primary">Sign up</Button>
+        </Link>
+        <LogoutButton />
+      </Space>
+    </Header>
   );
 }

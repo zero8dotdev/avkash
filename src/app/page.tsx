@@ -1,7 +1,9 @@
-export default function Home() {
+import { Row, Col } from "antd";
+
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Home page</h1>
-    </main>
+    <Row gutter={8}>
+      <Col span={24} style={{ textAlign: "center" }}></Col>
+    </Row>
   );
 }

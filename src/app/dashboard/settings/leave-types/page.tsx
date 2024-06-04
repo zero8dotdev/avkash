@@ -1,14 +1,23 @@
 "use client";
 
-import { Row, Col, Modal, Segmented, List, Avatar, Button, Form, Input, ColorPicker, Checkbox } from "antd";
+import {
+  Row,
+  Col,
+  Modal,
+  Segmented,
+  List,
+  Avatar,
+  Button,
+  Form,
+  Input,
+  ColorPicker,
+  Checkbox,
+} from "antd";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/app/_utils/supabase/client";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+const supabase = createClient();
 
 interface LeaveType {
   // define the leave type here as modeled in the backend
@@ -25,21 +34,24 @@ const LeaveTypeEdit = ({
 }) => {
   const visible = !!item;
   return visible ? (
-    <Modal open={true} title={`Edit ${item.name} Leave Type`} onCancel={() => onCancel()}>
+    <Modal
+      open={true}
+      title={`Edit ${item.name} Leave Type`}
+      onCancel={() => onCancel()}
+    >
       <Form>
-        <Form.Item label="Leave Type name" >
-          <Input value={item.name}/>
+        <Form.Item label="Leave Type name">
+          <Input value={item.name} />
         </Form.Item>
-        <Form.Item label="Leave Color" >
+        <Form.Item label="Leave Color">
           <ColorPicker />
         </Form.Item>
         <Form.Item label="Leave Type Emoji">
-        <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
+          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
         </Form.Item>
         <Form.Item label="Enabel in Temas">
-            <Checkbox />
+          <Checkbox />
         </Form.Item>
-
       </Form>
     </Modal>
   ) : (

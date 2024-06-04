@@ -1,10 +1,11 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  directUrl = env("")
+  url       = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"env
+  provider = "prisma-client-js"
 }
 
 model Organisation {
@@ -31,7 +32,6 @@ model Organisation {
   updatedBy                 String?       @db.VarChar(255)
   updatedOn                 DateTime?     @updatedAt @db.Timestamp
   halfDayLeave              Boolean       @default(false)
-
 }
 
 model Team {
