@@ -22,22 +22,18 @@ BEGIN
             newValues := jsonb_set(newValues, '{email}', to_jsonb(NEW.email));
         END IF;
 
-        IF OLD."teamId" IS DISTINCT FROM NEW."team_id" THEN
-            changedColumns := array_append(changedColumns, 'team_id');
-            oldValues := jsonb_set(oldValues, '{team_id}', to_jsonb(OLD."team_id"));
-            newValues := jsonb_set(newValues, '{team_id}', to_jsonb(NEW."team_id"));
-        END IF;
 
-        IF OLD."isManager" IS DISTINCT FROM NEW."is_manager" THEN
+
+        IF OLD."isManager" IS DISTINCT FROM NEW."isManager" THEN
             changedColumns := array_append(changedColumns, 'is_manager');
-            oldValues := jsonb_set(oldValues, '{is_manager}', to_jsonb(OLD."is_manager"));
-            newValues := jsonb_set(newValues, '{is_manager}', to_jsonb(NEW."is_manager"));
+            oldValues := jsonb_set(oldValues, '{is_manager}', to_jsonb(OLD."isManager"));
+            newValues := jsonb_set(newValues, '{is_manager}', to_jsonb(NEW."isManager"));
         END IF;
 
         -- Insert the log entry only if there are changes
         IF array_length(changedColumns, 1) > 0 THEN
-            INSERT INTO "OrgActivityLog" ("tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
-            VALUES (tableName, NEW."userId", changedColumns, oldValues, newValues, NEW."updated_by",'change');
+            INSERT INTO public."OrgActivityLog" ("tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
+            VALUES (tableName, NEW."userId", changedColumns, oldValues, newValues, NEW."updatedBy",'change');
         END IF;
     END IF;
 

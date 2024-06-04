@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION leave_log_fun() RETURNS TRIGGER AS
 $$
+
 DECLARE
     changedColumns TEXT[] := '{}';
     oldValues JSONB := '{}'::jsonb;
@@ -59,13 +60,14 @@ BEGIN
 
         -- Insert the log entry only if there are changes
         IF array_length(changedColumns, 1) > 0 THEN
-            INSERT INTO "OrgActivityLog" ("tableName", "userId", "teamId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
+            INSERT INTO public."OrgActivityLog" ("tableName", "userId", "teamId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
             VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, oldValues, newValues, NEW."updatedBy",'change');
         END IF;
     END IF;
 
     RETURN NEW;
 END;
+
 $$
 LANGUAGE plpgsql;
 
