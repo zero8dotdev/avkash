@@ -41,13 +41,14 @@ BEGIN
 
         -- Insert the log entry only if there are changes
         IF array_length(changedColumns, 1) > 0 THEN
-            INSERT INTO "OrgActivityLog" ("tableName", "orgId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
+            INSERT INTO public."OrgActivityLog" ("tableName", "orgId", "changedColumns", "oldValues", "newValues", "changedBy",keyword)
             VALUES (tableName, NEW."orgId", changedColumns, oldValues, newValues, NEW."updatedBy",'change');
         END IF;
     END IF;
 
     RETURN NEW;
 END;
+
 $$
 LANGUAGE plpgsql;
 

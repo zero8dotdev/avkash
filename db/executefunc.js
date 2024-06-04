@@ -3,16 +3,15 @@ const fs = require('fs');
 const path = require('path');
 
 // Create a PostgreSQL client
+
+const connectionString = 'postgres://postgres.iiqlttgnfgjnysnxogdj:ZS717M9lRl2Cxfeb@aws-0-ap-south-1.pooler.supabase.com:5432/postgres'; //change your database connection string
+
+// Create a PostgreSQL client using the connection string
 const client = new Client({
-  host: 'aws-0-ap-south-1.pooler.supabase.com',
-  port: 5432,
-  database: 'postgres',
-  user: 'postgres.onbovymkgwujcondznos',
-  password: '0emzAsaXZ9OBBEmV'
+  connectionString: connectionString
 });
 
 client.connect();
-
 const functionDir = 'db/functions';
 
 fs.readdir(functionDir, (err, files) => {

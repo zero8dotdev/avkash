@@ -1,10 +1,12 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
+  schemas  = ["public"]
 }
 
 model Organisation {
@@ -13,11 +15,7 @@ model Organisation {
   dateformat                String        @default("DD-MM-YYYY") @db.VarChar(255)
   timeformat                String        @default("HH:MM") @db.VarChar(255)
   location                  String?       @db.VarChar(255)
-  teams                     Team[]
-  leaveTypes                LeaveType[]
-  leavePolicies             LeavePolicy[]
-  holidays                  Holiday[]
-  visibility                 Visibility    @default(SELF)
+  visibility                Visibility    @default(SELF)
   startOfWorkWeek           DaysOfWeek    @default(MONDAY)
   workweek                  DaysOfWeek[]  @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY])
   timeZone                  String?       @db.VarChar(255)
@@ -26,60 +24,72 @@ model Organisation {
   notificationWeeklySummary Boolean       @default(false)
   notificationToWhom        Role          @default(MANAGER)
   ownerId                   String?       @db.Uuid
-  createdOn                 DateTime?     @default(now()) @db.Timestamp
+  createdOn                 DateTime?     @default(now()) @db.Timestamp(6)
   createdBy                 String?       @db.VarChar(255)
   updatedBy                 String?       @db.VarChar(255)
-  updatedOn                 DateTime?     @updatedAt @db.Timestamp
+  updatedOn                 DateTime?     @updatedAt @db.Timestamp(6)
   halfDayLeave              Boolean       @default(false)
-  
+  holidays                  Holiday[]
+  leavePolicies             LeavePolicy[]
+  leaveTypes                LeaveType[]
+  teams                     Team[]
+
+  @@schema("public")
 }
 
 model Team {
   teamId    String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String       @db.VarChar(255)
   orgId     String       @db.Uuid
-  org       Organisation @relation(fields: [orgId], references: [orgId])
-  users     User[]
   isActive  Boolean      @default(true)
   manager   String?      @db.Uuid
-  createdOn DateTime?    @default(now()) @db.Timestamp
+  createdOn DateTime?    @default(now()) @db.Timestamp(6)
   createdBy String?      @db.VarChar(255)
   updatedBy String?      @db.VarChar(255)
-  updatedOn DateTime?    @updatedAt @db.Timestamp
+  updatedOn DateTime?    @updatedAt @db.Timestamp(6)
+  org       Organisation @relation(fields: [orgId], references: [orgId])
+  users     User[]
+
+  @@schema("public")
 }
 
 model User {
   userId       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String    @db.VarChar(255)
   email        String    @unique @db.VarChar(255)
-  teamId       String    @db.Uuid
-  team         Team      @relation(fields: [teamId], references: [teamId])
+  teamId       String?   @db.Uuid
   isManager    Boolean   @default(false)
-  leaves       Leave[]
-  createdOn    DateTime? @default(now()) @db.Timestamp
+  createdOn    DateTime? @default(now()) @db.Timestamp(6)
   createdBy    String?   @db.VarChar(255)
   updatedBy    String?   @db.VarChar(255)
-  updatedOn    DateTime? @updatedAt @db.Timestamp
+  updatedOn    DateTime? @updatedAt @db.Timestamp(6)
   accruedLeave Int       @default(0)
   usedLeave    Int       @default(0)
+  keyword      String?   @db.VarChar
+  leaves       Leave[]
+  team         Team?     @relation(fields: [teamId], references: [teamId], onDelete: Restrict)
+
+  @@schema("public")
 }
 
 model Leave {
   leaveId    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   leaveType  String        @db.VarChar(255)
-  startDate       DateTime      @db.Timestamp
-  endDate         DateTime      @db.Timestamp
+  startDate  DateTime      @db.Timestamp(6)
+  endDate    DateTime      @db.Timestamp(6)
   duration   LeaveDuration
   shift      Shift
   isApproved LeaveStatus   @default(PENDING)
   userId     String        @db.Uuid
   teamId     String        @db.Uuid
-  user       User          @relation(fields: [userId], references: [userId])
   reason     String        @db.VarChar(255)
-  createdOn  DateTime?     @default(now()) @db.Timestamp
+  createdOn  DateTime?     @default(now()) @db.Timestamp(6)
   createdBy  String?       @db.VarChar(255)
   updatedBy  String?       @db.VarChar(255)
-  updatedOn  DateTime?     @updatedAt @db.Timestamp
+  updatedOn  DateTime?     @updatedAt @db.Timestamp(6)
+  user       User          @relation(fields: [userId], references: [userId])
+
+  @@schema("public")
 }
 
 model LeavePolicy {
@@ -93,14 +103,16 @@ model LeavePolicy {
   rollOver         Boolean                  @default(false)
   rollOverLimit    Int?
   orgId            String                   @db.Uuid
-  org              Organisation             @relation(fields: [orgId], references: [orgId])
-  rollOverExpiry   DateTime?                @db.Timestamp
+  rollOverExpiry   DateTime?                @db.Timestamp(6)
   autoApprove      Boolean                  @default(false)
   isActive         Boolean                  @default(true)
-  createdOn        DateTime?                @default(now()) @db.Timestamp
+  createdOn        DateTime?                @default(now()) @db.Timestamp(6)
   createdBy        String?                  @db.VarChar(255)
   updatedBy        String?                  @db.VarChar(255)
-  updatedOn        DateTime?                @updatedAt @db.Timestamp
+  updatedOn        DateTime?                @updatedAt @db.Timestamp(6)
+  org              Organisation             @relation(fields: [orgId], references: [orgId])
+
+  @@schema("public")
 }
 
 model LeaveType {
@@ -109,45 +121,71 @@ model LeaveType {
   color          String?      @db.VarChar(6)
   isActive       Boolean      @default(true)
   orgId          String       @db.Uuid
-  org            Organisation @relation(fields: [orgId], references: [orgId])
   setSlackStatus Boolean      @default(true)
-  emoji          String?      @db.Text
+  emoji          String?
   statusMsg      String?      @db.VarChar(255)
-  createdOn      DateTime?    @default(now()) @db.Timestamp
+  createdOn      DateTime?    @default(now()) @db.Timestamp(6)
   createdBy      String?      @db.VarChar(255)
   updatedBy      String?      @db.VarChar(255)
-  updatedOn      DateTime?    @updatedAt @db.Timestamp
+  updatedOn      DateTime?    @updatedAt @db.Timestamp(6)
+  org            Organisation @relation(fields: [orgId], references: [orgId])
+
+  @@schema("public")
 }
 
 model Holiday {
   holidayId   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String       @db.VarChar(255)
-  date        DateTime     @db.Timestamp
+  date        DateTime     @db.Timestamp(6)
   isRecurring Boolean      @default(true)
   isCustom    Boolean      @default(true)
   orgId       String       @db.Uuid
-  org         Organisation @relation(fields: [orgId], references: [orgId])
-  createdOn   DateTime?    @default(now()) @db.Timestamp
+  createdOn   DateTime?    @default(now()) @db.Timestamp(6)
   createdBy   String?      @db.VarChar(255)
   updatedBy   String?      @db.VarChar(255)
-  updatedOn   DateTime?    @updatedAt @db.Timestamp
+  updatedOn   DateTime?    @updatedAt @db.Timestamp(6)
+  org         Organisation @relation(fields: [orgId], references: [orgId])
+
+  @@schema("public")
+}
+
+model OrgActivityLog {
+  id             Int      @id @default(autoincrement())
+  orgId          String?  @db.Uuid
+  changedColumns String[]
+  oldValues      Json?
+  newValues      Json?
+  changedOn      DateTime @default(now()) @db.Timestamp(6)
+  changedBy      String?  @db.VarChar(255)
+  tableName      String?
+  teamId         String?  @db.Uuid
+  userId         String?  @db.Uuid
+  keyword        String?
+
+  @@schema("public")
 }
 
 enum LeaveDuration {
   FULL_DAY
   HALF_DAY
+
+  @@schema("public")
 }
 
 enum Shift {
   MORNING
   AFTERNOON
   NONE
+
+  @@schema("public")
 }
 
 enum Visibility {
   ORG
   TEAM
   SELF
+
+  @@schema("public")
 }
 
 enum DaysOfWeek {
@@ -158,6 +196,8 @@ enum DaysOfWeek {
   THURSDAY
   FRIDAY
   SATURDAY
+
+  @@schema("public")
 }
 
 enum AccuralFrequencyOptions {
@@ -166,21 +206,29 @@ enum AccuralFrequencyOptions {
   MONTHLY
   QUARTERLY
   HALF_YEARLY
+
+  @@schema("public")
 }
 
 enum AccrueOnOptions {
   BEGINNING
   END
+
+  @@schema("public")
 }
 
 enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
+
+  @@schema("public")
 }
 
 enum Role {
   OWNER
   MANAGER
   USER
+
+  @@schema("public")
 }
