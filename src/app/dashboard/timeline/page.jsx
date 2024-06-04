@@ -1,13 +1,9 @@
 "use client";
 import UserListItem from "./_components/UserListitem";
-import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
+import { createClient } from "@/app/_utils/supabase/client";
 
-const supabaseUrl = "https://gqlwyzhqwlsfzdiffyry.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxbHd5emhxd2xzZnpkaWZmeXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTIyMjM1NzgsImV4cCI6MjAyNzc5OTU3OH0.fbBOt2IpNcV7Or3d5dwVjRR11zA1CU6zq_06I9By_mQ";
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient();
 
 export default function Timeline() {
   const [teams, setTeams] = useState([]);
@@ -50,7 +46,7 @@ export default function Timeline() {
 
           if (data) {
             setTeamUsers(data);
-            console.log(data)
+            console.log(data);
           }
         } catch (error) {
           console.error("Error fetching team users:", error.message);
@@ -60,14 +56,11 @@ export default function Timeline() {
     fetchTeamUsers();
   }, [selectedTeamId]);
 
-
-  
-  console.log(teamUsers)
+  console.log(teamUsers);
 
   const handleTeamChange = (event) => {
     setSelectedTeamId(event.target.value);
   };
-  
 
   return (
     <div className="flex flex-col mx-3">
@@ -83,10 +76,8 @@ export default function Timeline() {
         <div>
           <select
             className="p-2 p-x-3 cursor-pointer border-sky-500 "
-            
             onChange={handleTeamChange}
           >
-            
             {teams.map((team) => (
               <option key={team.teamId} value={team.teamId}>
                 {team.name}
@@ -102,23 +93,17 @@ export default function Timeline() {
         </div>
       </div>
       <div>
-      <h1>Team List</h1>
-      
-        {teamUsers.map(each=>{
+        <h1>Team List</h1>
+
+        {teamUsers.map((each) => {
           return (
-           <ul key={each.userId} >
-            <li >{each.name}</li>
-            <li style={{marginLeft:'50px'}}>{each.email}</li>
-
-
-           </ul>
-          )
+            <ul key={each.userId}>
+              <li>{each.name}</li>
+              <li style={{ marginLeft: "50px" }}>{each.email}</li>
+            </ul>
+          );
         })}
-    </div>
-
-
-
-
+      </div>
 
       <div className="h-96 border-2"></div>
       <div className="h-auto border-2 my-2 flex justify-between align-middle">
