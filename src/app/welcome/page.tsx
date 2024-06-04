@@ -3,7 +3,6 @@
 import { Form, Input, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
-import useAuthState from "../_hooks/useAuthState";
 import { createClient } from "../_utils/supabase/client";
 
 const supabase = createClient();
@@ -11,9 +10,10 @@ const supabase = createClient();
 export default function Welcome() {
   const router = useRouter();
   const [form] = Form.useForm();
-  const [authState] = useAuthState();
+  // const [authState] = useAuthState();
 
-  console.log(authState?.user.user_metadata);
+  // console.log(authState?.user.user_metadata);
+
   const { state, dispatch } = useApplicationContext();
 
   const { orgId, teamId, userId } = state;

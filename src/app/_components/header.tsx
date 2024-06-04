@@ -1,24 +1,12 @@
-"use client";
-
 import Link from "next/link";
 import { Layout, Button, Space } from "antd";
-import { createClient } from "../_utils/supabase/client";
-const { Header: AntHeader } = Layout;
+import Title from "antd/es/typography/Title";
+import LogoutButton from "./logout";
+import { Header } from "antd/es/layout/layout";
 
-const supabase = createClient();
-
-export default function Header() {
-  const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      error && console.log(error);
-    } catch (error) {
-      console.log("Error while logging out ", error);
-    }
-  };
-
+export default function AppHeader() {
   return (
-    <AntHeader
+    <Header
       style={{
         display: "flex",
         justifyContent: "space-between",
@@ -27,22 +15,16 @@ export default function Header() {
       }}
     >
       <Link href="/">
-        <h1 className="text-red-500 text-lg">Avkash</h1>
+        <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
+          Avkash
+        </Title>
       </Link>
-      <Link href="/login">
-        <Space>
+      <Space>
+        <Link href="/login">
           <Button type="primary">Sign up</Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => {
-              logout();
-            }}
-          >
-            Logout
-          </Button>
-        </Space>
-      </Link>
-    </AntHeader>
+        </Link>
+        <LogoutButton />
+      </Space>
+    </Header>
   );
 }

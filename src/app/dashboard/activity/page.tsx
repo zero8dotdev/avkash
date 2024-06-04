@@ -1,34 +1,30 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { Timeline } from "antd";
-import useAuthState from "@/app/_hooks/useAuthState";
+
 import { createClient } from "@/app/_utils/supabase/client";
 
 const supabase = createClient();
 
 let data: any;
-const userId = "7f831705-d92e-41cd-958c-aea9a6c9f1be";
-const teamId = "c23f377e-6e55-4074-941d-e0ec3564299f";
-const orgId = "a8743afc-4ee0-4cd0-8f7f-48cb62d6688a";
 
 const App: React.FC = () => {
   const [activityLog, setActivityLog] = useState<any[]>([]);
-  const [session] = useAuthState();
 
   useEffect(() => {
     (async () => {
-      if (session?.user.id) {
-        const { data, error } = await supabase
-          .from("User")
-          .select("*")
-          .eq("user_id", "0295c33c-7f01-451e-b6fb-06d6c6dd2c6c");
-        if (error) {
-          console.log(error);
-        }
-        console.log(data);
-
-        // ab4cd0fd-82c1-4da9-9a00-380b460ef0a6
-      }
+      // if (session?.user.id) {
+      //   const { data, error } = await supabase
+      //     .from("User")
+      //     .select("*")
+      //     .eq("user_id", "ab4cd0fd-82c1-4da9-9a00-380b460ef0a6");
+      //   if (error) {
+      //     console.log(error);
+      //   }
+      //   console.log(data);
+      //   // ab4cd0fd-82c1-4da9-9a00-380b460ef0a6
+      // }
     })();
   });
 
