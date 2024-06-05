@@ -10,7 +10,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "node --env-file=.env.local db/executefunc.js"
+    "prisma": "npx dotenv -e .env.local -- npx prisma db push",
+    "trigger": "node --env-file=.env.local db/executefunc.js",
+    "setup": "npm run prisma && npm run trigger"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
@@ -42,6 +44,7 @@
     "@types/react-dom": "^18",
     "@types/react-select-country-list": "^2.2.3",
     "autoprefixer": "^10.0.1",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "pg": "^8.12.0",
