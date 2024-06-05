@@ -23,7 +23,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER leave_approved_log_trigger
+CREATE OR REPLACE TRIGGER leave_approved_log_trigger
 AFTER UPDATE ON "Leave"
 FOR EACH ROW
 EXECUTE FUNCTION leave_approved_log_fun();
