@@ -4,14 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  directUrl = env("")
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl   = env("DIRECT_URL")
+  schemas  = ["public"]
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
 
 model Organisation {
   orgId                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
