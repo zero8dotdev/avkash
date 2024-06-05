@@ -1,15 +1,12 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl   = env("DIRECT_URL")
-  schemas  = ["public"]
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
 
 model Organisation {
   orgId                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -35,7 +32,6 @@ model Organisation {
   leavePolicies             LeavePolicy[]
   leaveTypes                LeaveType[]
   teams                     Team[]
-  @@schema("public")
 }
 
 model Team {
@@ -50,8 +46,6 @@ model Team {
   updatedOn DateTime?    @updatedAt @db.Timestamp(6)
   org       Organisation @relation(fields: [orgId], references: [orgId])
   users     User[]
-
-  @@schema("public")
 }
 
 model User {
@@ -69,8 +63,6 @@ model User {
   keyword      String?   @db.VarChar
   leaves       Leave[]
   team         Team?     @relation(fields: [teamId], references: [teamId], onDelete: Restrict)
-
-  @@schema("public")
 }
 
 model Leave {
@@ -89,8 +81,6 @@ model Leave {
   updatedBy  String?       @db.VarChar(255)
   updatedOn  DateTime?     @updatedAt @db.Timestamp(6)
   user       User          @relation(fields: [userId], references: [userId])
-
-  @@schema("public")
 }
 
 model LeavePolicy {
@@ -112,8 +102,6 @@ model LeavePolicy {
   updatedBy        String?                  @db.VarChar(255)
   updatedOn        DateTime?                @updatedAt @db.Timestamp(6)
   org              Organisation             @relation(fields: [orgId], references: [orgId])
-
-  @@schema("public")
 }
 
 model LeaveType {
@@ -130,8 +118,6 @@ model LeaveType {
   updatedBy      String?      @db.VarChar(255)
   updatedOn      DateTime?    @updatedAt @db.Timestamp(6)
   org            Organisation @relation(fields: [orgId], references: [orgId])
-
-  @@schema("public")
 }
 
 model Holiday {
@@ -146,8 +132,6 @@ model Holiday {
   updatedBy   String?      @db.VarChar(255)
   updatedOn   DateTime?    @updatedAt @db.Timestamp(6)
   org         Organisation @relation(fields: [orgId], references: [orgId])
-
-  @@schema("public")
 }
 
 model OrgActivityLog {
@@ -162,31 +146,23 @@ model OrgActivityLog {
   teamId         String?  @db.Uuid
   userId         String?  @db.Uuid
   keyword        String?
-
-  @@schema("public")
 }
 
 enum LeaveDuration {
   FULL_DAY
   HALF_DAY
-
-  @@schema("public")
 }
 
 enum Shift {
   MORNING
   AFTERNOON
   NONE
-
-  @@schema("public")
 }
 
 enum Visibility {
   ORG
   TEAM
   SELF
-
-  @@schema("public")
 }
 
 enum DaysOfWeek {
@@ -197,8 +173,6 @@ enum DaysOfWeek {
   THURSDAY
   FRIDAY
   SATURDAY
-
-  @@schema("public")
 }
 
 enum AccuralFrequencyOptions {
@@ -207,29 +181,21 @@ enum AccuralFrequencyOptions {
   MONTHLY
   QUARTERLY
   HALF_YEARLY
-
-  @@schema("public")
 }
 
 enum AccrueOnOptions {
   BEGINNING
   END
-
-  @@schema("public")
 }
 
 enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
-
-  @@schema("public")
 }
 
 enum Role {
   OWNER
   MANAGER
   USER
-
-  @@schema("public")
 }
