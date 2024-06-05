@@ -10,7 +10,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "node --env-file=.env.local db/executefunc.js"
+    "prisma": "npx dotenv -e .env.local -- npx prisma db push",
+    "trigger": "node --env-file=.env.local db/executefunc.js",
+    "setup": "npm run prisma && npm run trigger"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
