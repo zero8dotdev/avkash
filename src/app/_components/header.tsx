@@ -16,7 +16,7 @@ export default function AppHeader() {
     >
       <Link href="/">
         <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
-          Avkash
+          avkash
         </Title>
       </Link>
       <Space>

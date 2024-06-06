@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { Roboto_Flex } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, Layout } from "antd";
 
@@ -7,7 +8,11 @@ import Header from "./_components/header";
 import Content from "./_components/content";
 import { ApplicationProvider } from "./_context/appContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto_Flex({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-roboto",
+});
 
 export const metadata: Metadata = {
   title: "Avkash | Make leave management easy for your teams",
@@ -21,7 +26,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body
+        style={{
+          margin: 0,
+          padding: 0,
+        }}
+      >
         <AntdRegistry>
           <ConfigProvider>
             <ApplicationProvider>
@@ -32,6 +42,7 @@ export default function RootLayout({
             </ApplicationProvider>
           </ConfigProvider>
         </AntdRegistry>
+        <Analytics />
       </body>
     </html>
   );
