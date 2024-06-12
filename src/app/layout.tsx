@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider, Layout } from "antd";
+
 import Header from "./_components/header";
+import Content from "./_components/content";
 import { ApplicationProvider } from "./_context/appContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,11 +21,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} text-black`}>
-        <ApplicationProvider>
-          <Header />
-          <main className="min-h-dvh bg-gray-100">{children}</main>
-        </ApplicationProvider>
+      <body>
+        <AntdRegistry>
+          <ConfigProvider>
+            <ApplicationProvider>
+              <Layout>
+                <Header />
+                <Content>{children}</Content>
+              </Layout>
+            </ApplicationProvider>
+          </ConfigProvider>
+        </AntdRegistry>
       </body>
     </html>
   );
