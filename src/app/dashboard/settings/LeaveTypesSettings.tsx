@@ -1,3 +1,4 @@
+import { createClient } from "@/app/_utils/supabase/client";
 import { CheckCircleOutlined, CloseSquareOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -9,16 +10,11 @@ import {
   Input,
   Modal,
   Space,
-  
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+const supabase = createClient();
 
 const LeaveTypesSettings = () => {
   const [teamsData, setTeamData] = useState<any[]>([]);
@@ -26,7 +22,6 @@ const LeaveTypesSettings = () => {
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [leaveTypeData, setLeaveTypeData] = useState<any[]>([]);
   const [selectedLeaveType, setSelectedLeaveType] = useState<any>("k");
-
 
   const [form] = Form.useForm();
   const fetchLeaveTypeData = async () => {
@@ -62,11 +57,10 @@ const LeaveTypesSettings = () => {
     fetchLeaveTypeData();
   }, []);
 
-  
   const handleEditLeaveType = (name: any) => {
     setIsModalOpen(true);
     setSelectedLeaveType(name);
-    console.log(name)
+    console.log(name);
   };
   const handleDisableLeaveType = (leaveType: any) => {
     setSelectedLeaveType(leaveType);
@@ -77,15 +71,14 @@ const LeaveTypesSettings = () => {
     setIsModalOpen(false);
     setIsDisableModalOpen(false);
   };
-  const handleOk=()=>{
-    setIsModalOpen(false)
+  const handleOk = () => {
+    setIsModalOpen(false);
     form.submit();
-  }
+  };
 
-  const onFinish=(values:any)=>{
-    console.log(values)
-
-  }
+  const onFinish = (values: any) => {
+    console.log(values);
+  };
 
   return (
     <Card title="Leave Types" className="w-5/12">
@@ -132,10 +125,19 @@ const LeaveTypesSettings = () => {
                   <Form.Item label="Leave Type Name" name="name">
                     <Input value={selectedLeaveType.name} />
                   </Form.Item>
-                  <Form.Item label="Leave Color" name="color" initialValue={"#000"}>
+                  <Form.Item
+                    label="Leave Color"
+                    name="color"
+                    initialValue={"#000"}
+                  >
                     <ColorPicker />
                   </Form.Item>
-                  <Form.Item label="Enable in teams" name="teamsEnable" valuePropName="checked" initialValue={false}>
+                  <Form.Item
+                    label="Enable in teams"
+                    name="teamsEnable"
+                    valuePropName="checked"
+                    initialValue={false}
+                  >
                     <Checkbox />
                   </Form.Item>
                 </Form>

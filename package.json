@@ -2,15 +2,23 @@
   "name": "avkash",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma": "npx dotenv -e .env.local -- npx prisma db push",
+    "trigger": "node --env-file=.env.local db/executefunc.js",
+    "setup": "npm run prisma && npm run trigger"
   },
   "dependencies": {
+    "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/icons": "^5.3.6",
-    "@prisma/client": "^5.11.0",
+    "@ant-design/nextjs-registry": "^1.0.0",
+    "@prisma/client": "^5.14.0",
     "@supabase/auth-helpers-nextjs": "^0.9.0",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.40.0",
@@ -36,10 +44,12 @@
     "@types/react-dom": "^18",
     "@types/react-select-country-list": "^2.2.3",
     "autoprefixer": "^10.0.1",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
+    "pg": "^8.12.0",
     "postcss": "^8",
-    "prisma": "^5.11.0",
+    "prisma": "^5.14.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

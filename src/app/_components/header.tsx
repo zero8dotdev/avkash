@@ -1,57 +1,30 @@
 import Link from "next/link";
-import Image from "next/image";
-import { createClient } from "@/app/_utils/supabase/server";
+import { Layout, Button, Space } from "antd";
+import Title from "antd/es/typography/Title";
+import LogoutButton from "./logout";
+import { Header } from "antd/es/layout/layout";
 
-export default async function Header() {
-  const supabase = createClient();
-  const session = await supabase.auth.getSession();
-
-  const rightMenu = !session ? (
-    <div className="w-[300px] flex flex-row-reverse gap-1">
-      <Link href="/login">
-        <button className="p-2 bg-sky-500 transition-colors hover:bg-sky-700 mr-2  text-white">
-          Login
-        </button>
-      </Link>
-      <Link
-        href="/signup"
-        className="p-2 bg-white transition-colors hover:bg-sky-100 border-2 border-sky-500"
-      >
-        Signup for free
-      </Link>
-    </div>
-  ) : (
-    <div className="w-[300px] flex flex-row-reverse gap-1">
-      <Image
-        src="https://lh3.google.com/u/0/ogw/AF2bZyh0K8u-8ihV-8IYLKSnRPhHx6FwrEjtXEtd4XTM=s32-c-mo"
-        height={36}
-        width={36}
-        alt="Ashutosh Tripathi"
-      />
-      {/* <Link href="/logout">
-        <button className="p-2 bg-white transition-colors hover:bg-sky-100 border-2 border-sky-500">
-          Logout
-        </button>
-      </Link> */}
-      <Link href="/signup">
-        <button className="p-2 bg-white transition-colors hover:bg-sky-100 border-2 border-sky-500">
-          Signup
-        </button>
-      </Link>
-      <Link href="/login">
-        <button className="p-2 bg-white transition-colors hover:bg-sky-100 border-2 border-sky-500">
-          Login
-        </button>
-      </Link>
-    </div>
-  );
-
+export default function AppHeader() {
   return (
-    <header className="h-16 flex justify-between items-center bg-white border-r-emerald-500 p-4 border-y">
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        backgroundColor: "#fff",
+      }}
+    >
       <Link href="/">
-        <h1 className="text-red-500 text-lg">Avkash</h1>
+        <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
+          Avkash
+        </Title>
       </Link>
-      {rightMenu}
-    </header>
+      <Space>
+        <Link href="/login">
+          <Button type="primary">Sign up</Button>
+        </Link>
+        <LogoutButton />
+      </Space>
+    </Header>
   );
 }

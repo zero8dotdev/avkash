@@ -1,18 +1,23 @@
 "use client";
 
 import { createClient } from "@/app/_utils/supabase/client";
-import useAuthState from "@/app/_hooks/useAuthState";
+import SlackButton from "./slackLogo";
 
 export default function WithSlack() {
-  const [authState] = useAuthState();
-
   const supabase = createClient();
+
   const authWithSlack = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const redirectTo = new URL(
+      process.env.NEXT_PUBLIC_REDIRECT_PATH_AFTER_OAUTH!,
+      window?.location.origin
+    ).toString();
+
+    console.log({ redirectTo });
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "slack",
       options: {
-        redirectTo: "https://flounder-wise-completely.ngrok-free.app/welcome",
-        scopes: "",
+        redirectTo,
       },
     });
 
@@ -21,13 +26,5 @@ export default function WithSlack() {
     }
   };
 
-  return (
-    <a
-      href="#"
-      onClick={authWithSlack}
-      className="w-[296px] block rounded-md p-2 text-white bg-pink-500"
-    >
-      Sign In with Slack
-    </a>
-  );
+  return <SlackButton onClick={authWithSlack} />;
 }
