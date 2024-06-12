@@ -15,6 +15,7 @@
     "setup": "npm run prisma && npm run trigger"
   },
   "dependencies": {
+    "@aldabil/react-scheduler": "^2.9.3",
     "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/icons": "^5.3.6",
     "@ant-design/nextjs-registry": "^1.0.0",
