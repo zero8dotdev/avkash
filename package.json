@@ -10,9 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma": "npx dotenv -e .env.local -- npx prisma db push",
-    "trigger": "node --env-file=.env.local db/executefunc.js",
-    "setup": "npm run prisma && npm run trigger"
+    "tables": "node --env-file=.env.local db/setup.js db/tables",
+    "functions": "node --env-file=.env.local db/setup.js db/functions",
+    "policies": "node --env-file=.env.local db/setup.js db/policies",
+    "setup": "npm run tables; npm run functions; npm run policies;"
   },
   "dependencies": {
     "@aldabil/react-scheduler": "^2.9.3",
@@ -51,7 +52,6 @@
     "eslint-config-next": "14.1.4",
     "pg": "^8.12.0",
     "postcss": "^8",
-    "prisma": "^5.14.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
