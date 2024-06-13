@@ -35,20 +35,20 @@ END;
 $$
 LANGUAGE plpgsql;
 
-create extension if not exists pg_cron with schema extensions;
+create extension if not exists pg_cron;
 
 grant usage on schema cron to postgres;
 grant all privileges on all tables in schema cron to postgres;
 
 select cron.schedule(
-  'monthly_start', 
-  '0 0 1 * *', 
-  $$ call calculate_accruals('MONTHLY'); $$ 
+  'monthly_start',
+  '0 0 1 * *',
+  $$ call calculate_accruals('MONTHLY'); $$
 );
 
 select cron.schedule(
-  'monthly_end', 
-  '0 0 28-31 * *', 
+  'monthly_end',
+  '0 0 28-31 * *',
   $$
   begin
     if (date_trunc('day', now()) = date_trunc('month', now()) + interval '1 month' - interval '1 day') then
@@ -59,17 +59,17 @@ select cron.schedule(
 );
 
 select cron.schedule(
-  'quarterly_start', 
-  '0 0 1 1,4,7,10 *', 
-  $$ call calculate_accruals('QUARTERLY'); $$ 
+  'quarterly_start',
+  '0 0 1 1,4,7,10 *',
+  $$ call calculate_accruals('QUARTERLY'); $$
 );
 
 select cron.schedule(
-  'quarterly_end', 
-  '0 0 28-31 3,6,9,12 *', 
+  'quarterly_end',
+  '0 0 28-31 3,6,9,12 *',
   $$
   begin
-    if (date_trunc('day', now()) = date_trunc('month', now()) + interval '1 month' - interval '1 day') and 
+    if (date_trunc('day', now()) = date_trunc('month', now()) + interval '1 month' - interval '1 day') and
        extract(month from now()) in (3, 6, 9, 12) then
       perform calculate_accruals('QUARTERLY');
     end if;
