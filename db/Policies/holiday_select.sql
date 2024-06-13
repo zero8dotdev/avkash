@@ -1,0 +1,17 @@
+DROP POLICY IF EXISTS "holiday_select" ON "public"."Holiday";
+
+-- Create a new policy for accessing team records
+CREATE POLICY "holiday_select" ON "public"."Holiday" FOR SELECT
+    TO PUBLIC
+    USING (
+        (
+            auth.role() = 'authenticated'::TEXT
+            AND (
+                -- Allow access if the user is a manager or user to see their org only
+                (
+                public.fetch_user_role(auth.uid()) IN ('MANAGER', 'USER','OWNER')
+                AND "orgId" = public.fetch_user_orgid(auth.uid())
+                )
+            )
+        )
+    );
