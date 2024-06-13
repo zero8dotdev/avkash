@@ -32,6 +32,7 @@ model Organisation {
   leavePolicies             LeavePolicy[]
   leaveTypes                LeaveType[]
   teams                     Team[]
+  users                     User[]
 }
 
 model Team {
@@ -49,20 +50,22 @@ model Team {
 }
 
 model User {
-  userId       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String    @db.VarChar(255)
-  email        String    @unique @db.VarChar(255)
-  teamId       String?   @db.Uuid
-  isManager    Boolean   @default(false)
-  createdOn    DateTime? @default(now()) @db.Timestamp(6)
-  createdBy    String?   @db.VarChar(255)
-  updatedBy    String?   @db.VarChar(255)
-  updatedOn    DateTime? @updatedAt @db.Timestamp(6)
-  accruedLeave Int       @default(0)
-  usedLeave    Int       @default(0)
-  keyword      String?   @db.VarChar
+  userId       String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String       @db.VarChar(255)
+  email        String       @unique @db.VarChar(255)
+  teamId       String?      @db.Uuid
+  role         Role         @default(USER)
+  createdOn    DateTime?    @default(now()) @db.Timestamp(6)
+  createdBy    String?      @db.VarChar(255)
+  updatedBy    String?      @db.VarChar(255)
+  updatedOn    DateTime?    @updatedAt @db.Timestamp(6)
+  accruedLeave Int          @default(0)
+  usedLeave    Int          @default(0)
+  keyword      String?      @db.VarChar
   leaves       Leave[]
-  team         Team?     @relation(fields: [teamId], references: [teamId], onDelete: Restrict)
+  team         Team?        @relation(fields: [teamId], references: [teamId], onDelete: Restrict)
+  orgId        String       @db.Uuid
+  org          Organisation @relation(fields: [orgId], references: [orgId])
 }
 
 model Leave {
@@ -198,4 +201,5 @@ enum Role {
   OWNER
   MANAGER
   USER
+  ANON
 }
