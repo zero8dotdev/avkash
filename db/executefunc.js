@@ -41,7 +41,7 @@ fs.readdir(functionDir, (err, files) => {
 
         if (queryCount === files.length) {
           client.end();
-          console.log("Your supabase is up and ready!");
+          console.log("Your Functions are up and ready!");
           process.exit(1);
         }
       });

@@ -14,7 +14,7 @@
     "table": "node --env-file=.env.local db/executetable.js",
     "trigger": "node --env-file=.env.local db/executefunc.js",
     "policy": "node --env-file=.env.local db/executepolicies.js",
-    "setup": "npm run table && npm run trigger && npm run policy"
+    "setup": "npm run table ; npm run trigger ; npm run policy"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
