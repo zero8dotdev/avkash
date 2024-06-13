@@ -32,16 +32,16 @@ fs.readdir(functionDir, (err, files) => {
 
       client.query(sql, (err, res) => {
         if (err) {
-          console.error(`Error executing function from file ${filePath}:`, err);
+          console.error(`Error creating tables from file ${filePath}:`, err);
           return;
         }
-        console.log(`Function from file ${filePath} executed successfully.`);
+        console.log(`Create Tables from file ${filePath} executed successfully.`);
 
         queryCount++;
 
         if (queryCount === files.length) {
           client.end();
-          console.log("Your supabase is up and ready!");
+          console.log("Your Tables are up and ready!");
           process.exit(1);
         }
       });
