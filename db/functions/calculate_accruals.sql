@@ -35,45 +35,50 @@ END;
 $$
 LANGUAGE plpgsql;
 
-create extension if not exists pg_cron;
+-- Create the pg_cron extension if it doesn't exist
+drop extension if exists pg_cron;
+
+-- Example: enable the "pg_cron" extension
+create extension pg_cron with schema extensions;
 
 grant usage on schema cron to postgres;
 grant all privileges on all tables in schema cron to postgres;
 
-select cron.schedule(
+-- Schedule the monthly accruals
+SELECT cron.schedule(
   'monthly_start',
   '0 0 1 * *',
-  $$ call calculate_accruals('MONTHLY'); $$
+  $$ CALL calculate_accruals('MONTHLY'); $$
 );
 
-select cron.schedule(
+SELECT cron.schedule(
   'monthly_end',
   '0 0 28-31 * *',
   $$
-  begin
-    if (date_trunc('day', now()) = date_trunc('month', now()) + interval '1 month' - interval '1 day') then
-      perform calculate_accruals('MONTHLY');
-    end if;
-  end;
+  BEGIN
+    IF (date_trunc('day', now()) = date_trunc('month', now()) + INTERVAL '1 month' - INTERVAL '1 day') THEN
+      PERFORM calculate_accruals('MONTHLY');
+    END IF;
+  END;
   $$
 );
 
-select cron.schedule(
+-- Schedule the quarterly accruals
+SELECT cron.schedule(
   'quarterly_start',
   '0 0 1 1,4,7,10 *',
-  $$ call calculate_accruals('QUARTERLY'); $$
+  $$ CALL calculate_accruals('QUARTERLY'); $$
 );
 
-select cron.schedule(
+SELECT cron.schedule(
   'quarterly_end',
   '0 0 28-31 3,6,9,12 *',
   $$
-  begin
-    if (date_trunc('day', now()) = date_trunc('month', now()) + interval '1 month' - interval '1 day') and
-       extract(month from now()) in (3, 6, 9, 12) then
-      perform calculate_accruals('QUARTERLY');
-    end if;
-  end;
+  BEGIN
+    IF (date_trunc('day', now()) = date_trunc('month', now()) + INTERVAL '1 month' - INTERVAL '1 day') AND
+       EXTRACT(month FROM now()) IN (3, 6, 9, 12) THEN
+      PERFORM calculate_accruals('QUARTERLY');
+    END IF;
+  END;
   $$
 );
-
