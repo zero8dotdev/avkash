@@ -21,9 +21,19 @@ const connectionString = process.env.DIRECT_URL;
   const dirPath = process.argv[2];
 
   try {
-    const sqlFiles = fs.readdirSync(dirPath);
+    const sqlFiles = fs.readdirSync(dirPath, { recursive: true });
+
+    let sqlFilesCount = sqlFiles.filter((fileName) =>
+      fileName.includes(".sql")
+    ).length;
+
     let queryCount = 0;
+
     sqlFiles.forEach((fileName) => {
+      if (fs.lstatSync(path.join(dirPath, fileName)).isDirectory()) {
+        return;
+      }
+
       try {
         const fileContent = fs.readFileSync(
           path.join(dirPath, fileName),
@@ -51,19 +61,21 @@ const connectionString = process.env.DIRECT_URL;
 
           queryCount++;
 
-          if (queryCount === sqlFiles.length) {
+          if (queryCount === sqlFilesCount) {
             client.end();
             console.log("Your Functions are up and ready!");
             process.exit(1);
           }
         });
       } catch (error) {
-        throw new Error(`Not able to read ${file} file.`);
+        throw error;
+        // throw new Error(`Not able to read ${file} file.`);
         process.exit(0);
       }
     });
   } catch (error) {
-    throw new Error(`Specified path ${dirPath} is not present.`);
+    throw error;
+    // throw new Error(`Specified path ${dirPath} is not present.`);
     client.end();
     process.exit(0);
   }

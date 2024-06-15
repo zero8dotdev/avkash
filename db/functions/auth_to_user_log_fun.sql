@@ -3,7 +3,7 @@ $$
 BEGIN
   -- First, try to update the row if it exists
   update public."User"
-  set "userId" = new.id, "isManager" = false, keyword = 'joined'
+  set "userId" = new.id, "role" = 'USER', keyword = 'joined'
   where email = new.email and name = new.raw_user_meta_data ->> 'name';
 
   -- Check if the row was updated
@@ -12,8 +12,8 @@ BEGIN
   end if;
 
   -- If the row was not found, insert a new row
-  insert into public."User" ("userId", name, email, "isManager",keyword)
-  values (new.id, new.raw_user_meta_data ->> 'name', new.email, true, 'joined');
+  insert into public."User" ("userId", name, email, "role",keyword)
+  values (new.id, new.raw_user_meta_data ->> 'name', new.email, 'OWNER', 'joined');
 
   return new;
 end;

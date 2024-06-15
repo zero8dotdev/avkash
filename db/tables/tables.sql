@@ -73,7 +73,7 @@ CREATE TABLE "User" (
     "accruedLeave" INT NOT NULL DEFAULT 0,
     "usedLeave" INT NOT NULL DEFAULT 0,
     "keyword" VARCHAR,
-    "orgId" UUID NOT NULL,
+    "orgId" UUID,
     CONSTRAINT "fk_user_team" FOREIGN KEY ("teamId") REFERENCES "Team"("teamId") ON DELETE RESTRICT,
     CONSTRAINT "fk_user_org" FOREIGN KEY ("orgId") REFERENCES "Organisation"("orgId")
 );
@@ -153,7 +153,7 @@ CREATE TABLE "Holiday" (
 CREATE TABLE "OrgActivityLog" (
     "id" SERIAL PRIMARY KEY,
     "orgId" UUID,
-    "changedColumns" TEXT[] NOT NULL,
+    "changedColumns" TEXT[],
     "oldValues" JSON,
     "newValues" JSON,
     "changedOn" TIMESTAMP(6) DEFAULT now(),
