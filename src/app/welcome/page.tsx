@@ -1,7 +1,8 @@
 "use client";
-
-import { Form, Input, Button } from "antd";
+import { useEffect } from "react";
+import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
 import { createClient } from "../_utils/supabase/client";
 
@@ -10,13 +11,27 @@ const supabase = createClient();
 export default function Welcome() {
   const router = useRouter();
   const [form] = Form.useForm();
-  // const [authState] = useAuthState();
-
-  // console.log(authState?.user.user_metadata);
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
 
   const { state, dispatch } = useApplicationContext();
-
   const { orgId, teamId, userId } = state;
+
+  // useEffect(() => {
+  //   (async () => {
+  //     if (code) {
+  //       const { data, error } = await supabase.auth.exchangeCodeForSession(
+  //         code
+  //       );
+
+  //       if (error) {
+  //         console.error(error);
+  //       }
+
+  //       console.log(data);
+  //     }
+  //   })();
+  // }, [code]);
 
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
@@ -79,28 +94,48 @@ export default function Welcome() {
     }
   };
 
+  const testSupabaseAuth = async () => {
+    const { data, error } = await supabase.from("Organisation").select("*");
+
+    console.log("Org data");
+    if (error) {
+      console.log(error);
+    }
+
+    console.log(data);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-      <h1 className="text-xl font-bold mb-4">Avkash</h1>
-      <Form form={form} layout="vertical" className="w-96" onFinish={onFinish}>
-        <Form.Item label="Your Name" name="name">
-          <Input type="text" placeholder="Your name"></Input>
-        </Form.Item>
-        <Form.Item label="Company Name" name="company">
-          <Input type="text" placeholder="Company name"></Input>
-        </Form.Item>
-        <Form.Item label="Team Name" name="team">
-          <Input type="text" placeholder="Default team name"></Input>
-        </Form.Item>
-        <Form.Item label="Work Email" name="email">
-          <Input type="text" placeholder="yourname@yourcompany.com"></Input>
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit" block type="primary">
-            Singup
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <Row gutter={8}>
+      <Col span={4} push={10}>
+        <Button type="primary" onClick={testSupabaseAuth}>
+          Test
+        </Button>
+        <Form
+          form={form}
+          layout="vertical"
+          className="w-96"
+          onFinish={onFinish}
+        >
+          <Form.Item label="Your Name" name="name">
+            <Input type="text" placeholder="Your name"></Input>
+          </Form.Item>
+          <Form.Item label="Company Name" name="company">
+            <Input type="text" placeholder="Company name"></Input>
+          </Form.Item>
+          <Form.Item label="Team Name" name="team">
+            <Input type="text" placeholder="Default team name"></Input>
+          </Form.Item>
+          <Form.Item label="Work Email" name="email">
+            <Input type="text" placeholder="yourname@yourcompany.com"></Input>
+          </Form.Item>
+          <Form.Item>
+            <Button htmlType="submit" block type="primary">
+              Singup
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+    </Row>
   );
 }
