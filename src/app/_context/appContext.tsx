@@ -6,9 +6,10 @@ interface ContextState {
   orgId: string;
   teamId: string;
   userId: string;
+  user: object | undefined;
 }
 
-type ActionTypes = "setUserId" | "setOrgId" | "setTeamId";
+type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
 
 interface Action {
   type: ActionTypes;
@@ -19,6 +20,7 @@ const INITIAL_STATE: ContextState = {
   orgId: "",
   teamId: "",
   userId: "",
+  user: undefined,
 };
 
 interface ApplicationContextType {
@@ -50,6 +52,11 @@ function applicationReducer(state: ContextState, action: Action) {
         userId: action.payload,
       };
 
+    case "setUser":
+      return {
+        ...state,
+        user: action.payload,
+      };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }

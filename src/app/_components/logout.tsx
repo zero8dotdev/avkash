@@ -14,9 +14,13 @@ export default function LogoutButton() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      console.log("Here", data);
-      setUser(data?.user);
+      // const { data } = await supabase.auth.getUser();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      console.log(session);
+
+      setUser(session?.user);
     })();
   }, []);
 
