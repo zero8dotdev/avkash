@@ -4,7 +4,7 @@ DECLARE
     changedColumns TEXT[] := '{}';
     oldValues JSONB := '{}'::jsonb;
     newValues JSONB := '{}'::jsonb;
-    tableName TEXT := TG_TABLE_NAME;  
+    tableName TEXT := TG_TABLE_NAME;
 
 BEGIN
     -- Check if the operation is an update
@@ -24,10 +24,10 @@ BEGIN
 
 
 
-        IF OLD."isManager" IS DISTINCT FROM NEW."isManager" THEN
-            changedColumns := array_append(changedColumns, 'is_manager');
-            oldValues := jsonb_set(oldValues, '{is_manager}', to_jsonb(OLD."isManager"));
-            newValues := jsonb_set(newValues, '{is_manager}', to_jsonb(NEW."isManager"));
+        IF OLD."role" IS DISTINCT FROM NEW."role" THEN
+            changedColumns := array_append(changedColumns, 'role');
+            oldValues := jsonb_set(oldValues, '{role}', to_jsonb(OLD."role"));
+            newValues := jsonb_set(newValues, '{role}', to_jsonb(NEW."role"));
         END IF;
 
         -- Insert the log entry only if there are changes

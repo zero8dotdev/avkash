@@ -12,8 +12,6 @@ export default function WithSlack() {
       window?.location.origin
     ).toString();
 
-    console.log({ redirectTo });
-
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "slack",
       options: {

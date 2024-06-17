@@ -1,19 +1,18 @@
 "use client";
-
-import { Form, Input, Button } from "antd";
+import { useEffect } from "react";
+import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
 import { createClient } from "../_utils/supabase/client";
-import { useEffect } from "react";
 
 const supabase = createClient();
 
 export default function Welcome() {
   const router = useRouter();
   const [form] = Form.useForm();
-  // const [authState] = useAuthState();
-
-  // console.log(authState?.user.user_metadata);
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
 
   const { state, dispatch } = useApplicationContext();
   const { orgId, teamId, userId, user } = state;
@@ -27,6 +26,22 @@ export default function Welcome() {
     form.setFieldValue("email",userEmail);
     form.setFieldValue("team",'Default');
   }, [form,userCompany,userEmail,userName]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     if (code) {
+  //       const { data, error } = await supabase.auth.exchangeCodeForSession(
+  //         code
+  //       );
+
+  //       if (error) {
+  //         console.error(error);
+  //       }
+
+  //       console.log(data);
+  //     }
+  //   })();
+  // }, [code]);
 
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
@@ -87,6 +102,17 @@ export default function Welcome() {
     } catch (error: any) {
       console.log(error.message);
     }
+  };
+
+  const testSupabaseAuth = async () => {
+    const { data, error } = await supabase.from("Organisation").select("*");
+
+    console.log("Org data");
+    if (error) {
+      console.log(error);
+    }
+
+    console.log(data);
   };
 
   return (
