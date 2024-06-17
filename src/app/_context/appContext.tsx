@@ -6,9 +6,16 @@ interface ContextState {
   orgId: string;
   teamId: string;
   userId: string;
+  user: {
+    user_metadata: {
+      full_name : string
+      email: string
+      avatar_url : string
+    } 
+}
 }
 
-type ActionTypes = "setUserId" | "setOrgId" | "setTeamId";
+type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
 
 interface Action {
   type: ActionTypes;
@@ -19,6 +26,13 @@ const INITIAL_STATE: ContextState = {
   orgId: "",
   teamId: "",
   userId: "",
+  user: {
+    user_metadata: {
+      full_name : '',
+      email: '',
+      avatar_url: 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-260nw-1365533969.jpg'
+    } 
+  }
 };
 
 interface ApplicationContextType {
@@ -48,6 +62,11 @@ function applicationReducer(state: ContextState, action: Action) {
       return {
         ...state,
         userId: action.payload,
+      };
+    case "setUser":
+      return {
+        ...state,
+        user: action.payload,
       };
 
     default: {

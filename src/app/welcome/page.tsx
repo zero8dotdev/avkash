@@ -4,6 +4,7 @@ import { Form, Input, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
 import { createClient } from "../_utils/supabase/client";
+import { useEffect } from "react";
 
 const supabase = createClient();
 
@@ -15,8 +16,17 @@ export default function Welcome() {
   // console.log(authState?.user.user_metadata);
 
   const { state, dispatch } = useApplicationContext();
+  const { orgId, teamId, userId, user } = state;
+  const userEmail = user?.user_metadata.email
+  const userName = user?.user_metadata.full_name
+  const userCompany = userEmail?.split('@')[1];
 
-  const { orgId, teamId, userId } = state;
+  useEffect(() => {
+    form.setFieldValue("name",userName);
+    form.setFieldValue("company",userCompany);
+    form.setFieldValue("email",userEmail);
+    form.setFieldValue("team",'Default');
+  }, [form,userCompany,userEmail,userName]);
 
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
@@ -36,7 +46,7 @@ export default function Welcome() {
 
       dispatch({ type: "setOrgId", payload: orgData[0].orgId });
 
-      const { data: teamData, error: teamError } = await supabase
+      const { data: teamData, dispatcherror: teamError } = await supabase
         .from("Team")
         .insert([
           {
@@ -83,16 +93,16 @@ export default function Welcome() {
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
       <h1 className="text-xl font-bold mb-4">Avkash</h1>
       <Form form={form} layout="vertical" className="w-96" onFinish={onFinish}>
-        <Form.Item label="Your Name" name="name">
+        <Form.Item label="Your Name" name="name" initialValue={userName}>
           <Input type="text" placeholder="Your name"></Input>
         </Form.Item>
-        <Form.Item label="Company Name" name="company">
+        <Form.Item label="Company Name" name="company" initialValue={userCompany}>
           <Input type="text" placeholder="Company name"></Input>
         </Form.Item>
-        <Form.Item label="Team Name" name="team">
+        <Form.Item label="Team Name" name="team" initialValue={'Default'}>
           <Input type="text" placeholder="Default team name"></Input>
         </Form.Item>
-        <Form.Item label="Work Email" name="email">
+        <Form.Item label="Work Email" name="email" initialValue={userEmail}>
           <Input type="text" placeholder="yourname@yourcompany.com"></Input>
         </Form.Item>
         <Form.Item>
