@@ -1,12 +1,10 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useApplicationContext } from "../_context/appContext";
 import { createClient } from "../_utils/supabase/client";
-
-const supabase = createClient();
 
 export default function Welcome() {
   const router = useRouter();
@@ -16,26 +14,27 @@ export default function Welcome() {
 
   const { state, dispatch } = useApplicationContext();
   const { orgId, teamId, userId } = state;
+  const [user, setUser] = useState<any | null | undefined>(null);
+  const supabase = createClient();
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (code) {
-  //       const { data, error } = await supabase.auth.exchangeCodeForSession(
-  //         code
-  //       );
+  useEffect(() => {
+    (async () => {
+      // const { data } = await supabase.auth.getUser();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      console.log(session);
+  
+      setUser(session);
+    })();
+  }, []);
 
-  //       if (error) {
-  //         console.error(error);
-  //       }
-
-  //       console.log(data);
-  //     }
-  //   })();
-  // }, [code]);
 
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
     try {
+
+      
       const { data: orgData, error: orgError } = await supabase
         .from("Organisation")
         .insert([

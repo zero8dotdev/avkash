@@ -1,7 +1,7 @@
 "use client";
 
 import { SettingOutlined } from "@ant-design/icons";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/app/_utils/supabase/client";
 import {
   Avatar,
   Button,
@@ -24,10 +24,7 @@ import React, { useEffect, useState } from "react";
 import Teams from "./_components/teams";
 import { Scheduler } from "@aldabil/react-scheduler";
 import { getRouteMatcher } from "next/dist/shared/lib/router/utils/route-matcher";
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
+const supabase = createClient();
 
 const Timeline = () => {
   const [teamData, setTeamData] = useState<any>([]);
@@ -39,48 +36,31 @@ const Timeline = () => {
   const [leaveType, setLeaveType] = useState<string>("paid of leave");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [leaves, setLeaves] = useState<any[]>([]);
-  const orgId = localStorage.getItem("orgId");
+  // const orgId = localStorage.getItem("orgId");
+  const orgId = "8e9c6e9d-853b-4820-a220-0dab3c19e735";
+  const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
+
 
   const fetchTeamsData = async () => {
-    try {
-      const { data } = await supabase
-        .from("Team")
-        .select("*")
-        .eq("orgId", orgId);
-       if(data){
-        setTeamData(data)
-       }
-    } catch {}
+    const { data, error } = await supabase.rpc("get_user_teams", {
+      id: userId,
+    });
+    if (error) {
+      console.error("Error invoking function:", error);
+    } else {
+      setTeamData(data);
+    }
   };
-  const fetchUsersData = async () => {
-    try {
-      // const { data } = await supabase.from("User").select("*");
-      // setUsers(data);
-      const { data, error } = await supabase.from("User").select(`
-      userId,
-      name,
-      email,
-      isManager,
-      createdOn,
-      createdBy,
-      updatedBy,
-      updatedOn,
-      accruedLeave,
-      usedLeave,
-      keyword,
-      teamId,
-      Team (
-        name
-      )
-    `);
 
-      if (error) {
-        console.error("Error fetching users with team:", error);
-        return;
-      }
-     setUsers(data)
-     
-    } catch {}
+  const fetchUsersData = async () => {
+    const { data, error } = await supabase.rpc("get_users_by_organization", {
+      id: userId,
+    });
+    if (error) {
+      console.error("Error invoking function:", error);
+    } else {
+      setUsers(data);
+    }
   };
 
   useEffect(() => {
@@ -88,53 +68,58 @@ const Timeline = () => {
     fetchUsersData();
   }, []);
 
-  const handleTeamSelect =async (teamId: string | null) => {
+  const handleTeamSelect = async (teamId: string | null) => {
     if (teamId) {
-      try{
-        const {data:team}=await supabase 
-        .from("Team")
-        .select("*")
-        .eq("teamId",teamId)
-        if(team){
-          setSelectedTeam(team)
+      try {
+        const { data: team, error: teamerror } = await supabase.rpc(
+          "get_team_by_id",
+          { id: teamId }
+        );
+        if (teamerror) {
+          console.log(teamerror);
+        } else {
+          setSelectedTeam(team);
         }
-        const {data:user}=await supabase 
-        .from("User")
-        .select("*")
-        .eq("teamId",teamId)
-        if(user){
-          setSelectedusers(user)
-        }
+        const { data: user, error: usererror } = await supabase.rpc(
+          "get_users_by_team_id",
+          { id: teamId }
+        );
 
-      }catch{}
-     
+        if (usererror) {
+          console.log(usererror);
+        } else {
+          setSelectedusers(user);
+        }
+      } catch {}
     } else {
       setSelectedTeam([]);
       setSelectedusers([]);
     }
   };
+
   const handleSelectUser = (userId: string | null) => {
-    
-    setUser(users.find((user: any) => user.userId === userId));
+    setUser(users.find((user: any) => user.userid === userId));
   };
 
   const onFinish = async (values: any) => {
     try {
-      const { data } = await supabase
-        .from("Leave")
-        .insert({
-          leaveType: values.leaveType,
-          isApproved: values.approve === true ? "APPROVED" : "PENDING",
-          startDate: new Date(values.dates[0].$d),
-          endDate: new Date(values.dates[1].$d),
-          userId: user.userId,
-          teamId: user.teamId,
-          reason: values.leaveRequestNote,
-          duration: "FULL_DAY",
-          shift: "NONE",
-        })
-        .select();
-      if (data) {
+      const { data, error } = await supabase.rpc('insert_new_leave', {
+        leavetype: values.leaveType,
+        startdate: new Date(values.dates[0].$d),
+        enddate: new Date(values.dates[1].$d),
+        duration: 'FULL_DAY',
+        shift: 'NONE',
+        isapproved: values.approve === true ? 'APPROVED' : 'PENDING',
+        userid: user.userid,
+        teamid: user.teamid,
+        reason: values.leaveRequestNote,
+        createdby: "",
+        updatedby: "",
+        orgid: orgId,
+      });
+      if (error) {
+        console.error("Error inserting leave:", error);
+      } else {
         setModal(false);
         setOpenDrawer(false);
       }
@@ -142,36 +127,23 @@ const Timeline = () => {
   };
 
   const fetchLeaves = async (selectedTeam: any) => {
-    
     try {
       if (selectedTeam && selectedTeam.length === 0) {
-        const { data, error } = await supabase.from("Leave").select(`
-          leaveId,
-          leaveType,
-          duration,
-          shift,
-          isApproved,
-          userId,
-          reason,
-          createdOn,
-          createdBy,
-          updatedBy,
-          updatedOn,
-          endDate,
-          startDate,
-          teamId,
-          User (
-            name
-          )
-        `);
-        if(data){
-          setLeaves(data)
+
+        const { data: allleaves, error: allleaveerror } = await supabase.rpc(
+          "get_leaves_by_user_org",
+          { id: userId }
+        );
+
+        if (allleaves) {
+          setLeaves(allleaves);
         }
       } else {
-        const { data: selectLeaves } = await supabase
-          .from("Leave")
-          .select("*")
-          .eq("teamId", selectedTeam[0].teamId);
+        const { data: selectLeaves, error: teamleaveerror } =
+          await supabase.rpc("get_leaves_by_team", {
+            id: selectedTeam[0].teamid,
+          });
+
         if (selectLeaves) {
           setLeaves(selectLeaves);
         }
@@ -179,20 +151,16 @@ const Timeline = () => {
     } catch {}
   };
 
- 
-
   const formattedLeaves = leaves.map((leave) => ({
-    event_id: leave.leaveId,
-    title:`${leave.leaveType}-${leave.User?.name}` ,
-    start: new Date(leave.startDate),
-    end: new Date(leave.endDate),
+    event_id: leave.leaveid,
+    title: `${leave.leavetype}-${leave.username}`,
+    start: new Date(leave.startdate),
+    end: new Date(leave.enddate),
     color: "#FFCCCC",
   }));
-  console.log(formattedLeaves)
   useEffect(() => {
     fetchLeaves(selectedTeam);
   }, [selectedTeam]);
- 
   return (
     <Flex vertical style={{ padding: "15px" }}>
       <Row gutter={24}>
@@ -209,7 +177,7 @@ const Timeline = () => {
           >
             <Select.Option value={null}>All Teams</Select.Option>
             {teamData.map((team: any) => (
-              <Select.Option key={team.teamId} value={team.teamId}>
+              <Select.Option key={team.teamid} value={team.teamid}>
                 {team.name}
               </Select.Option>
             ))}
@@ -218,10 +186,10 @@ const Timeline = () => {
         <Col span={3}>
           {selectedTeam && selectedTeam.length > 0
             ? selectedTeam.map((team: any) => (
-                <Teams key={team.teamId} team={team} />
+                <Teams key={team.teamid} team={team} />
               ))
             : teamData.map((team: any) => (
-                <Teams key={team.teamId} team={team} />
+                <Teams key={team.teamid} team={team} />
               ))}
         </Col>
         <Col span={21}>
@@ -247,13 +215,14 @@ const Timeline = () => {
         <Select style={{ width: "100%" }} onChange={handleSelectUser}>
           {selectedUsers && selectedUsers.length > 0
             ? selectedUsers.map((user: any) => (
-                <Select.Option key={user.userId} value={user.userId}>
+                <Select.Option key={user.userid} value={user.userid}>
                   {user.name}
                 </Select.Option>
               ))
             : users.map((user: any) => (
-                <Select.Option key={user.userId} value={user.userId}>
-                  {user.name}{"  "}({user.Team.name})
+                <Select.Option key={user.userid} value={user.userid}>
+                  {user.name}
+                  {"  "}({user.teamname})
                 </Select.Option>
               ))}
         </Select>
