@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, Button, Divider, Popover } from "antd";
-import { createClient } from "../_utils/supabase/client";
+import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
