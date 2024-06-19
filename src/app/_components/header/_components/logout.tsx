@@ -5,29 +5,37 @@ import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { useApplicationContext } from "../../../_context/appContext";
+import { parseCookies, destroyCookie } from 'nookies';
 
 const supabase = createClient();
 
 export default function LogoutButton() {
-  const [user, setUser] = useState<any | null>(null);
+  const { state, dispatch } = useApplicationContext();
+  const { user } = state;
   const router = useRouter();
-
   useEffect(() => {
     (async () => {
-      // const { data } = await supabase.auth.getUser();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      console.log(session);
-
-      setUser(session?.user);
+      const { data } = await supabase.auth.getUser();
+      console.log("Here", data);
+      if (data?.user) {
+        dispatch({ type: "setUser", payload: data.user.user_metadata });
+      }
     })();
   }, []);
 
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-      revalidatePath("/", "layout");
+      // revalidatePath("/", "layout");
+      const cookies = parseCookies();
+
+      Object.keys(cookies).forEach(cookieName => {
+        destroyCookie(null, cookieName);
+      });
+
+      dispatch({ type: "setUser", payload: null });
+      router.push('/login')
     } catch (error) {
       console.log("Error while logging out ", error);
     }
@@ -38,7 +46,7 @@ export default function LogoutButton() {
       <div style={{ width: "200px" }}>
         <div style={{ marginBottom: "5px" }}>
           <p style={{ margin: 0, padding: 0 }}>
-            {user?.user_metadata?.full_name}
+            {user?.full_name}
           </p>
           <p
             style={{
@@ -49,7 +57,7 @@ export default function LogoutButton() {
               color: "#ccc",
             }}
           >
-            {user?.user_metadata?.email}
+            {user?.email}
           </p>
         </div>
         <Divider style={{ margin: 0, padding: 0 }} />
@@ -70,10 +78,10 @@ export default function LogoutButton() {
 
     return (
       <Popover content={popoverContent} placement="bottomLeft">
-        <Avatar size="large" src={user?.user_metadata?.avatar_url} />
+        <Avatar size="large" src={user?.avatar_url } />
       </Popover>
     );
   } else {
-    return null;
+    return ;
   }
 }
