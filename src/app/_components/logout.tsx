@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { useApplicationContext } from "../_context/appContext";
+import { parseCookies, destroyCookie } from 'nookies';
+
 const supabase = createClient();
 
 export default function LogoutButton() {
@@ -17,7 +19,7 @@ export default function LogoutButton() {
       const { data } = await supabase.auth.getUser();
       console.log("Here", data);
       if (data?.user) {
-        dispatch({ type: "setUser", payload: data.user });
+        dispatch({ type: "setUser", payload: data.user.user_metadata });
       }
     })();
   }, []);
@@ -26,6 +28,12 @@ export default function LogoutButton() {
     try {
       await supabase.auth.signOut();
       // revalidatePath("/", "layout");
+      const cookies = parseCookies();
+
+      Object.keys(cookies).forEach(cookieName => {
+        destroyCookie(null, cookieName);
+      });
+
       dispatch({ type: "setUser", payload: null });
       router.push('/login')
     } catch (error) {
@@ -38,7 +46,7 @@ export default function LogoutButton() {
       <div style={{ width: "200px" }}>
         <div style={{ marginBottom: "5px" }}>
           <p style={{ margin: 0, padding: 0 }}>
-            {user?.user_metadata?.full_name}
+            {user?.full_name}
           </p>
           <p
             style={{
@@ -49,7 +57,7 @@ export default function LogoutButton() {
               color: "#ccc",
             }}
           >
-            {user?.user_metadata?.email}
+            {user?.email}
           </p>
         </div>
         <Divider style={{ margin: 0, padding: 0 }} />
@@ -70,7 +78,7 @@ export default function LogoutButton() {
 
     return (
       <Popover content={popoverContent} placement="bottomLeft">
-        <Avatar size="large" src={user?.user_metadata?.avatar_url } />
+        <Avatar size="large" src={user?.avatar_url } />
       </Popover>
     );
   } else {

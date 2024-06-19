@@ -2,17 +2,17 @@
 
 import { createContext, useContext, useReducer } from "react";
 
+interface User {
+  full_name: string;
+  email: string;
+  avatar_url : string
+}
+
 interface ContextState {
   orgId: string;
   teamId: string;
   userId: string;
-  user: {
-    user_metadata: {
-      full_name : string
-      email: string
-      avatar_url : string
-    } 
-}
+  user: User | undefined | null
 }
 
 type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
@@ -27,11 +27,9 @@ const INITIAL_STATE: ContextState = {
   teamId: "",
   userId: "",
   user: {
-    user_metadata: {
       full_name : '',
       email: '',
       avatar_url: 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-260nw-1365533969.jpg'
-    } 
   }
 };
 
