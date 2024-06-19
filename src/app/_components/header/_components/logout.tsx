@@ -5,7 +5,7 @@ import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { useApplicationContext } from "../_context/appContext";
+import { useApplicationContext } from "../../../_context/appContext";
 import { parseCookies, destroyCookie } from 'nookies';
 
 const supabase = createClient();
