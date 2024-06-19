@@ -41,6 +41,7 @@
     "timezone-support": "^3.1.0"
   },
   "devDependencies": {
+    "@emotion/styled": "^11.11.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-datepicker": "^6.2.0",
