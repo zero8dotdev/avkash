@@ -2,11 +2,17 @@
 
 import { createContext, useContext, useReducer } from "react";
 
+interface User {
+  full_name: string;
+  email: string;
+  avatar_url : string
+}
+
 interface ContextState {
   orgId: string;
   teamId: string;
   userId: string;
-  user: object | undefined;
+  user: User | undefined | null
 }
 
 type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
@@ -20,7 +26,11 @@ const INITIAL_STATE: ContextState = {
   orgId: "",
   teamId: "",
   userId: "",
-  user: undefined,
+  user: {
+      full_name : '',
+      email: '',
+      avatar_url: 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-260nw-1365533969.jpg'
+  }
 };
 
 interface ApplicationContextType {
@@ -50,6 +60,11 @@ function applicationReducer(state: ContextState, action: Action) {
       return {
         ...state,
         userId: action.payload,
+      };
+    case "setUser":
+      return {
+        ...state,
+        user: action.payload,
       };
 
     case "setUser":
