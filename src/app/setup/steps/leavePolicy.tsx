@@ -1,95 +1,191 @@
-import { Card, Flex, Form, InputNumber, Select, Switch } from "antd";
-import React from "react";
+import {
+  Card,
+  Flex,
+  Form,
+  InputNumber,
+  Select,
+  Switch,
+  List,
+  Space,
+  Divider,
+} from "antd";
+import Text from "antd/es/typography/Text";
+import React, { useEffect } from "react";
 
-const leaveTypes: string[] = ["paidOf", "sick"];
+const subSetting: React.CSSProperties = {
+  background: "#ccc",
+  padding: "5px",
+  borderRadius: "5px",
+};
 
-const LeavePolicy = ({ name }: { name: string }) => {
+const mainSectionHeading: React.CSSProperties = {
+  fontWeight: "400",
+};
 
+const mainSectionHelp: React.CSSProperties = {
+  color: "#ccc",
+};
 
-  const onFinish=(values:any)=>{
-    console.log(values)
+type LeavePolicyProps = {
+   leavePoliciesData:{
+  name: string;
+  color: string;
+  unlimited: boolean;
+  maxLeaves: number;
+  accurals: boolean;
+  rollover: boolean;
+  autoApprove: boolean;
+  isActive: boolean;
+  
+  }[];
+  setLeavePoliciesData:(data: {
+    name: string;
+    color: string;
+    unlimited: boolean;
+    maxLeaves: number;
+    accurals: boolean;
+    rollover: boolean;
+    autoApprove: boolean;
+    isActive: boolean;
+  }[]) => void 
+};
 
-  }
+const LeavePolicy: React.FC<LeavePolicyProps &{ index: number }> = ({
+  
+  leavePoliciesData,
+  setLeavePoliciesData,
+  index
+}) => {
+  const [form] = Form.useForm();
+  const {name,
+    accurals,
+    maxLeaves,
+    rollover,
+    autoApprove,
+    isActive,
+    unlimited,
+    }=leavePoliciesData[0]
 
+  useEffect(() => {
+    form.setFieldsValue({
+      name,
+      accurals,
+      maxLeaves,
+      rollover,
+      autoApprove,
+      isActive,
+      unlimited,
+    });
+  }, [
+    form,
+    name,
+    accurals,
+    maxLeaves,
+    rollover,
+    autoApprove,
+    isActive,
+    unlimited,
+  ]);
 
+  const onValuesChange = (changedFields: any, allFields: any) => {
+    console.log(changedFields, allFields);
+    const updatedLeavePoliciesData = [...leavePoliciesData];
+    updatedLeavePoliciesData[index] = allFields;
+    setLeavePoliciesData(updatedLeavePoliciesData);
+  };
 
   return (
-    <Card>
-      <Form layout="vertical" name={name} onFinish={onFinish}>
-        <Flex>
-          <div
-            style={{
-              height: "15px",
-              width: "15px",
-              margin: "6px 6px 0px 0px",
-              backgroundColor: "#34cfeb",
-              borderRadius: "50%",
-            }}
-          />
-          {name}
+    <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
+      <Card
+        style={{ minWidth: "400px" }}
+        title={
+          <Space>
+            <div
+              style={{
+                height: "15px",
+                width: "15px",
+                margin: "6px 6px 0px 0px",
+                backgroundColor: "#34cfeb",
+                borderRadius: "50%",
+              }}
+            />
+            {name}
+          </Space>
+        }
+      >
+        <Flex justify="space-between">
+          <Flex vertical>
+            <Text style={mainSectionHeading}>Unlimited</Text>
+            <Text style={mainSectionHelp}>Allow unlimited leave days</Text>
+          </Flex>
+          <Form.Item name="unlimited" valuePropName="checked">
+            <Switch />
+          </Form.Item>
         </Flex>
-        <Form.Item
-          name="Unlimited"
-          valuePropName="checked"
-          help="Allow unlimited leave days"
-        >
-          <Switch className="bg-purple-500 mr-3" />
-        </Form.Item>
-
-        <Form.Item label="Maximum 14 leave days per year" name="paidOfMaxleave">
-          <Select
-            style={{ width: "100px" }}
-            placeholder="select how many days you want"
-          >
-            {Array.from(Array(14).keys()).map((i) => (
-              <Select.Option key={i + 1} value={i + 1}>
-                {i + 1}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          name="paidOfAccruals"
-          valuePropName="checked"
-          extra="if you enable accruals,leave will be earned continuously over the year"
-          label="Accruels"
-        >
-          <Switch className="bg-purple-500 mr-3" />
-        </Form.Item>
-        <Form.Item
-          name="paidOfRollOver"
-          valuePropName="checked"
-          initialValue={false}
-          help=" Roll over will be enabled by default when using accruals."
-          label="Roll over unused leave to next year"
-        >
-          <Switch className="bg-purple-500 mr-2" />
-        </Form.Item>
-
-        <Form.Item
-          className="autoApproveLeave"
-          name="paidOfAutoApprove"
-          label="Auto approve each leave request"
-          initialValue={false}
-        >
-          <Switch className="bg-purple-500 mr-3" />
-        </Form.Item>
-      </Form>
-    </Card>
+        <Divider />
+        <Form.Item noStyle></Form.Item>
+        <Flex justify="space-between">
+          <Form.Item noStyle dependencies={["maxLeaves"]}>
+            {() => {
+              return (
+                <Text>{`Maximum ${
+                  form.getFieldValue("maxLeaves")
+                    ? form.getFieldValue("maxLeaves")
+                    : ""
+                } leave days in a year`}</Text>
+              );
+            }}
+          </Form.Item>
+          <Form.Item name="maxLeaves" rules={[{ min: 1, max: 365 }]}>
+            <InputNumber type="number" />
+          </Form.Item>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between">
+          <Text>Accurals</Text>
+          <Form.Item name="accurals" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between">
+          <Text>Rollover</Text>
+          <Form.Item name="rollover" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between">
+          <Text>Auto Approve</Text>
+          <Form.Item name="autoApprove" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Flex>
+      </Card>
+    </Form>
   );
 };
 
-interface props{
-  onClick:Function
-}
-const LeavePolicyPage =() => {
+
+const LeavePolicies: React.FC< LeavePolicyProps> = ({
+  leavePoliciesData,
+  setLeavePoliciesData,
+}) => {
   return (
-    <Flex gap={12}>
-      {leaveTypes.map((name: any) => (
-        <LeavePolicy key={name} name={name} />
-      ))}
+    <Flex vertical gap={12}>
+      <List
+        dataSource={leavePoliciesData}
+        renderItem={(item, index) => (
+          <LeavePolicy
+            key={index}
+            index={index}
+            leavePoliciesData={leavePoliciesData}
+            setLeavePoliciesData={setLeavePoliciesData}
+          />
+        )}
+      />
     </Flex>
   );
 };
 
-export default LeavePolicyPage;
+export default LeavePolicies;
