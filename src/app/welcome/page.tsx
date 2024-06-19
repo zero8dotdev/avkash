@@ -16,8 +16,8 @@ export default function Welcome() {
 
   const { state, dispatch } = useApplicationContext();
   const { orgId, teamId, userId, user } = state;
-  const userEmail = user?.user_metadata.email
-  const userName = user?.user_metadata.full_name
+  const userEmail = user?.email
+  const userName = user?.full_name
   const userCompany = userEmail?.split('@')[1];
 
   useEffect(() => {
@@ -43,66 +43,37 @@ export default function Welcome() {
   //   })();
   // }, [code]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values :any) => {
     const { name, company, team, email } = values;
     try {
-      const { data: orgData, error: orgError } = await supabase
-        .from("Organisation")
-        .insert([
-          {
-            name: company,
-          },
-        ])
-        .select();
-
-      if (orgError) {
-        throw orgError;
+      const { data, error } = await supabase
+        .rpc('create_org_team_user', {
+          org_name: company,
+          team_name: team,
+          user_name: name,
+          user_email: email,
+        });
+  
+      if (error) {
+        throw error;
       }
-
-      dispatch({ type: "setOrgId", payload: orgData[0].orgId });
-
-      const { data: teamData, dispatcherror: teamError } = await supabase
-        .from("Team")
-        .insert([
-          {
-            name: team,
-            orgId: orgData[0].orgId,
-          },
-        ])
-        .select();
-
-      if (teamData) {
-        dispatch({ type: "setTeamId", payload: teamData[0].teamId });
-
-        const { data: userData, error: userError } = await supabase
-          .from("User")
-          .insert([
-            {
-              name: name,
-              email: email,
-              teamId: teamData[0].teamId,
-              isManager: true,
-              accruedLeave: 0,
-              usedLeave: 0,
-            },
-          ])
-          .select();
-
-        if (userData) {
-          dispatch({ type: "setUserId", payload: userData[0].userId });
-          const { data, error } = await supabase
-            .from("Team")
-            .update({ manager: userData[0].userId })
-            .eq("teamId", userData[0].teamId);
-        }
+  
+      if (data) {
+        const [orgId, teamId, userId] = data;
+        dispatch({ type: 'setOrgId', payload: orgId });
+        dispatch({ type: 'setTeamId', payload: teamId });
+        dispatch({ type: 'setUserId', payload: userId });
       }
-
-      form.resetFields();
-      router.push("/welcome");
-    } catch (error: any) {
-      console.log(error.message);
+  
+    } catch (error :any) {
+      if (error.message === 'Organisation already exists') {
+        // Handle the specific error for existing organisation
+        alert('Organisation already exists. Please choose a different name.');
+      } else {
+        console.log(error.message);
+      }
     }
-  };
+  }; 
 
   const testSupabaseAuth = async () => {
     const { data, error } = await supabase.from("Organisation").select("*");
