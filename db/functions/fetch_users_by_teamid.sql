@@ -35,6 +35,6 @@ BEGIN
     WHERE 
         usr."teamId" = id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 -- SELECT * FROM get_users_by_team_id('2909f8de-fb83-41c4-86af-2e04948f5c47');

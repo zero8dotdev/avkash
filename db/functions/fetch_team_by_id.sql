@@ -27,6 +27,6 @@ BEGIN
     WHERE 
         team."teamId" = id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 -- SELECT * FROM get_team_by_id();
