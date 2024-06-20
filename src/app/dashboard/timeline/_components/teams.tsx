@@ -1,37 +1,90 @@
-"use client"
-
-import { createClient } from "@/app/_utils/supabase/client";
+"use client";
 import { Flex, Typography } from "antd";
 import { useEffect, useState } from "react";
-const supabase = createClient()
+import { createClient } from "@/app/_utils/supabase/client";
 
+// Initialize Supabase client
+const supabase = createClient();
 
-const Teams = ({ team}: any) => {
-  const {teamid,name}=team
-  const [users,setUsers]=useState<any[]>([])
-   useEffect(()=>{
+// Define Teams component
+const Teams = ({ team, role, visibility }: any) => {
+  const { teamid, name } = team;
+  const [users, setUsers] = useState<any[]>([]);
+  const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
+  // console.log(role, visibility, team);
+  useEffect(() => {
     const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .rpc('get_users_by_team_id', {"id":teamid });
-    if (error) {
-      console.error('Error invoking function:', error);
-    } else {
-      setUsers(data)
+      let data, error;
+      // console.log(visibility)
+      // console.log(role)
+      if (visibility === "ORG" || visibility === "TEAM") {
+
+          // Fetch users of this specific team for manager
+          const result = await supabase.rpc("get_users_by_team_id", {
+            id: teamid,
+          });
+          data = result.data;
+          // console.log("yes1", data);
+          error = result.error;
+      } else {
+        console.log("ye");
+
+        if  (role === "OWNER" || role === "MANAGER") {
+          console.log("vachindhi")
+          const result = await supabase.rpc("get_users_by_team_id", {
+            id: teamid,
+          });
+          data = result.data;
+          console.log("yes2", data);
+
+          error = result.error;
+        }else{
+        const result = await supabase.rpc("get_user_data_by_id", {
+          id: userId,
+        });
+        data = result.data;
+        console.log("yes3", data);
+
+        error = result.error;
+      }
     }
-  };
-     fetchUsers()
-   },[teamid])
-    return (
-      <Flex vertical>
-        <div style={{ border:'1px solid #afb0a9',borderRadius:'5px',textAlign:"center"}}><Typography.Title level={5} style={{marginTop:'2px'}}>{name}</Typography.Title></div>
-        {users.map((e: any) => {
-          return (
-            <div key={e.userid} style={{ border:'1px solid #afb0a9',borderRadius:'5px',padding:'5px'}}>
-              {e.name}
-            </div>
-          );
-        })}
-      </Flex>
-    );
-  };
-export default Teams
+      if (data && !error) {
+        // console.log(data)
+        setUsers(data);
+      } else {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, [teamid, role, visibility]);
+
+  return (
+    <Flex vertical>
+      <div
+        style={{
+          border: "1px solid #afb0a9",
+          borderRadius: "5px",
+          textAlign: "center",
+        }}
+      >
+        <Typography.Title level={5} style={{ marginTop: "2px" }}>
+          {name}
+        </Typography.Title>
+      </div>
+      {users.map((user: any) => (
+        <div
+          key={user.userId}
+          style={{
+            border: "1px solid #afb0a9",
+            borderRadius: "5px",
+            padding: "5px",
+          }}
+        >
+          {user.name}
+        </div>
+      ))}
+    </Flex>
+  );
+};
+
+export default Teams;
