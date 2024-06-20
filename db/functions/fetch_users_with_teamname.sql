@@ -35,6 +35,6 @@ BEGIN
     LEFT JOIN 
         "Team" team ON usr."teamId" = team."teamId";
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 -- SELECT * FROM get_users_with_teams();

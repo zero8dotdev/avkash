@@ -31,6 +31,6 @@ BEGIN
     WHERE 
         org."orgId" = (SELECT "orgId" FROM "User" WHERE "userId" = id);
 END;
-LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 -- SELECT * FROM get_user_teams('b44487bb-824c-4777-a983-eeb88fe16de5');

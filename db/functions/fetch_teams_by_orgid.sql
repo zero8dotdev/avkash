@@ -31,7 +31,7 @@ BEGIN
     WHERE 
         team."orgId" = id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 -- SELECT * FROM get_teams_by_org('5238f0a2-9e75-405c-bbbb-805f33032d49');
 

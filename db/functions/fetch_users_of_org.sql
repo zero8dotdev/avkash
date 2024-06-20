@@ -39,7 +39,7 @@ BEGIN
     WHERE 
         usr."orgId" = (SELECT "orgId" FROM "User" WHERE "userId" = id);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ SECURITY DEFINER;
 
 
 -- SELECT * FROM get_users_by_organization('b44487bb-824c-4777-a983-eeb88fe16de5');
