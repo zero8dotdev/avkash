@@ -43,7 +43,7 @@ export default function Welcome() {
   //   })();
   // }, [code]);
 
-  const onFinish = async (values :any) => {
+  const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
     try {
       const { data, error } = await supabase
@@ -53,19 +53,19 @@ export default function Welcome() {
           user_name: name,
           user_email: email,
         });
-  
       if (error) {
         throw error;
       }
   
       if (data) {
-        const [orgId, teamId, userId] = data;
-        dispatch({ type: 'setOrgId', payload: orgId });
-        dispatch({ type: 'setTeamId', payload: teamId });
-        dispatch({ type: 'setUserId', payload: userId });
+        const { org_id, team_id, user_id } = data;
+        dispatch({ type: 'setOrgId', payload: org_id });
+        dispatch({ type: 'setTeamId', payload: team_id });
+        dispatch({ type: 'setUserId', payload: user_id });
       }
   
-    } catch (error :any) {
+      router.push('/setup');
+    } catch (error:any) {
       if (error.message === 'Organisation already exists') {
         // Handle the specific error for existing organisation
         alert('Organisation already exists. Please choose a different name.');
@@ -73,7 +73,8 @@ export default function Welcome() {
         console.log(error.message);
       }
     }
-  }; 
+  };
+  
 
   const testSupabaseAuth = async () => {
     const { data, error } = await supabase.from("Organisation").select("*");
