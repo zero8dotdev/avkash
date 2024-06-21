@@ -4,6 +4,7 @@ RETURNS TABLE(
     name VARCHAR,
     email VARCHAR,
     teamId UUID,
+    teamName VARCHAR,
     role "Role",
     createdOn TIMESTAMP,
     createdBy VARCHAR,
@@ -21,6 +22,7 @@ BEGIN
         usr."name",
         usr."email",
         usr."teamId",
+        tm."name" AS "teamName",
         usr."role",
         usr."createdOn",
         usr."createdBy",
@@ -32,9 +34,13 @@ BEGIN
         usr."orgId"
     FROM 
         "User" usr
+    JOIN 
+        "Team" tm
+    ON 
+        usr."teamId" = tm."teamId"
     WHERE 
         usr."teamId" = id;
 END;
 $$ SECURITY DEFINER;
 
--- SELECT * FROM get_users_by_team_id('2909f8de-fb83-41c4-86af-2e04948f5c47');
+-- -- SELECT * FROM get_users_by_team_id('2909f8de-fb83-41c4-86af-2e04948f5c47');
