@@ -11,12 +11,10 @@ const Teams = ({ team, role, visibility }: any) => {
   const { teamid, name } = team;
   const [users, setUsers] = useState<any[]>([]);
   const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
-  // console.log(role, visibility, team);
   useEffect(() => {
     const fetchUsers = async () => {
       let data, error;
-      // console.log(visibility)
-      // console.log(role)
+
       if (visibility === "ORG" || visibility === "TEAM") {
 
           // Fetch users of this specific team for manager
@@ -24,18 +22,14 @@ const Teams = ({ team, role, visibility }: any) => {
             id: teamid,
           });
           data = result.data;
-          // console.log("yes1", data);
           error = result.error;
       } else {
-        console.log("ye");
 
         if  (role === "OWNER" || role === "MANAGER") {
-          console.log("vachindhi")
           const result = await supabase.rpc("get_users_by_team_id", {
             id: teamid,
           });
           data = result.data;
-          console.log("yes2", data);
 
           error = result.error;
         }else{
@@ -43,13 +37,11 @@ const Teams = ({ team, role, visibility }: any) => {
           id: userId,
         });
         data = result.data;
-        console.log("yes3", data);
 
         error = result.error;
       }
     }
       if (data && !error) {
-        // console.log(data)
         setUsers(data);
       } else {
         console.error("Error fetching users:", error);
@@ -73,7 +65,7 @@ const Teams = ({ team, role, visibility }: any) => {
       </div>
       {users.map((user: any) => (
         <div
-          key={user.userId}
+          key={user.userid}
           style={{
             border: "1px solid #afb0a9",
             borderRadius: "5px",

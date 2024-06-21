@@ -53,7 +53,7 @@ const Timeline = () => {
   const orgId = "8e9c6e9d-853b-4820-a220-0dab3c19e735";
   const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
   const teamId = "30928054-ef43-48c5-b7b7-57014144eefc";
-  const role = "USER";
+  const role = "MANAGER";
   const fetchVisibility = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_user_org_visibility", {
@@ -106,9 +106,9 @@ const Timeline = () => {
   const fetchUsersData = useCallback(async () => {
     try {
       const visibility = await fetchVisibility();
-
       if (visibility === "ORG") {
         if (role === "OWNER") {
+
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
             {
@@ -118,29 +118,32 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
           );
 
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
         } else {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
           );
 
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
         }
       } else if (visibility === "TEAM") {
+
         if (role === "OWNER") {
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
@@ -151,30 +154,34 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
           );
 
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
         } else {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
           );
 
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
         }
       } else {
+
         if (role === "OWNER") {
+
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
             {
@@ -184,17 +191,19 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
           );
 
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
         } else {
+
           const { data: user, error: usererror } = await supabase.rpc(
             "get_user_data_by_id",
             {
@@ -202,7 +211,7 @@ const Timeline = () => {
             }
           );
           if (usererror) {
-            console.log(usererror);
+            console.error(usererror);
           } else {
             setUsers(user);
           }
@@ -218,7 +227,9 @@ const Timeline = () => {
       const visibility = await fetchVisibility();
 
       if (role === "OWNER") {
-        if ((!selectedTeam || selectedTeam.length === 0)|| ((!selectedTeam || selectedTeam.length > 1))) {
+        
+        if ((!selectedTeam || selectedTeam.length === 0)|| ((selectedTeam.length > 1))) {
+
           const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
             "get_leaves_by_user_org",
             { id: userId }
@@ -226,6 +237,7 @@ const Timeline = () => {
           if (allLeaveError) throw allLeaveError;
           setLeaves(allLeaves);
         } else {
+
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: selectedTeam[0].teamid,
@@ -234,7 +246,9 @@ const Timeline = () => {
           setLeaves(selectLeaves);
         }
       } else if (role === "MANAGER") {
+
         if (!selectedTeam || selectedTeam.length === 0) {
+
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: teamId,
@@ -242,6 +256,7 @@ const Timeline = () => {
           if (teamLeaveError) throw teamLeaveError;
           setLeaves(selectLeaves);
         } else if (!selectedTeam || selectedTeam.length === 1) {
+
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: selectedTeam[0].teamid,
@@ -262,6 +277,7 @@ const Timeline = () => {
         if (visibility === "ORG" || visibility === "TEAM") {
 
           if (!selectedTeam || selectedTeam.length === 0) {
+
             const { data: selectLeaves, error: teamLeaveError } =
               await supabase.rpc("get_leaves_by_team", {
                 id: teamId,
@@ -303,16 +319,20 @@ const Timeline = () => {
     fetchTeamsData();
     fetchleavetypes();
     fetchUsersData();
-    fetchLeaves();
-
   }, [
-    fetchLeaves,
-    fetchVisibility,
-    fetchUserTeam,
-    fetchTeamsData,
-    fetchUsersData,
-    fetchleavetypes,
+    // fetchVisibility,
+    // fetchUserTeam,
+    // fetchTeamsData,
+    // fetchUsersData,
+    // fetchleavetypes,
   ]);
+
+  useEffect(() => {
+    fetchLeaves();
+  }, [
+    fetchLeaves
+  ]);
+
 
   const handleTeamSelect = async (teamId: string | null) => {
     if (!teamId) {
@@ -338,25 +358,23 @@ const Timeline = () => {
       } catch (error) {
         console.error("Error fetching teams and users data:", error);
       }
-      return;
-    }
-
-    try {
-      const [
-        { data: team, error: teamError },
-        { data: users, error: userError },
-      ] = await Promise.all([
-        supabase.rpc("get_team_by_id", { id: teamId }),
-        supabase.rpc("get_users_by_team_id", { id: teamId }),
-      ]);
-
-      if (teamError) throw teamError;
-      if (userError) throw userError;
-
-      setSelectedTeam(team);
-      setUsers(users);
-    } catch (error) {
-      console.error("Error handling team select:", error);
+    }else{
+      try {
+        const [
+          { data: team, error: teamError },
+          { data: users, error: userError },
+        ] = await Promise.all([
+          supabase.rpc("get_team_by_id", { id: teamId }),
+          supabase.rpc("get_users_by_team_id", { id: teamId }),
+        ]);
+  
+        if (teamError) throw teamError;
+        if (userError) throw userError;
+        setSelectedTeam(team);
+        setUsers(users);
+      } catch (error) {
+        console.error("Error handling team select:", error);
+      }
     }
   };
 
@@ -422,6 +440,7 @@ const Timeline = () => {
     }
     return false;
   }
+
   return (
     <Flex vertical style={{ padding: "15px" }}>
       <Row gutter={24}>
@@ -733,7 +752,7 @@ const Timeline = () => {
                 <Space direction="vertical">
                   {leavetypes ? (
                     leavetypes.map((each) => (
-                      <Radio key={each.leaveTypeId} value={each.name}>
+                      <Radio key={each.leavetypeid} value={each.name}>
                         {each.name}
                       </Radio>
                     ))
