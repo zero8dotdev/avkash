@@ -503,67 +503,6 @@ const Timeline = () => {
     fetchLeaves();
   }, [fetchLeaves]);
 
-  // const fetchUserTeams = async (userId:any) => {
-  //   const { data, error } = await supabaseAdmin
-  //     .from("Team")
-  //     .select(`
-  //       teamId,
-  //       name,
-  //       orgId,
-  //       isActive,
-  //       manager,
-  //       createdOn,
-  //       createdBy,
-  //       updatedBy,
-  //       updatedOn,
-  //       Organisation(name)
-  //     `)
-  //     .eq("orgId", supabaseAdmin
-  //         .from("User")
-  //         .select("orgId")
-  //         .eq("userId", userId)
-  //         .single());
-
-  //   if (error) throw error;
-
-  //   return data.map(team => ({
-  //     ...team,
-  //     orgName: team.Organisation.name,
-  //   }));
-  // };
-
-  // const fetchallUsersByOrganization = async (userId:any) => {
-  //   const { data, error } = await supabaseAdmin
-  //     .from("User")
-  //     .select(`
-  //       userId,
-  //       name,
-  //       email,
-  //       role,
-  //       createdOn,
-  //       createdBy,
-  //       updatedBy,
-  //       updatedOn,
-  //       accruedLeave,
-  //       usedLeave,
-  //       keyword,
-  //       teamId,
-  //       Team(name)
-  //     `)
-  //     .eq("orgId", supabaseAdmin
-  //         .from("User")
-  //         .select("orgId")
-  //         .eq("userId", userId)
-  //         .single());
-
-  //   if (error) throw error;
-
-  //   return data.map(user => ({
-  //     ...user,
-  //     teamName: user.Team?.name || null,
-  //   }));
-  // };
-
   const fetchUserTeams = async (userId: any) => {
     const { data: userOrgId, error: userError } = await supabaseAdmin
       .from("User")
