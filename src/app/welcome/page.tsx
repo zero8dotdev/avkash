@@ -27,22 +27,6 @@ export default function Welcome() {
     form.setFieldValue("team",'Default');
   }, [form,userCompany,userEmail,userName]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (code) {
-  //       const { data, error } = await supabase.auth.exchangeCodeForSession(
-  //         code
-  //       );
-
-  //       if (error) {
-  //         console.error(error);
-  //       }
-
-  //       console.log(data);
-  //     }
-  //   })();
-  // }, [code]);
-
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
     try {
