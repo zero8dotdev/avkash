@@ -1,9 +1,46 @@
 'use server'
 
+import supabaseAdmin from "@/app/_utils/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 export async function logoutAction() {
-    revalidatePath('/',"layout")
+    revalidatePath('/', "layout")
     redirect('/')
+}
+
+export async function getUserData(email: any) {
+    const { data: userData, error: userError } = await supabaseAdmin
+        .from("User")
+        .select('*')
+        .eq("email",'gnani@zero8.dev')
+    
+    if(userData){
+        return userData
+    }else{
+        return userError
+    }
+}
+
+export async function applyLeave(startDate: any, endDate: any, userId: any, teamId: any,orgId: any){
+    const { data } = await supabaseAdmin
+    .from("Leave")
+    .insert({
+      leaveType: 'sick',
+      isApproved: "PENDING",
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      userId,
+      teamId,
+      orgId,
+      reason: 'from slack chat app',
+      duration: "FULL_DAY",
+      shift: "NONE",
+    })
+    .select();
+  if (data) {
+    console.log('from aplyleave',data);  
+    return data  
+  }
+
 }
