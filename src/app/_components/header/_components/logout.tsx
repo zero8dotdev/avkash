@@ -4,9 +4,8 @@ import { Avatar, Button, Divider, Popover } from "antd";
 import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { useApplicationContext } from "../../../_context/appContext";
-import { parseCookies, destroyCookie } from 'nookies';
+import { logoutAction } from "./actions";
 
 const supabase = createClient();
 
@@ -27,15 +26,8 @@ export default function LogoutButton() {
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-      // revalidatePath("/", "layout");
-      const cookies = parseCookies();
-
-      Object.keys(cookies).forEach(cookieName => {
-        destroyCookie(null, cookieName);
-      });
-
+      logoutAction()
       dispatch({ type: "setUser", payload: null });
-      router.push('/login')
     } catch (error) {
       console.log("Error while logging out ", error);
     }
