@@ -1,6 +1,6 @@
 "use client";
 
-import { SettingOutlined} from "@ant-design/icons";
+import { SettingOutlined } from "@ant-design/icons";
 import { createClient } from "@/app/_utils/supabase/client";
 import {
   Avatar,
@@ -824,23 +824,23 @@ const Timeline = () => {
         setAllLeaveDrawerVisible={setAllLeaveDrawerVisible}
       />
       <Tabs
-      items={[
-        {
-          key:'1',
-          label:'Today',
-          children:'Today'
-        },
-        {
-          key:'2',
-          label:'Planned',
-          children:'Planned'
-        },
-        {
-          key:'3',
-          label:'Pending approval',
-          children:'pending approval'
-        }
-      ]}
+        items={[
+          {
+            key: "1",
+            label: "Today",
+            children: "Today",
+          },
+          {
+            key: "2",
+            label: "Planned",
+            children: "Planned",
+          },
+          {
+            key: "3",
+            label: "Pending approval",
+            children: "pending approval",
+          },
+        ]}
       />
     </Flex>
   );
