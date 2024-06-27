@@ -27,6 +27,7 @@ import Teams from "./_components/teams";
 import { Scheduler } from "@aldabil/react-scheduler";
 import AllLeavesDrawer from "./_components/allLeavesDrawer";
 import UserProfileDrawer from "./_components/UserProfileDrawer";
+import { useApplicationContext } from "@/app/_context/appContext";
 const supabase = createClient();
 
 interface Team {
@@ -45,7 +46,6 @@ const Timeline = () => {
   const [teamData, setTeamData] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [visibility, setVisibility] = useState("");
   const [userTeam, setUserTeam] = useState<Team | null>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
@@ -56,23 +56,12 @@ const Timeline = () => {
   const [allLeaveDrawerVisible, setAllLeaveDrawerVisible] = useState(false);
   const [userProfileDrawer, setUserProfileDrawer] = useState(false);
 
-  const orgId = "8e9c6e9d-853b-4820-a220-0dab3c19e735";
-  const userId = "38a0fdaa-99e2-4c9e-b854-95786e339b6f";
-  const teamId = "2909f8de-fb83-41c4-86af-2e04948f5c47";
-  const role = "USER";
-  const fetchVisibility = useCallback(async () => {
-    try {
-      const { data, error } = await supabase.rpc("get_user_org_visibility", {
-        id: userId,
-      });
-      if (error) throw error;
-      setVisibility(data);
-      return data;
-    } catch (error) {
-      console.error("Error fetching visibility:", error);
-    }
-  }, [userId]);
+  const { state: appState } = useApplicationContext();
+  const visibility = appState.org?.visibility;
+  const role = appState.user?.role;
+  const { userId, teamId, orgId } = appState;
 
+  // TODO: need to be removed, as app context already has this data
   const fetchUserTeam = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_team_by_id", {
@@ -97,6 +86,7 @@ const Timeline = () => {
     }
   }, [userId]);
 
+
   const fetchleavetypes = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_leave_types_by_user_id", {
@@ -111,7 +101,6 @@ const Timeline = () => {
 
   const fetchUsersData = useCallback(async () => {
     try {
-      const visibility = await fetchVisibility();
       if (visibility === "ORG") {
         if (role === "OWNER") {
           const { data, error } = await supabase.rpc(
@@ -303,7 +292,6 @@ const Timeline = () => {
 
   useEffect(
     () => {
-      fetchVisibility();
       fetchUserTeam();
       fetchTeamsData();
       fetchleavetypes();

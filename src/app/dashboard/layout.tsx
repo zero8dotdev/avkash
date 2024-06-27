@@ -9,12 +9,9 @@ export default async function DashboardLayout({
   const org = await fetchOrg(user.orgId);
   const team = await fetchTeam(user.teamId);
 
-  console.log("user in dashboard", user);
-  console.log("org in dashboard", org);
-  console.log("team in dashboard", team);
-
   return (
     <>
+      {/* this client side component is used to hydrate the application context */}
       <StoreToContext user={user} org={org} team={team} />
       <Row gutter={8} style={{ height: "calc(100vh - 64px)" }}>
         <Col span={24}>{children}</Col>

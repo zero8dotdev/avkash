@@ -4,11 +4,11 @@ import { createContext, useContext, useReducer } from "react";
 
 interface ContextState {
   orgId: string;
-  org: object | undefined;
+  org: { visibility: string } | undefined;
   team: object | undefined;
   teamId: string;
   userId: string;
-  user: object | undefined;
+  user: { role: string } | undefined;
 }
 
 type ActionTypes =
