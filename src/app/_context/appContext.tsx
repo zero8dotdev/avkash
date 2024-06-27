@@ -4,12 +4,20 @@ import { createContext, useContext, useReducer } from "react";
 
 interface ContextState {
   orgId: string;
+  org: object | undefined;
+  team: object | undefined;
   teamId: string;
   userId: string;
   user: object | undefined;
 }
 
-type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
+type ActionTypes =
+  | "setUserId"
+  | "setOrgId"
+  | "setTeamId"
+  | "setUser"
+  | "setOrg"
+  | "setTeam";
 
 interface Action {
   type: ActionTypes;
@@ -20,6 +28,8 @@ const INITIAL_STATE: ContextState = {
   orgId: "",
   teamId: "",
   userId: "",
+  team: undefined,
+  org: undefined,
   user: undefined,
 };
 
@@ -40,10 +50,24 @@ function applicationReducer(state: ContextState, action: Action) {
         orgId: action.payload,
       };
 
+    case "setOrg":
+      return {
+        ...state,
+        orgId: action.payload.orgId,
+        org: action.payload,
+      };
+
     case "setTeamId":
       return {
         ...state,
         teamId: action.payload,
+      };
+
+    case "setTeam":
+      return {
+        ...state,
+        teamId: action.payload.teamId,
+        team: action.payload,
       };
 
     case "setUserId":
@@ -55,6 +79,7 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setUser":
       return {
         ...state,
+        userId: action.payload.userId,
         user: action.payload,
       };
     default: {
