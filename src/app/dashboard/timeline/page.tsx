@@ -1,6 +1,6 @@
 "use client";
 
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined} from "@ant-design/icons";
 import { createClient } from "@/app/_utils/supabase/client";
 import {
   Avatar,
@@ -18,11 +18,15 @@ import {
   Select,
   Space,
   Switch,
+  Tabs,
+  Tag,
   Typography,
 } from "antd";
 import React, { useEffect, useState, useCallback } from "react";
 import Teams from "./_components/teams";
 import { Scheduler } from "@aldabil/react-scheduler";
+import AllLeavesDrawer from "./_components/allLeavesDrawer";
+import UserProfileDrawer from "./_components/UserProfileDrawer";
 const supabase = createClient();
 
 interface Team {
@@ -49,11 +53,13 @@ const Timeline = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [leaves, setLeaves] = useState<any[]>([]);
   const [leavetypes, setLeavetypes] = useState<any[]>([]);
+  const [allLeaveDrawerVisible, setAllLeaveDrawerVisible] = useState(false);
+  const [userProfileDrawer, setUserProfileDrawer] = useState(false);
 
   const orgId = "8e9c6e9d-853b-4820-a220-0dab3c19e735";
-  const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
-  const teamId = "30928054-ef43-48c5-b7b7-57014144eefc";
-  const role = "MANAGER";
+  const userId = "38a0fdaa-99e2-4c9e-b854-95786e339b6f";
+  const teamId = "2909f8de-fb83-41c4-86af-2e04948f5c47";
+  const role = "USER";
   const fetchVisibility = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_user_org_visibility", {
@@ -108,7 +114,6 @@ const Timeline = () => {
       const visibility = await fetchVisibility();
       if (visibility === "ORG") {
         if (role === "OWNER") {
-
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
             {
@@ -118,7 +123,6 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
@@ -130,7 +134,6 @@ const Timeline = () => {
             setUsers(user);
           }
         } else {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
@@ -143,7 +146,6 @@ const Timeline = () => {
           }
         }
       } else if (visibility === "TEAM") {
-
         if (role === "OWNER") {
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
@@ -154,7 +156,6 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
@@ -166,7 +167,6 @@ const Timeline = () => {
             setUsers(user);
           }
         } else {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
@@ -179,9 +179,7 @@ const Timeline = () => {
           }
         }
       } else {
-
         if (role === "OWNER") {
-
           const { data, error } = await supabase.rpc(
             "get_users_by_organization",
             {
@@ -191,7 +189,6 @@ const Timeline = () => {
           if (error) throw error;
           setUsers(data);
         } else if (role === "MANAGER") {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_users_by_team_id",
             { id: teamId }
@@ -203,7 +200,6 @@ const Timeline = () => {
             setUsers(user);
           }
         } else {
-
           const { data: user, error: usererror } = await supabase.rpc(
             "get_user_data_by_id",
             {
@@ -227,9 +223,11 @@ const Timeline = () => {
       const visibility = await fetchVisibility();
 
       if (role === "OWNER") {
-        
-        if ((!selectedTeam || selectedTeam.length === 0)|| ((selectedTeam.length > 1))) {
-
+        if (
+          !selectedTeam ||
+          selectedTeam.length === 0 ||
+          selectedTeam.length > 1
+        ) {
           const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
             "get_leaves_by_user_org",
             { id: userId }
@@ -237,7 +235,6 @@ const Timeline = () => {
           if (allLeaveError) throw allLeaveError;
           setLeaves(allLeaves);
         } else {
-
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: selectedTeam[0].teamid,
@@ -246,9 +243,7 @@ const Timeline = () => {
           setLeaves(selectLeaves);
         }
       } else if (role === "MANAGER") {
-
         if (!selectedTeam || selectedTeam.length === 0) {
-
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: teamId,
@@ -256,7 +251,6 @@ const Timeline = () => {
           if (teamLeaveError) throw teamLeaveError;
           setLeaves(selectLeaves);
         } else if (!selectedTeam || selectedTeam.length === 1) {
-
           const { data: selectLeaves, error: teamLeaveError } =
             await supabase.rpc("get_leaves_by_team", {
               id: selectedTeam[0].teamid,
@@ -264,7 +258,6 @@ const Timeline = () => {
           if (teamLeaveError) throw teamLeaveError;
           setLeaves(selectLeaves);
         } else {
-
           const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
             "get_leaves_by_user_org",
             { id: userId }
@@ -273,11 +266,8 @@ const Timeline = () => {
           setLeaves(allLeaves);
         }
       } else {
-
         if (visibility === "ORG" || visibility === "TEAM") {
-
           if (!selectedTeam || selectedTeam.length === 0) {
-
             const { data: selectLeaves, error: teamLeaveError } =
               await supabase.rpc("get_leaves_by_team", {
                 id: teamId,
@@ -285,7 +275,6 @@ const Timeline = () => {
             if (teamLeaveError) throw teamLeaveError;
             setLeaves(selectLeaves);
           } else if (!selectedTeam || selectedTeam.length === 1) {
-
             const { data: selectLeaves, error: teamLeaveError } =
               await supabase.rpc("get_leaves_by_team", {
                 id: selectedTeam[0].teamid,
@@ -293,18 +282,18 @@ const Timeline = () => {
             if (teamLeaveError) throw teamLeaveError;
             setLeaves(selectLeaves);
           } else {
-
             const { data: allLeaves, error: allLeaveError } =
               await supabase.rpc("get_leaves_by_user_org", { id: userId });
             if (allLeaveError) throw allLeaveError;
             setLeaves(allLeaves);
           }
         } else {
-
-          const { data: allLeaves, error: allLeaveError } =
-              await supabase.rpc("get_leaves_by_user_id", { id: userId });
-            if (allLeaveError) throw allLeaveError;
-            setLeaves(allLeaves);
+          const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
+            "get_leaves_by_user_id",
+            { id: userId }
+          );
+          if (allLeaveError) throw allLeaveError;
+          setLeaves(allLeaves);
         }
       }
     } catch (error) {
@@ -312,27 +301,26 @@ const Timeline = () => {
     }
   }, [selectedTeam, userId]);
 
-
-  useEffect(() => {
-    fetchVisibility();
-    fetchUserTeam();
-    fetchTeamsData();
-    fetchleavetypes();
-    fetchUsersData();
-  }, [
-    // fetchVisibility,
-    // fetchUserTeam,
-    // fetchTeamsData,
-    // fetchUsersData,
-    // fetchleavetypes,
-  ]);
+  useEffect(
+    () => {
+      fetchVisibility();
+      fetchUserTeam();
+      fetchTeamsData();
+      fetchleavetypes();
+      fetchUsersData();
+    },
+    [
+      // fetchVisibility,
+      // fetchUserTeam,
+      // fetchTeamsData,
+      // fetchUsersData,
+      // fetchleavetypes,
+    ]
+  );
 
   useEffect(() => {
     fetchLeaves();
-  }, [
-    fetchLeaves
-  ]);
-
+  }, [fetchLeaves]);
 
   const handleTeamSelect = async (teamId: string | null) => {
     if (!teamId) {
@@ -358,7 +346,7 @@ const Timeline = () => {
       } catch (error) {
         console.error("Error fetching teams and users data:", error);
       }
-    }else{
+    } else {
       try {
         const [
           { data: team, error: teamError },
@@ -367,7 +355,7 @@ const Timeline = () => {
           supabase.rpc("get_team_by_id", { id: teamId }),
           supabase.rpc("get_users_by_team_id", { id: teamId }),
         ]);
-  
+
         if (teamError) throw teamError;
         if (userError) throw userError;
         setSelectedTeam(team);
@@ -409,13 +397,12 @@ const Timeline = () => {
     }
   };
 
-
   const formattedLeaves = leaves.map((leave) => ({
     event_id: leave.leaveid,
     title: `${leave.leavetype} - ${leave.username}`,
     start: new Date(leave.startdate),
     end: new Date(leave.enddate),
-    color: "#FFCCCC",
+    color: leave.leavetype === "sick leave" ? "blue" : "red",
   }));
 
   const canAddLeave = (user: any) => {
@@ -431,24 +418,29 @@ const Timeline = () => {
     return false;
   };
 
-  const canApprove = (user:any)=>{
+  const canApprove = (user: any) => {
     if (role === "OWNER") {
       return true; // Owner can always add leaves regardless of visibility
     }
     if (role === "MANAGER") {
-      return true // Manager can add leaves only if the user is related to his team
+      return true; // Manager can add leaves only if the user is related to his team
     }
     return false;
-  }
+  };
 
   return (
     <Flex vertical style={{ padding: "15px" }}>
-      <Row gutter={24}>
+      <Row gutter={12}>
         <Col span={12}>
-          <Button onClick={() => setModalVisible(true)}>Add Leave</Button>
+          <Button onClick={() => setModalVisible(true)} type="primary">
+            Add Leave
+          </Button>
         </Col>
         <Col span={12}>
-          <Avatar icon={<SettingOutlined />} />
+          <Avatar
+            icon={<SettingOutlined />}
+            style={{ background: "none", color: "#000" }}
+          />
           {visibility === "ORG" ? (
             role === "OWNER" ? (
               // Render Select component for organization visibility
@@ -592,7 +584,7 @@ const Timeline = () => {
             )
           ) : null}
         </Col>
-        <Col span={3}>
+        <Col span={4} style={{ marginTop: "15px" }}>
           {visibility === "SELF" ? (
             role === "USER" || role === "MANAGER" ? (
               userTeam ? (
@@ -662,9 +654,9 @@ const Timeline = () => {
           )}
         </Col>
 
-        <Col span={21}>
+        <Col span={20} style={{ marginTop: "15px" }}>
           <Scheduler
-            height={600}
+            height={350}
             view="month"
             events={formattedLeaves}
             editable={false}
@@ -713,7 +705,9 @@ const Timeline = () => {
                     >
                       Add leave
                     </Button>
-                    <Button>View all leaves</Button>
+                    <Button onClick={() => setAllLeaveDrawerVisible(true)}>
+                      View all leaves
+                    </Button>
                   </Space>
                 </Space>
               </Card>
@@ -724,7 +718,27 @@ const Timeline = () => {
         </Flex>
       </Modal>
       <Drawer
-        title={user ? user.name : null}
+        closable={false}
+        title={
+          <Flex gap={18}>
+            <Avatar style={{ backgroundColor: "#f56a00" }}>
+              {user ? user.name[0].toUpperCase() : null}
+            </Avatar>
+            <Space.Compact direction="vertical" block>
+              <Typography.Title level={4} style={{ margin: "0px" }}>
+                {user ? user.name : null}
+              </Typography.Title>
+
+              <Typography.Link
+                underline={true}
+                color="magenta"
+                onClick={() => setUserProfileDrawer(true)}
+              >
+                user profile
+              </Typography.Link>
+            </Space.Compact>
+          </Flex>
+        }
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
       >
@@ -789,7 +803,7 @@ const Timeline = () => {
               initialValue={false}
               valuePropName="checked"
             >
-              <Switch disabled ={!canApprove(user)}/>
+              <Switch disabled={!canApprove(user)} />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">
@@ -799,6 +813,35 @@ const Timeline = () => {
           </Form>
         </Card>
       </Drawer>
+      <UserProfileDrawer
+        userProfileDrawer={userProfileDrawer}
+        setUserProfileDrawer={setUserProfileDrawer}
+        user={user}
+      />
+      <AllLeavesDrawer
+        user={user}
+        allLeaveDrawerVisible={allLeaveDrawerVisible}
+        setAllLeaveDrawerVisible={setAllLeaveDrawerVisible}
+      />
+      <Tabs
+      items={[
+        {
+          key:'1',
+          label:'Today',
+          children:'Today'
+        },
+        {
+          key:'2',
+          label:'Planned',
+          children:'Planned'
+        },
+        {
+          key:'3',
+          label:'Pending approval',
+          children:'pending approval'
+        }
+      ]}
+      />
     </Flex>
   );
 };
