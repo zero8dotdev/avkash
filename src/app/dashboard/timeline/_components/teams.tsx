@@ -1,5 +1,5 @@
 "use client";
-import { Flex, Typography } from "antd";
+import { Card, Flex, List, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/_utils/supabase/client";
 
@@ -16,31 +16,29 @@ const Teams = ({ team, role, visibility }: any) => {
       let data, error;
 
       if (visibility === "ORG" || visibility === "TEAM") {
-
-          // Fetch users of this specific team for manager
-          const result = await supabase.rpc("get_users_by_team_id", {
-            id: teamid,
-          });
-          data = result.data;
-          error = result.error;
-      } else {
-
-        if  (role === "OWNER" || role === "MANAGER") {
-          const result = await supabase.rpc("get_users_by_team_id", {
-            id: teamid,
-          });
-          data = result.data;
-
-          error = result.error;
-        }else{
-        const result = await supabase.rpc("get_user_data_by_id", {
-          id: userId,
+        // Fetch users of this specific team for manager
+        const result = await supabase.rpc("get_users_by_team_id", {
+          id: teamid,
         });
         data = result.data;
-
         error = result.error;
+      } else {
+        if (role === "OWNER" || role === "MANAGER") {
+          const result = await supabase.rpc("get_users_by_team_id", {
+            id: teamid,
+          });
+          data = result.data;
+
+          error = result.error;
+        } else {
+          const result = await supabase.rpc("get_user_data_by_id", {
+            id: userId,
+          });
+          data = result.data;
+
+          error = result.error;
+        }
       }
-    }
       if (data && !error) {
         setUsers(data);
       } else {
@@ -51,31 +49,12 @@ const Teams = ({ team, role, visibility }: any) => {
   }, [teamid, role, visibility]);
 
   return (
-    <Flex vertical>
-      <div
-        style={{
-          border: "1px solid #afb0a9",
-          borderRadius: "5px",
-          textAlign: "center",
-        }}
-      >
-        <Typography.Title level={5} style={{ marginTop: "2px" }}>
-          {name}
-        </Typography.Title>
-      </div>
-      {users.map((user: any) => (
-        <div
-          key={user.userid}
-          style={{
-            border: "1px solid #afb0a9",
-            borderRadius: "5px",
-            padding: "5px",
-          }}
-        >
-          {user.name}
-        </div>
-      ))}
-    </Flex>
+    <Card title={name} bodyStyle={{ padding: "0px" }} >
+      <List
+        dataSource={users}
+        renderItem={(i) => <List.Item style={{paddingLeft:'10px'}}>{i.name}</List.Item>}
+      />
+    </Card>
   );
 };
 
