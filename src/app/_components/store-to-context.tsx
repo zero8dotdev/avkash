@@ -6,10 +6,12 @@ const StoreToContext = ({
   user,
   org,
   team,
+  teams,
 }: {
   user: object;
   org: object;
   team: object;
+  teams: Array<object>;
 }) => {
   const { dispatch } = useApplicationContext();
 
@@ -17,7 +19,8 @@ const StoreToContext = ({
     dispatch({ type: "setOrg", payload: org });
     dispatch({ type: "setTeam", payload: team });
     dispatch({ type: "setUser", payload: user });
-  }, [org, team, user]);
+    dispatch({ type: "setTeams", payload: teams });
+  }, [org, team, user, teams]);
 
   return null;
 };

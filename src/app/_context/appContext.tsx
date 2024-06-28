@@ -9,6 +9,7 @@ interface ContextState {
   teamId: string;
   userId: string;
   user: { role: string } | undefined;
+  teams: Array<{ teamId: string; name: string }> | [];
 }
 
 type ActionTypes =
@@ -17,7 +18,8 @@ type ActionTypes =
   | "setTeamId"
   | "setUser"
   | "setOrg"
-  | "setTeam";
+  | "setTeam"
+  | "setTeams";
 
 interface Action {
   type: ActionTypes;
@@ -31,6 +33,7 @@ const INITIAL_STATE: ContextState = {
   team: undefined,
   org: undefined,
   user: undefined,
+  teams: [],
 };
 
 interface ApplicationContextType {
@@ -68,6 +71,12 @@ function applicationReducer(state: ContextState, action: Action) {
         ...state,
         teamId: action.payload.teamId,
         team: action.payload,
+      };
+
+    case "setTeams":
+      return {
+        ...state,
+        teams: action.payload,
       };
 
     case "setUserId":
