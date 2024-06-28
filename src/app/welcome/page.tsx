@@ -1,5 +1,5 @@
 "use client";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -23,18 +23,14 @@ export default function Welcome() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      console.log(session);
-  
+
       setUser(session);
     })();
   }, []);
 
-
   const onFinish = async (values: any) => {
     const { name, company, team, email } = values;
     try {
-
-      
       const { data: orgData, error: orgError } = await supabase
         .from("Organisation")
         .insert([

@@ -28,6 +28,7 @@ import { Scheduler } from "@aldabil/react-scheduler";
 import AllLeavesDrawer from "./_components/allLeavesDrawer";
 import UserProfileDrawer from "./_components/UserProfileDrawer";
 import { useApplicationContext } from "@/app/_context/appContext";
+import { fetchAllTeams } from "@/app/_actions";
 const supabase = createClient();
 
 interface Team {
@@ -76,11 +77,14 @@ const Timeline = () => {
 
   const fetchTeamsData = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc("get_user_teams", {
-        id: userId,
-      });
-      if (error) throw error;
-      setTeamData(data);
+      // const { data, error } = await supabase.rpc("get_user_teams", {
+      //   id: userId,
+      // });
+
+      // if (error) throw error;
+      // setTeamData(data);
+      const allTeams = await fetchAllTeams(orgId);
+      console.log({ allTeams });
     } catch (error) {
       console.error("Error fetching teams data:", error);
     }

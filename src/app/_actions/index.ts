@@ -2,6 +2,9 @@
 
 import { createClient } from "../_utils/supabase/server";
 
+/*
+  Fetch the current logged in user
+*/
 export const fetchUser = async () => {
   try {
     const supabase = createClient();
@@ -28,7 +31,9 @@ export const fetchUser = async () => {
   }
 };
 
-// visibility is org visibility
+/*
+  Fetch the current logged in user's organisation
+*/
 export const fetchOrg = async (orgId: string) => {
   try {
     const supabase = createClient();
@@ -49,6 +54,9 @@ export const fetchOrg = async (orgId: string) => {
   }
 };
 
+/*
+  Fetch the current logged in user's team
+*/
 export const fetchTeam = async (teamId: string) => {
   try {
     const supabase = createClient();
@@ -63,6 +71,47 @@ export const fetchTeam = async (teamId: string) => {
       throw error;
     }
     return team;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/*
+  Fetch the teams for based on current user's role and org visibility setting
+*/
+export const fetchAllTeams = async (orgId: string) => {
+  try {
+    const supabase = createClient();
+
+    const { data: teams, error } = await supabase
+      .from('Team')
+      .select()
+      .eq('orgId', orgId);
+
+    if (error) {
+      throw error;
+    }
+
+    return teams;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const fetchTeamMembers = async (teamId: string) => {
+  try {
+    const supabase = createClient();
+
+    const { data: teamMembers, error } = await supabase
+      .from("User")
+      .select()
+      .eq("teamId", teamId);
+
+    if (error) {
+      throw error;
+    }
+    console.log('server', teamMembers);
+    return teamMembers;
   } catch (error) {
     console.log(error);
   }
