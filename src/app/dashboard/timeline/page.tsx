@@ -86,7 +86,6 @@ const Timeline = () => {
     }
   }, [userId]);
 
-
   const fetchleavetypes = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_leave_types_by_user_id", {
@@ -209,8 +208,6 @@ const Timeline = () => {
 
   const fetchLeaves = useCallback(async () => {
     try {
-      const visibility = await fetchVisibility();
-
       if (role === "OWNER") {
         if (
           !selectedTeam ||
@@ -292,10 +289,12 @@ const Timeline = () => {
 
   useEffect(
     () => {
-      fetchUserTeam();
-      fetchTeamsData();
-      fetchleavetypes();
-      fetchUsersData();
+      if (userId) {
+        fetchUserTeam();
+        fetchTeamsData();
+        fetchleavetypes();
+        fetchUsersData();
+      }
     },
     [
       // fetchVisibility,
@@ -307,7 +306,9 @@ const Timeline = () => {
   );
 
   useEffect(() => {
-    fetchLeaves();
+    if (userId) {
+      fetchLeaves();
+    }
   }, [fetchLeaves]);
 
   const handleTeamSelect = async (teamId: string | null) => {
@@ -424,11 +425,32 @@ const Timeline = () => {
             Add Leave
           </Button>
         </Col>
+
+        {/* OLD */}
         <Col span={12}>
           <Avatar
             icon={<SettingOutlined />}
             style={{ background: "none", color: "#000" }}
           />
+          <Select
+            style={{ width: "150px" }}
+            placeholder="Select team"
+            onChange={handleTeamSelect}
+            disabled={
+              (visibility === "TEAM" || visibility === "SELF") &&
+              (role === "MANAGER" || role === "USER")
+                ? true
+                : false
+            }
+            defaultValue={role === "OWNER" ? "All" : userTeam?.teamid}
+          >
+            <Select.Option value={"All"}>All Teams</Select.Option>
+            {teamData.map((team: any) => (
+              <Select.Option key={team.teamid} value={team.teamid}>
+                {team.name}
+              </Select.Option>
+            ))}
+          </Select>
           {visibility === "ORG" ? (
             role === "OWNER" ? (
               // Render Select component for organization visibility
@@ -705,7 +727,7 @@ const Timeline = () => {
           )}
         </Flex>
       </Modal>
-      <Drawer
+      {/* <Drawer
         closable={false}
         title={
           <Flex gap={18}>
@@ -800,7 +822,7 @@ const Timeline = () => {
             </Form.Item>
           </Form>
         </Card>
-      </Drawer>
+      </Drawer> */}
       <UserProfileDrawer
         userProfileDrawer={userProfileDrawer}
         setUserProfileDrawer={setUserProfileDrawer}
