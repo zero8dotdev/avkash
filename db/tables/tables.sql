@@ -21,7 +21,7 @@ CREATE TYPE "AccuralFrequencyOptions" AS ENUM ('BIWEEKLY', 'WEEKLY', 'MONTHLY', 
 CREATE TYPE "AccrueOnOptions" AS ENUM ('BEGINNING', 'END');
 CREATE TYPE "LeaveDuration" AS ENUM ('FULL_DAY', 'HALF_DAY');
 CREATE TYPE "Shift" AS ENUM ('MORNING', 'AFTERNOON', 'NONE');
-CREATE TYPE "LeaveStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE "LeaveStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'DELETED');
 CREATE TYPE "Role" AS ENUM ('OWNER', 'MANAGER', 'USER', 'ANON');
 
 -- Create Tables
@@ -70,54 +70,57 @@ CREATE TABLE "User" (
     "createdBy" VARCHAR(255),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    "accruedLeave" INT NOT NULL DEFAULT 0,
-    "usedLeave" INT NOT NULL DEFAULT 0,
+    "accruedLeave" JSON DEFAULT '{}'::json,
+    "usedLeave" JSON DEFAULT '{}'::json,
     "keyword" VARCHAR,
+    "slackId" UUID,
     "orgId" UUID,
     CONSTRAINT "fk_user_team" FOREIGN KEY ("teamId") REFERENCES "Team"("teamId") ON DELETE RESTRICT,
     CONSTRAINT "fk_user_org" FOREIGN KEY ("orgId") REFERENCES "Organisation"("orgId")
 );
 
 CREATE TABLE "Leave" (
-    "leaveId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "leaveId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     "leaveType" VARCHAR(255) NOT NULL,
-    "startDate" TIMESTAMP(6) NOT NULL,
-    "endDate" TIMESTAMP(6) NOT NULL,
+    "startDate" DATE NOT NULL,
+    "endDate" DATE NOT NULL,
     "duration" "LeaveDuration" NOT NULL,
     "shift" "Shift" NOT NULL,
     "isApproved" "LeaveStatus" NOT NULL DEFAULT 'PENDING',
     "userId" UUID NOT NULL,
     "teamId" UUID NOT NULL,
-    "reason" VARCHAR(255) NOT NULL,
+    "reason" VARCHAR(255),
+    "managerComment" VARCHAR(255),
     "orgId" UUID NOT NULL,
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "createdBy" VARCHAR(255),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_leave_user" FOREIGN KEY ("userId") REFERENCES "User"("userId"),
-    CONSTRAINT "fk_leave_team" FOREIGN KEY ("teamId") REFERENCES "Team"("teamId"),
-    CONSTRAINT "fk_leave_org" FOREIGN KEY ("orgId") REFERENCES "Organisation"("orgId")
+    CONSTRAINT "fk_leave_user" FOREIGN KEY  ("userId") REFERENCES "User" ("userId"),
+    CONSTRAINT "fk_leave_team" FOREIGN KEY  ("teamId") REFERENCES "Team" ("teamId"),
+    CONSTRAINT "fk_leave_org" FOREIGN KEY  ("orgId") REFERENCES "Organisation" ("orgId")
 );
 
 CREATE TABLE "LeavePolicy" (
     "leavePolicyId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "leaveTypeId" UUID NOT NULL,
     "unlimited" BOOLEAN NOT NULL DEFAULT FALSE,
-    "maxLeaves" INT NOT NULL,
+    "maxLeaves" INT,
     "accruals" BOOLEAN NOT NULL DEFAULT FALSE,
     "accrualFrequency" "AccuralFrequencyOptions",
     "accrueOn" "AccrueOnOptions",
     "rollOver" BOOLEAN NOT NULL DEFAULT FALSE,
     "rollOverLimit" INT,
     "orgId" UUID NOT NULL,
-    "rollOverExpiry" TIMESTAMP(6),
+    "rollOverExpiry" VARCHAR(5) CHECK ("rollOverExpiry" ~ '^\d{2}/\d{2}$'),
     "autoApprove" BOOLEAN NOT NULL DEFAULT FALSE,
     "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "createdBy" VARCHAR(255),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_leavepolicy_org" FOREIGN KEY ("orgId") REFERENCES "Organisation"("orgId")
+    CONSTRAINT "fk_leavepolicy_org" FOREIGN KEY ("orgId") REFERENCES "Organisation"("orgId"),
+    CONSTRAINT "fk_leavepolicy_leavetype" FOREIGN KEY ("leaveTypeId") REFERENCES "LeaveType"("leaveTypeId")
 );
 
 CREATE TABLE "LeaveType" (
