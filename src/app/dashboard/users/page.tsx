@@ -1,9 +1,6 @@
-import { Button, Col, List, Row, Select } from "antd";
+import { Col, Row } from "antd";
 import Title from "antd/es/typography/Title";
-import Search from "antd/es/input/Search";
 import UserList from "./_components/user-list";
-import { createClient } from "@/app/_utils/supabase/server";
-import { fetchTeamMembers } from "@/app/_actions";
 
 const Page = async () => {
   return (
