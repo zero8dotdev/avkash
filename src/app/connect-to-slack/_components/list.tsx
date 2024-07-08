@@ -1,4 +1,5 @@
 "use client";
+
 import { createClient } from "@/app/_utils/supabase/client";
 import { Avatar, Button, Flex, List } from "antd";
 import { useEffect, useState } from "react";
@@ -25,7 +26,6 @@ const OrgList = ({
   };
 
   const serverActionHandler = async () => {
-    console.log("serverAction on browser");
     const newUsers = await serverAction("SriHari");
     Array.isArray(users)
       ? setUsers([...users, ...newUsers])
@@ -41,7 +41,7 @@ const OrgList = ({
           <List.Item>
             <List.Item.Meta
               avatar={<Avatar src={""} />}
-              title={<a href="https://ant.design">{item.name}</a>}
+              title={<a href="#">{item.name}</a>}
               description={item.visibility}
             />
           </List.Item>
@@ -56,7 +56,7 @@ const OrgList = ({
               <List.Item>
                 <List.Item.Meta
                   avatar={<Avatar src={""} />}
-                  title={<a href="https://ant.design">{item.name}</a>}
+                  title={<a href="#">{item.name}</a>}
                   description={item.visibility}
                 />
               </List.Item>
