@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { WebClient } from '@slack/web-api';
 import { createClient } from "@/app/_utils/supabase/server";
 import { applyLeave, getUserData, getTeamsList, getUsersList, getLeaveReports, getLeavesHistory, updateLeaveStatus, getLeaveDetails, getLeaveTypes, getManagerIds } from '@/app/_components/header/_components/actions';
+// [TODO]: alway remove unused imports.
 import { act } from 'react';
 import UserListItem from '@/app/dashboard/timeline/_components/UserListitem';
 import { channel } from 'diagnostics_channel';
@@ -14,6 +15,7 @@ let currentUserSlackId = '';
 let isOwner: boolean = false;
 
 export async function POST(request: NextRequest) {
+  // [TODO] If TODO#1 is not possible, We can make this below code in a function. Which always return body.
   const headersList = headers();
   const contentType = headersList.get('content-type');
 
@@ -32,18 +34,36 @@ export async function POST(request: NextRequest) {
     console.error('Error parsing request body:', error);
     return new NextResponse('Invalid request body', { status: 400 });
   }
+
+  // [TODO]: Can be removed OR we can cofigure a logging library
   console.log('printing body:', body);
+
   avkash_userInfo = await getUserInfo(currentUserSlackId);
+  // [TODO] we should have all the avkash mapping for that user.
+  // Like, ROle, ORG, Manager
+
   if (avkash_userInfo) {
+    // [TODO]: Let's use only camleCase So, `avkash_userInfo` becomes `avkashUserInfo`
+    // avkashUserInfo can also have one property `isOwner` in the same object.
+
     isOwner = avkash_userInfo.role === 'OWNER' ? true : false;
   }
 
+  /*
+    [TODO]
+    So from the slack, We are getting 4 kinds of interactions.
+      Can we create 4 modules to handle these below types?
+    1. Url Verification [Mostly done only once OR automatically]
+    2. App home Opened
+    3. Slack Command
+    4. User type a message.
+  */
   try {
     if (body.type === 'url_verification') {
       return handleUrlVerification(body);
     }
-    if (body.event?.type === 'app_home_opened') {
 
+    if (body.event?.type === 'app_home_opened') {
       return await handleAppHomeOpened(body.event.user, isOwner, false);
     }
 
@@ -60,9 +80,12 @@ export async function POST(request: NextRequest) {
       return await handleBotIgnoreMessages(body.event);
     }
 
+    // [TODO]: We can write a friendly message.
     return new NextResponse('Unrecognized request', { status: 400 });
   } catch (error) {
     console.error('Error processing request:', error);
+    // [TODO]: If our code execution comes to this point. Means error is at our end.
+    // WE can make this message more friendly.
     return new NextResponse('An error occurred while processing your request.', { status: 500 });
   }
 }
@@ -159,6 +182,7 @@ async function createCommonModalBlocks(startDate?: string, endDate?: string, day
   ]
 }
 
+// [TODO]: better name for param will be slackId
 async function getUserInfo(userId: string) {
   const userDetails: any = await getUserData(userId);
   return userDetails[0];
@@ -171,6 +195,7 @@ function handleUrlVerification(body: any) {
     status: 200,
   });
 }
+
 async function handlePayload(payload: any) {
   const { type, container, user, view, trigger_id, actions } = payload;
   const view_id = container?.view_id;
@@ -370,8 +395,6 @@ async function handleAction(action_id: string, channel_id: string, user_id: stri
     case 'msg-leave-reports':
       return sendLeaveReports(channel_id, user_id);
 
-    case 'home-req-leave':
-      return openRequestLeaveModal(trigger_id, user_id);
 
     case 'add-leave':
       return openAddLeaveModal({ user_id, view_id, trigger_id });
@@ -804,6 +827,7 @@ async function handleAppHomeOpened(user_id: string, isManager?: boolean, yourDas
 }
 
 
+// [TODO]: Can we invoke this on top itself.
 
 async function handleBotIgnoreMessages(event: any) {
   const { user, text, channel, bot_id } = event;
