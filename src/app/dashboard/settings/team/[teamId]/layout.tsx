@@ -26,7 +26,7 @@ const items = [
 
 const Layout = ({ children }: any) => {
   return (
-    <div>
+    <div style={{ border: "1px solid red" }}>
       <Tabs items={items} />
       {children}
     </div>

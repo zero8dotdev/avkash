@@ -3,7 +3,6 @@ import React from "react";
 import { Row, Tabs, Col, Card } from "antd";
 import LeaveTypes from "./leave-types/page";
 
-
 import type { TabsProps } from "antd";
 import General from "./general/page";
 import Billing from "./billing/page";

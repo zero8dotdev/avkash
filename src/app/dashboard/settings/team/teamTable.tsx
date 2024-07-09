@@ -15,34 +15,28 @@ const TeamTable = (teams: any) => {
   interface MenuItem {
     key: string;
     label: string;
-  
   }
 
   const items: MenuItem[] = [
     {
       key: "1",
       label: "settings",
-      
     },
     {
       key: "2",
       label: "leave-policy",
-      
     },
     {
       key: "3",
       label: "notifications",
-    
     },
     {
       key: "4",
       label: "users",
-    
     },
     {
       key: "5",
       label: "managers",
-    
     },
   ];
   return (
@@ -53,13 +47,12 @@ const TeamTable = (teams: any) => {
           dataIndex: "name",
           key: "name",
           render: (text, rowData) => (
-            // <Link
-            //   href={`/dashboard/settings/team/${rowData.teamId}/settings`}
-            //   style={{ color: "#f52242" }}
-            // >
-            //   {text}
-            // </Link>
-            <p>{text}</p>
+            <Link
+              href={`/dashboard/settings/team`}
+              style={{ color: "#f52242" }}
+            >
+              {text}
+            </Link>
           ),
         },
         {
@@ -82,18 +75,20 @@ const TeamTable = (teams: any) => {
           dataIndex: "action",
           key: "action",
           render: (text, rowData) => (
-            <Dropdown 
-            overlay={
-              <Menu>
-                {items.map((item) => (
-                  <Menu.Item key={item?.key}>
-                    <Link href={`/dashboard/settings/team/${rowData.teamId}/${item.label}`}>
-                      {item?.label}
-                    </Link>
-                  </Menu.Item>
-                ))}
-              </Menu>
-            }
+            <Dropdown
+              overlay={
+                <Menu>
+                  {items.map((item) => (
+                    <Menu.Item key={item?.key}>
+                      <Link
+                        href={`settings/team/${rowData.teamId}/${item.label}`}
+                      >
+                        {item?.label}
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </Menu>
+              }
             >
               <Avatar
                 icon={<MoreOutlined />}
