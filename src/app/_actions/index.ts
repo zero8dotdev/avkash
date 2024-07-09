@@ -1,5 +1,6 @@
 'use server';
 
+
 import { createClient } from "../_utils/supabase/server";
 
 /*
@@ -14,7 +15,6 @@ export const fetchUser = async () => {
     if (error || !user) {
       throw error;
     }
-
     const { data: userProfile, error: userProfileError } = await supabase
       .from('User')
       .select()
@@ -24,7 +24,6 @@ export const fetchUser = async () => {
     if (userProfileError || !userProfile) {
       throw userProfileError;
     }
-
     return userProfile;
   } catch (error) {
     console.log(error);
@@ -110,9 +109,93 @@ export const fetchTeamMembers = async (teamId: string) => {
     if (error) {
       throw error;
     }
-    console.log('server', teamMembers);
+    
     return teamMembers;
   } catch (error) {
     console.log(error);
   }
 };
+
+export const updataOrgData=async(values:any,orgId:string)=>{
+  const supabase=createClient()
+
+   const {data,error}=await supabase
+   .from("Organisation")
+   .update({
+     ...values
+   }).eq("orgId",orgId)
+   .select()
+   if (error) {
+    throw error;
+  }
+  return data
+  }
+
+  export const fetchleaveTypes=async(orgId:string)=>{
+    const supabase=createClient()
+    const {data,error}=await supabase 
+    .from("LeaveType")
+    .select("name,leaveTypeId,color,isActive")
+    .eq("orgId",orgId)
+
+    if (error) {
+      throw error;
+    }
+    return data
+
+  }
+  export const updateLeaveType=async(values:any,leaveTypeId:any)=>{
+    const supabase=createClient()
+    const {data,error}=await supabase 
+    .from("LeaveType")
+    .update({...values})
+    .eq("leaveTypeId",leaveTypeId)
+    .select()
+    if (error) {
+      throw error;
+    }
+    return data
+  }
+  export const fetchTeamsData = async (orgId:string) => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("Team")
+      .select(`*, User(*)`)
+      .eq("orgId", orgId);
+  
+    if (error) {
+      throw error;
+    }
+  
+    const processedData = data.map(team => {
+     const teamId=team.teamId
+      const name = team.name;
+      const status = team.isActive?'active':'inActive';
+      const users = team.User.length;
+      const manager = team.User.find((user:any) => user.role === 'MANAGER')?.name || 'No manager assigned';
+  
+      return {
+        teamId,
+        name,
+        manager,
+        users,
+        status
+      };
+    });
+  
+    return processedData;
+  }
+  export const fetchPublicHolidays=async(countryCode:any)=>{
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("PublicHolidays")
+      .select("*")
+      .eq("iso",countryCode)
+      .eq("year",2024)
+  
+    if (error) {
+      throw error;
+    }
+
+    return data
+  }
