@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const LeavePolicies = () => {
-  return (
-    <div>
-      leave policy
-    </div>
-  )
-}
+  return <div>leave policy</div>;
+};
 
-export default LeavePolicies
+export default LeavePolicies;

@@ -1,8 +1,9 @@
-"use client"
+"use client";
+
 import { fetchTeamsData } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import { Col, Flex,Row, Segmented} from "antd";
+import { Col, Flex, Row, Segmented } from "antd";
 import { useEffect, useState } from "react";
 import TeamTable from "./teamTable";
 
