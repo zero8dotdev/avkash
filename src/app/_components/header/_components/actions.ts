@@ -17,10 +17,13 @@ export async function getUserData(slackId: any) {
     .from("User")
     .select('*')
     .eq("slackId", slackId)
+    // [TODO]: we can use .single() supabase function, Where ever we are sure that
+    // we are expecting a singular response.
 
   if (userData) {
     return userData
   } else {
+    // [TODO] : Propogate this error to the top.
     return userError
   }
 }
@@ -52,7 +55,7 @@ interface LeaveHistoryParams {
   teamId?: string;
 }
 
-export async function updateLeaveStatus(leaveId: string, allFields: any ={}) {
+export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
 
   let updateValue: any = allFields;
   // if(allFields){
@@ -68,7 +71,7 @@ export async function updateLeaveStatus(leaveId: string, allFields: any ={}) {
 
 export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate()-7);
+  daysAgo.setDate(daysAgo.getDate() - 7);
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(slackId),Team(name)`)
@@ -123,22 +126,22 @@ export async function getUsersList(teamId: string) {
 
 export async function getLeaveDetails(leaveId: string) {
   const { data, error } = await supabaseAdmin
-  .from("Leave").select("*,User(name,email,slackId),Team(name)").eq('leaveId', leaveId)
+    .from("Leave").select("*,User(name,email,slackId),Team(name)").eq('leaveId', leaveId)
   return data
 }
 
-export async function getLeaveTypes(orgId: string){
+export async function getLeaveTypes(orgId: string) {
   const { data, error } = await supabaseAdmin
-  .from("LeaveType")
-  .select("leaveTypeId,name")
-  .eq("orgId",orgId)
+    .from("LeaveType")
+    .select("leaveTypeId,name")
+    .eq("orgId", orgId)
   return data
 }
 
-export async function getManagerIds(){
-  const {data,error} = await supabaseAdmin
-  .from("User")
-  .select("*")
-  .eq('role',"OWNER")
+export async function getManagerIds() {
+  const { data, error } = await supabaseAdmin
+    .from("User")
+    .select("*")
+    .eq('role', "OWNER")
   return data
 }
