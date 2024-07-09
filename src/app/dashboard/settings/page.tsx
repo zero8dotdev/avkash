@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
 import { Row, Tabs, Col, Card } from "antd";
-import GeneralSettings from "./GeneralSettings";
-import BillingSettings from "./BillingSettings";
-import LeaveTypesSettings from "./LeaveTypesSettings";
-import TeamsSettings from "./TeamsSettings";
-import LocationsSettings from "./LocationsSettings";
 import LeaveTypes from "./leave-types/page";
 
+
 import type { TabsProps } from "antd";
+import General from "./general/page";
+import Billing from "./billing/page";
+import Location from "./location/page";
+import Team from "./team/page";
 
 const onChange = (key: string) => {
   console.log(key);
@@ -34,7 +34,7 @@ const items: TabsProps["items"] = [
     label: "General",
     children: (
       <TabWrapper title={"General"}>
-        <GeneralSettings />
+        <General />
       </TabWrapper>
     ),
   },
@@ -43,7 +43,7 @@ const items: TabsProps["items"] = [
     label: "Billing",
     children: (
       <TabWrapper title="Billing">
-        <BillingSettings />
+        <Billing />
       </TabWrapper>
     ),
   },
@@ -61,7 +61,7 @@ const items: TabsProps["items"] = [
     label: "Teams",
     children: (
       <TabWrapper title="Teams">
-        <TeamsSettings />
+        <Team />
       </TabWrapper>
     ),
   },
@@ -70,7 +70,7 @@ const items: TabsProps["items"] = [
     label: "Locations",
     children: (
       <TabWrapper title="Locations">
-        <LocationsSettings />
+        <Location />
       </TabWrapper>
     ),
   },
