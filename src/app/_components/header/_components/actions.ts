@@ -1,11 +1,14 @@
-
-
 'use server'
 
 import supabaseAdmin from "@/app/_utils/supabase/adminClient"
 import { log } from "console"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+
+interface LeaveHistoryParams {
+  userId?: string;
+  teamId?: string;
+}
 
 export async function logoutAction() {
   revalidatePath('/', "layout")
@@ -17,8 +20,22 @@ export async function getUserData(slackId: any) {
     .from("User")
     .select('*')
     .eq("slackId", slackId)
-    // [TODO]: we can use .single() supabase function, Where ever we are sure that
-    // we are expecting a singular response.
+    .single()
+
+  if (userData) {
+    return userData
+  } else {
+    // [TODO] : Propogate this error to the top.
+    return userError
+  }
+}
+
+export async function getUserDataBasedOnUUID(userId: any) {
+  const { data: userData, error: userError } = await supabaseAdmin
+    .from("User")
+    .select('*')
+    .eq("userId", userId)
+    .single()
 
   if (userData) {
     return userData
@@ -29,7 +46,7 @@ export async function getUserData(slackId: any) {
 }
 
 export async function applyLeave(leaveType: string, startDate: string, endDate: string, duration: string, isApproved: string, userId: string, teamId: string, reason: string, orgId: string) {
-  const { data } = await supabaseAdmin
+  const { data,error } = await supabaseAdmin
     .from("Leave")
     .insert({
       leaveType,
@@ -45,15 +62,13 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
     })
     .select();
   if (data) {
+    console.log(data)
     return data
+  }else{
+    console.log(error);
   }
 
 };
-
-interface LeaveHistoryParams {
-  userId?: string;
-  teamId?: string;
-}
 
 export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
 
@@ -126,7 +141,7 @@ export async function getUsersList(teamId: string) {
 
 export async function getLeaveDetails(leaveId: string) {
   const { data, error } = await supabaseAdmin
-    .from("Leave").select("*,User(name,email,slackId),Team(name)").eq('leaveId', leaveId)
+    .from("Leave").select("*,User(name,email,slackId,accruedLeave,usedLeave),Team(name)").eq('leaveId', leaveId)
   return data
 }
 
@@ -138,10 +153,21 @@ export async function getLeaveTypes(orgId: string) {
   return data
 }
 
-export async function getManagerIds() {
+export async function getManagerIds(orgId: string) {
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("*")
-    .eq('role', "OWNER")
-  return data
+    .eq('role', "OWNER" )
+    .eq('orgId', orgId )
+    .single()
+  return data.slackId
+}
+
+export async function fetchOrgWorkWeek(orgId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("Organisation")
+    .select("workweek")
+    .eq('orgId', orgId )
+    .single()
+  return data?.workweek
 }
