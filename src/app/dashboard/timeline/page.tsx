@@ -24,6 +24,7 @@ import React, { useEffect, useState } from "react";
 import Teams from "./_components/teams";
 import { Scheduler } from "@aldabil/react-scheduler";
 import { getRouteMatcher } from "next/dist/shared/lib/router/utils/route-matcher";
+import { useApplicationContext } from "@/app/_context/appContext";
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
@@ -39,7 +40,8 @@ const Timeline = () => {
   const [leaveType, setLeaveType] = useState<string>("paid of leave");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [leaves, setLeaves] = useState<any[]>([]);
-  const orgId = localStorage.getItem("orgId");
+  const { state, dispatch } = useApplicationContext();
+  const { orgId } = state;
 
   const fetchTeamsData = async () => {
     try {
@@ -47,9 +49,9 @@ const Timeline = () => {
         .from("Team")
         .select("*")
         .eq("orgId", orgId);
-       if(data){
-        setTeamData(data)
-       }
+      if (data) {
+        setTeamData(data);
+      }
     } catch {}
   };
   const fetchUsersData = async () => {
@@ -78,8 +80,7 @@ const Timeline = () => {
         console.error("Error fetching users with team:", error);
         return;
       }
-     setUsers(data)
-     
+      setUsers(data);
     } catch {}
   };
 
@@ -88,33 +89,30 @@ const Timeline = () => {
     fetchUsersData();
   }, []);
 
-  const handleTeamSelect =async (teamId: string | null) => {
+  const handleTeamSelect = async (teamId: string | null) => {
     if (teamId) {
-      try{
-        const {data:team}=await supabase 
-        .from("Team")
-        .select("*")
-        .eq("teamId",teamId)
-        if(team){
-          setSelectedTeam(team)
+      try {
+        const { data: team } = await supabase
+          .from("Team")
+          .select("*")
+          .eq("teamId", teamId);
+        if (team) {
+          setSelectedTeam(team);
         }
-        const {data:user}=await supabase 
-        .from("User")
-        .select("*")
-        .eq("teamId",teamId)
-        if(user){
-          setSelectedusers(user)
+        const { data: user } = await supabase
+          .from("User")
+          .select("*")
+          .eq("teamId", teamId);
+        if (user) {
+          setSelectedusers(user);
         }
-
-      }catch{}
-     
+      } catch {}
     } else {
       setSelectedTeam([]);
       setSelectedusers([]);
     }
   };
   const handleSelectUser = (userId: string | null) => {
-    
     setUser(users.find((user: any) => user.userId === userId));
   };
 
@@ -142,7 +140,6 @@ const Timeline = () => {
   };
 
   const fetchLeaves = async (selectedTeam: any) => {
-    
     try {
       if (selectedTeam && selectedTeam.length === 0) {
         const { data, error } = await supabase.from("Leave").select(`
@@ -164,8 +161,8 @@ const Timeline = () => {
             name
           )
         `);
-        if(data){
-          setLeaves(data)
+        if (data) {
+          setLeaves(data);
         }
       } else {
         const { data: selectLeaves } = await supabase
@@ -179,20 +176,18 @@ const Timeline = () => {
     } catch {}
   };
 
- 
-
   const formattedLeaves = leaves.map((leave) => ({
     event_id: leave.leaveId,
-    title:`${leave.leaveType}-${leave.User?.name}` ,
+    title: `${leave.leaveType}-${leave.User?.name}`,
     start: new Date(leave.startDate),
     end: new Date(leave.endDate),
     color: "#FFCCCC",
   }));
-  console.log(formattedLeaves)
+  console.log(formattedLeaves);
   useEffect(() => {
     fetchLeaves(selectedTeam);
   }, [selectedTeam]);
- 
+
   return (
     <Flex vertical style={{ padding: "15px" }}>
       <Row gutter={24}>
@@ -253,7 +248,8 @@ const Timeline = () => {
               ))
             : users.map((user: any) => (
                 <Select.Option key={user.userId} value={user.userId}>
-                  {user.name}{"  "}({user.Team.name})
+                  {user.name}
+                  {"  "}({user.Team.name})
                 </Select.Option>
               ))}
         </Select>

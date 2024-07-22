@@ -19,6 +19,7 @@ export default function LogoutButton() {
       console.log("Here", data);
       if (data?.user) {
         dispatch({ type: "setUser", payload: data.user.user_metadata });
+        dispatch({ type: "setUserId", payload: data.user.id });
       }
     })();
   }, []);
