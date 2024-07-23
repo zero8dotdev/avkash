@@ -1,6 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'https://ewmizuhvajrsoylkaoaq.supabase.co'
-const supabaseKey ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3bWl6dWh2YWpyc295bGthb2FxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcxOTg5MDMxMiwiZXhwIjoyMDM1NDY2MzEyfQ.ahDctdlN43CRrv3pppvoqtBGMAoPk1s9xIA4bDKW9Fo'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseKey)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SERVICE_ROLE_KEY = process.env.SERVICE_ROLE_KEY!;
+
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
 export default supabaseAdmin;

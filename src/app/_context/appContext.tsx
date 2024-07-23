@@ -2,6 +2,12 @@
 
 import { createContext, useContext, useReducer } from "react";
 
+interface User {
+  full_name: string;
+  email: string;
+  avatar_url : string
+}
+
 interface ContextState {
   orgId: string;
   org: { visibility: string } | undefined;
@@ -84,7 +90,6 @@ function applicationReducer(state: ContextState, action: Action) {
         ...state,
         userId: action.payload,
       };
-
     case "setUser":
       return {
         ...state,

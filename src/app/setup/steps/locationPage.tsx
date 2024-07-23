@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   DatePicker,
+  Flex,
   Form,
   Input,
   Modal,
@@ -20,7 +21,10 @@ interface holidaysList {
   isRecurring: boolean;
 }
 
-const LocationPage = () => {
+interface props{
+  setHolidaysList:(data:any)=>void
+}
+const LocationPage :React.FC<props>= ({setHolidaysList}) => {
   const [holidays, setHolidays] = useState<holidaysList[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("IN");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,7 +95,8 @@ const LocationPage = () => {
           date: holiday.date,
           isRecurring: true,
         }));
-        setHolidays(holidaysData);
+        setHolidaysList(holidaysData);
+        setHolidays(holidaysData)
       } catch (error) {
         console.error("Error fetching holidays:", error);
       }
@@ -118,19 +123,22 @@ const LocationPage = () => {
   };
 
   return (
-    <>
+    <Flex vertical gap={12}>
+      
       <Select
         showSearch
-        style={{ width: "300px" }}
+        style={{ width: "300px",marginTop:'20px'}}
         onChange={handleCountryChange}
         value={selectedCountry}
+      
         options={Object.keys(countriesData).map((code: any) => ({
           label: countriesData[code].name,
           value: code,
         }))}
+        
       />
 
-      <Table columns={columns} dataSource={holidays} pagination={false} />
+      <Table columns={columns} dataSource={holidays} pagination={false} scroll={{ x: 500, y: 400 }} />
       <Button onClick={() => setIsModalOpen(true)} type="primary">
         Add Custom Holidays
       </Button>
@@ -157,7 +165,7 @@ const LocationPage = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </Flex>
   );
 };
 
