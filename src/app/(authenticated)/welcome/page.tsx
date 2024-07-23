@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "../_utils/supabase/client";
-import { useApplicationContext } from "../_context/appContext";
+import { createClient } from "@/app/_utils/supabase/client";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 export default function Welcome() {
   const supabase = createClient();

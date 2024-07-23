@@ -5,7 +5,8 @@ import { createContext, useContext, useReducer } from "react";
 interface User {
   full_name: string;
   email: string;
-  avatar_url : string
+  avatar_url: string;
+  role: string;
 }
 
 interface ContextState {
@@ -14,7 +15,7 @@ interface ContextState {
   team: object | undefined;
   teamId: string;
   userId: string;
-  user: { role: string } | undefined;
+  user: User | undefined;
   teams: Array<{ teamId: string; name: string }> | [];
 }
 

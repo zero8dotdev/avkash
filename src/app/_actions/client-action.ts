@@ -1,4 +1,4 @@
-import { createClient } from "../_utils/supabase/client";
+import { createClient } from "@/app/_utils/supabase/client";
 
 export const fetchTeamMembers = async (teamId: string) => {
   try {
