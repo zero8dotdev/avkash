@@ -4,7 +4,7 @@ import { Avatar, Button, Divider, Popover } from "antd";
 import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useApplicationContext } from "../../../_context/appContext";
+import { useApplicationContext } from "@/app/_context/appContext";
 import { logoutAction } from "./actions";
 
 const supabase = createClient();
@@ -26,7 +26,7 @@ export default function LogoutButton() {
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-      logoutAction()
+      logoutAction();
       dispatch({ type: "setUser", payload: null });
     } catch (error) {
       console.log("Error while logging out ", error);
@@ -37,9 +37,7 @@ export default function LogoutButton() {
     const popoverContent = (
       <div style={{ width: "200px" }}>
         <div style={{ marginBottom: "5px" }}>
-          <p style={{ margin: 0, padding: 0 }}>
-            {user?.full_name}
-          </p>
+          <p style={{ margin: 0, padding: 0 }}>{user?.full_name}</p>
           <p
             style={{
               margin: 0,
@@ -70,10 +68,10 @@ export default function LogoutButton() {
 
     return (
       <Popover content={popoverContent} placement="bottomLeft">
-        <Avatar size="large" src={user?.avatar_url } />
+        <Avatar size="large" src={user?.avatar_url} />
       </Popover>
     );
   } else {
-    return ;
+    return;
   }
 }

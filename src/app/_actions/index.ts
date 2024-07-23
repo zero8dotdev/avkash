@@ -1,7 +1,6 @@
 'use server';
 
-
-import { createClient } from "../_utils/supabase/server";
+import { createClient } from "@/app/_utils/supabase/server";
 
 /*
   Fetch the current logged in user
