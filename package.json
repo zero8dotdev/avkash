@@ -20,7 +20,9 @@
     "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/icons": "^5.3.6",
     "@ant-design/nextjs-registry": "^1.0.0",
+    "@bitnoi.se/react-scheduler": "^0.2.0",
     "@prisma/client": "^5.14.0",
+    "@slack/web-api": "^7.3.1",
     "@supabase/auth-helpers-nextjs": "^0.9.0",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.40.0",
@@ -30,8 +32,12 @@
     "countries-list": "^3.1.0",
     "date-holidays": "^3.23.11",
     "flowbite": "^2.3.0",
+<<<<<<< HEAD
     "google-auth-library": "^9.11.0",
     "googleapis": "^140.0.1",
+=======
+    "js-cookie": "^3.0.5",
+>>>>>>> main
     "moment-timezone": "^0.5.45",
     "next": "14.1.4",
     "react": "^18",
@@ -40,7 +46,8 @@
     "react-select": "^5.8.0",
     "react-select-country-list": "^2.2.3",
     "react-time-picker": "^6.6.0",
-    "timezone-support": "^3.1.0"
+    "timezone-support": "^3.1.0",
+    "uuid4": "^2.0.3"
   },
   "devDependencies": {
     "@emotion/styled": "^11.11.5",
@@ -49,11 +56,11 @@
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^18",
     "@types/react-select-country-list": "^2.2.3",
+    "@types/uuid4": "^2.0.3",
     "autoprefixer": "^10.0.1",
     "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
-    "nookies": "^2.5.2",
     "pg": "^8.12.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",

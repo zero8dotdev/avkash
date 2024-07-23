@@ -6,13 +6,22 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,
   },
   images: {
-    domains: ['encrypted-tbn0.gstatic.com'],
+    domains: ["encrypted-tbn0.gstatic.com"],
     remotePatterns: [
       {
         protocol: "https",
         hostname: "lh3.google.com",
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/dashboard",
+        destination: "/dashboard/timeline",
+        permanent: true,
+      },
+    ];
   },
 };
 
