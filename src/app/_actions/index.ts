@@ -109,139 +109,139 @@ export const fetchTeamMembers = async (teamId: string) => {
     if (error) {
       throw error;
     }
-    
+
     return teamMembers;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const updataOrgData=async(values:any,orgId:string)=>{
-  const supabase=createClient()
+export const updataOrgData = async (values: any, orgId: string) => {
+  const supabase = createClient()
 
-   const {data,error}=await supabase
-   .from("Organisation")
-   .update({
-     ...values
-   }).eq("orgId",orgId)
-   .select()
-   if (error) {
+  const { data, error } = await supabase
+    .from("Organisation")
+    .update({
+      ...values
+    }).eq("orgId", orgId)
+    .select()
+  if (error) {
     throw error;
   }
   return data
-  }
+}
 
-  export const fetchleaveTypes=async(orgId:string)=>{
-    const supabase=createClient()
-    const {data,error}=await supabase 
+export const fetchleaveTypes = async (orgId: string) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
     .from("LeaveType")
     .select("name,leaveTypeId,color,isActive")
-    .eq("orgId",orgId)
+    .eq("orgId", orgId)
 
-    if (error) {
-      throw error;
-    }
-    return data
-
-  }
-  export const updateLeaveType=async(values:any,leaveTypeId:any)=>{
-    const supabase=createClient()
-    const {data,error}=await supabase 
-    .from("LeaveType")
-    .update({...values})
-    .eq("leaveTypeId",leaveTypeId)
-    .select()
-    if (error) {
-      throw error;
-    }
-    return data
-  }
-  export const fetchTeamsData = async (orgId:string) => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("Team")
-      .select(`*, User(*)`)
-      .eq("orgId", orgId);
-  
-    if (error) {
-      throw error;
-    }
-  
-    const processedData = data.map(team => {
-     const teamId=team.teamId
-      const name = team.name;
-      const status = team.isActive;
-      const users = team.User.length;
-      const manager = team.User.find((user:any) => user.role === 'MANAGER')?.name || 'No manager assigned';
-  
-      return {
-        teamId,
-        name,
-        manager,
-        users,
-        status
-      };
-    });
-  
-    return processedData;
-  }
-  export const fetchPublicHolidays=async(countryCode:any)=>{
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("PublicHolidays")
-      .select("*")
-      .eq("iso",countryCode)
-      .eq("year",2024)
-  
-    if (error) {
-      throw error;
-    }
-
-    return data
-  }
- export const updateLeaveTypeBasedOnOrg=async(isActive:boolean,orgId:string,leaveTypeId:any)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase 
-  .from("LeaveType")
-  .update({isActive:isActive})
-  .eq("orgId",orgId)
-  .eq('leaveTypeId',leaveTypeId)
-  .select()
   if (error) {
     throw error;
   }
   return data
 
-  }
-
-  export const updateTeamData=async(isActive:boolean,teamId:string)=>{
-    
-    const supabase=createClient()
-    const {data,error}=await supabase 
-    .from("Team")
-    .update({isActive:isActive})
-    
-    .eq('teamId',teamId)
+}
+export const updateLeaveType = async (values: any, leaveTypeId: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("LeaveType")
+    .update({ ...values })
+    .eq("leaveTypeId", leaveTypeId)
     .select()
-    if (error) {
-      throw error;
-    }
-    return data
-  
-    
+  if (error) {
+    throw error;
+  }
+  return data
+}
+export const fetchTeamsData = async (orgId: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Team")
+    .select(`*, User(*)`)
+    .eq("orgId", orgId);
 
+  if (error) {
+    throw error;
   }
 
+  const processedData = data.map(team => {
+    const teamId = team.teamId
+    const name = team.name;
+    const status = team.isActive;
+    const users = team.User.length;
+    const manager = team.User.find((user: any) => user.role === 'MANAGER')?.name || 'No manager assigned';
 
-  export const fetchAllOrgUsers= async(orgId:string)=>{
-    const supabase=createClient()
-    const {data,error}=await supabase
+    return {
+      teamId,
+      name,
+      manager,
+      users,
+      status
+    };
+  });
+
+  return processedData;
+}
+export const fetchPublicHolidays = async (countryCode: any) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("PublicHolidays")
+    .select("*")
+    .eq("iso", countryCode)
+    .eq("year", 2024)
+
+  if (error) {
+    throw error;
+  }
+
+  return data
+}
+export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string, leaveTypeId: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("LeaveType")
+    .update({ isActive: isActive })
+    .eq("orgId", orgId)
+    .eq('leaveTypeId', leaveTypeId)
+    .select()
+  if (error) {
+    throw error;
+  }
+  return data
+
+}
+
+export const updateTeamData = async (isActive: boolean, teamId: string) => {
+
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("Team")
+    .update({ isActive: isActive })
+
+    .eq('teamId', teamId)
+    .select()
+  if (error) {
+    throw error;
+  }
+  return data
+
+
+
+}
+
+
+export const fetchAllOrgUsers = async (orgId: string) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
     .from("User")
     .select(`*, Team(*)`)
     .eq("orgId", orgId);
-    if (error) {
-      throw error;
-    }
-    return data
-  
+  if (error) {
+    throw error;
   }
+  return data
+
+}
