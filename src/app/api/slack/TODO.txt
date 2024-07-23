@@ -1,0 +1,6 @@
+[Review comments]
+
+1. We need to investigate, If we can make our API completely about accepting `application/json` content-type.
+If yes, Then we can get rid of handling `application/x-www-form-urlencoded`.
+
+2. 
