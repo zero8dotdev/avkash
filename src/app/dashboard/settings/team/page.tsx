@@ -1,24 +1,32 @@
-"use client"
+"use client";
 import { fetchTeamsData } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import { Col, Flex,Row, Segmented} from "antd";
+import { Col, Flex, List, Row, Segmented } from "antd";
 import { useEffect, useState } from "react";
-import TeamTable from "./teamTable";
+import TeamTableActive from "./teamTable";
 
 const Team = () => {
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
   const [teams, setTeams] = useState<any>();
+ 
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
   useEffect(() => {
     const fetchData = async () => {
-      const tableData = await fetchTeamsData(orgId);
-      setTeams(tableData);
+      const data = await fetchTeamsData(orgId);
+      
+      setTeams(data);
+      
     };
     fetchData();
   }, [orgId]);
+ console.log(teams)
+  const activeTeams=teams?.filter((team:any)=>team.status===true)
+  const inActiveTeams=teams?.filter((team:any)=>team.status==false)
+  
+  console.log(activeTeams)
 
   return (
     <Row gutter={8}>
@@ -41,11 +49,13 @@ const Team = () => {
         />
         <Flex vertical>
           {segmentValue === "active" ? (
-            <>
-              <TeamTable teams={teams} />
-            </>
-          ) : null}
+            
+              <TeamTableActive teams={activeTeams} status={segmentValue} />
+          
+          ) : <TeamTableActive teams={inActiveTeams} status={segmentValue}/>}
         </Flex>
+        
+         
       </Col>
     </Row>
   );
