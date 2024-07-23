@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
-
+import {getApplyLeaveCard} from '../chat/route'
+import {getUserData} from '@/app/_components/header/_components/action'
 export async function POST(request: NextRequest) {
     let body: { [key: string]: any } = {};
     const headersList = headers();
@@ -13,40 +14,102 @@ export async function POST(request: NextRequest) {
         } else {
             throw new Error("Unsupported Content Type");
         }
-
-        console.log('Parsed Home body:', body);
-
         // Check if the event is onAppHome
+        console.log("rohit input body", body)
+        const userId = body.chat?.user?.name
+        console.log("user id ", userId)
+
+        const googleUserInfo = await getUserInfo(userId)
+
         if (body.commonEventObject && body.commonEventObject.invokedFunction === 'onAppHome') {
             console.log('Home tab event detected');
             const response = new NextResponse(JSON.stringify({
-                cardsV2: [{
-                    cardId: 'homeCard',
-                    card: {
-                        name: 'Home Card',
-                        sections: [
-                            {
-                                collapsible: false,
-                                uncollapsibleWidgetsCount: 1,
-                                widgets: [
+                action: {
+                    navigations: [
+                        {
+                            pushCard:
+                            {  header: {
+                                title: "Welcome to Avkash.io Chat Bot",
+                                subtitle: "Hello there, welcome to avkash you can make your leaves and leave history",
+                              },
+                                sections: [
+                                    
                                     {
-                                        textParagraph: {
-                                            text: "See hello there for rich text formatting"
+                                        header: "Avkash.io",
+                                      widgets: [
+                                        {
+                                            decoratedText: {
+                                              icon: {
+                                                knownIcon: "STAR"
+                                              },
+                                              text: 'You can manage your leaves from avkash.io. In the chat bot say "hello" to it, it will show you the main functionality of the Avkash '
+                                            }
+                                        },
+                                        {
+                                        decoratedText: {
+                                            icon: {
+                                            knownIcon: "STAR"
+                                            },
+                                            text: 'You can Apply leave, see the last 7 days data and your leave report also.'
                                         }
-                                    },
-                                    {
-                                        divider: {}
-                                    },
-                                    {
-                                        textParagraph: {
-                                            text: "See <a href=https://developers.google.com/apps-script/add-ons/concepts/widgets#text_formatting>this doc</a> for rich text formatting"
-                                        }
+                                        },
+                                        {
+                                            decoratedText: {
+                                                icon: {
+                                                knownIcon: "STAR"
+                                                },
+                                                text: 'By clicking on the respective buttons, the form will pop out and you can make changes with respected to it.'
+                                            }
+                                        },
+                                        {
+                                            buttonList: {
+                                              buttons: [
+                                                {
+                                                  text: "Request Leave",
+                                                  icon: {
+                                                    knownIcon: "CLOCK",
+                                                    altText: "check calendar"
+                                                  },
+                                                  onClick: {
+                                                    action: {
+                                                      function: "getApplyLeaveCard"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  text: "Your Leaves",
+                                                  icon: {
+                                                    knownIcon: "DESCRIPTION",
+                                                    altText: "check calendar"
+                                                  },
+                                                  onClick: {
+                                                    openLink: {
+                                                      url: "https://developers.google.com/chat/ui/widgets/button-list"
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  text: "Leave Report",
+                                                  icon: {
+                                                    knownIcon: "INVITE",
+                                                    altText: "check calendar"
+                                                  },
+                                                  onClick: {
+                                                    action: {
+                                                      function: "getVirtualMeetSupportCard"
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                      ]
                                     }
-                                ]
+                                  ]
                             }
-                        ]
-                    }
-                }]
+                        }
+                    ]
+                }
             }), {
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,29 +121,33 @@ export async function POST(request: NextRequest) {
             console.log('Home Tab Response:', response);
             return response;
         }
+        if (body.commonEventObject && body.commonEventObject.invokedFunction === 'getApplyLeaveCard'){
+            const response = getApplyLeaveCard()
+            return response
+        }
 
         // Default response for other events or messages
         const defaultResponse = new NextResponse(JSON.stringify({
-            cardsV2: [{
-                cardId: 'defaultCard',
-                card: {
-                    name: 'Default Card',
-                    header: {
-                        title: 'Test Header'
-                    },
-                    sections: [
+            action: {
+                navigations: [
+                    {
+                        pushCard:
                         {
-                            widgets: [
+                            sections: [
                                 {
-                                    textParagraph: {
-                                        text: 'This is a test card'
+                                  widgets: [
+                                    {
+                                      textParagraph: {
+                                        text: 'Please use a valid command.'
+                                      }
                                     }
+                                  ]
                                 }
-                            ]
+                              ]
                         }
-                    ]
-                }
-            }]
+                    }
+                ]
+            }
         }), {
             headers: {
                 'Content-Type': 'application/json',
@@ -104,72 +171,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-
-// import {NextRequest , NextResponse} from "next/server"
-// import {headers} from "next/headers"
-
-// export async function POST(request: NextRequest){
-//     let body: {[key: string]: any}= {};
-//     const headersList = headers();
-//     const contentType = headersList.get("content-type");
-//     console.log('Rohit this is content Type', contentType)
-
-//     try {
-//         if(contentType && contentType.includes("application/x-www-form-urlencoded")){
-//             const params = new URLSearchParams(await request.text());
-//             body = Object.fromEntries(params.entries());
-//             if(body.payload){
-//                 body = JSON.parse(body.payload);
-//             }else if (contentType && contentType.includes("application/json")){
-//                 body = await request.json();
-//             }else {
-//                 throw new Error("Unsupported Content Type")
-//             }
-//         }
-
-//         console.log('Parsede Home body', body)
-
-//         // checking the event is at home
-//     } catch (error) {
-//         console.log('rohit this is catch error', error)
-//     }
-//     const response = new NextResponse(JSON.stringify({
-//         cardsV2: [{
-//           cardId: 'homeCard',
-//           card: {
-//             name: 'Home Card',
-//             header: {
-//               title: 'Welcome to the Invoices Bot'
-//             },
-//             sections: [
-//               {
-//                 widgets: [
-//                   {
-//                     textParagraph: {
-//                       text: 'This is the home tab of the Invoices bot. Here you can manage your invoices and get updates.'
-//                     }
-//                   },
-//                   {
-//                     textParagraph: {
-//                       text: 'Use the commands in the Chat tab to interact with the bot.'
-//                     }
-//                   }
-//                 ]
-//               }
-//             ]
-//           }
-//         }]
-//       }), {
-//         headers: {
-//           'Content-Type': 'application/json',
-//           "ngrok-skip-browser-warning": 'konda'
-//         },
-//         status: 200
-//       });
-
-//       console.log('Home Tab Response:', response);
-//       return response;
-// }
-
-
-
+function getUserInfo(userId : string){
+  
+}
