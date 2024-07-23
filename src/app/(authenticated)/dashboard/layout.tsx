@@ -1,6 +1,6 @@
 import { Row, Col } from "antd";
-import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "../_actions";
-import StoreToContext from "../_components/store-to-context";
+import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "@/app/_actions";
+import StoreToContext from "@/app/_components/store-to-context";
 
 export default async function DashboardLayout({
   children,

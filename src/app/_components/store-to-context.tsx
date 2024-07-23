@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useApplicationContext } from "../_context/appContext";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 const StoreToContext = ({
   user,
