@@ -1,17 +1,14 @@
-
 import { updataOrgData } from "@/app/_actions";
 import { Form, Select, Switch, Button } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
 
-
 const General = () => {
-
   const { state: appState } = useApplicationContext();
-  const {orgId}=appState
-  
-  const onFinish = async(values: any) => {
-    const data= await updataOrgData(values,orgId)
-    console.log(data)
+  const { orgId } = appState;
+
+  const onFinish = async (values: any) => {
+    const data = await updataOrgData(values, orgId);
+    console.log(data);
   };
 
   return (
@@ -27,7 +24,11 @@ const General = () => {
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
     >
-      <Form.Item name="dateformat" label="Date Format" initialValue="MM/DD/YYYY">
+      <Form.Item
+        name="dateformat"
+        label="Date Format"
+        initialValue="MM/DD/YYYY"
+      >
         <Select placeholder="Select a date format">
           <Select.Option value="MM/DD/YYYY">MM/DD/YYYY</Select.Option>
           <Select.Option value="DD/MM/YYYY">DD/MM/YYYY</Select.Option>
@@ -40,7 +41,11 @@ const General = () => {
           <Select.Option value="HH:mm:ss">24-hour (HH:mm:ss)</Select.Option>
         </Select>
       </Form.Item>
-      <Form.Item name="visibility" label="Who can see other's leave?" initialValue="SELF">
+      <Form.Item
+        name="visibility"
+        label="Who can see other's leave?"
+        initialValue="SELF"
+      >
         <Select>
           <Select.Option value="ORG">
             Users can see the organization`s leave
