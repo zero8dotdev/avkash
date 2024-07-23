@@ -2,8 +2,11 @@ CREATE OR REPLACE FUNCTION create_org_team_user(
     org_name text,
     team_name text,
     user_name text,
-    user_email text
-) RETURNS VOID AS $$
+    user_email text,
+    OUT org_id UUID,
+    OUT team_id UUID,
+    OUT user_id UUID
+) AS $$
 DECLARE
     existing_org RECORD;
     new_org_id UUID;
@@ -37,6 +40,11 @@ BEGIN
         UPDATE "Team"
         SET manager = new_user_id
         WHERE "teamId" = new_team_id;
+
+        -- Set OUT parameters
+        org_id := new_org_id;
+        team_id := new_team_id;
+        user_id := new_user_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
