@@ -172,5 +172,5 @@ export async function POST(request: NextRequest) {
 }
 
 function getUserInfo(userId : string){
-  
+
 }

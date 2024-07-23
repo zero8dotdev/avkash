@@ -1,113 +1,37 @@
 "use client";
 import { useEffect } from "react";
-import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-import { useApplicationContext } from "../_context/appContext";
 import { createClient } from "../_utils/supabase/client";
-
-const supabase = createClient();
+import { useApplicationContext } from "../_context/appContext";
 
 export default function Welcome() {
+  const supabase = createClient();
   const router = useRouter();
-  const [form] = Form.useForm();
-  const searchParams = useSearchParams();
-  const code = searchParams.get("code");
-
   const { state, dispatch } = useApplicationContext();
-  const { orgId, teamId, userId, user } = state;
-  const userEmail = user?.email
-  const userName = user?.full_name
-  const userCompany = userEmail?.split('@')[1];
 
   useEffect(() => {
-    form.setFieldValue("name",userName);
-    form.setFieldValue("company",userCompany);
-    form.setFieldValue("email",userEmail);
-    form.setFieldValue("team",'Default');
-  }, [form,userCompany,userEmail,userName]);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     if (code) {
-  //       const { data, error } = await supabase.auth.exchangeCodeForSession(
-  //         code
-  //       );
-
-  //       if (error) {
-  //         console.error(error);
-  //       }
-
-  //       console.log(data);
-  //     }
-  //   })();
-  // }, [code]);
-
-  const onFinish = async (values :any) => {
-    const { name, company, team, email } = values;
-    try {
-      const { data, error } = await supabase
-        .rpc('create_org_team_user', {
-          org_name: company,
-          team_name: team,
-          user_name: name,
-          user_email: email,
-        });
-  
-      if (error) {
-        throw error;
-      }
-  
-      if (data) {
-        const [orgId, teamId, userId] = data;
-        dispatch({ type: 'setOrgId', payload: orgId });
-        dispatch({ type: 'setTeamId', payload: teamId });
-        dispatch({ type: 'setUserId', payload: userId });
-      }
-  
-    } catch (error :any) {
-      if (error.message === 'Organisation already exists') {
-        // Handle the specific error for existing organisation
-        alert('Organisation already exists. Please choose a different name.');
-      } else {
-        console.log(error.message);
-      }
+    if (state.userId) {
+      (async () => {
+        const { userId } = state;
+        const { data: _user, error } = await supabase
+          .from("User")
+          .select("*")
+          .eq("userId", userId);
+        if (_user && _user.length > 0) {
+          const user = _user[0];
+          if (user.orgId === null || user.teamId === null) {
+            router.replace("/signup");
+          } else {
+            dispatch({ type: "setOrgId", payload: user.orgId });
+            dispatch({ type: "setTeamId", payload: user.teamId });
+            router.replace("/dashboard/timeline");
+          }
+        } else {
+          // handle error or case when no user is found
+          console.error(error);
+          router.replace("/signup");
+        }
+      })();
     }
-  }; 
-
-  const testSupabaseAuth = async () => {
-    const { data, error } = await supabase.from("Organisation").select("*");
-
-    console.log("Org data");
-    if (error) {
-      console.log(error);
-    }
-
-    console.log(data);
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-      <h1 className="text-xl font-bold mb-4">Avkash</h1>
-      <Form form={form} layout="vertical" className="w-96" onFinish={onFinish}>
-        <Form.Item label="Your Name" name="name" initialValue={userName}>
-          <Input type="text" placeholder="Your name"></Input>
-        </Form.Item>
-        <Form.Item label="Company Name" name="company" initialValue={userCompany}>
-          <Input type="text" placeholder="Company name"></Input>
-        </Form.Item>
-        <Form.Item label="Team Name" name="team" initialValue={'Default'}>
-          <Input type="text" placeholder="Default team name"></Input>
-        </Form.Item>
-        <Form.Item label="Work Email" name="email" initialValue={userEmail}>
-          <Input type="text" placeholder="yourname@yourcompany.com"></Input>
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit" block type="primary">
-            Singup
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
-  );
+  }, [state.userId]); // Add userId to the dependency array
 }

@@ -10,12 +10,22 @@ interface User {
 
 interface ContextState {
   orgId: string;
+  org: { visibility: string } | undefined;
+  team: object | undefined;
   teamId: string;
   userId: string;
-  user: User | undefined | null
+  user: { role: string } | undefined;
+  teams: Array<{ teamId: string; name: string }> | [];
 }
 
-type ActionTypes = "setUserId" | "setOrgId" | "setTeamId" | "setUser";
+type ActionTypes =
+  | "setUserId"
+  | "setOrgId"
+  | "setTeamId"
+  | "setUser"
+  | "setOrg"
+  | "setTeam"
+  | "setTeams";
 
 interface Action {
   type: ActionTypes;
@@ -26,11 +36,10 @@ const INITIAL_STATE: ContextState = {
   orgId: "",
   teamId: "",
   userId: "",
-  user: {
-      full_name : '',
-      email: '',
-      avatar_url: 'https://www.shutterstock.com/image-vector/user-login-authenticate-icon-human-260nw-1365533969.jpg'
-  }
+  team: undefined,
+  org: undefined,
+  user: undefined,
+  teams: [],
 };
 
 interface ApplicationContextType {
@@ -50,10 +59,30 @@ function applicationReducer(state: ContextState, action: Action) {
         orgId: action.payload,
       };
 
+    case "setOrg":
+      return {
+        ...state,
+        orgId: action.payload.orgId,
+        org: action.payload,
+      };
+
     case "setTeamId":
       return {
         ...state,
         teamId: action.payload,
+      };
+
+    case "setTeam":
+      return {
+        ...state,
+        teamId: action.payload.teamId,
+        team: action.payload,
+      };
+
+    case "setTeams":
+      return {
+        ...state,
+        teams: action.payload,
       };
 
     case "setUserId":
@@ -64,12 +93,7 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setUser":
       return {
         ...state,
-        user: action.payload,
-      };
-
-    case "setUser":
-      return {
-        ...state,
+        userId: action.payload.userId,
         user: action.payload,
       };
     default: {
