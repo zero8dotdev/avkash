@@ -1,7 +1,14 @@
 "use client";
 
 import { Menu } from "antd";
-import { DashboardTwoTone, SettingTwoTone } from "@ant-design/icons";
+import {
+  DashboardOutlined,
+  DashboardTwoTone,
+  SettingOutlined,
+  SettingTwoTone,
+  UserOutlined,
+  UserSwitchOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -10,12 +17,17 @@ const menuItems: MenuItem[] = [
   {
     label: "Timeline",
     key: "timeline",
-    icon: <DashboardTwoTone />,
+    icon: <DashboardOutlined />,
   },
   {
     label: "Settings",
     key: "settings",
-    icon: <SettingTwoTone />,
+    icon: <SettingOutlined />,
+  },
+  {
+    label: "Users",
+    key: "users",
+    icon: <UserOutlined />,
   },
 ];
 
@@ -26,7 +38,7 @@ export default function MainMenu() {
   const handleMenuItemClick: MenuProps["onClick"] = (e) => {
     router.push(`/dashboard/${e.key}`);
   };
-
+  // TODO: render the menu items (settings and Users) only for owner
   if (pathname.startsWith("/dashboard")) {
     return (
       <Menu onClick={handleMenuItemClick} mode="horizontal" items={menuItems} />

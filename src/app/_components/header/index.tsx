@@ -21,8 +21,9 @@ export default function AppHeader() {
           avkash
         </Title>
       </Link>
-      <MainMenu />
-      <div style={{ flex: "1" }}></div>
+      <div style={{ flex: "1" }}>
+        <MainMenu />
+      </div>
       <Space>
         <Link href="/login">
           <Button type="primary">Sign up</Button>
