@@ -99,7 +99,6 @@ export const fetchAllTeams = async (orgId: string) => {
 export const fetchTeamMembers = async (teamId: string) => {
   try {
     const supabase = createClient();
-
     const { data: teamMembers, error } = await supabase
       .from("User")
       .select()
@@ -214,7 +213,6 @@ export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string
 }
 
 export const updateTeamData = async (isActive: boolean, teamId: string) => {
-
   const supabase = createClient()
   const { data, error } = await supabase
     .from("Team")
@@ -232,15 +230,14 @@ export const updateTeamData = async (isActive: boolean, teamId: string) => {
 }
 
 
-export const fetchAllOrgUsers = async (orgId: string) => {
+export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
   const supabase = createClient()
   const { data, error } = await supabase
     .from("User")
-    .select(`*, Team(*)`)
+    .select(`${withTeam ? '*, Team(*)' : '*'}`)
     .eq("orgId", orgId);
   if (error) {
     throw error;
   }
   return data
-
 }
