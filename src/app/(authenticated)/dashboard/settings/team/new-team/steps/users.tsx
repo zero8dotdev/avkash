@@ -13,23 +13,20 @@ import {
 } from "antd";
 
 import React, { useEffect, useState } from "react";
-interface props{
-  selectedUsers:any[],
-  setSelectedUsers: (
-    data: any
-  ) => void;
+interface props {
+  selectedUsers: any[];
+  setSelectedUsers: (data: any) => void;
 }
 
-const Users:React.FC<props> = ({selectedUsers,setSelectedUsers}) => {
+const Users: React.FC<props> = ({ selectedUsers, setSelectedUsers }) => {
   const [users, setUsers] = useState<any[]>([]);
-  console.log(selectedUsers)
+  console.log(selectedUsers);
 
- 
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
   useEffect(() => {
     const fetchUsers = async () => {
-      const users = await fetchAllOrgUsers(orgId);
+      const users = await fetchAllOrgUsers(orgId, true);
       setUsers(users);
     };
 
@@ -39,17 +36,18 @@ const Users:React.FC<props> = ({selectedUsers,setSelectedUsers}) => {
   const handleUserChange = async (userId: any) => {
     setUsers(users.filter((user: any) => user.userId !== userId));
 
-    const selectedUser = users.filter((user:any) => user.userId === userId);
-    
+    const selectedUser = users.filter((user: any) => user.userId === userId);
+
     setSelectedUsers([...selectedUsers, selectedUser[0]]);
   };
-  const handleRemoveUser = (item:any) => {
-    setUsers([...users,item])
-    setSelectedUsers(selectedUsers.filter((each:any)=>each.userId!==item.userId))
+  const handleRemoveUser = (item: any) => {
+    setUsers([...users, item]);
+    setSelectedUsers(
+      selectedUsers.filter((each: any) => each.userId !== item.userId)
+    );
   };
 
-  
-console.log(users)
+  console.log(users);
   return (
     <Card style={{ width: "50%" }}>
       <Select
