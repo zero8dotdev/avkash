@@ -6,7 +6,7 @@ import { ConfigProvider, Layout } from "antd";
 import AppHeader from "./_components/header";
 import Content from "./_components/content";
 import { ApplicationProvider } from "./_context/appContext";
-
+import "./input.css";
 const roboto = Roboto_Flex({
   subsets: ["latin"],
   display: "swap",
