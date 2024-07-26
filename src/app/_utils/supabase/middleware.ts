@@ -54,11 +54,15 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // const user = await supabase.auth.getUser()
+  const user = await supabase.auth.getUser()
   // protected routes are handled here
-  // if (request.nextUrl.pathname.startsWith('/dashboard') && user.error) {
-  //   return NextResponse.redirect(new URL('/login', request.url))
-  // }
+  if (request.nextUrl.pathname.startsWith('/dashboard') && user.error) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    response.headers.append('OrgId', 'asdasdas');
+  }
 
   return response
 }

@@ -91,12 +91,14 @@ function applicationReducer(state: ContextState, action: Action) {
         ...state,
         userId: action.payload,
       };
+
     case "setUser":
       return {
         ...state,
         userId: action.payload.userId,
         user: action.payload,
       };
+
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
