@@ -1,30 +1,31 @@
 import { avkashUserInfoProps } from "@/app/api/slack/route";
-import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, getUserDataBasedOnUUID } from "../header/_components/actions";
+import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails } from "../header/_components/actions";
+import { type } from "os";
 
 interface commonModelProps {
   avkashUserInfo: avkashUserInfoProps,
   checkLeaveType: boolean,
   leaveId?: string,
-  payload?: any
+  payload?: any,
+  callbackId?: string,
+  values?: any
 }
 
 
-export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, leaveId, payload }: commonModelProps) {
+export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, leaveId, payload, callbackId, values }: commonModelProps) {
   let startDate: string = '';
   let endDate: string = '';
   let leaveType: string = '';
   let userDetails: any;
   let durationText: string = '';
   let durationValue: string = '';
+  let shift: string = '';
 
-  if (payload) {
-
-
-  }
   // this one for review leave
   const leavesList: any = leaveId && await getLeaveDetails(leaveId);
   const leaveDetails = leavesList && leavesList[0];
   if (leaveId) {
+    shift = leaveDetails.shift;
     const startDateFormat = new Date(leaveDetails.startDate);
     const end_dateFormat = new Date(leaveDetails.endDate);
     startDate = startDateFormat.toISOString().slice(0, 10)
@@ -44,6 +45,10 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     value: durationValue
   }
 
+  const initial_shift_value = {
+    text: { type: 'plain_text', text: shift.charAt(0).toUpperCase() + shift.slice(1) },
+    value: shift
+  };
   const leaveTypesList: any = await getLeaveTypes(avkashUserInfo.orgId);
   let initialLeaveType: any;
   const leaveTypes = leaveTypesList.map((leave: { leaveTypeId: String, name: string }) => {
@@ -54,7 +59,8 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
         "text": leave.name,
         "emoji": true
       },
-      "value": leave.name
+      "value": leave.leaveTypeId
+      // changin here leave.name to leave.leaveTypeId
     };
     if (leaveId) {
       if (leaveDetails.leaveType === leave.name) {
@@ -63,7 +69,6 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     }
     return res
   })
-
   const blocks: any[] = [
 
     {
@@ -111,6 +116,31 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     },
     {
       type: 'input',
+      block_id: 'shift_type_block',
+      element: {
+        type: 'radio_buttons',
+        action_id: 'shift_type',
+        options: [
+          {
+            text: { type: 'plain_text', text: 'NONE' },
+            value: 'NONE'
+          },
+          {
+            text: { type: 'plain_text', text: 'Morning' },
+            value: 'MORNING'
+          },
+          {
+            text: { type: 'plain_text', text: 'Afternoon' },
+            value: 'AFTERNOON'
+          },
+
+        ],
+        initial_option: leaveId && initial_shift_value,
+      },
+      label: { type: 'plain_text', text: 'Shift' }
+    },
+    {
+      type: 'input',
       dispatch_action: true,
       block_id: 'type_block',
       element: {
@@ -125,7 +155,6 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     {
       type: 'input',
       block_id: 'notes_block',
-      optional: true,
       element: {
         type: 'plain_text_input',
         initial_value: leaveId ? leaveDetails.reason : '',
@@ -138,14 +167,14 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
 
   if (checkLeaveType && payload) {
     const values = payload?.view?.state?.values;
-    const selectedUserId = values.select_user_block ? values.select_user_block.select_user.selected_option.value: avkashUserInfo.userId;
+    const selectedUserId = values.select_user_block ? values.select_user_block.select_user.selected_option.value : avkashUserInfo.userId;
     startDate = values.start_date_block.start_date.selected_date;
     endDate = values.end_date_block.end_date.selected_date;
     leaveType = values.type_block.leave_type.selected_option.value;
     userDetails = await getUserDataBasedOnUUID(selectedUserId);
-    
+    console.log(leaveType)
     const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, userDetails.accruedLeave, userDetails.usedLeave);
-    blocks.splice(4, 0, {
+    blocks.splice(5, 0, {
       "type": "context",
       "elements": [
         {
@@ -156,12 +185,47 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     },)
   }
 
+  if (leaveId) {
+    if (callbackId?.startsWith('review_leave_')) {
+      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, values, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+      blocks.splice(5, 0, {
+        "type": "context",
+        "elements": [
+          {
+            type: "mrkdwn",
+            text: `:warning: *${res}*`,
+          }
+        ]
+      },)
+    } else {
+      // this is for review when manager clicks on review card
+      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveDetails.leaveType, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+      blocks.splice(5, 0, {
+        "type": "context",
+        "elements": [
+          {
+            type: "mrkdwn",
+            text: `:warning: *${res}*`,
+          }
+        ]
+      },)
+    }
+  }
   return blocks
 }
 
-export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string, accruedLeave: { [key: string]: number }, usedLeave: { [key: string]: number }) {
+interface WorkWeekDataProps {
+  location: string;
+  workweek: string[];
+}
+
+export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string, accruedLeave?: any, usedLeave?: any) {
   let availableLeaves;
-  const workWeek = await fetchOrgWorkWeek(orgId);
+  const workWeekData: WorkWeekDataProps | null = await fetchOrgWorkWeek(orgId);
+  if (!workWeekData) {
+    throw new Error(`No work week data found for organization ID: ${orgId}`);
+  }
+  const { location, workweek } = workWeekData;
   const daysMap: { [key: string]: number } = {
     "SUNDAY": 0,
     "MONDAY": 1,
@@ -172,7 +236,10 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
     "SATURDAY": 6,
   };
 
-  const workWeekNumbers = workWeek.map((day: string) => daysMap[day]);
+  const holidays: any = await fetchHolidays(startDate, endDate, location);
+  const holidaysCount = holidays.length > 0 ? holidays.length : 0;
+
+  const workWeekNumbers = workweek.map((day: string) => daysMap[day]);
   let count = 0;
   const currentDate = new Date(startDate);
 
@@ -183,16 +250,27 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  if (leaveType === 'sick' || leaveType === 'Sick') {
-    availableLeaves = 'you have unlimited sick leaves';
+
+  const fetchLeaveTypes: any = await getLeaveTypeDetails(leaveType,orgId);
+  const leaveTypeDetails = fetchLeaveTypes?.LeavePolicy[0].unlimited;
+
+  count = count - holidaysCount;
+  if(!usedLeave){
+    return count
+  }
+
+  // todo: fetch leave type from org leavetype and leave policy data for the org
+  else if (leaveTypeDetails) {
+    availableLeaves = 'you have unlimited leaves';
   }
   else {
-    if (count > accruedLeave['Paid time off']) {
+    if (count > accruedLeave[fetchLeaveTypes.name]) {
       availableLeaves = `applied leaves are exceeding the avaliable accrued leave count \n you have ${accruedLeave["Paid time off"]} available leaves`;
     } else {
       availableLeaves = `${count} applied leaves will be deducted from ${accruedLeave['Paid time off']} avaliable accrued leaves\n you have ${accruedLeave["Paid time off"]} available leaves`;
     }
   }
+
   return availableLeaves;
 
 }
@@ -237,6 +315,10 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
 
 
 
+
+// function fetchHolidays(locaiton: any) {
+//   throw new Error("Function not implemented.");
+// }
 // import { avkashUserInfoProps } from "@/app/api/slack/route";
 // import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, getUserDataBasedOnUUID } from "../header/_components/actions";
 

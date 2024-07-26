@@ -2,14 +2,10 @@ import { avkashUserInfoProps } from "@/app/api/slack/route";
 import { fetchOrgWorkWeek, getLeaveDetails } from "../../header/_components/actions";
 import { createCommonModalBlocks } from "../createCommonModalBlocks";
 import { NextResponse } from "next/server";
-import { openView } from "../sendMessages";
+import { openView, updateViews } from "../sendMessages";
 import { act } from "react";
 
-export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any) {
-
-
-
-
+export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any,callbackId?: any,values?: any,viewId?: any){
   const leavesList: any = await getLeaveDetails(leaveId);
   const leaveDetails = leavesList[0];
   const start_dateFormat = new Date(leaveDetails.startDate);
@@ -18,22 +14,6 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
   const end_date = end_dateFormat.toISOString().slice(0, 10);
   let durationText: string = '';
   let durationValue: string = '';
-
-  // const leaveTypeOptions = [
-  //   { text: { type: 'plain_text', text: 'Sick Leave' }, value: 'sick' },
-  //   { text: { type: 'plain_text', text: 'Paid Leave' }, value: 'paid' },
-  //   { text: { type: 'plain_text', text: 'Test Leave' }, value: 'test' },
-  // ];
-
-  // let initial_leaveType: any = ''
-
-  // if (leaveDetails.leaveType == 'sick') {
-  //   initial_leaveType = leaveTypeOptions[0]
-  // } else if (leaveDetails.leaveType == 'paid') {
-  //   initial_leaveType = leaveTypeOptions[1]
-  // } else {
-  //   initial_leaveType = leaveTypeOptions[2]
-  // }
 
   if (leaveDetails.duration == 'FULL_DAY') {
     durationText = "Full Day";
@@ -47,9 +27,7 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
     value: durationValue
   }
 
-  // const totalAvailableLeaves = await calculateWorkingDays(start_dateFormat, end_dateFormat, leaveDetails.leaveType, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
-  // const commonBlocks = await createCommonModalBlocks(avkashUserInfo, start_date, end_date, initial_radio_option, leaveDetails.leaveType, leaveDetails.reason,leaveId);
-  const commonBlocks = await createCommonModalBlocks({avkashUserInfo,checkLeaveType:false,leaveId});
+  const commonBlocks = await createCommonModalBlocks({avkashUserInfo,checkLeaveType:false,leaveId,callbackId,values});
 
   const review_model_view: any = {
     type: 'modal',
@@ -106,7 +84,14 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
 
     ],
   };
-  openView(trigger_id, review_model_view)
+
+  if(callbackId && callbackId.startsWith('review_leave_')){
+    updateViews(viewId, review_model_view)
+  }else{
+    openView(trigger_id, review_model_view)
+
+  }
+
   return new NextResponse("opened leave review modal", { status: 200 });
 
 }

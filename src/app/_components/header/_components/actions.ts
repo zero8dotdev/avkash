@@ -1,7 +1,8 @@
+
 'use server'
 
 import supabaseAdmin from "@/app/_utils/supabase/adminClient"
-import { log } from "console"
+import { count, log } from "console"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -15,17 +16,22 @@ export async function logoutAction() {
   redirect('/')
 }
 
-export async function getUserData(slackId: any) {
+interface getUserDataProps {
+  id: string;
+  slackId?: string;
+  googleId?: string;
+}
+
+export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
-    .eq("slackId", slackId)
+    .eq(`${slackId ? 'slackId' : 'googleId'}`, id)
     .single()
 
   if (userData) {
     return userData
   } else {
-    // [TODO] : Propogate this error to the top.
     return userError
   }
 }
@@ -45,8 +51,9 @@ export async function getUserDataBasedOnUUID(userId: any) {
   }
 }
 
-export async function applyLeave(leaveType: string, startDate: string, endDate: string, duration: string, isApproved: string, userId: string, teamId: string, reason: string, orgId: string) {
-  const { data,error } = await supabaseAdmin
+export async function applyLeave(leaveType: string, startDate: string, endDate: string, duration: string, shift: string, isApproved: string, userId: string, teamId: string, reason: string, orgId: string) {
+
+  const { data, error } = await supabaseAdmin
     .from("Leave")
     .insert({
       leaveType,
@@ -58,13 +65,13 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
       teamId,
       reason,
       orgId,
-      shift: "NONE",
+      shift,
     })
     .select();
   if (data) {
     console.log(data)
     return data
-  }else{
+  } else {
     console.log(error);
   }
 
@@ -89,7 +96,7 @@ export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   daysAgo.setDate(daysAgo.getDate() - 7);
   const { data, error } = await supabaseAdmin
     .from("Leave")
-    .select(`*,User(slackId),Team(name)`)
+    .select(`*,User(name,orgId,slackId),Team(name)`)
     .or(`createdOn.gte.${daysAgo.toISOString()},isApproved.eq.PENDING`);
 
 
@@ -107,12 +114,41 @@ export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
     filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
   }
 
-  // console.log("filteredLeaves",filteredLeaves);
 
   const pendingLeaves = filteredLeaves.filter(leave => leave.isApproved === 'PENDING');
 
   return { leaves: filteredLeaves, pending: pendingLeaves };
 }
+
+export async function getLeavesHistory1({ days,userId,teamId }: {days: number,userId?: string,teamId?: string}) {
+  const daysAgo = new Date();
+  daysAgo.setDate(daysAgo.getDate() - days);
+  const { data, error } = await supabaseAdmin
+    .from("Leave")
+    .select(`*,User(name,orgId,slackId),Team(name)`)
+    .or(`createdOn.gte.${daysAgo.toISOString()},isApproved.eq.PENDING`);
+
+
+  if (error) {
+    console.error('Error fetching leave history:', error);
+    throw new Error('This feature is coming soon!!!');
+  }
+
+  const leaves = data ?? [];
+
+  let filteredLeaves = leaves;
+  if (userId) {
+    filteredLeaves = filteredLeaves.filter(leave => leave.userId === userId);
+  } else if (teamId) {
+    filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
+  }
+
+
+  const pendingLeaves = filteredLeaves.filter(leave => leave.isApproved === 'PENDING');
+
+  return { leaves: filteredLeaves, pending: pendingLeaves };
+}
+
 
 export async function getLeaveReports() {
   return 'this feature is coming soon!!!'
@@ -148,8 +184,19 @@ export async function getLeaveDetails(leaveId: string) {
 export async function getLeaveTypes(orgId: string) {
   const { data, error } = await supabaseAdmin
     .from("LeaveType")
-    .select("leaveTypeId,name")
+    .select("leaveTypeId,name,LeavePolicy(*)")
     .eq("orgId", orgId)
+
+  return data
+}
+
+export async function getLeaveTypeDetails(leaveType: string,orgId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("LeaveType")
+    .select("leaveTypeId,name,LeavePolicy(unlimited)")
+    .eq("leaveTypeId", leaveType)
+    .eq('orgId',orgId)
+    .single()
   return data
 }
 
@@ -157,8 +204,8 @@ export async function getManagerIds(orgId: string) {
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("*")
-    .eq('role', "OWNER" )
-    .eq('orgId', orgId )
+    .eq('role', "OWNER")
+    .eq('orgId', orgId)
     .single()
   return data.slackId
 }
@@ -166,8 +213,40 @@ export async function getManagerIds(orgId: string) {
 export async function fetchOrgWorkWeek(orgId: string) {
   const { data, error } = await supabaseAdmin
     .from("Organisation")
-    .select("workweek")
-    .eq('orgId', orgId )
+    .select("location,workweek")
+    .eq('orgId', orgId)
     .single()
-  return data?.workweek
+  return data
+}
+
+export async function fetchHolidays(startDate: string, endDate: string, location: string) {
+  try {
+    console.log(startDate);
+    const start = new Date(startDate).toISOString().slice(0, 10);
+    console.log(start)
+    const end = new Date(endDate).toISOString().slice(0, 10);
+    const { data, error } = await supabaseAdmin
+      .from('Holiday')
+      .select('*')
+      .gte('date', start)
+      .lte('date', end);
+
+    if (error) {
+      console.error('Error fetching holidays:', error);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error('Unexpected error fetching holidays:', error);
+    return null;
+  }
+}
+
+export async function getSlackAccessToken(slackId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("User")
+    .select("orgId,Organisation(slackAccessToken)")
+    .eq('slackId', slackId)
+    .single()
+  return data
 }
