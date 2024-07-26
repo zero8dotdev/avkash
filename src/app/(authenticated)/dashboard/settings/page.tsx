@@ -8,6 +8,7 @@ import General from "./general/page";
 import Billing from "./billing/page";
 import Location from "./location/page";
 import Team from "./team/page";
+import LeavePolicies from "./leave-policy/page";
 
 const onChange = (key: string) => {
   console.log(key);
@@ -73,6 +74,15 @@ const items: TabsProps["items"] = [
       </TabWrapper>
     ),
   },
+  {
+    key: "6",
+    label: "leave policies",
+    children: (
+      <TabWrapper title="leave Policies">
+        <LeavePolicies />
+      </TabWrapper>
+    ),
+  }
 ];
 
 const SettingsPage: React.FC = () => {

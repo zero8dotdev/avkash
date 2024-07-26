@@ -217,7 +217,6 @@ export const updateTeamData = async (isActive: boolean, teamId: string) => {
   const { data, error } = await supabase
     .from("Team")
     .update({ isActive: isActive })
-
     .eq('teamId', teamId)
     .select()
   if (error) {
@@ -236,6 +235,19 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
     .from("User")
     .select(`${withTeam ? '*, Team(*)' : '*'}`)
     .eq("orgId", orgId);
+  if (error) {
+    throw error;
+  }
+  return data
+}
+
+export const  insertNewLeaveType=async(values:any)=>{
+  
+  const supabase = createClient()
+  const {data,error}=await supabase 
+  .from("LeaveType")
+  .insert(values)
+  .select()
   if (error) {
     throw error;
   }
