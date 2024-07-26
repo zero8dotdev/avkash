@@ -7,16 +7,19 @@ import { calculateWorkingDays } from "../createCommonModalBlocks";
 
 
 export async function handleViewSubmission(view: any, avkashUserInfo: avkashUserInfoProps) {
+  // const updates_channel_Id = 'C06GP1QCS0Y';
 
-  const updates_channel_Id = 'C06GP1QCS0Y';
-  const managerSlackId = await getManagerIds(avkashUserInfo.orgId);
+  // const managerSlackId = await getManagerIds(avkashUserInfo.orgId);
+  const managerSlackId = avkashUserInfo.slackId;
   const startDate = view?.state?.values?.start_date_block?.start_date?.selected_date;
   const endDate = view?.state?.values?.end_date_block?.end_date?.selected_date;
   const duration_temp = view?.state?.values?.day_type_block?.day_type?.selected_option?.value;
+  const shift_temp = view?.state?.values?.shift_type_block.shift_type.selected_option.value;
   let duration = '';
+  let shift = '';
   if (duration_temp == 'full_day') {
     duration = 'FULL_DAY';
-  } else if (duration_temp == 'half_day' || duration_temp == 'half_day') {
+  } else if (duration_temp == 'half_day') {
     duration = 'HALF_DAY';
   }
   const leaveType = view?.state?.values?.type_block?.leave_type?.selected_option?.value;
@@ -28,6 +31,7 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
   let applylingTeam = '';
   let channelId = '';
   const callback_id = view?.callback_id;
+
   if (callback_id == 'add-leave') {
     appliedUserId = view?.state?.values?.select_user_block?.select_user?.selected_option?.value;
     const appliedUserSlackId = await getUserDataBasedOnUUID(appliedUserId);
@@ -48,10 +52,10 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     await updateLeaveStatus(leaveId, allFields);
     sendPostMessages(appliedUserSlackId, msgForUser);
     sendPostMessages(managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
-    if (isReviewApproved == 'approve') {
-      sendPostMessages(updates_channel_Id, `Hello Everyone!!!!\n\n<@${appliedUserSlackId}> is going on ${leaveType} leave from ${startDate} to ${endDate}`);
+    // if (isReviewApproved == 'approve') {
+    //   sendPostMessages(updates_channel_Id, `Hello Everyone!!!!\n\n<@${appliedUserSlackId}> is going on ${leaveType} leave from ${startDate} to ${endDate}`);
 
-    }
+    // }
     return new NextResponse(null, { status: 200 })
   }
   else {
@@ -60,7 +64,14 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     text = `Your Leave apply from ${startDate} to ${endDate} has been submitted successfully`;
     channelId = avkashUserInfo.slackId;
   }
-  const leaveDetails: any = await applyLeave(leaveType, startDate, endDate, duration, isApproved, appliedUserId, applylingTeam, leaveReason, avkashUserInfo.orgId);
+
+  if (startDate === endDate) {
+    shift = shift_temp;
+  } else {
+    shift = "NONE";
+    duration = 'FULL_DAY';
+  }
+  const leaveDetails: any = await applyLeave(leaveType, startDate, endDate, duration, shift, isApproved, appliedUserId, applylingTeam, leaveReason, avkashUserInfo.orgId);
   const leaveId = leaveDetails[0].leaveId;
   const appliedLeaveDetailsList: any = await getLeaveDetails(leaveId);
 
