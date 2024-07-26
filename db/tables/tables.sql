@@ -47,7 +47,8 @@ CREATE TABLE "Organisation" (
     "createdBy" VARCHAR(255),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    "halfDayLeave" BOOLEAN NOT NULL DEFAULT FALSE
+    "halfDayLeave" BOOLEAN NOT NULL DEFAULT FALSE,
+    "initialSetup" BOOLEAN DEFAULT FALSE,
 );
 
 CREATE TABLE "Team" (
@@ -182,6 +183,15 @@ CREATE TABLE "OrgActivityLog" (
     "teamId" UUID,
     "userId" UUID,
     "keyword" VARCHAR
+);
+
+CREATE TABLE "OrgAccressData" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orgId" UUID,
+    "SlackAccessToken" TEXT,
+    "SlackRefreshToken"  TEXT,
+    "GoogleAccessToken" TEXT,
+    "GoogleRefreshToken" TEXT,
 );
 
 CREATE TABLE "PublicHolidays" (
