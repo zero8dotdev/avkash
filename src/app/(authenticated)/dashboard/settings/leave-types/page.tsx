@@ -20,7 +20,11 @@ import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import LeaveTypeEdit from "./leaveEditType";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { fetchleaveTypes, insertNewLeaveType, updateLeaveTypeBasedOnOrg } from "@/app/_actions";
+import {
+  fetchleaveTypes,
+  insertNewLeaveType,
+  updateLeaveTypeBasedOnOrg,
+} from "@/app/_actions";
 import LeaveTypeDisable from "./leaveTypeDisable";
 
 interface LeaveType {
@@ -59,15 +63,14 @@ export default function Page() {
   };
 
   const [form] = Form.useForm();
-  const onFinish = async(values: any) => {
-     const newValues={...values,color:values.color.slice(1),orgId:orgId}
-  
-    const data= await insertNewLeaveType(newValues)
-    if(data){
-      form.resetFields()
-      setModalVisible(false)
+  const onFinish = async (values: any) => {
+    const newValues = { ...values, color: values.color.slice(1), orgId: orgId };
+
+    const data = await insertNewLeaveType(newValues);
+    if (data) {
+      form.resetFields();
+      setModalVisible(false);
     }
-    
   };
 
   return (
@@ -166,8 +169,15 @@ export default function Page() {
         />
       </Col>
       <Col>
-        <Button onClick={() => setModalVisible(true)} type="primary" style={{marginTop:'8px'}}>Add Leave Type</Button>
-        <Modal open={isModalVisible} 
+        <Button
+          onClick={() => setModalVisible(true)}
+          type="primary"
+          style={{ marginTop: "8px" }}
+        >
+          Add Leave Type
+        </Button>
+        <Modal
+          open={isModalVisible}
           footer={[
             <Button key="cancel" onClick={() => setModalVisible(false)}>
               Cancel
@@ -176,12 +186,25 @@ export default function Page() {
               Save
             </Button>,
           ]}
-          closable={false}>
+          closable={false}
+        >
           <Form onFinish={onFinish} form={form}>
-            <Form.Item label="Leave Type name" name="name" rules={[{ required: true, message: 'Please Enter leave type  name' }]}>
+            <Form.Item
+              label="Leave Type name"
+              name="name"
+              rules={[
+                { required: true, message: "Please Enter leave type  name" },
+              ]}
+            >
               <Input />
             </Form.Item>
-            <Form.Item label="Leave Color" name="color" rules={[{ required: true, message: 'Please select leave type color' }]}>
+            <Form.Item
+              label="Leave Color"
+              name="color"
+              rules={[
+                { required: true, message: "Please select leave type color" },
+              ]}
+            >
               <ColorPicker
                 onChange={(_, hex) => form.setFieldValue("color", hex)}
               />
@@ -207,7 +230,11 @@ export default function Page() {
                 </Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item label="Leave Type Emoji" name="emoji" initialValue="https://api.dicebear.com/7.x/miniavs/svg?seed=8">
+            <Form.Item
+              label="Leave Type Emoji"
+              name="emoji"
+              initialValue="https://api.dicebear.com/7.x/miniavs/svg?seed=8"
+            >
               <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
             </Form.Item>
           </Form>
