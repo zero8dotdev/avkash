@@ -13,7 +13,7 @@ export default function WithSlack() {
     ).toString();
 
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "slack",
+      provider: "slack_oidc",
       options: {
         redirectTo,
       },
