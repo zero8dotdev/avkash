@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from "@/app/_utils/supabase/server";
+import { createAdminClient } from "../_utils/supabase/adminClient";
+
 
 /*
   Fetch the current logged in user
@@ -143,7 +145,8 @@ export const fetchleaveTypes = async (orgId: string) => {
 
 }
 export const updateLeaveType = async (values: any, leaveTypeId: any) => {
-  const supabase = createClient()
+  const supabase = createClient();
+
   const { data, error } = await supabase
     .from("LeaveType")
     .update({ ...values })
@@ -223,11 +226,7 @@ export const updateTeamData = async (isActive: boolean, teamId: string) => {
     throw error;
   }
   return data
-
-
-
 }
-
 
 export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
   const supabase = createClient()
@@ -241,18 +240,19 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
   return data
 }
 
-export const  insertNewLeaveType=async(values:any)=>{
-  
-  const supabase = createClient()
-  const {data,error}=await supabase 
-  .from("LeaveType")
-  .insert(values)
-  .select()
+export const insertNewLeaveType = async (values: any) => {
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("LeaveType")
+    .insert(values)
+    .select()
   if (error) {
     throw error;
   }
   return data
 }
+
 export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:string)=>{
   const supabase = createClient()
   
@@ -291,3 +291,73 @@ export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:strin
       return data 
     }
 }
+
+/* Sign Up process, takes care of creating org team and user */
+
+export const signUpAction = async (values: any) => {
+  const supabaseServerClient = createClient();
+  const { data: { user: authUser }, error } = await supabaseServerClient.auth.getUser();
+
+  if (!authUser) {
+    throw new Error('Something went wrong!');
+  };
+
+  const { name, company_name, team_name, email } = values;
+  const supabase = createAdminClient();
+
+  try {
+    // create one organisation
+    const { data: org, error: orgError } = await supabase
+      .from('Organisation')
+      .insert({
+        name: company_name,
+        createdBy: authUser.id
+      })
+      .select('*')
+      .single();
+
+    if (orgError) {
+      throw orgError;
+    }
+
+    // create a team with that orgId
+    const { data: team, error: teamError } = await supabase
+      .from("Team")
+      .insert({ name: team_name, orgId: org.orgId, createdBy: authUser.id })
+      .select()
+      .single();
+
+    if (teamError) {
+      throw teamError;
+    }
+
+    // create a user as well
+    const { data: user, error: userError } = await supabase
+      .from("User")
+      .insert({
+        userId: authUser.id,
+        name: name,
+        email: email,
+        teamId: team.teamId,
+        role: 'OWNER',
+        accruedLeave: {},
+        usedLeave: {},
+        orgId: org.orgId,
+        createdBy: authUser.id
+      })
+      .select()
+      .single();
+
+    if (userError) {
+      throw userError;
+    }
+
+    return {
+      org,
+      team,
+      user
+    }
+  } catch (error) {
+    throw error;
+  }
+};
