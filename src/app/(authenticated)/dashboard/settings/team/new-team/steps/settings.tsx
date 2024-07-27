@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Checkbox, Flex, Form, Input, List, Select } from "antd";
+import { Card, Checkbox, Form, Input, List, Select } from "antd";
 import moment from "moment-timezone";
 import { useEffect } from "react";
 
@@ -116,7 +116,7 @@ interface settingPops {
 }
 const Settings: React.FC<settingPops> = ({ settings, setSettings }) => {
   return (
-    
+
     <List
     grid={{gutter:24}}
       dataSource={settings}
@@ -124,9 +124,9 @@ const Settings: React.FC<settingPops> = ({ settings, setSettings }) => {
         <Setting key={index} item={item} setSettings={setSettings} />
       )}
       itemLayout="vertical"
-      
+
     />
-   
+
   );
 };
 

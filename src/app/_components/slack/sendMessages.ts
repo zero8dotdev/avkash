@@ -1,6 +1,9 @@
-import { getAccessToken } from '@/app/api/slack/route';
 import { WebClient } from '@slack/web-api';
 
+
+function getAccessToken() {
+  return '';
+}
 
 
 export async function sendPostMessages(channel?: any, text?: any, blocks?: any) {

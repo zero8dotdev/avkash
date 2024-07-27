@@ -27,6 +27,7 @@ const Users: React.FC<props> = ({ selectedUsers, setSelectedUsers }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       const users = await fetchAllOrgUsers(orgId, true);
+      // @ts-ignore
       setUsers(users);
     };
 

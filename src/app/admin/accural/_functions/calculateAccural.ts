@@ -1,4 +1,4 @@
-import supabaseAdmin from "@/app/_utils/supabase/adminClient";
+import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 
 
 type IFrequency = 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY';
@@ -19,6 +19,7 @@ const getAccuralCount = (frequency: IFrequency, maximumLeaves: number) => {
 
 export const calculateAccural = async (frequency: IFrequency, accrueOn: IAccuredOn) => {
   try {
+    const supabaseAdmin = createAdminClient();
     const { data: policies, error } = await supabaseAdmin
       .from('LeavePolicy')
       .select('*')

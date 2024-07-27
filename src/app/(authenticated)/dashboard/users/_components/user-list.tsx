@@ -54,6 +54,7 @@ const UserList = () => {
     (async () => {
       setLoading(true);
       const users = await fetchAllOrgUsers(orgId, false);
+      // @ts-ignore
       setMembers(users);
       setLoading(false);
       setSelect("0");
@@ -67,6 +68,7 @@ const UserList = () => {
       teamId === "0"
         ? await fetchAllOrgUsers(orgId, false)
         : await fetchTeamMembers(teamId);
+    // @ts-ignore
     setMembers(members);
     setLoading(false);
   };
