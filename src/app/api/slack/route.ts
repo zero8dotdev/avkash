@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getSlackAccessToken, getUserData} from '@/app/_components/header/_components/actions';
+import { getSlackAccessToken, getUserData } from '@/app/_components/header/_components/actions';
 import getBodyAndSlackId from '../../_components/slack/getBodyAndSlackId';
 import handleAppHomeOpened from '../../_components/slack/handleAppHomeOpened';
 import handlePayload from '@/app/_components/slack/payload/handlePayload';
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   console.log('new body gnani', body);
   const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
   const slackAccessToken = accessTokenData?.Organisation?.slackAccessToken;
-  avkashUserInfo = await getUserData({id: currentUserSlackId,slackId: 'slackId'});
+  avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
   avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
   avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
   avkashUserInfo['accessToken'] = slackAccessToken;
@@ -77,12 +77,6 @@ export async function POST(request: NextRequest) {
     return new NextResponse('An error occurred while processing your request.', { status: 500 });
   }
 }
-
-export function getAccessToken() {
-  console.log(accessToken);
-  return accessToken;
-}
-
 
 function handleUrlVerification(body: any) {
   return new NextResponse(JSON.stringify({ challenge: body.challenge }), {

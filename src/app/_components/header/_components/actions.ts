@@ -1,8 +1,7 @@
 
 'use server'
 
-import supabaseAdmin from "@/app/_utils/supabase/adminClient"
-import { count, log } from "console"
+import { createAdminClient } from "@/app/_utils/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -23,6 +22,7 @@ interface getUserDataProps {
 }
 
 export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
+  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -37,6 +37,7 @@ export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
 }
 
 export async function getUserDataBasedOnUUID(userId: any) {
+  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -53,6 +54,7 @@ export async function getUserDataBasedOnUUID(userId: any) {
 
 export async function applyLeave(leaveType: string, startDate: string, endDate: string, duration: string, shift: string, isApproved: string, userId: string, teamId: string, reason: string, orgId: string) {
 
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .insert({
@@ -85,6 +87,7 @@ export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
   // }else{
   //   updateValue = allFields;
   // }
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .update(updateValue)
@@ -94,6 +97,7 @@ export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
 export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 7);
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(name,orgId,slackId),Team(name)`)
@@ -120,9 +124,10 @@ export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   return { leaves: filteredLeaves, pending: pendingLeaves };
 }
 
-export async function getLeavesHistory1({ days,userId,teamId }: {days: number,userId?: string,teamId?: string}) {
+export async function getLeavesHistory1({ days, userId, teamId }: { days: number, userId?: string, teamId?: string }) {
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - days);
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(name,orgId,slackId),Team(name)`)
@@ -156,6 +161,7 @@ export async function getLeaveReports() {
 }
 
 export async function getTeamsList(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data: teamsData, error: teamsError } = await supabaseAdmin
     .from("Team")
     .select('*')
@@ -166,6 +172,7 @@ export async function getTeamsList(orgId: string) {
 }
 
 export async function getUsersList(teamId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -176,12 +183,14 @@ export async function getUsersList(teamId: string) {
 }
 
 export async function getLeaveDetails(leaveId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave").select("*,User(name,email,slackId,accruedLeave,usedLeave),Team(name)").eq('leaveId', leaveId)
   return data
 }
 
 export async function getLeaveTypes(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("LeaveType")
     .select("leaveTypeId,name,LeavePolicy(*)")
@@ -190,17 +199,19 @@ export async function getLeaveTypes(orgId: string) {
   return data
 }
 
-export async function getLeaveTypeDetails(leaveType: string,orgId: string) {
+export async function getLeaveTypeDetails(leaveType: string, orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("LeaveType")
     .select("leaveTypeId,name,LeavePolicy(unlimited)")
     .eq("leaveTypeId", leaveType)
-    .eq('orgId',orgId)
+    .eq('orgId', orgId)
     .single()
   return data
 }
 
 export async function getManagerIds(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("*")
@@ -211,6 +222,7 @@ export async function getManagerIds(orgId: string) {
 }
 
 export async function fetchOrgWorkWeek(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Organisation")
     .select("location,workweek")
@@ -225,6 +237,7 @@ export async function fetchHolidays(startDate: string, endDate: string, location
     const start = new Date(startDate).toISOString().slice(0, 10);
     console.log(start)
     const end = new Date(endDate).toISOString().slice(0, 10);
+    const supabaseAdmin = createAdminClient();
     const { data, error } = await supabaseAdmin
       .from('Holiday')
       .select('*')
@@ -243,6 +256,7 @@ export async function fetchHolidays(startDate: string, endDate: string, location
 }
 
 export async function getSlackAccessToken(slackId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("orgId,Organisation(slackAccessToken)")

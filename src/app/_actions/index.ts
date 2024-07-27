@@ -233,20 +233,21 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
   const { data, error } = await supabase
     .from("User")
     .select(`${withTeam ? '*, Team(*)' : '*'}`)
-    .eq("orgId", orgId);
+    .eq("orgId", orgId)
+    .single();
   if (error) {
     throw error;
   }
   return data
 }
 
-export const insertNewLeaveType = async (values: any) => {
+export const  insertNewLeaveType=async(values:any)=>{
 
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("LeaveType")
-    .insert(values)
-    .select()
+  const supabase = createClient()
+  const {data,error}=await supabase
+  .from("LeaveType")
+  .insert(values)
+  .select()
   if (error) {
     throw error;
   }
@@ -255,7 +256,7 @@ export const insertNewLeaveType = async (values: any) => {
 
 export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:string)=>{
   const supabase = createClient()
-  
+
   const { data:isDataAvailable, error } = await supabase
     .from("LeavePolicy")
     .select("*")
@@ -274,10 +275,10 @@ export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:strin
         console.log(error)
       }
       return data
-     
-     
+
+
     }else{
-      const { data, error } = await supabase 
+      const { data, error } = await supabase
       .from("LeavePolicy")
       .update(values)
       .eq('leaveTypeId', leaveTypeId)
@@ -287,8 +288,8 @@ export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:strin
       if(error){
         console.log(error)
       }
-      
-      return data 
+
+      return data
     }
 }
 
