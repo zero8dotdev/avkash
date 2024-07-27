@@ -34,7 +34,6 @@ export default function InitialSettings() {
       color: "#fff",
       unlimited: true,
     },
-   
   ]);
   const [holidaysList, setHolidaysList] = useState<any[]>();
   const [notificatinData, setNotificationData] = useState([
@@ -45,8 +44,8 @@ export default function InitialSettings() {
       sendNtf: ["OWNER"],
     },
   ]);
-  
-  const router=useRouter()
+
+  const router = useRouter();
   const next = () => {
     setCurrent(current + 1);
   };
@@ -54,13 +53,12 @@ export default function InitialSettings() {
     setCurrent(current - 1);
   };
   const Done = async () => {
-   
     const orgId = localStorage.getItem("orgId");
     const teamId = localStorage.getItem("teamId");
     const userId = localStorage.getItem("userId");
 
     try {
-      console.log()
+      console.log();
       //settings page
       const { data: updatedOrgData } = await supabase
         .from("Organisation")
@@ -73,90 +71,81 @@ export default function InitialSettings() {
         .select("*")
         .eq("orgId", orgId);
       if (!existingLeaveTypes || existingLeaveTypes.length === 0) {
-        const leaveTypesToInsert = [
-          { name: "paidOfLeave", orgId },
-          
-        ];
+        const leaveTypesToInsert = [{ name: "paidOfLeave", orgId }];
         await supabase.from("LeaveType").insert(leaveTypesToInsert);
       }
       //leave policy
       const { data: leavePolicy, error } = await supabase
+        .from("LeavePolicy")
+        .select("*")
+        .eq("orgId", orgId);
+      if (existingLeaveTypes !== null && leavePolicy?.length === 0) {
+        const leavePolicyToinsert = [
+          {
+            leaveTypeId: existingLeaveTypes[0].leaveTypeId,
+            unlimited: leavePoliciesData[0].unlimited,
+            maxLeaves: leavePoliciesData[0].maxLeaves,
+            accurals: leavePoliciesData[0].accurals,
+            rollOver: leavePoliciesData[0].rollover,
+            orgId: orgId,
+            autoApprove: leavePoliciesData[0].autoApprove,
+          },
+        ];
+        const { data, error } = await supabase
           .from("LeavePolicy")
-          .select("*")
-          .eq("orgId", orgId);
-        if (existingLeaveTypes !== null && leavePolicy?.length === 0) {
-          const leavePolicyToinsert = [
-            {
-              leaveTypeId: existingLeaveTypes[0].leaveTypeId,
-              unlimited: leavePoliciesData[0].unlimited,
-              maxLeaves: leavePoliciesData[0].maxLeaves,
-              accurals: leavePoliciesData[0].accurals,
-              rollOver: leavePoliciesData[0].rollover,
-              orgId:orgId,
-              autoApprove: leavePoliciesData[0]. autoApprove,
-            },
-            
-          ];
-          const { data, error } = await supabase
-            .from("LeavePolicy")
-            .insert(leavePolicyToinsert);
-          if (data) {
-            console.log("inserted data successfully");
-          } else {
-            console.log(error);
-          }
-
+          .insert(leavePolicyToinsert);
+        if (data) {
+          console.log("inserted data successfully");
+        } else {
+          console.log(error);
         }
+      }
 
       // holidays list
       const { data: existingHolidaysData } = await supabase
-      .from("Holiday")
-      .select("*")
-      .eq("orgId", orgId);
-    if (!existingHolidaysData || existingHolidaysData.length == -0) {
-      const holidaysToInsert = holidaysList?.map((holiday: any) => ({
-        name: holiday.name,
-        date: holiday.date,
-        isRecurring: holiday.isRecurring,
-        orgId,
-      }));
-      const { data, error } = await supabase
         .from("Holiday")
-        .insert(holidaysToInsert);
-      if (data) {
-        console.log("holidays list inserted successfully");
-      } else {
-        console.log(error);
+        .select("*")
+        .eq("orgId", orgId);
+      if (!existingHolidaysData || existingHolidaysData.length == -0) {
+        const holidaysToInsert = holidaysList?.map((holiday: any) => ({
+          name: holiday.name,
+          date: holiday.date,
+          isRecurring: holiday.isRecurring,
+          orgId,
+        }));
+        const { data, error } = await supabase
+          .from("Holiday")
+          .insert(holidaysToInsert);
+        if (data) {
+          console.log("holidays list inserted successfully");
+        } else {
+          console.log(error);
+        }
       }
-    }
 
-    //notifications
-    console.log(notificatinData)
-    const { data: updatedNotificationData } = await supabase
-    .from("Organisation")
-    .update({
-      notificationDailySummary: notificatinData[0].dailySummary,
-      notificationLeaveChanged: notificatinData[0].leaveChange,
-      notificationToWhom: notificatinData[0].sendNtf[0],
-      notificationWeeklySummary: notificatinData[0].weeklySummary,
-    })
-    .eq("orgId", orgId);
+      //notifications
+      console.log(notificatinData);
+      const { data: updatedNotificationData } = await supabase
+        .from("Organisation")
+        .update({
+          notificationDailySummary: notificatinData[0].dailySummary,
+          notificationLeaveChanged: notificatinData[0].leaveChange,
+          notificationToWhom: notificatinData[0].sendNtf[0],
+          notificationWeeklySummary: notificatinData[0].weeklySummary,
+        })
+        .eq("orgId", orgId);
 
-    //invite users 
-    console.log(inviteUsersData)
-    const usersData = inviteUsersData?.map((user: any) => ({
-      name: user.name,
-      email: user.email,
-     teamId:teamId
-    }));
+      //invite users
+      console.log(inviteUsersData);
+      const usersData = inviteUsersData?.map((user: any) => ({
+        name: user.name,
+        email: user.email,
+        teamId: teamId,
+      }));
 
-    const {data}=await supabase 
-    .from("User")
-    .insert(usersData)
-    
+      const { data } = await supabase.from("User").insert(usersData);
+
       router.push("/dashboard/timeline");
-    
-
     } catch (error) {
       console.log(error);
     }
@@ -205,7 +194,7 @@ export default function InitialSettings() {
   ];
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
   return (
-    <div className="p-5 bg-white h-screen">
+    <>
       <Steps
         current={current}
         items={items}
@@ -244,6 +233,6 @@ export default function InitialSettings() {
           )}
         </div>
       </Flex>
-    </div>
+    </>
   );
 }

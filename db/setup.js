@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Create a PostgreSQL client
-const connectionString = process.env.DIRECT_URL;
+const connectionString = process.env.SUPABASE_DIRECT_URL;
 
 (async function () {
   if (!connectionString) {
