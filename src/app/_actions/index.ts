@@ -253,6 +253,45 @@ export const insertNewLeaveType = async (values: any) => {
   return data
 }
 
+export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:string)=>{
+  const supabase = createClient()
+  
+  const { data:isDataAvailable, error } = await supabase
+    .from("LeavePolicy")
+    .select("*")
+    .eq('leaveTypeId', leaveTypeId)
+    .eq('orgId',orgId)
+    if(error){
+      console.log(error)
+    }
+    console.log(isDataAvailable)
+    if(isDataAvailable===undefined || isDataAvailable?.length===0 || isDataAvailable===null){
+      console.log("keshav")
+      const { data, error } = await supabase
+      .from("LeavePolicy")
+      .insert({...values,leaveTypeId,orgId})
+      if(error){
+        console.log(error)
+      }
+      return data
+     
+     
+    }else{
+      const { data, error } = await supabase 
+      .from("LeavePolicy")
+      .update(values)
+      .eq('leaveTypeId', leaveTypeId)
+      .eq("orgId",orgId)
+
+      .select("*")
+      if(error){
+        console.log(error)
+      }
+      
+      return data 
+    }
+}
+
 /* Sign Up process, takes care of creating org team and user */
 
 export const signUpAction = async (values: any) => {
