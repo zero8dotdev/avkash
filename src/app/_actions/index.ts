@@ -241,56 +241,56 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
   return data
 }
 
-export const  insertNewLeaveType=async(values:any)=>{
+export const insertNewLeaveType = async (values: any) => {
 
   const supabase = createClient()
-  const {data,error}=await supabase
-  .from("LeaveType")
-  .insert(values)
-  .select()
+  const { data, error } = await supabase
+    .from("LeaveType")
+    .insert(values)
+    .select()
   if (error) {
     throw error;
   }
   return data
 }
 
-export const updateLeavePolicies=async(values:any,leaveTypeId:string,orgId:string)=>{
+export const updateLeavePolicies = async (values: any, leaveTypeId: string, orgId: string) => {
   const supabase = createClient()
 
-  const { data:isDataAvailable, error } = await supabase
+  const { data: isDataAvailable, error } = await supabase
     .from("LeavePolicy")
     .select("*")
     .eq('leaveTypeId', leaveTypeId)
-    .eq('orgId',orgId)
-    if(error){
+    .eq('orgId', orgId)
+  if (error) {
+    console.log(error)
+  }
+  console.log(isDataAvailable)
+  if (isDataAvailable === undefined || isDataAvailable?.length === 0 || isDataAvailable === null) {
+    console.log("keshav")
+    const { data, error } = await supabase
+      .from("LeavePolicy")
+      .insert({ ...values, leaveTypeId, orgId })
+    if (error) {
       console.log(error)
     }
-    console.log(isDataAvailable)
-    if(isDataAvailable===undefined || isDataAvailable?.length===0 || isDataAvailable===null){
-      console.log("keshav")
-      const { data, error } = await supabase
-      .from("LeavePolicy")
-      .insert({...values,leaveTypeId,orgId})
-      if(error){
-        console.log(error)
-      }
-      return data
+    return data
 
 
-    }else{
-      const { data, error } = await supabase
+  } else {
+    const { data, error } = await supabase
       .from("LeavePolicy")
       .update(values)
       .eq('leaveTypeId', leaveTypeId)
-      .eq("orgId",orgId)
+      .eq("orgId", orgId)
 
       .select("*")
-      if(error){
-        console.log(error)
-      }
-
-      return data
+    if (error) {
+      console.log(error)
     }
+
+    return data
+  }
 }
 
 /* Sign Up process, takes care of creating org team and user */
