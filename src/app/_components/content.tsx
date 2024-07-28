@@ -9,6 +9,8 @@ export default function Content({
   children: React.ReactNode;
 }>) {
   return (
-    <AntContent style={{ height: "calc(100vh - 64px)" }}>{children}</AntContent>
+    <AntContent style={{ minHeight: "calc(100vh - 64px)" }}>
+      {children}
+    </AntContent>
   );
 }
