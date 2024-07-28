@@ -7,7 +7,9 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
+    extend: {fontFamily: {
+      firaSans: ['var(--font-fira-sans)', 'sans-serif'],
+    },
       height: {
         "full-h-minus-header": "calc(100lvh - 64px)"
       },
