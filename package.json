@@ -12,9 +12,10 @@
     "lint": "next lint",
     "tables": "node --env-file=.env.local db/setup.js db/tables",
     "functions": "node --env-file=.env.local db/setup.js db/functions",
+    "triggers": "node --env-file=.env.local db/setup.js db/triggers",
     "policies": "node --env-file=.env.local db/setup.js db/policies",
     "seeds": "node --env-file=.env.local db/setup.js db/seed",
-    "setup": "npm run tables; npm run seeds; npm run functions; npm run policies;"
+    "setup": "npm run tables; npm run seeds; npm run functions;npm run triggers; npm run policies;"
   },
   "dependencies": {
     "@aldabil/react-scheduler": "^2.9.3",
