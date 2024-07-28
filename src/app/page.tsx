@@ -14,20 +14,15 @@ const firaSans = Fira_Sans_Extra_Condensed({
 });
 
 export default function HomePage() {
-
   return (
     <div className="w-full bg-white min-h-screen">
       <HeroSection />
-      <div className="w-ful flex justify-center bg-[#2563ea]">
+      <div className="w-ful flex bg-[#2563ea]">
         <SecondSection />
       </div>
-
     </div>
-  )
+  );
 }
-
-
-
 
 // return (
 //   <Flex
@@ -89,4 +84,3 @@ export default function HomePage() {
 //     </Col>
 //   </Flex>
 // );
-
