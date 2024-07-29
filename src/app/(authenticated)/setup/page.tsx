@@ -2,15 +2,11 @@
 
 import { Button, Col, Row, Steps } from "antd";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import NotificationPage from "./steps/notificationPage";
 import LeavePolicyPage from "./steps/leavePolicy";
 import InviteUsers from "./steps/inviteUsers";
-import { createClient } from "@/app/_utils/supabase/client";
-
-const supabase = createClient();
 
 export default function SetupPage() {
   const [current, setCurrent] = useState(0);
@@ -24,7 +20,17 @@ export default function SetupPage() {
   const [inviteUsersData, setInviteUsersData] = useState<any[]>([]);
   const [leavePoliciesData, setLeavePoliciesData] = useState([
     {
-      name: "Paid Time Off",
+      name: "paidOf leave",
+      isActive: true,
+      accurals: true,
+      maxLeaves: 10,
+      autoApprove: false,
+      rollover: false,
+      color: "#fff",
+      unlimited: true,
+    },
+    {
+      name: "sick leave",
       isActive: true,
       accurals: true,
       maxLeaves: 10,
@@ -35,14 +41,14 @@ export default function SetupPage() {
     },
   ]);
   const [holidaysList, setHolidaysList] = useState<any[]>();
-  const [notificatinData, setNotificationData] = useState([
+  const [notificatinData, setNotificationData] = useState(
     {
       leaveChange: false,
       dailySummary: false,
       weeklySummary: false,
       sendNtf: ["OWNER"],
     },
-  ]);
+  );
 
   const next = () => {
     setCurrent(current + 1);
@@ -81,8 +87,8 @@ export default function SetupPage() {
       title: "Notifications",
       content: (
         <NotificationPage
-          notificationData={notificatinData}
-          setNotificationData={setNotificationData}
+        {...notificatinData}
+        update={(values)=>setNotificationData({...values})}
         />
       ),
     },
