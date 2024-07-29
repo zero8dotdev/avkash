@@ -4,7 +4,7 @@ import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
 import { useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
-import NotificationPage from "./steps/notificationPage";
+import Notification from "./steps/notification";
 import LeavePolicyPage from "./steps/leavePolicy";
 import InviteUsers from "./steps/inviteUsers";
 
@@ -41,14 +41,12 @@ export default function SetupPage() {
     },
   ]);
   const [holidaysList, setHolidaysList] = useState<any[]>();
-  const [notificatinData, setNotificationData] = useState(
-    {
-      leaveChange: false,
-      dailySummary: false,
-      weeklySummary: false,
-      sendNtf: ["OWNER"],
-    },
-  );
+  const [notificatinData, setNotificationData] = useState({
+    leaveChange: false,
+    dailySummary: false,
+    weeklySummary: false,
+    sendNtf: ["OWNER"],
+  });
 
   const next = () => {
     setCurrent(current + 1);
@@ -88,10 +86,12 @@ export default function SetupPage() {
     {
       title: "Notifications",
       content: (
-        <NotificationPage
-        {...notificatinData}
-        update={(values)=>setNotificationData({...values})}
-        />
+        <Card>
+          <Notification
+            {...notificatinData}
+            update={(values) => setNotificationData({ ...values })}
+          />
+        </Card>
       ),
     },
     {
