@@ -5,11 +5,12 @@ import { useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import Notification from "./steps/notification";
-import LeavePolicyPage from "./steps/leavePolicy";
+import LeavePolicyPage, { type LeavePolicyProps } from "./steps/leavePolicy";
 import InviteUsers from "./steps/inviteUsers";
+import { ILeavePolicyProps } from "../dashboard/settings/leave-policy/page";
 
 export default function SetupPage() {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(1);
 
   const [settingsData, setSettingsData] = useState({
     startOfWorkWeek: "MONDAY",
@@ -18,26 +19,32 @@ export default function SetupPage() {
   });
 
   const [inviteUsersData, setInviteUsersData] = useState<any[]>([]);
-  const [leavePoliciesData, setLeavePoliciesData] = useState([
+  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>([
     {
-      name: "paidOf leave",
+      name: "Paid Time Off",
       isActive: true,
-      accurals: true,
+      accruals: false,
       maxLeaves: 10,
       autoApprove: false,
-      rollover: false,
-      color: "#fff",
-      unlimited: true,
+      rollOver: false,
+      unlimited: false,
+      accrualFrequency: null,
+      accrueOn: null,
+      rollOverLimit: null,
+      rollOverExpiry: null,
     },
     {
-      name: "sick leave",
+      name: "Sick",
       isActive: true,
-      accurals: true,
+      accruals: false,
       maxLeaves: 10,
       autoApprove: false,
-      rollover: false,
-      color: "#fff",
-      unlimited: true,
+      rollOver: false,
+      unlimited: false,
+      accrualFrequency: null,
+      accrueOn: null,
+      rollOverLimit: null,
+      rollOverExpiry: null,
     },
   ]);
   const [holidaysList, setHolidaysList] = useState<any[]>();
@@ -55,7 +62,7 @@ export default function SetupPage() {
   const prev = () => {
     setCurrent(current - 1);
   };
-
+  console.log(leavePolicies);
   const Done = async () => {};
 
   const steps = [
@@ -74,8 +81,10 @@ export default function SetupPage() {
       title: "Leave Policy",
       content: (
         <LeavePolicyPage
-          leavePoliciesData={leavePoliciesData}
-          setLeavePoliciesData={setLeavePoliciesData}
+          leavePoliciesData={leavePolicies}
+          update={(policies) => {
+            setLeavePolicies(policies);
+          }}
         />
       ),
     },
