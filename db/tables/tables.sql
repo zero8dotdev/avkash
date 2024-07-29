@@ -207,12 +207,10 @@ CREATE TABLE "Holiday" (
     CONSTRAINT "fk_holiday_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
 );
 
-CREATE TABLE "OrgActivityLog" (
+CREATE TABLE "ActivityLog" (
     "id" SERIAL PRIMARY KEY,
     "orgId" UUID,
-    "changedColumns" TEXT[],
-    "oldValues" JSON,
-    "newValues" JSON,
+    "changedColumns" JSONB,
     "changedOn" TIMESTAMP(6) DEFAULT now(),
     "changedBy" VARCHAR(255),
     "tableName" VARCHAR,
@@ -220,6 +218,7 @@ CREATE TABLE "OrgActivityLog" (
     "userId" UUID,
     "keyword" VARCHAR
 );
+
 
 CREATE TABLE "OrgAccressData" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
