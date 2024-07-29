@@ -5,12 +5,14 @@ import { useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import Notification from "./steps/notification";
-import LeavePolicyPage, { type LeavePolicyProps } from "./steps/leavePolicy";
-import InviteUsers from "./steps/inviteUsers";
-import { ILeavePolicyProps } from "../dashboard/settings/leave-policy/page";
+import LeavePolicyPage from "./steps/leave-policy";
+import InviteUsers from "./steps/invite-users";
+
+import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
 
 export default function SetupPage() {
-  const [current, setCurrent] = useState(1);
+  const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [settingsData, setSettingsData] = useState({
     startOfWorkWeek: "MONDAY",
@@ -62,8 +64,15 @@ export default function SetupPage() {
   const prev = () => {
     setCurrent(current - 1);
   };
-  console.log(leavePolicies);
-  const Done = async () => {};
+
+  const onDone = async () => {
+    setLoading(true);
+    try {
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps = [
     {
@@ -113,6 +122,7 @@ export default function SetupPage() {
       ),
     },
   ];
+
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   return (
@@ -136,7 +146,12 @@ export default function SetupPage() {
                 </Button>
               )}
               {current === steps.length - 1 && (
-                <Button htmlType="submit" onClick={Done} type="primary">
+                <Button
+                  htmlType="submit"
+                  onClick={onDone}
+                  type="primary"
+                  loading={loading}
+                >
                   Done
                 </Button>
               )}

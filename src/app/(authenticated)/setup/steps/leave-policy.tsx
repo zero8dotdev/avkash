@@ -1,11 +1,9 @@
-import { Flex, List } from "antd";
-import Text from "antd/es/typography/Text";
-import React, { useEffect } from "react";
+import { List } from "antd";
+
 import {
-  ILeavePolicyProps,
-  ILeavePolicyUpdate,
+  type ILeavePolicyProps,
   LeavePolicy,
-} from "../../dashboard/settings/leave-policy/page";
+} from "../../dashboard/settings/_components/leave-policy";
 
 export type LeavePolicyProps = {
   leavePoliciesData: ILeavePolicyProps[];
@@ -24,9 +22,7 @@ const LeavePolicies: React.FC<LeavePolicyProps> = ({
           {...leavePoliciesData[index]}
           update={(values) => {
             let copy = [...leavePoliciesData];
-            console.log(JSON.stringify(copy, null, 2));
             copy[index] = { ...values };
-            console.log(JSON.stringify(copy, null, 2));
             leavePolicyUpdate(copy);
           }}
         />
