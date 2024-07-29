@@ -51,7 +51,7 @@ EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO supabase_auth_admin;
 
 GRANT USAGE,
 SELECT
-  ON SEQUENCE public."OrgActivityLog_id_seq" TO supabase_auth_admin;
+  ON SEQUENCE public."ActivityLog_id_seq" TO supabase_auth_admin;
 
 grant usage on schema "public" to anon;
 
