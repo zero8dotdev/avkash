@@ -6,12 +6,12 @@ import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import Notification from "./steps/notification";
 import LeavePolicyPage from "./steps/leave-policy";
-import InviteUsers from "./steps/invite-users";
 
 import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
+import { Users } from "../dashboard/settings/_components/users";
 
 export default function SetupPage() {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(4);
   const [loading, setLoading] = useState(false);
 
   const [settingsData, setSettingsData] = useState({
@@ -20,7 +20,7 @@ export default function SetupPage() {
     timeZone: "Asia/Kolkata",
   });
 
-  const [inviteUsersData, setInviteUsersData] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>([
     {
       name: "Paid Time Off",
@@ -49,7 +49,9 @@ export default function SetupPage() {
       rollOverExpiry: null,
     },
   ]);
+
   const [holidaysList, setHolidaysList] = useState<any[]>();
+
   const [notificatinData, setNotificationData] = useState({
     leaveChange: false,
     dailySummary: false,
@@ -68,6 +70,17 @@ export default function SetupPage() {
   const onDone = async () => {
     setLoading(true);
     try {
+      // 1. settingsData [Organisation]
+      // 4. notificatinData [Organisation]
+
+      // 2. leavePolicies [LeavePolicy]
+
+      // 3. holidaysList [Holiday]
+
+      // 5. users [User]
+        // Prorata: If for any user, Prorate is ON, So, while creating user, calculate, accruedLeave and usedLeave
+        // map these users to Org default team.
+
     } catch (error) {
     } finally {
       setLoading(false);
@@ -115,10 +128,9 @@ export default function SetupPage() {
     {
       title: "Invite Users",
       content: (
-        <InviteUsers
-          inviteUsersData={inviteUsersData}
-          setInviteUsersData={setInviteUsersData}
-        />
+        <Card>
+          <Users />
+        </Card>
       ),
     },
   ];
