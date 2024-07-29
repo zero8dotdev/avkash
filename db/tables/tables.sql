@@ -225,7 +225,8 @@ CREATE TABLE "OrgAccessData" (
     "slackAccessToken" TEXT,
     "slackRefreshToken" TEXT,
     "googleAccessToken" TEXT,
-    "googleRefreshToken" TEXT
+    "googleRefreshToken" TEXT,
+    CONSTRAINT "fk_orgaccessdata_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
 );
 
 CREATE TABLE "PublicHolidays" (
