@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Col, Row, Steps } from "antd";
+import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Setting from "./steps/setting";
@@ -17,7 +17,7 @@ export default function SetupPage() {
 
   const [settingsData, setSettingsData] = useState({
     startOfWorkWeek: "MONDAY",
-    workweek: ["MONDAY", "TUESDAY"],
+    workweek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
     timeZone: "Asia/Kolkata",
   });
 
@@ -58,10 +58,12 @@ export default function SetupPage() {
     {
       title: "Settings",
       content: (
-        <Setting
-          {...settingsData}
-          update={(values) => setSettingsData({ ...values })}
-        />
+        <Card>
+          <Setting
+            {...settingsData}
+            update={(values) => setSettingsData({ ...values })}
+          />
+        </Card>
       ),
     },
     {
@@ -104,80 +106,29 @@ export default function SetupPage() {
         <Steps current={current} items={items} />
       </Col>
       <Col span={24} style={{ paddingTop: "32px" }}>
-        <div>{steps[current].content}</div>
+        <Col push={4} span={16}>
+          <div>{steps[current].content}</div>
+        </Col>
       </Col>
-      <Col span={24} style={{ paddingTop: "32px" }}>
-        <div>
-          {current < steps.length - 1 && (
-            <Button
-              className="bg-purple-600 mr-3 text-white"
-              onClick={() => next()}
-            >
-              Next
-            </Button>
-          )}
-          {current === steps.length - 1 && (
-            <Button
-              className="bg-purple-600 mr-3 text-white"
-              htmlType="submit"
-              onClick={Done}
-            >
-              Done
-            </Button>
-          )}
-          {current > 0 && (
-            <Button
-              onClick={() => prev()}
-              className="bg-purple-600 mr-3 text-white"
-            >
-              Previous
-            </Button>
-          )}
-        </div>
+      <Col span={24} style={{ paddingTop: "16px" }}>
+        <Col push={4} span={16}>
+          <Flex justify="end">
+            <Space>
+              {current > 0 && <Button onClick={() => prev()}>Previous</Button>}
+              {current < steps.length - 1 && (
+                <Button onClick={() => next()} type="primary">
+                  Next
+                </Button>
+              )}
+              {current === steps.length - 1 && (
+                <Button htmlType="submit" onClick={Done} type="primary">
+                  Done
+                </Button>
+              )}
+            </Space>
+          </Flex>
+        </Col>
       </Col>
     </Row>
   );
-
-  // return (
-  //   <>
-  //     <Steps
-  //       current={current}
-  //       items={items}
-  //       className="border w-3/4"
-  //       type="navigation"
-  //     />
-  //     <Flex vertical className="h-full">
-  //       <Flex vertical>
-  //         <div className="w-3/4">{steps[current].content}</div>
-  //       </Flex>
-  //       <div style={{ marginTop: 24 }}>
-  //         {current < steps.length - 1 && (
-  //           <Button
-  //             className="bg-purple-600 mr-3 text-white"
-  //             onClick={() => next()}
-  //           >
-  //             Next
-  //           </Button>
-  //         )}
-  //         {current === steps.length - 1 && (
-  //           <Button
-  //             className="bg-purple-600 mr-3 text-white"
-  //             htmlType="submit"
-  //             onClick={Done}
-  //           >
-  //             Done
-  //           </Button>
-  //         )}
-  //         {current > 0 && (
-  //           <Button
-  //             onClick={() => prev()}
-  //             className="bg-purple-600 mr-3 text-white"
-  //           >
-  //             Previous
-  //           </Button>
-  //         )}
-  //       </div>
-  //     </Flex>
-  //   </>
-  // );
 }
