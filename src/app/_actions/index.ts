@@ -2,6 +2,7 @@
 
 import { createClient } from "@/app/_utils/supabase/server";
 import { createAdminClient } from "../_utils/supabase/adminClient";
+import { WebClient } from "@slack/web-api";
 
 
 /*
@@ -123,7 +124,8 @@ export const updataOrgData = async (values: any, orgId: string) => {
     .from("Organisation")
     .update({
       ...values
-    }).eq("orgId", orgId)
+    })
+    .eq("orgId", orgId)
     .select()
   if (error) {
     throw error;
@@ -187,6 +189,7 @@ export const fetchTeamsData = async (orgId: string) => {
   return processedData;
 }
 export const fetchPublicHolidays = async (countryCode: any) => {
+  console.log(countryCode)
   const supabase = createClient();
   const { data, error } = await supabase
     .from("PublicHolidays")
@@ -198,6 +201,7 @@ export const fetchPublicHolidays = async (countryCode: any) => {
     throw error;
   }
 
+  console.log('Holidays', data);
   return data
 }
 export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string, leaveTypeId: any) => {
@@ -293,8 +297,25 @@ export const updateLeavePolicies = async (values: any, leaveTypeId: string, orgI
   }
 }
 
-/* Sign Up process, takes care of creating org team and user */
+export const fetchLeaveTypes = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
 
+    const { data, error } = await supabaseAdminClient
+      .from('LeaveType')
+      .select('*');
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/* Sign Up process, takes care of creating org team and user */
 export const signUpAction = async (values: any) => {
   const supabaseServerClient = createClient();
   const { data: { user: authUser }, error } = await supabaseServerClient.auth.getUser();
@@ -303,12 +324,12 @@ export const signUpAction = async (values: any) => {
     throw new Error('Something went wrong!');
   };
 
-  const { name, company_name, team_name, email } = values;
-  const supabase = createAdminClient();
+  const { name, company_name, team_name, email, slackId } = values;
+  const supabaseAdminClient = createAdminClient();
 
   try {
     // create one organisation
-    const { data: org, error: orgError } = await supabase
+    const { data: org, error: orgError } = await supabaseAdminClient
       .from('Organisation')
       .insert({
         name: company_name,
@@ -322,7 +343,7 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a team with that orgId
-    const { data: team, error: teamError } = await supabase
+    const { data: team, error: teamError } = await supabaseAdminClient
       .from("Team")
       .insert({ name: team_name, orgId: org.orgId, createdBy: authUser.id })
       .select()
@@ -333,7 +354,7 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a user as well
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdminClient
       .from("User")
       .insert({
         userId: authUser.id,
@@ -341,6 +362,7 @@ export const signUpAction = async (values: any) => {
         email: email,
         teamId: team.teamId,
         role: 'OWNER',
+        slackId,
         accruedLeave: {},
         usedLeave: {},
         orgId: org.orgId,
@@ -353,6 +375,36 @@ export const signUpAction = async (values: any) => {
       throw userError;
     }
 
+    // create a leaveType for ORG
+    const defaultLeaveTypes = [
+      { name: 'Paid Time Off', isActive: true, color: '' },
+      { name: 'Sick', isActive: true, color: '' },
+      { name: 'Unpaid', isActive: false, color: '' }
+    ];
+
+    console.log(defaultLeaveTypes
+      .map((leaveType: any) => ({
+        ...leaveType,
+        orgId: org.orgId,
+        createdBy: authUser.id
+      })));
+
+
+    const { data: leaveTypes, error: leaveTypesError } = await supabaseAdminClient
+      .from('LeaveType')
+      .insert(defaultLeaveTypes
+        .map((leaveType: any) => ({
+          ...leaveType,
+          orgId: org.orgId,
+          createdBy: authUser.id
+        })))
+      .select('*');
+
+    if (leaveTypesError) {
+      console.log('here');
+      throw leaveTypesError;
+    }
+
     return {
       org,
       team,
@@ -360,5 +412,186 @@ export const signUpAction = async (values: any) => {
     }
   } catch (error) {
     throw error;
+  }
+};
+
+export const fetchAllUsersFromChatApp = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
+
+    const { data: organisation, error } = await supabaseAdminClient
+      .from('Organisation')
+      .select('*, OrgAccessData(slackAccessToken)')
+      .eq('orgId', orgId)
+      .single();
+
+    const slackAccessToken = organisation['OrgAccessData'][0]['slackAccessToken'];
+    const slackClient = new WebClient(slackAccessToken);
+
+    const result = await slackClient.users.list({
+      limit: 1000,
+    })
+
+    if (!result.ok) {
+      throw new Error(`Error fetching users: ${result.error}`);
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return result
+      .members
+      ?.filter(({
+        is_bot,
+        deleted,
+        is_email_confirmed
+      }) => !is_bot && !deleted && is_email_confirmed);
+  } catch (error) {
+    console.log(error);
+  };
+};
+
+export const completeSetup = async (orgId: string, setupData: any) => {
+  try {
+    const {
+      startOfWorkWeek,
+      workweek,
+      timeZone,
+      leaveChange: notificationLeaveChanged,
+      dailySummary: notificationDailySummary,
+      weeklySummary: notificationWeeklySummary,
+      sendNtf: notificationToWhom,
+      leavePolicies,
+      holidaysList,
+      countryCode,
+      users,
+      teamId
+    } = setupData;
+
+    const supabaseServerClient = createClient();
+    const { data: { user: currentUser }, error } = await supabaseServerClient.auth.getUser();
+
+    const supabaseAdminClient = createAdminClient();
+
+    const { data: organisation, error: orgError } = await supabaseAdminClient
+      .from('Organisation')
+      .update({
+        startOfWorkWeek,
+        workweek,
+        notificationLeaveChanged,
+        notificationDailySummary,
+        notificationWeeklySummary,
+        // notificationToWhom: Array.isArray(notificationToWhom) && notificationToWhom[0]
+      })
+      .eq('orgId', orgId)
+      .select('*');
+
+    if (orgError) {
+      throw orgError;
+    }
+
+    // leavePolicies
+    const { data: leavePoliciesData, error: leavePoliciesError } = await supabaseAdminClient
+      .from('LeavePolicy')
+      .insert(leavePolicies.map((policy: any) => ({ ...policy, orgId })))
+      .select('*');
+
+    if (leavePoliciesError) {
+      throw leavePoliciesError;
+    }
+
+    // holidays
+    const { data: holidaysData, error: holidaysError } = await supabaseAdminClient
+      .from('Holiday')
+      .insert(
+        holidaysList
+          .map(({
+            name,
+            isRecurring,
+            isCustom,
+            date
+          }: any) => ({
+            name,
+            isRecurring,
+            isCustom,
+            orgId,
+            date,
+            createdBy: currentUser?.id,
+            location: countryCode
+          })))
+      .select();
+
+    if (holidaysError) {
+      throw holidaysError;
+    }
+
+
+    let accruedLeave = leavePoliciesData
+      .filter(({ isActive }) => isActive)
+      .reduce((acc, leavePolicy) => {
+        acc[leavePolicy.leaveTypeId] = { balance: leavePolicy.unlimited ? 'unlimited' : leavePolicy.maxLeaves }
+        return acc;
+      }, {});
+
+    let usedLeave = leavePoliciesData
+      .filter(({ isActive }) => isActive)
+      .reduce((acc, leavePolicy) => {
+        acc[leavePolicy.leaveTypeId] = { balance: leavePolicy.unlimited ? 'unlimited' : 0 }
+        return acc;
+      }, {});
+
+    const acc = { loggedInUser: {}, users: [] };
+    const { loggedInUser, users: restUsers } = users
+      .reduce((acc: any, { slackId, name, email, isProrate }: any) => {
+        if (slackId === currentUser?.user_metadata.sub) {
+          acc.loggedInUser = {
+            id: currentUser?.id,
+            slackId,
+            orgId,
+            accruedLeave,
+            usedLeave
+          }
+        } else {
+          acc.users.push({
+            slackId,
+            name,
+            email,
+            orgId,
+            accruedLeave,
+            usedLeave,
+            teamId,
+            createdBy: currentUser?.id
+          });
+        }
+        return acc;
+      }, acc);
+
+
+    const { data: userData, error: userError } = await supabaseAdminClient
+      .from('User')
+      .update({
+        slackId: loggedInUser.slackId,
+        accruedLeave: loggedInUser.accruedLeave,
+        usedLeave: loggedInUser.usedLeave
+      })
+      .eq('userId', loggedInUser.id)
+      .select();
+
+    if (userError) {
+      throw userError;
+    }
+
+    const { data: usersData, error: usersError } = await supabaseAdminClient
+      .from('User')
+      .insert(restUsers)
+      .select('*');
+
+    if (usersError) {
+      throw usersError;
+    }
+
+  } catch (error) {
+    console.log(error);
   }
 };

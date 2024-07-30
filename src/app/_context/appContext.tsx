@@ -7,6 +7,7 @@ interface User {
   email: string;
   avatar_url: string;
   role: string;
+  sub: string;
 }
 
 interface ContextState {
