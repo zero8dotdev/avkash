@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import Notification from "./steps/notification";
@@ -15,12 +15,13 @@ import {
   fetchLeaveTypes,
   fetchPublicHolidays,
 } from "@/app/_actions";
+const moment = require("moment");
 
 export default function SetupPage() {
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
   const {
-    state: { orgId },
+    state: { orgId, user, teamId },
     dispatch,
   } = useApplicationContext();
 
@@ -30,11 +31,8 @@ export default function SetupPage() {
     timeZone: "Asia/Kolkata",
   });
 
-  const [users, setUsers] = useState<any[]>([]);
+  const usersRef = useRef(null);
   const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
-  const [countryCode, setCountryCode] = useState<string>("IN");
-
-  const moment = require("moment");
 
   useEffect(() => {
     (async () => {
@@ -83,13 +81,8 @@ export default function SetupPage() {
   const onDone = async () => {
     setLoading(true);
     try {
-      // 1. settingsData [Organisation] [DONE]
-      // 4. notificatinData [Organisation] [DONE]
-      // 2. leavePolicies [LeavePolicy] [DONE]
-      // 3. holidaysList [Holiday] [] [DONE]
-      // 5. users [User] [DONE]
-      // Prorata: If for any user, Prorate is ON, So, while creating user, calculate, accruedLeave and usedLeave
-      // map these users to Org default team.
+      // @ts-ignore
+      const users = usersRef?.current.getUsers();
       const done = await completeSetup(orgId, {
         ...settingsData,
         ...notificatinData,
@@ -97,19 +90,22 @@ export default function SetupPage() {
           ...rest,
         })),
         holidaysList,
-        ...users,
+        countryCode,
+        users,
+        teamId,
       });
     } catch (error) {
     } finally {
       setLoading(false);
     }
   };
+  const [countryCode, setCountryCode] = useState<string>("IN");
   const fetchHolidays = async (countryCode: string) => {
     const holidays = await fetchPublicHolidays(countryCode);
     const holidayData = holidays.map((each) => ({
       key: each.id,
       name: each.name,
-      date: moment(each.date).format("DD MMM YYYY"),
+      date: moment(each.date).toISOString(),
       isRecurring: true,
       isCustom: false,
     }));
@@ -118,9 +114,8 @@ export default function SetupPage() {
 
   useEffect(() => {
     fetchHolidays(countryCode);
-  },[countryCode]);
+  }, [countryCode]);
 
-  console.log(holidaysList);
   const steps = [
     {
       title: "Settings",
@@ -157,17 +152,19 @@ export default function SetupPage() {
     {
       title: "Notifications",
       content: (
-        <Notification
-          {...notificatinData}
-          update={(values) => setNotificationData({ ...values })}
-        />
+        <Card>
+          <Notification
+            {...notificatinData}
+            update={(values) => setNotificationData({ ...values })}
+          />
+        </Card>
       ),
     },
     {
       title: "Invite Users",
       content: (
         <Card>
-          <Users />
+          <Users ref={usersRef} />
         </Card>
       ),
     },
