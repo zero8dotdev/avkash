@@ -1,16 +1,17 @@
 "use client";
 
 import { Button, Col, Row, Steps } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Setting from "./steps/setting";
-import LocationPage from "./steps/locationPage";
+import LocationPage, { holidaysList } from "./steps/locationPage";
 import NotificationPage from "./steps/notificationPage";
 import LeavePolicyPage from "./steps/leavePolicy";
 import InviteUsers from "./steps/inviteUsers";
+import { fetchPublicHolidays } from "@/app/_actions";
 
 export default function SetupPage() {
-  const [current, setCurrent] = useState(0);
-
+  const [current, setCurrent] = useState(2);
+  const [countryCode, setCountryCode] = useState<string>("IN");
   const [settingsData, setSettingsData] = useState({
     startOfWorkWeek: "MONDAY",
     workweek: ["MONDAY", "TUESDAY"],
@@ -40,15 +41,14 @@ export default function SetupPage() {
       unlimited: true,
     },
   ]);
-  const [holidaysList, setHolidaysList] = useState<any[]>();
-  const [notificatinData, setNotificationData] = useState(
-    {
-      leaveChange: false,
-      dailySummary: false,
-      weeklySummary: false,
-      sendNtf: ["OWNER"],
-    },
-  );
+  const [holidaysList, setHolidaysList] = useState<holidaysList[]>([]);
+  const [notificatinData, setNotificationData] = useState({
+    leaveChange: false,
+    dailySummary: false,
+    weeklySummary: false,
+    sendNtf: ["OWNER"],
+  });
+  console.log(holidaysList)
 
   const next = () => {
     setCurrent(current + 1);
@@ -59,6 +59,23 @@ export default function SetupPage() {
   };
 
   const Done = async () => {};
+
+  const fetchHolidays = async (code: string) => {
+    const data = await fetchPublicHolidays(code);
+    const newData:any = data.map((each,i) => {
+      return {
+        key:i,
+        name: each.name,
+        date: each.date,
+        isRecurring: true,
+        isCustom: false,
+      };
+    });
+    setHolidaysList(newData);
+  };
+  useEffect(() => {
+    fetchHolidays(countryCode);
+  }, [countryCode]);
 
   const steps = [
     {
@@ -81,14 +98,20 @@ export default function SetupPage() {
     },
     {
       title: "Locations",
-      content: <LocationPage setHolidaysList={setHolidaysList} />,
+      content: (
+        <LocationPage
+          updateCountryCode={(code: string) => setCountryCode(code)}
+          holidaysList={holidaysList}
+          update={(values) => setHolidaysList(values)}
+        />
+      ),
     },
     {
       title: "Notifications",
       content: (
         <NotificationPage
-        {...notificatinData}
-        update={(values)=>setNotificationData({...values})}
+          {...notificatinData}
+          update={(values) => setNotificationData({ ...values })}
         />
       ),
     },

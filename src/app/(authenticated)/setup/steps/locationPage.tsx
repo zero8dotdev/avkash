@@ -1,51 +1,51 @@
-import { useEffect, useState } from "react";
-import { countries } from "countries-list";
+import { useState } from "react";
 import {
   Button,
   Checkbox,
+  Col,
   DatePicker,
   Flex,
   Form,
   Input,
   Modal,
+  Row,
   Select,
   Table,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import axios from "axios";
-
-interface holidaysList {
-  key: string;
-  name: string;
-  date: string;
-  isRecurring: boolean;
+import { format, parse } from 'date-fns';
+export interface holidaysList {
+  key: string,
+  name: string,
+  date: string,
+  isRecurring: boolean,
+  isCustom: boolean,
 }
 
-interface props{
-  setHolidaysList:(data:any)=>void
+interface props {
+  holidaysList:holidaysList[]
+  updateCountryCode: (data:string) => void;
+  update: (values:any) => void;
 }
-const LocationPage :React.FC<props>= ({setHolidaysList}) => {
-  const [holidays, setHolidays] = useState<holidaysList[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("IN");
+const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleDelete = (key: any) => {
-    const updatedHolidays = holidays.filter((holiday) => holiday.key !== key);
-    setHolidays(updatedHolidays);
+
+  const handleDelete = (key: string) => {
+    const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
+    update(updatedHolidays);
   };
 
-  const handleCheckboxChange = (isChecked: any, rowData: any) => {
-    const updatedHolidays = [];
-    for (const holiday of holidays) {
+  const handleCheckboxChange = (isChecked: boolean, rowData: any) => {
+    const updatedHolidays:holidaysList[] = [];
+    for (const holiday of holidaysList) {
       if (holiday.key === rowData.key) {
         updatedHolidays.push({ ...holiday, isRecurring: isChecked });
       } else {
         updatedHolidays.push(holiday);
       }
     }
-    setHolidays(updatedHolidays);
-  };
-
-  let countriesData: any = countries;
+    update(updatedHolidays);
+   };
 
   const columns = [
     {
@@ -81,91 +81,118 @@ const LocationPage :React.FC<props>= ({setHolidaysList}) => {
       ),
     },
   ];
-  useEffect(() => {
-    const fetchHolidays = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.11holidays.com/v1/holidays?country=${[
-            selectedCountry,
-          ]}&year=${[2024]}`
-        );
-        const holidaysData = response.data.map((holiday: any) => ({
-          key: holiday.holiday_id,
-          name: holiday.name,
-          date: holiday.date,
-          isRecurring: true,
-        }));
-        setHolidaysList(holidaysData);
-        setHolidays(holidaysData)
-      } catch (error) {
-        console.error("Error fetching holidays:", error);
-      }
-    };
-    fetchHolidays();
-  }, [selectedCountry]);
 
-  const handleCountryChange = (value: any) => {
-    setSelectedCountry(value);
+ 
+  const handleCountryChange = async (code: any) => {
+    updateCountryCode(code);
   };
 
-  const handleAddCustomForm = (values: any) => {
-    const { name, date } = values;
-    const newHoliday: holidaysList = {
-      key: Date.now().toString(),
+  const handleAddCustomForm = (values:any) => {
+    console.log(values)
+
+    const { name, date, isRecurring } = values;
+    const newHoliday = {
+      key:holidaysList.length +1,
       name: name,
-      date: date.format("YYYY-MM-DD"),
-      isRecurring: true,
+      date: date,
+      isRecurring: isRecurring,
+      isCustom: true,
     };
 
-    const updatedHolidays = [...holidays, newHoliday];
-    setHolidays(updatedHolidays);
+    const updatedHolidays = [...holidaysList, newHoliday];
+    update(updatedHolidays);
     setIsModalOpen(false);
   };
 
-  return (
-    <Flex vertical gap={12}>
-      
-      <Select
-        showSearch
-        style={{ width: "300px",marginTop:'20px'}}
-        onChange={handleCountryChange}
-        value={selectedCountry}
-      
-        options={Object.keys(countriesData).map((code: any) => ({
-          label: countriesData[code].name,
-          value: code,
-        }))}
-        
-      />
+  const locations = [
+    {
+      countryCode: "IN",
+      countryName: "India",
+    },
+    {
+      countryCode: "DE",
+      countryName: "Germany",
+    },
+    {
+      countryCode: "GB",
+      countryName: "United Kingdom",
+    },
+    {
+      countryCode: "Us",
+      countryName: "United States",
+    },
+    {
+      countryCode: "NL",
+      countryName: "Netherlands",
+    },
+  ];
 
-      <Table columns={columns} dataSource={holidays} pagination={false} scroll={{ x: 500, y: 400 }} />
+  const [form] = Form.useForm();
+  holidaysList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const moment = require('moment');
+  const dataSource=holidaysList.map((each)=>{
+    const {date}=each
+    const d= moment(date).format("DD MMM YYYY")
+
+
+   return {
+    ...each,
+   date:d
+   }
+  })
+
+console.log(dataSource)
+  return (
+    <Row gutter={[16, 16]}>
+      <Col span={4}>
+        <Select
+          showSearch
+          style={{ width: "300px", marginTop: "20px" }}
+          onChange={handleCountryChange}
+          defaultValue="IN"
+          options={locations.map((each: any) => ({
+            label: each.countryName,
+            value: each.countryCode,
+          }))}
+        />
+      </Col>
+      <Col span={24}>
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+          scroll={{ x: 500, y: 400 }}
+        />
+      </Col>
       <Button onClick={() => setIsModalOpen(true)} type="primary">
         Add Custom Holidays
       </Button>
       <Modal
-        title="Basic Modal"
+        title="Add New Holiday"
         open={isModalOpen}
-        onOk={() => setIsModalOpen(false)}
-        onCancel={() => setIsModalOpen(false)}
+        closable={false}
+        footer={
+          <Flex justify="space-between">
+            <Button  onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button key="submit" type="primary" onClick={()=>form.submit()}>
+              Save
+            </Button>
+          </Flex>
+        }
       >
-        <Form onFinish={handleAddCustomForm}>
-          <Form.Item name="name" label="Holiday Name">
+        <Form onFinish={handleAddCustomForm} form={form} layout="vertical">
+          <Form.Item name="name" label="Holiday Name" rules={[{ required: true, message: 'Please enter holiday name' }]}>
             <Input placeholder="Name" />
           </Form.Item>
-          <Form.Item name="date" label="Holiday Date">
-            <DatePicker />
+          <Form.Item name="date" label="Holiday Date" rules={[{ required: true, message: 'Please select a date!' }]}>
+            <DatePicker  style={{width:'100%'}}/>
           </Form.Item>
-          <Form.Item label="Recurring" name="recurring">
-            <Checkbox defaultChecked />
-          </Form.Item>
-          <Form.Item>
-            <Button type="default" htmlType="submit">
-              Add Holiday
-            </Button>
+          <Form.Item label="Recurring" name="isRecurring" initialValue={true}>
+            <Checkbox checked />
           </Form.Item>
         </Form>
       </Modal>
-    </Flex>
+    </Row>
   );
 };
 
