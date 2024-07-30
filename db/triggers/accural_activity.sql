@@ -13,9 +13,9 @@ BEGIN
         END IF;
 
         -- Insert the log entry only if there are changes
-        IF jsonb_array_length(changedColumns) > 0 THEN
-            INSERT INTO public."ActivityLog" ("tableName", "userId", "changedColumns", "oldValues", "newValues", "changedBy", keyword)
-            VALUES (tableName, NEW."userId", changedColumns, row_to_json(OLD)::jsonb, row_to_json(NEW)::jsonb, NEW."updatedBy", 'accrual');
+        IF changedColumns <> '{}'::jsonb THEN
+            INSERT INTO public."ActivityLog" ("tableName", "userId", "changedColumns", "changedBy", keyword)
+            VALUES (tableName, NEW."userId", changedColumns, NEW."updatedBy", 'accrual');
         END IF;
     END IF;
 
