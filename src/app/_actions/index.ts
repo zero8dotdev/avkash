@@ -362,3 +362,55 @@ export const signUpAction = async (values: any) => {
     throw error;
   }
 };
+
+
+
+export const getLeaves= async (idColumn:any, id:any)=>{
+  const supabase = createAdminClient();
+  const { data:leaves, error:leaveError } = await supabase
+      .from("Leave").select("*").eq(`${idColumn}`, id)
+      if (leaveError) {
+        throw leaveError;
+      }
+      return leaves
+}
+
+
+export const getUserRole = async (userId: any) => {
+  const supabase = createAdminClient();
+
+  try {
+    const { data: role, error: roleError } = await supabase
+      .from("User")
+      .select("role")
+      .eq("userId", userId)
+      .single();
+
+    if (roleError) {
+      throw roleError;
+    }
+    return role.role;
+  } catch (error) {
+    throw error
+  }
+};
+
+export const getUserVisibility = async (orgId: any) => {
+  const supabase = createAdminClient();
+
+  try {
+    const { data: visibility, error: visibilityError } = await supabase
+      .from("Organisation")
+      .select("visibility")
+      .eq("orgId", orgId)
+      .single();
+
+    if (visibilityError) {
+      throw visibilityError;
+    }
+    return visibility.visibility;
+  } catch (error) {
+    throw error
+  }
+};
+
