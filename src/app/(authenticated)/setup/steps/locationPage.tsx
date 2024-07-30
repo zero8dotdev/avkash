@@ -13,7 +13,7 @@ import {
   Table,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { format, parse } from 'date-fns';
+
 export interface holidaysList {
   key: string,
   name: string,
@@ -30,12 +30,20 @@ interface props {
 const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const moment = require('moment');
+
+  // delete holiday function
+
   const handleDelete = (key: string) => {
+    console.log(key)
     const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
+    console.log(updatedHolidays)
     update(updatedHolidays);
   };
 
-  const handleCheckboxChange = (isChecked: boolean, rowData: any) => {
+  // onChange isRecuring
+
+  const handleIsRecurringChange = (isChecked: boolean, rowData: any) => {
     const updatedHolidays:holidaysList[] = [];
     for (const holiday of holidaysList) {
       if (holiday.key === rowData.key) {
@@ -47,62 +55,35 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
     update(updatedHolidays);
    };
 
-  const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-    },
-    {
-      title: "Recurring",
-      dataIndex: "isRecurring",
-      key: "isRecurring",
-      render: (r: any, rowData: any) => (
-        <Checkbox
-          defaultChecked={rowData.isRecurring}
-          onChange={(e) => handleCheckboxChange(e.target.checked, rowData)}
-        />
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (rowData: any) => (
-        <Button
-          type="link"
-          icon={<DeleteOutlined />}
-          onClick={(event) => handleDelete(rowData.key)}
-        />
-      ),
-    },
-  ];
-
+  // onChange for country code
  
   const handleCountryChange = async (code: any) => {
     updateCountryCode(code);
   };
+  const [form] = Form.useForm();
+
+  // adding new holiday
 
   const handleAddCustomForm = (values:any) => {
     console.log(values)
 
     const { name, date, isRecurring } = values;
     const newHoliday = {
-      key:holidaysList.length +1,
+      key:values.date,
       name: name,
-      date: date,
+      date: moment(date).format("DD MMM YYYY"),
       isRecurring: isRecurring,
       isCustom: true,
     };
 
     const updatedHolidays = [...holidaysList, newHoliday];
     update(updatedHolidays);
+    
     setIsModalOpen(false);
+    form.resetFields()
   };
+
+// locations list
 
   const locations = [
     {
@@ -127,21 +108,46 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
     },
   ];
 
-  const [form] = Form.useForm();
+  // holidays sorting based on date 
+
   holidaysList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const moment = require('moment');
-  const dataSource=holidaysList.map((each)=>{
-    const {date}=each
-    const d= moment(date).format("DD MMM YYYY")
+ 
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Recurring",
+      dataIndex: "isRecurring",
+      key: "isRecurring",
+      render: (r: any, rowData: any) => (
+        <Checkbox
+          defaultChecked={rowData.isRecurring}
+          onChange={(e) => handleIsRecurringChange(e.target.checked, rowData)}
+        />
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (rowData: any) => (
+        <Button
+          type="link"
+          icon={<DeleteOutlined />}
+          onClick={(event) => handleDelete(rowData.key)}
+        />
+      ),
+    },
+  ];
 
 
-   return {
-    ...each,
-   date:d
-   }
-  })
-
-console.log(dataSource)
   return (
     <Row gutter={[16, 16]}>
       <Col span={4}>
@@ -159,9 +165,10 @@ console.log(dataSource)
       <Col span={24}>
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={holidaysList}
           pagination={false}
           scroll={{ x: 500, y: 400 }}
+          bordered
         />
       </Col>
       <Button onClick={() => setIsModalOpen(true)} type="primary">

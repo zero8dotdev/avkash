@@ -10,7 +10,11 @@ import LeavePolicyPage from "./steps/leave-policy";
 import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
 import { Users } from "../dashboard/settings/_components/users";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { completeSetup, fetchLeaveTypes } from "@/app/_actions";
+import {
+  completeSetup,
+  fetchLeaveTypes,
+  fetchPublicHolidays,
+} from "@/app/_actions";
 
 export default function SetupPage() {
   const [current, setCurrent] = useState(0);
@@ -28,7 +32,9 @@ export default function SetupPage() {
 
   const [users, setUsers] = useState<any[]>([]);
   const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
-  const [countryCode, setCountryCode] = useState("IN");
+  const [countryCode, setCountryCode] = useState<string>("IN");
+
+  const moment = require("moment");
 
   useEffect(() => {
     (async () => {
@@ -98,7 +104,23 @@ export default function SetupPage() {
       setLoading(false);
     }
   };
+  const fetchHolidays = async (countryCode: string) => {
+    const holidays = await fetchPublicHolidays(countryCode);
+    const holidayData = holidays.map((each) => ({
+      key: each.id,
+      name: each.name,
+      date: moment(each.date).format("DD MMM YYYY"),
+      isRecurring: true,
+      isCustom: false,
+    }));
+    setHolidaysList(holidayData);
+  };
 
+  useEffect(() => {
+    fetchHolidays(countryCode);
+  },[countryCode]);
+
+  console.log(holidaysList);
   const steps = [
     {
       title: "Settings",
