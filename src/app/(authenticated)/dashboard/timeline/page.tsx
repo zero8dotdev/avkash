@@ -29,6 +29,7 @@ import AllLeavesDrawer from "./_components/allLeavesDrawer";
 import UserProfileDrawer from "./_components/UserProfileDrawer";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { fetchAllTeams } from "@/app/_actions";
+import ShowCalendarURL from "./_components/calenderfeed";
 const supabase = createClient();
 
 interface Team {
@@ -695,6 +696,8 @@ const Timeline = () => {
         allLeaveDrawerVisible={allLeaveDrawerVisible}
         setAllLeaveDrawerVisible={setAllLeaveDrawerVisible}
       />
+      <ShowCalendarURL  userId={userId} teamId={teamId} orgId={orgId}/>
+
       <Tabs
         items={[
           {
