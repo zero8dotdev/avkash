@@ -342,6 +342,11 @@ export const signUpAction = async (values: any) => {
       throw orgError;
     }
 
+    const { data, error } = await supabaseAdminClient
+      .from('OrgAccessData')
+      .update({ orgId: org.orgId })
+      .eq('slackUserId', authUser?.user_metadata.sub)
+
     // create a team with that orgId
     const { data: team, error: teamError } = await supabaseAdminClient
       .from("Team")
