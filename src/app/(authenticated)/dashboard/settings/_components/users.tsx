@@ -12,17 +12,31 @@ import {
   Switch,
   Avatar,
   Form,
-  Space,
   Tooltip,
-  Alert,
 } from "antd";
 import Item, { Meta } from "antd/es/list/Item";
 import Search from "antd/es/transfer/search";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
-export const Users: React.FC = () => {
+export const Users = forwardRef(function Users(props, ref) {
   const [users, setUsers] = useState<any[]>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [form] = Form.useForm();
+
+  useImperativeHandle(ref, () => ({
+    getUsers: () => {
+      return users?.map(
+        ({ id, profile: { image_48, real_name, email } }: any) => {
+          return {
+            slackId: id,
+            name: real_name,
+            email,
+            isProrate: !!form.getFieldValue(`user[${id}]`),
+          };
+        }
+      );
+    },
+  }));
 
   const {
     state: { orgId },
@@ -37,6 +51,11 @@ export const Users: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const deleteUser = (id: string) => {
+    const filteredUsers = users?.filter((user) => user.id !== id);
+    setUsers(filteredUsers);
   };
 
   return (
@@ -55,12 +74,7 @@ export const Users: React.FC = () => {
       </Row>
       <Row gutter={8}>
         <Col span={24}>
-          <Alert message="Prorate" />
-        </Col>
-      </Row>
-      <Row gutter={8}>
-        <Col span={24}>
-          <Form name="userList">
+          <Form name="userList" form={form}>
             <List
               size="small"
               dataSource={users}
@@ -87,10 +101,10 @@ export const Users: React.FC = () => {
                               gap: "8px",
                             }}
                             key="prorate"
-                            name={`user-[${id}]`}
+                            name={`user[${id}]`}
                             valuePropName="checked"
                           >
-                            <Switch />
+                            <Switch defaultValue={false} />
                           </Form.Item>
                         </Tooltip>
                         <Button
@@ -98,6 +112,9 @@ export const Users: React.FC = () => {
                           size="small"
                           type="dashed"
                           danger
+                          onClick={() => {
+                            deleteUser(id);
+                          }}
                           icon={<DeleteOutlined />}
                         />
                       </Flex>,
@@ -117,4 +134,4 @@ export const Users: React.FC = () => {
       </Row>
     </Flex>
   );
-};
+});
