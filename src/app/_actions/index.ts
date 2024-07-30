@@ -2,6 +2,7 @@
 
 import { createClient } from "@/app/_utils/supabase/server";
 import { createAdminClient } from "../_utils/supabase/adminClient";
+import { WebClient } from "@slack/web-api";
 
 
 /*
@@ -361,4 +362,36 @@ export const signUpAction = async (values: any) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const fetchAllUsersFromChatApp = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
+
+    const { data: organisation, error } = await supabaseAdminClient
+      .from('Organisation')
+      .select('*, OrgAccessData(slackAccessToken)')
+      .eq('orgId', orgId)
+      .single();
+
+
+    const slackAccessToken = organisation['OrgAccessData'][0]['slackAccessToken'];
+    const slackClient = new WebClient(slackAccessToken);
+
+    const result = await slackClient.users.list({
+      limit: 1000,
+    })
+
+    if (!result.ok) {
+      throw new Error(`Error fetching users: ${result.error}`);
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return result.members?.filter(({ is_bot, deleted, is_email_confirmed }) => !is_bot && !deleted && is_email_confirmed);
+  } catch (error) {
+    console.log(error);
+  };
 };

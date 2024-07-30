@@ -2,6 +2,9 @@
 import { Card, Checkbox, Flex, Form, List, Select } from "antd";
 import moment from "moment-timezone";
 import { useEffect, useState } from "react";
+const { Item: FormItem } = Form;
+const { Option: SelectOption } = Select;
+const { Group: CheckboxGroup } = Checkbox;
 
 interface SettingProps {
   startOfWorkWeek: string;
@@ -41,83 +44,78 @@ const Setting: React.FC<SettingProps> = ({
     update({ startOfWorkWeek, workweek, timeZone, ...changedFields });
   };
 
+  const formItemLayout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
+
   return (
-    <Flex vertical>
-      <Card>
-        <Form form={form} onValuesChange={onValuesChange}>
-          <Form.Item
-            label="Start of work week"
-            name="startOfWorkWeek"
-            rules={[
-              { required: true, message: "Please select start of work week" },
-            ]}
-            initialValue={["MONDAY"]}
-          >
-            <Select
-              className="ml-4 w-56"
-              placeholder="Select start of work week"
-            >
-              <Select.Option value="MONDAY">Monday</Select.Option>
-              <Select.Option value="TUESDAY">Tuesday</Select.Option>
-              <Select.Option value="WEDNESDAY">Wednesday</Select.Option>
-              <Select.Option value="THURSDAY">Thursday</Select.Option>
-              <Select.Option value="FRIDAY">Friday</Select.Option>
-              <Select.Option value="SATURDAY">Saturday</Select.Option>
-              <Select.Option value="SUNDAY">Sunday</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Work week"
-            name="workweek"
-            rules={[
-              {
-                required: true,
-                message: "Please select atleast one working day",
-              },
-            ]}
-            initialValue={["MONDAY"]}
-          >
-            <Checkbox.Group>
-              <Checkbox value="MONDAY">Monday</Checkbox>
-              <Checkbox value="TUESDAY">Tuesday</Checkbox>
-              <Checkbox value="WEDNESDAY">Wednesday</Checkbox>
-              <Checkbox value="THURSDAY">Thursday</Checkbox>
-              <Checkbox value="FRIDAY">Friday</Checkbox>
-              <Checkbox value="SATURDAY">Saturday</Checkbox>
-              <Checkbox value="SUNDAY">Sunday</Checkbox>
-            </Checkbox.Group>
-          </Form.Item>
-          <Form.Item
-            label="Time Zone"
-            name="timeZone"
-            rules={[{ required: true, message: "Please select your timezone" }]}
-          >
-            <Select
-              style={{ width: "200px" }}
-              className="ml-16"
-              showSearch
-              placeholder="Search to Select"
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                ((option?.label ?? "") as string).includes(input)
-              }
-              filterSort={(optionA, optionB) =>
-                ((optionA?.label ?? "") as string)
-                  .toLowerCase()
-                  .localeCompare(
-                    ((optionB?.label ?? "") as string).toLowerCase()
-                  )
-              }
-              options={timezones.map((timezone: string) => ({
-                value: timezone,
-                label: timezone,
-              }))}
-            />
-          </Form.Item>
-        </Form>
-      </Card>
-      )
-    </Flex>
+    <Form
+      form={form}
+      layout="horizontal"
+      {...formItemLayout}
+      onValuesChange={onValuesChange}
+    >
+      <FormItem
+        label="Start of work week"
+        name="startOfWorkWeek"
+        rules={[
+          { required: true, message: "Please select start of work week." },
+        ]}
+      >
+        <Select placeholder="Start of the work week">
+          <SelectOption value="MONDAY">Monday</SelectOption>
+          <SelectOption value="TUESDAY">Tuesday</SelectOption>
+          <SelectOption value="WEDNESDAY">Wednesday</SelectOption>
+          <SelectOption value="THURSDAY">Thursday</SelectOption>
+          <SelectOption value="FRIDAY">Friday</SelectOption>
+          <SelectOption value="SATURDAY">Saturday</SelectOption>
+          <SelectOption value="SUNDAY">Sunday</SelectOption>
+        </Select>
+      </FormItem>
+      <FormItem
+        label="Work week"
+        name="workweek"
+        rules={[
+          {
+            required: true,
+            message: "Please select atleast one working day",
+          },
+        ]}
+      >
+        <CheckboxGroup>
+          <Checkbox value="MONDAY">Monday</Checkbox>
+          <Checkbox value="TUESDAY">Tuesday</Checkbox>
+          <Checkbox value="WEDNESDAY">Wednesday</Checkbox>
+          <Checkbox value="THURSDAY">Thursday</Checkbox>
+          <Checkbox value="FRIDAY">Friday</Checkbox>
+          <Checkbox value="SATURDAY">Saturday</Checkbox>
+          <Checkbox value="SUNDAY">Sunday</Checkbox>
+        </CheckboxGroup>
+      </FormItem>
+      <FormItem
+        label="Time Zone"
+        name="timeZone"
+        rules={[{ required: true, message: "Please select your timezone." }]}
+      >
+        <Select
+          showSearch
+          placeholder="Timezone"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            ((option?.label ?? "") as string)
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          filterSort={(optionA, optionB) =>
+            ((optionA?.label ?? "") as string)
+              .toLowerCase()
+              .localeCompare(((optionB?.label ?? "") as string).toLowerCase())
+          }
+          options={timezones.map((timezone: string) => ({
+            value: timezone,
+            label: timezone,
+          }))}
+        />
+      </FormItem>
+    </Form>
   );
 };
 

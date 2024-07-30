@@ -219,14 +219,14 @@ CREATE TABLE "ActivityLog" (
     "keyword" VARCHAR
 );
 
-
-CREATE TABLE "OrgAccressData" (
+CREATE TABLE "OrgAccessData" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     "orgId" UUID,
-    "SlackAccessToken" TEXT,
-    "SlackRefreshToken" TEXT,
-    "GoogleAccessToken" TEXT,
-    "GoogleRefreshToken" TEXT
+    "slackAccessToken" TEXT,
+    "slackRefreshToken" TEXT,
+    "googleAccessToken" TEXT,
+    "googleRefreshToken" TEXT,
+    CONSTRAINT "fk_orgaccessdata_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
 );
 
 CREATE TABLE "PublicHolidays" (
