@@ -47,14 +47,15 @@ CREATE TYPE "Role" AS ENUM('OWNER', 'MANAGER', 'USER', 'ANON');
 
 -- Create Tables
 CREATE TABLE "Organisation" (
-    "orgId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "orgId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "subscriptionId" VARCHAR(255),
     "name" VARCHAR(255) NOT NULL,
     "dateformat" VARCHAR(255) NOT NULL DEFAULT 'DD-MM-YYYY',
     "timeformat" VARCHAR(255) NOT NULL DEFAULT 'HH:MM',
     "location" VARCHAR(255),
     "visibility" "Visibility" NOT NULL DEFAULT 'SELF',
     "startOfWorkWeek" "DaysOfWeek" NOT NULL DEFAULT 'MONDAY',
-    "workweek" "DaysOfWeek" [] NOT NULL DEFAULT ARRAY[
+    "workweek" "DaysOfWeek"[] NOT NULL DEFAULT ARRAY[
         'MONDAY',
         'TUESDAY',
         'WEDNESDAY',
@@ -62,7 +63,7 @@ CREATE TABLE "Organisation" (
         'FRIDAY',
         'SATURDAY',
         'SUNDAY'
-    ]::"DaysOfWeek" [],
+    ]::"DaysOfWeek"[],
     "timeZone" VARCHAR(255),
     "notificationLeaveChanged" BOOLEAN NOT NULL DEFAULT FALSE,
     "notificationDailySummary" BOOLEAN NOT NULL DEFAULT FALSE,
@@ -81,14 +82,14 @@ CREATE TABLE "Organisation" (
 );
 
 CREATE TABLE "Team" (
-    "teamId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "teamId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "orgId" UUID NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
     "manager" UUID,
     "location" VARCHAR(255),
     "startOfWorkWeek" "DaysOfWeek" DEFAULT 'MONDAY',
-    "workweek" "DaysOfWeek" [] DEFAULT ARRAY[
+    "workweek" "DaysOfWeek"[] DEFAULT ARRAY[
         'MONDAY',
         'TUESDAY',
         'WEDNESDAY',
@@ -96,7 +97,7 @@ CREATE TABLE "Team" (
         'FRIDAY',
         'SATURDAY',
         'SUNDAY'
-    ]::"DaysOfWeek" [],
+    ]::"DaysOfWeek"[],
     "timeZone" VARCHAR(255),
     "notificationLeaveChanged" BOOLEAN NOT NULL DEFAULT FALSE,
     "notificationDailySummary" BOOLEAN NOT NULL DEFAULT FALSE,
@@ -113,7 +114,7 @@ CREATE TABLE "Team" (
 );
 
 CREATE TABLE "User" (
-    "userId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "userId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "teamId" UUID,
@@ -133,7 +134,7 @@ CREATE TABLE "User" (
 );
 
 CREATE TABLE "Leave" (
-    "leaveId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "leaveId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "leaveType" VARCHAR(255) NOT NULL,
     "startDate" DATE NOT NULL,
     "endDate" DATE NOT NULL,
@@ -155,7 +156,7 @@ CREATE TABLE "Leave" (
 );
 
 CREATE TABLE "LeaveType" (
-    "leaveTypeId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "leaveTypeId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "color" VARCHAR(6),
     "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
@@ -171,7 +172,7 @@ CREATE TABLE "LeaveType" (
 );
 
 CREATE TABLE "LeavePolicy" (
-    "leavePolicyId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "leavePolicyId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "leaveTypeId" UUID NOT NULL,
     "unlimited" BOOLEAN NOT NULL DEFAULT FALSE,
     "maxLeaves" INT,
@@ -193,7 +194,7 @@ CREATE TABLE "LeavePolicy" (
 );
 
 CREATE TABLE "Holiday" (
-    "holidayId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "holidayId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "date" TIMESTAMP(6) NOT NULL,
     "location" VARCHAR(255),
@@ -219,9 +220,8 @@ CREATE TABLE "ActivityLog" (
     "keyword" VARCHAR
 );
 
-
 CREATE TABLE "OrgAccessData" (
-    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "orgId" UUID,
     "SlackAccessToken" TEXT,
     "SlackRefreshToken" TEXT,
@@ -230,12 +230,46 @@ CREATE TABLE "OrgAccessData" (
 );
 
 CREATE TABLE "PublicHolidays" (
-    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-    country varchar(50),
-    iso char(2),
-    year int,
-    date DATE,
-    day varchar(15),
-    name varchar(100),
-    type varchar(50)
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "country" VARCHAR(50),
+    "iso" CHAR(2),
+    "year" INT,
+    "date" DATE,
+    "day" VARCHAR(15),
+    "name" VARCHAR(100),
+    "type" VARCHAR(50)
+);
+
+CREATE TABLE "PaySubMap" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "razorpayPaymentId" VARCHAR(255),
+    "razorpaySignature" VARCHAR(255),
+    "razorpaySubscriptionId" VARCHAR(255)
+);
+
+CREATE TABLE "Subscription" (
+    "id" VARCHAR(255) PRIMARY KEY,
+    "entity" VARCHAR(50),
+    "planId" VARCHAR(255),
+    "customerId" VARCHAR(255),
+    "status" VARCHAR(50),
+    "currentStart" INTEGER,
+    "currentEnd" INTEGER,
+    "endedAt" INTEGER,
+    "quantity" INTEGER,
+    "note" VARCHAR(255),
+    "chargeAt" INTEGER,
+    "offerId" VARCHAR(255),
+    "startAt" INTEGER,
+    "endAt" INTEGER,
+    "authAttempts" INTEGER,
+    "totalCount" INTEGER,
+    "paidCount" INTEGER,
+    "customerNotify" BOOLEAN,
+    "createdAt" INTEGER,
+    "expireBy" INTEGER,
+    "shortUrl" VARCHAR(255),
+    "hasScheduledChanges" BOOLEAN,
+    "scheduleChangeAt" INTEGER,
+    "remainingCount" INTEGER
 );
