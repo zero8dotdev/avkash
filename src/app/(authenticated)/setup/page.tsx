@@ -1,15 +1,24 @@
 "use client";
 
-import { Button, Col, Row, Steps } from "antd";
-import { useState } from "react";
+import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
+import { useEffect, useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
-import NotificationPage from "./steps/notificationPage";
-import LeavePolicyPage from "./steps/leavePolicy";
-import InviteUsers from "./steps/inviteUsers";
+import Notification from "./steps/notification";
+import LeavePolicyPage from "./steps/leave-policy";
+
+import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
+import { Users } from "../dashboard/settings/_components/users";
+import { useApplicationContext } from "@/app/_context/appContext";
+import { completeSetup, fetchLeaveTypes } from "@/app/_actions";
 
 export default function SetupPage() {
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const {
+    state: { orgId },
+    dispatch,
+  } = useApplicationContext();
 
   const [settingsData, setSettingsData] = useState({
     startOfWorkWeek: "MONDAY",
@@ -18,43 +27,44 @@ export default function SetupPage() {
   });
 
   const [users, setUsers] = useState<any[]>([]);
-  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>([
-    {
-      name: "Paid Time Off",
-      isActive: true,
-      accruals: false,
-      maxLeaves: 10,
-      autoApprove: false,
-      rollOver: false,
-      unlimited: false,
-      accrualFrequency: null,
-      accrueOn: null,
-      rollOverLimit: null,
-      rollOverExpiry: null,
-    },
-    {
-      name: "Sick",
-      isActive: true,
-      accruals: false,
-      maxLeaves: 10,
-      autoApprove: false,
-      rollOver: false,
-      unlimited: false,
-      accrualFrequency: null,
-      accrueOn: null,
-      rollOverLimit: null,
-      rollOverExpiry: null,
-    },
-  ]);
-  const [holidaysList, setHolidaysList] = useState<any[]>();
-  const [notificatinData, setNotificationData] = useState(
-    {
-      leaveChange: false,
-      dailySummary: false,
-      weeklySummary: false,
-      sendNtf: ["OWNER"],
-    },
-  );
+  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
+  const [countryCode, setCountryCode] = useState("IN");
+
+  useEffect(() => {
+    (async () => {
+      const sampleLeavePolicy = {
+        accruals: false,
+        maxLeaves: 10,
+        autoApprove: false,
+        rollOver: false,
+        unlimited: false,
+        accrualFrequency: null,
+        accrueOn: null,
+        rollOverLimit: null,
+        rollOverExpiry: null,
+      };
+
+      const leaveTypes = await fetchLeaveTypes(orgId);
+      const leaveTypesArr = leaveTypes?.map(
+        ({ name, color, isActive, leaveTypeId }) => ({
+          name,
+          color,
+          isActive,
+          leaveTypeId,
+          ...sampleLeavePolicy,
+        })
+      );
+      setLeavePolicies(leaveTypesArr);
+    })();
+  }, [orgId]);
+
+  const [holidaysList, setHolidaysList] = useState<any[]>([]);
+  const [notificatinData, setNotificationData] = useState({
+    leaveChange: false,
+    dailySummary: false,
+    weeklySummary: false,
+    sendNtf: ["OWNER"],
+  });
 
   const next = () => {
     setCurrent(current + 1);
@@ -64,7 +74,30 @@ export default function SetupPage() {
     setCurrent(current - 1);
   };
 
-  const Done = async () => {};
+  const onDone = async () => {
+    setLoading(true);
+    try {
+      // 1. settingsData [Organisation] [DONE]
+      // 4. notificatinData [Organisation] [DONE]
+      // 2. leavePolicies [LeavePolicy] [DONE]
+      // 3. holidaysList [Holiday] [] [DONE]
+      // 5. users [User] [DONE]
+      // Prorata: If for any user, Prorate is ON, So, while creating user, calculate, accruedLeave and usedLeave
+      // map these users to Org default team.
+      const done = await completeSetup(orgId, {
+        ...settingsData,
+        ...notificatinData,
+        leavePolicies: leavePolicies?.map(({ color, name, ...rest }: any) => ({
+          ...rest,
+        })),
+        holidaysList,
+        ...users,
+      });
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps = [
     {
@@ -82,7 +115,7 @@ export default function SetupPage() {
       title: "Leave Policy",
       content: (
         <LeavePolicyPage
-          leavePoliciesData={leavePolicies}
+          leavePoliciesData={leavePolicies || []}
           update={(policies) => {
             setLeavePolicies(policies);
           }}
@@ -102,9 +135,9 @@ export default function SetupPage() {
     {
       title: "Notifications",
       content: (
-        <NotificationPage
-        {...notificatinData}
-        update={(values)=>setNotificationData({...values})}
+        <Notification
+          {...notificatinData}
+          update={(values) => setNotificationData({ ...values })}
         />
       ),
     },

@@ -124,7 +124,8 @@ export const updataOrgData = async (values: any, orgId: string) => {
     .from("Organisation")
     .update({
       ...values
-    }).eq("orgId", orgId)
+    })
+    .eq("orgId", orgId)
     .select()
   if (error) {
     throw error;
@@ -294,8 +295,25 @@ export const updateLeavePolicies = async (values: any, leaveTypeId: string, orgI
   }
 }
 
-/* Sign Up process, takes care of creating org team and user */
+export const fetchLeaveTypes = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
 
+    const { data, error } = await supabaseAdminClient
+      .from('LeaveType')
+      .select('*');
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/* Sign Up process, takes care of creating org team and user */
 export const signUpAction = async (values: any) => {
   const supabaseServerClient = createClient();
   const { data: { user: authUser }, error } = await supabaseServerClient.auth.getUser();
@@ -305,11 +323,11 @@ export const signUpAction = async (values: any) => {
   };
 
   const { name, company_name, team_name, email } = values;
-  const supabase = createAdminClient();
+  const supabaseAdminClient = createAdminClient();
 
   try {
     // create one organisation
-    const { data: org, error: orgError } = await supabase
+    const { data: org, error: orgError } = await supabaseAdminClient
       .from('Organisation')
       .insert({
         name: company_name,
@@ -323,7 +341,7 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a team with that orgId
-    const { data: team, error: teamError } = await supabase
+    const { data: team, error: teamError } = await supabaseAdminClient
       .from("Team")
       .insert({ name: team_name, orgId: org.orgId, createdBy: authUser.id })
       .select()
@@ -334,7 +352,7 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a user as well
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdminClient
       .from("User")
       .insert({
         userId: authUser.id,
@@ -352,6 +370,36 @@ export const signUpAction = async (values: any) => {
 
     if (userError) {
       throw userError;
+    }
+
+    // create a leaveType for ORG
+    const defaultLeaveTypes = [
+      { name: 'Paid Time Off', isActive: true, color: '' },
+      { name: 'Sick', isActive: true, color: '' },
+      { name: 'Unpaid', isActive: false, color: '' }
+    ];
+
+    console.log(defaultLeaveTypes
+      .map((leaveType: any) => ({
+        ...leaveType,
+        orgId: org.orgId,
+        createdBy: authUser.id
+      })));
+
+
+    const { data: leaveTypes, error: leaveTypesError } = await supabaseAdminClient
+      .from('LeaveType')
+      .insert(defaultLeaveTypes
+        .map((leaveType: any) => ({
+          ...leaveType,
+          orgId: org.orgId,
+          createdBy: authUser.id
+        })))
+      .select('*');
+
+    if (leaveTypesError) {
+      console.log('here');
+      throw leaveTypesError;
     }
 
     return {
@@ -374,7 +422,6 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
       .eq('orgId', orgId)
       .single();
 
-
     const slackAccessToken = organisation['OrgAccessData'][0]['slackAccessToken'];
     const slackClient = new WebClient(slackAccessToken);
 
@@ -390,8 +437,83 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
       throw error;
     }
 
-    return result.members?.filter(({ is_bot, deleted, is_email_confirmed }) => !is_bot && !deleted && is_email_confirmed);
+    return result
+      .members
+      ?.filter(({
+        is_bot,
+        deleted,
+        is_email_confirmed
+      }) => !is_bot && !deleted && is_email_confirmed);
   } catch (error) {
     console.log(error);
   };
+};
+
+export const completeSetup = async (orgId: string, setupData: any) => {
+  try {
+    const {
+      startOfWorkWeek,
+      workweek,
+      timeZone,
+      leaveChange: notificationLeaveChanged,
+      dailySummary: notificationDailySummary,
+      weeklySummary: notificationWeeklySummary,
+      sendNtf: notificationToWhom,
+      leavePolicies,
+      holidays,
+      users
+    } = setupData;
+
+    const supabaseAdminClient = createAdminClient();
+
+    // const { data: organisation, error: orgError } = await supabaseAdminClient
+    //   .from('Organisation')
+    //   .update({
+    //     startOfWorkWeek,
+    //     workweek,
+    //     timeZone,
+    //     notificationLeaveChanged,
+    //     notificationDailySummary,
+    //     notificationWeeklySummary,
+    //     notificationToWhom: Array.isArray(notificationToWhom) && notificationToWhom[0]
+    //   })
+    //   .eq('orgId', orgId)
+    //   .select('*');
+
+    // if (orgError) {
+    //   throw orgError;
+    // }
+
+    // leavePolicies
+    const { data: leavePoliciesData, error: leavePoliciesError } = await supabaseAdminClient
+      .from('LeavePolicy')
+      .insert(leavePolicies.map((policy: any) => ({ ...policy, orgId })))
+      .select();
+
+    if (leavePoliciesError) {
+      throw leavePoliciesError;
+    }
+
+    // holidays
+    const { data: holidaysData, error: holidaysError } = await supabaseAdminClient
+      .from('Holiday')
+      .insert(holidays.map((holiday: any) => ({ ...holiday, orgId })))
+      .select();
+
+    if (holidaysError) {
+      throw holidaysError;
+    }
+
+    const { data: usersData, error: usersError } = await supabaseAdminClient
+      .from('User')
+      .insert(users.map((user: any) => ({ ...users, orgId })))
+      .select();
+
+    if (usersError) {
+      throw usersError;
+    }
+
+  } catch (error) {
+
+  }
 };
