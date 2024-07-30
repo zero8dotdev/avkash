@@ -35,7 +35,7 @@ export default function SignUpForm() {
       console.log(error);
     } finally {
       setIsSaving(false);
-      router.replace("/dashboard/setup");
+      router.replace("/setup");
     }
   };
 
