@@ -122,8 +122,8 @@ CREATE TABLE "User" (
     "createdBy" VARCHAR(255),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    "accruedLeave" JSON DEFAULT '{}'::json,
-    "usedLeave" JSON DEFAULT '{}'::json,
+    "accruedLeave" JSONB DEFAULT '{}'::jsonb,
+    "usedLeave" JSONB DEFAULT '{}'::jsonb,
     "keyword" VARCHAR,
     "slackId" TEXT,
     "googleId" TEXT,
@@ -220,7 +220,7 @@ CREATE TABLE "ActivityLog" (
 );
 
 
-CREATE TABLE "OrgAccressData" (
+CREATE TABLE "OrgAccessData" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     "orgId" UUID,
     "SlackAccessToken" TEXT,
