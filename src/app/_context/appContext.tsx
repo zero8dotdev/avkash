@@ -27,7 +27,8 @@ type ActionTypes =
   | "setUser"
   | "setOrg"
   | "setTeam"
-  | "setTeams";
+  | "setTeams"
+  | "logout"
 
 interface Action {
   type: ActionTypes;
@@ -92,14 +93,17 @@ function applicationReducer(state: ContextState, action: Action) {
         ...state,
         userId: action.payload,
       };
-
     case "setUser":
       return {
         ...state,
         userId: action.payload.userId,
         user: action.payload,
       };
-
+      case "logout":
+        return {
+          ...state,
+          ...INITIAL_STATE
+        };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
