@@ -23,7 +23,7 @@ const TabWrapper = ({
 }) => {
   return (
     <Col span={18}>
-      <Card title={title}>{children}</Card>;
+      <Card title={title}>{children}</Card>
     </Col>
   );
 };

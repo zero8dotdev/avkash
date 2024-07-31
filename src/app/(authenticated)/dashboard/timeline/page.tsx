@@ -697,7 +697,6 @@ const Timeline = () => {
         setAllLeaveDrawerVisible={setAllLeaveDrawerVisible}
       />
       <ShowCalendarURL  userId={userId} teamId={teamId} orgId={orgId}/>
-
       <Tabs
         items={[
           {

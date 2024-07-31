@@ -30,12 +30,12 @@ export default function SignUpForm() {
   const onFinish = async (values: any) => {
     setIsSaving(true);
     try {
-      const data = await signUpAction(values);
+      const data = await signUpAction({ ...values, slackUserId: user?.sub });
     } catch (error) {
       console.log(error);
     } finally {
       setIsSaving(false);
-      router.replace("/dashboard/setup");
+      router.replace("/setup");
     }
   };
 
