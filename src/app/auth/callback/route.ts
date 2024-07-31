@@ -33,5 +33,5 @@ export async function GET(request: Request) {
     redirect('/error')
   }
 
-  redirect('/signup')
+  // redirect('/signup')
 }
