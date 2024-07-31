@@ -64,7 +64,7 @@ const fetchSubscription = async (subscriptionId:any) => {
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
 
     const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-    const response = await fetch(`https://api.razorpay.com/v1/subscriptions/${subscriptionId}`, {
+    const response = await fetch(`${process.env.RAZORPAY_URL}subscriptions/${subscriptionId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Basic ${credentials}`,

@@ -1,4 +1,3 @@
-import { addSubscriptionToOrg } from '@/app/_components/header/_components/actions';
 import {createAdminClient} from '@/app/_utils/supabase/adminClient';
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
@@ -24,7 +23,6 @@ export const POST = async (req: NextRequest) => {
       total_count: 12,
       quantity,
     });
-    // await addSubscriptionToOrg(org_id,subscription.id)
     return NextResponse.json({ subscription, key_id: process.env.RAZORPAY_KEY_ID! });
   } catch (error: any) {
     console.error("Subscription creation error:", error);
@@ -32,7 +30,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-export async function getQuantity(org_id: string): Promise<any> {
+async function getQuantity(org_id: string): Promise<any> {
   const {data,error} = await supabaseAdmin.from("User").select("userId",{count: 'exact'}).eq("orgId",org_id)
   if (error) {
       console.log(error)
