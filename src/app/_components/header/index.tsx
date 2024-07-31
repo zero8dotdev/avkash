@@ -4,6 +4,7 @@ import Title from "antd/es/typography/Title";
 import LogoutButton from "./_components/logout";
 import { Header } from "antd/es/layout/layout";
 import MainMenu from "./_components/main-menu";
+import Image from "next/image";
 
 export default function AppHeader() {
   return (

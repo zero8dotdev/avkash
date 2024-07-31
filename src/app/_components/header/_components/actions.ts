@@ -1,10 +1,10 @@
 
 'use server'
 
-import supabaseAdmin from "@/app/_utils/supabase/adminClient"
-import { count, log } from "console"
+import { createAdminClient } from "@/app/_utils/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { NextResponse } from "next/server";
 
 interface LeaveHistoryParams {
   userId?: string;
@@ -21,8 +21,10 @@ interface getUserDataProps {
   slackId?: string;
   googleId?: string;
 }
+const supabaseAdmin = createAdminClient();
 
 export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
+  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -37,6 +39,7 @@ export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
 }
 
 export async function getUserDataBasedOnUUID(userId: any) {
+  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -53,6 +56,7 @@ export async function getUserDataBasedOnUUID(userId: any) {
 
 export async function applyLeave(leaveType: string, startDate: string, endDate: string, duration: string, shift: string, isApproved: string, userId: string, teamId: string, reason: string, orgId: string) {
 
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .insert({
@@ -85,6 +89,7 @@ export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
   // }else{
   //   updateValue = allFields;
   // }
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .update(updateValue)
@@ -94,6 +99,7 @@ export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
 export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 7);
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(name,orgId,slackId),Team(name)`)
@@ -120,9 +126,10 @@ export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   return { leaves: filteredLeaves, pending: pendingLeaves };
 }
 
-export async function getLeavesHistory1({ days,userId,teamId }: {days: number,userId?: string,teamId?: string}) {
+export async function getLeavesHistory1({ days, userId, teamId }: { days: number, userId?: string, teamId?: string }) {
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - days);
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(name,orgId,slackId),Team(name)`)
@@ -156,6 +163,7 @@ export async function getLeaveReports() {
 }
 
 export async function getTeamsList(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data: teamsData, error: teamsError } = await supabaseAdmin
     .from("Team")
     .select('*')
@@ -166,6 +174,7 @@ export async function getTeamsList(orgId: string) {
 }
 
 export async function getUsersList(teamId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
     .select('*')
@@ -176,12 +185,14 @@ export async function getUsersList(teamId: string) {
 }
 
 export async function getLeaveDetails(leaveId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave").select("*,User(name,email,slackId,accruedLeave,usedLeave),Team(name)").eq('leaveId', leaveId)
   return data
 }
 
 export async function getLeaveTypes(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("LeaveType")
     .select("leaveTypeId,name,LeavePolicy(*)")
@@ -190,17 +201,19 @@ export async function getLeaveTypes(orgId: string) {
   return data
 }
 
-export async function getLeaveTypeDetails(leaveType: string,orgId: string) {
+export async function getLeaveTypeDetails(leaveType: string, orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("LeaveType")
     .select("leaveTypeId,name,LeavePolicy(unlimited)")
     .eq("leaveTypeId", leaveType)
-    .eq('orgId',orgId)
+    .eq('orgId', orgId)
     .single()
   return data
 }
 
 export async function getManagerIds(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("*")
@@ -211,6 +224,7 @@ export async function getManagerIds(orgId: string) {
 }
 
 export async function fetchOrgWorkWeek(orgId: string) {
+  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Organisation")
     .select("location,workweek")
@@ -225,6 +239,7 @@ export async function fetchHolidays(startDate: string, endDate: string, location
     const start = new Date(startDate).toISOString().slice(0, 10);
     console.log(start)
     const end = new Date(endDate).toISOString().slice(0, 10);
+    const supabaseAdmin = createAdminClient();
     const { data, error } = await supabaseAdmin
       .from('Holiday')
       .select('*')
@@ -249,4 +264,104 @@ export async function getSlackAccessToken(slackId: string) {
     .eq('slackId', slackId)
     .single()
   return data
+}
+
+
+export const addSubscriptionToOrg = async (orgId:string, subscriptionId: string) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('Organisation')
+      .update({ subscriptionId: subscriptionId })
+      .eq('orgId', orgId);
+
+    if (error) {
+      throw new Error(`Failed to add subscription ID to organisation: ${error.message}`);
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const fetchInvoices = async (subscriptionId:any) => {
+  try {
+    const keyId = process.env.RAZORPAY_KEY_ID!;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+
+    const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+    const response = await fetch(`https://api.razorpay.com/v1/invoices?subscription_id=${subscriptionId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json({ error: errorData }, { status: response.status });
+    }
+    const data = await response.json();
+    return data
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    throw error;
+  }
+};
+
+export const cancelSubscription = async (subscriptionId:any) => {
+  try {
+    const keyId = process.env.RAZORPAY_KEY_ID!;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+
+    const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+    const response = await fetch(`https://api.razorpay.com/v1/subscriptions/${subscriptionId}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+      },
+      body: JSON.stringify({
+        cancel_at_cycle_end: 0
+      })
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json({ error: errorData }, { status: response.status });
+    }
+    const data = await response.json();
+    return data
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    throw error;
+  }
+};
+
+export const getQuantity = async (orgId: string) => {
+  const { data, error } = await supabaseAdmin
+    .from("User")
+    .select("userId", { count: "exact" })
+    .eq("orgId",orgId);
+  if (error) {
+    console.log(error);
+  }
+  return data?.length;
+};
+
+export const insertData = async (res: any) => {
+  try {
+  const data = await supabaseAdmin.from("PaySubMap").insert([res]);
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+};
+
+export const getSubDetails = async(subscriptionId: string) => {
+  const { data, error } = await supabaseAdmin
+        .from("Subscription")
+        .select("*")
+        .eq("id", subscriptionId)
+        .single();
+    if (error) {
+      console.log(error);
+      }
+    return data;
 }

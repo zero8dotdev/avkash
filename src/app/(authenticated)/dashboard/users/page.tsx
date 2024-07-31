@@ -6,10 +6,7 @@ const Page = async () => {
   return (
     <Row gutter={8}>
       <Col span={24}>
-        <Title>Users</Title>
-      </Col>
-      <Col span={24}>
-        <UserList users={[]} />
+        <UserList />
       </Col>
     </Row>
   );

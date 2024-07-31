@@ -27,7 +27,7 @@ export default function LogoutButton() {
     try {
       await supabase.auth.signOut();
       logoutAction();
-      dispatch({ type: "setUser", payload: null });
+      dispatch({ type: "logout", payload: null });
     } catch (error) {
       console.log("Error while logging out ", error);
     }

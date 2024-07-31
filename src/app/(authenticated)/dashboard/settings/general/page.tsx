@@ -2,7 +2,10 @@ import { updataOrgData } from "@/app/_actions";
 import { Form, Select, Switch, Button } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
 
-const General = () => {
+const { Item: FormItem } = Form;
+const { Option: SelectOption } = Select;
+
+const General: React.FC = () => {
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
@@ -24,48 +27,44 @@ const General = () => {
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
     >
-      <Form.Item
-        name="dateformat"
-        label="Date Format"
-        initialValue="MM/DD/YYYY"
-      >
+      <FormItem name="dateformat" label="Date Format" initialValue="MM/DD/YYYY">
         <Select placeholder="Select a date format">
-          <Select.Option value="MM/DD/YYYY">MM/DD/YYYY</Select.Option>
-          <Select.Option value="DD/MM/YYYY">DD/MM/YYYY</Select.Option>
-          <Select.Option value="YYYY-MM-DD">YYYY-MM-DD</Select.Option>
+          <SelectOption value="MM/DD/YYYY">MM/DD/YYYY</SelectOption>
+          <SelectOption value="DD/MM/YYYY">DD/MM/YYYY</SelectOption>
+          <SelectOption value="YYYY-MM-DD">YYYY-MM-DD</SelectOption>
         </Select>
-      </Form.Item>
-      <Form.Item name="timeformat" label="Time Format" initialValue="HH:mm:ss">
+      </FormItem>
+      <FormItem name="timeformat" label="Time Format" initialValue="HH:mm:ss">
         <Select placeholder="Select a time format">
-          <Select.Option value="hh:mm:ss A">12-hour (hh:mm:ss)</Select.Option>
-          <Select.Option value="HH:mm:ss">24-hour (HH:mm:ss)</Select.Option>
+          <SelectOption value="hh:mm:ss A">12-hour (hh:mm:ss)</SelectOption>
+          <SelectOption value="HH:mm:ss">24-hour (HH:mm:ss)</SelectOption>
         </Select>
-      </Form.Item>
-      <Form.Item
+      </FormItem>
+      <FormItem
         name="visibility"
         label="Who can see other's leave?"
         initialValue="SELF"
       >
         <Select>
-          <Select.Option value="ORG">
+          <SelectOption value="ORG">
             Users can see the organization`s leave
-          </Select.Option>
-          <Select.Option value="TEAM">
+          </SelectOption>
+          <SelectOption value="TEAM">
             Users can see their team`s` leave
-          </Select.Option>
-          <Select.Option value="SELF">
+          </SelectOption>
+          <SelectOption value="SELF">
             Users can can only see their own leave
-          </Select.Option>
+          </SelectOption>
         </Select>
-      </Form.Item>
-      <Form.Item name="halfDayLeave" label="Half days" initialValue={false}>
+      </FormItem>
+      <FormItem name="halfDayLeave" label="Half days" initialValue={false}>
         <Switch />
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+      </FormItem>
+      <FormItem wrapperCol={{ offset: 8, span: 16 }}>
         <Button htmlType="submit" type="primary">
           Save
         </Button>
-      </Form.Item>
+      </FormItem>
     </Form>
   );
 };

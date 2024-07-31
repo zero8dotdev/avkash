@@ -7,6 +7,7 @@ interface User {
   email: string;
   avatar_url: string;
   role: string;
+  sub: string;
 }
 
 interface ContextState {
@@ -26,7 +27,8 @@ type ActionTypes =
   | "setUser"
   | "setOrg"
   | "setTeam"
-  | "setTeams";
+  | "setTeams"
+  | "logout"
 
 interface Action {
   type: ActionTypes;
@@ -97,6 +99,11 @@ function applicationReducer(state: ContextState, action: Action) {
         userId: action.payload.userId,
         user: action.payload,
       };
+      case "logout":
+        return {
+          ...state,
+          ...INITIAL_STATE
+        };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }

@@ -1,5 +1,5 @@
 import { Button, Card, Drawer, Flex, Space, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/app/_utils/supabase/client";
 import { useApplicationContext } from "@/app/_context/appContext";
 
@@ -13,7 +13,7 @@ const AllLeavesDrawer = ({
   const {
     state: { userId, user },
   } = useApplicationContext();
-  const fetchLeave = async () => {
+  const fetchLeave = useCallback(async () => {
     try {
       const { data, error } = await supabase.rpc("get_leaves_by_user_id", {
         id: userId,
@@ -23,7 +23,8 @@ const AllLeavesDrawer = ({
     } catch (error) {
       console.error("Error fetching user team:", error);
     }
-  };
+  }, [userId]);
+
   useEffect(() => {
     if (userId) {
       fetchLeave();
