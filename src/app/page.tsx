@@ -1,11 +1,12 @@
 import { Fira_Sans_Extra_Condensed } from "next/font/google";
-import HeroSection from "./(public)/homeComponent/HeroSection/page";
-import SecondSection from "./(public)/homeComponent/secondSection/page";
-import "./input.css";
-import Faq from "./(public)/homeComponent/faq/page";
-import FooterSection from "./(public)/homeComponent/footer/page";
-import { ThirdSection } from "./(public)/homeComponent/thirdSection/page";
+import HeroSection from "./(public)/_homeComponent/HeroSection";
+import SecondSection from "./(public)/_homeComponent/secondSection";
+import Faq from "./(public)/_homeComponent/faq";
+import FooterSection from "./(public)/_homeComponent/footer";
+import { ThirdSection } from "./(public)/_homeComponent/thirdSection";
 import Pricing from "./(public)/pricing/page";
+
+import "./input.css";
 
 const firaSans = Fira_Sans_Extra_Condensed({
   weight: ["200", "500"],
@@ -24,7 +25,7 @@ export default function HomePage() {
       <div className="w-full flex justify-center my-8">
         <ThirdSection />
       </div>
-      <div id='priceSection'>
+      <div id="priceSection">
         <Pricing />
       </div>
       <div className="h-full">
@@ -34,4 +35,3 @@ export default function HomePage() {
     </div>
   );
 }
-

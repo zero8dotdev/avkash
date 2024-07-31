@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/app/_utils/supabase/adminClient';
+
 const relevantEvents = new Set([
   'subscription.authenticated',
   'subscription.activated',
@@ -15,10 +16,7 @@ const relevantEvents = new Set([
   'subscription.resumed',
 ]);
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SERVICE_ROLE_KEY || ''
-);
+const supabaseAdmin = createAdminClient();
 
 const upsertSubscription = async (subscription: any) => {
   const { id, entity, plan_id, customer_id, status, current_start, current_end, ended_at, quantity, note, charge_at, offer_id, start_at, end_at, auth_attempts, total_count, paid_count, customer_notify, created_at, expire_by, short_url, has_scheduled_changes, schedule_change_at, remaining_count } = subscription;
@@ -28,28 +26,28 @@ const upsertSubscription = async (subscription: any) => {
     .upsert({
       id,
       entity,
-      "planId":plan_id,
+      "planId": plan_id,
       "customerId": customer_id,
       status,
       "currentStart": current_start,
       "currentEnd": current_end,
-     "endedAt": ended_at,
+      "endedAt": ended_at,
       quantity,
       note,
-     "chargeAt": charge_at,
-     "offerId": offer_id,
-     "startAt": start_at,
-     "endAt": end_at,
-     "authAttempts": auth_attempts,
-     "totalCount": total_count,
-     "paidCount": paid_count,
-     "customerNotify": customer_notify,
-     "createdAt": created_at,
-     "expireBy": expire_by,
-     "shortUrl": short_url,
-     "hasScheduledChanges": has_scheduled_changes,
-     "scheduledChangeAt": schedule_change_at,
-     "remainingCount": remaining_count
+      "chargeAt": charge_at,
+      "offerId": offer_id,
+      "startAt": start_at,
+      "endAt": end_at,
+      "authAttempts": auth_attempts,
+      "totalCount": total_count,
+      "paidCount": paid_count,
+      "customerNotify": customer_notify,
+      "createdAt": created_at,
+      "expireBy": expire_by,
+      "shortUrl": short_url,
+      "hasScheduledChanges": has_scheduled_changes,
+      "scheduledChangeAt": schedule_change_at,
+      "remainingCount": remaining_count
     });
 
   if (error) {
@@ -58,7 +56,7 @@ const upsertSubscription = async (subscription: any) => {
   return data;
 };
 
-const fetchSubscription = async (subscriptionId:any) => {
+const fetchSubscription = async (subscriptionId: any) => {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID!;
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
