@@ -1,10 +1,12 @@
+import { createAdminClient } from '@/app/_utils/supabase/adminClient';
+import { redirect } from 'next/navigation'
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const code = searchParams.get('code') || '';
   const state = searchParams.get('state') || '';
 
-  console.log({ state, code });
   const response = await fetch('https://slack.com/api/oauth.v2.access', {
     method: 'POST',
     headers: {
@@ -13,15 +15,23 @@ export async function GET(request: Request) {
     body: new URLSearchParams({
       code,
       state,
-      client_id: "6356258938273.7279987270326",
-      client_secret: "191a051daa9b5c320f2038139af49bd0",
-      redirect_uri: "https://flounder-wise-completely.ngrok-free.app/auth/callback",
+      client_id: process.env.NEXT_PUBLIC_SLACK_CLIENT_ID!,
+      client_secret: process.env.SLACK_CLIENT_SECRET!,
       grant_type: 'authorization_code'
     })
   })
 
-  const slackResponse = await response.json();
+  const { bot_user_id, access_token } = await response.json();
+  const supabaseAdmin = createAdminClient();
 
-  console.log(slackResponse);
-  return Response.json({ name: 'Asshutosh Tripathi' });
+  const { data, error } = await supabaseAdmin
+    .from('OrgAccessData')
+    .insert({ ownerSlackId: bot_user_id, slackAccessToken: access_token })
+    .select();
+
+  if (error) {
+    redirect('/error')
+  }
+
+  redirect('/signup')
 }

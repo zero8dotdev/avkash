@@ -227,6 +227,7 @@ CREATE TABLE "OrgAccessData" (
     "slackRefreshToken" TEXT,
     "googleAccessToken" TEXT,
     "googleRefreshToken" TEXT,
+    "ownerSlackId" TEXT,
     CONSTRAINT "fk_orgaccessdata_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
 );
 
