@@ -290,7 +290,7 @@ export const fetchInvoices = async (subscriptionId:any) => {
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
 
     const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-    const response = await fetch(`https://api.razorpay.com/v1/invoices?subscription_id=${subscriptionId}`, {
+    const response = await fetch(`${process.env.RAZORPAY_URL}invoices?subscription_id=${subscriptionId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Basic ${credentials}`,
@@ -314,7 +314,7 @@ export const cancelSubscription = async (subscriptionId:any) => {
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
 
     const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-    const response = await fetch(`https://api.razorpay.com/v1/subscriptions/${subscriptionId}/cancel`, {
+    const response = await fetch(`${process.env.RAZORPAY_URL}subscriptions/${subscriptionId}/cancel`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${credentials}`,
@@ -348,7 +348,8 @@ export const getQuantity = async (orgId: string) => {
 
 export const insertData = async (res: any) => {
   try {
-  const data = await supabaseAdmin.from("PaySubMap").insert([res]);
+    const {razorpay_payment_id,razorpay_signature,razorpay_subscription_id} = res
+  const data = await supabaseAdmin.from("PaySubMap").insert({"razorpayPaymentId":razorpay_payment_id,"razorpaySignature":razorpay_signature,"razorpaySubscriptionId":razorpay_subscription_id});
   } catch (error) {
     console.error("Error inserting data:", error);
   }
