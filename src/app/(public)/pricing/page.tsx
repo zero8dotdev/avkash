@@ -26,7 +26,7 @@ const Pricing = () => {
 
     return (
         <div className='bg-slate-900'>
-            <div className='max-w-screen-xl mx-auto  min-h-screen flex flex-col items-center pt-12'>
+            <div className='lg:max-w-7xl mx-auto  min-h-screen flex flex-col items-center pt-12'>
                 <h1 className='text-4xl text-white font-semibold mb-8'>Avkash Pricing</h1>
                 <div className="flex flex-col lg:flex-row justify-between w-full ">
                     {plansList.map((plan, index) => (
