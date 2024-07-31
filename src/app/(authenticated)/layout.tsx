@@ -2,6 +2,8 @@ import { Row, Col } from "antd";
 import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "@/app/_actions";
 import StoreToContext from "@/app/_components/store-to-context";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

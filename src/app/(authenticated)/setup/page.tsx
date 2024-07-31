@@ -1,238 +1,211 @@
 "use client";
-import { Button, Flex, Form, Steps } from "antd";
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
-import Settings from "./steps/settings";
+
+import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
+import { useEffect, useRef, useState } from "react";
+import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
-import NotificationPage from "./steps/notificationPage";
-import LeavePolicyPage from "./steps/leavePolicy";
-import InviteUsers from "./steps/inviteUsers";
+import Notification from "./steps/notification";
+import LeavePolicyPage from "./steps/leave-policy";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
-export default function InitialSettings() {
+import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
+import { Users } from "../dashboard/settings/_components/users";
+import { useApplicationContext } from "@/app/_context/appContext";
+import {
+  completeSetup,
+  fetchLeaveTypes,
+  fetchPublicHolidays,
+} from "@/app/_actions";
+const moment = require("moment");
+
+export default function SetupPage() {
   const [current, setCurrent] = useState(0);
-  const [inviteUsersData, setInviteUsersData] = useState<any[]>([]);
-  const [settingsData, setSettingsData] = useState([
-    {
-      startOfWorkWeek: "MONDAY",
-      workweek: ["MONDAY", "TUESDAY"],
-      timeZone: "Asia/Kolkata",
-    },
-  ]);
-  const [leavePoliciesData, setLeavePoliciesData] = useState([
-    {
-      name: "Paid Time Off",
-      isActive: true,
-      accurals: true,
-      maxLeaves: 10,
-      autoApprove: false,
-      rollover: false,
-      color: "#fff",
-      unlimited: true,
-    },
-  ]);
-  const [holidaysList, setHolidaysList] = useState<any[]>();
-  const [notificatinData, setNotificationData] = useState([
-    {
-      leaveChange: false,
-      dailySummary: false,
-      weeklySummary: false,
-      sendNtf: ["OWNER"],
-    },
-  ]);
+  const [loading, setLoading] = useState(false);
+  const {
+    state: { orgId, user, teamId },
+    dispatch,
+  } = useApplicationContext();
 
-  const router = useRouter();
+  const [settingsData, setSettingsData] = useState({
+    startOfWorkWeek: "MONDAY",
+    workweek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    timeZone: "Asia/Kolkata",
+  });
+
+  const usersRef = useRef(null);
+  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
+
+  useEffect(() => {
+    (async () => {
+      const sampleLeavePolicy = {
+        accruals: false,
+        maxLeaves: 10,
+        autoApprove: false,
+        rollOver: false,
+        unlimited: false,
+        accrualFrequency: null,
+        accrueOn: null,
+        rollOverLimit: null,
+        rollOverExpiry: null,
+      };
+
+      const leaveTypes = await fetchLeaveTypes(orgId);
+      const leaveTypesArr = leaveTypes?.map(
+        ({ name, color, isActive, leaveTypeId }) => ({
+          name,
+          color,
+          isActive,
+          leaveTypeId,
+          ...sampleLeavePolicy,
+        })
+      );
+      setLeavePolicies(leaveTypesArr);
+    })();
+  }, [orgId]);
+
+  const [holidaysList, setHolidaysList] = useState<any[]>([]);
+  const [notificatinData, setNotificationData] = useState({
+    leaveChange: false,
+    dailySummary: false,
+    weeklySummary: false,
+    sendNtf: ["OWNER"],
+  });
+
   const next = () => {
     setCurrent(current + 1);
   };
+
   const prev = () => {
     setCurrent(current - 1);
   };
-  const Done = async () => {
-    const orgId = localStorage.getItem("orgId");
-    const teamId = localStorage.getItem("teamId");
-    const userId = localStorage.getItem("userId");
 
+  const onDone = async () => {
+    setLoading(true);
     try {
-      console.log();
-      //settings page
-      const { data: updatedOrgData } = await supabase
-        .from("Organisation")
-        .update(settingsData[0])
-        .eq("orgId", orgId);
-      //LEAVE POLICY and leave types
-      // leave types
-      const { data: existingLeaveTypes } = await supabase
-        .from("LeaveType")
-        .select("*")
-        .eq("orgId", orgId);
-      if (!existingLeaveTypes || existingLeaveTypes.length === 0) {
-        const leaveTypesToInsert = [{ name: "paidOfLeave", orgId }];
-        await supabase.from("LeaveType").insert(leaveTypesToInsert);
-      }
-      //leave policy
-      const { data: leavePolicy, error } = await supabase
-        .from("LeavePolicy")
-        .select("*")
-        .eq("orgId", orgId);
-      if (existingLeaveTypes !== null && leavePolicy?.length === 0) {
-        const leavePolicyToinsert = [
-          {
-            leaveTypeId: existingLeaveTypes[0].leaveTypeId,
-            unlimited: leavePoliciesData[0].unlimited,
-            maxLeaves: leavePoliciesData[0].maxLeaves,
-            accurals: leavePoliciesData[0].accurals,
-            rollOver: leavePoliciesData[0].rollover,
-            orgId: orgId,
-            autoApprove: leavePoliciesData[0].autoApprove,
-          },
-        ];
-        const { data, error } = await supabase
-          .from("LeavePolicy")
-          .insert(leavePolicyToinsert);
-        if (data) {
-          console.log("inserted data successfully");
-        } else {
-          console.log(error);
-        }
-      }
-
-      // holidays list
-      const { data: existingHolidaysData } = await supabase
-        .from("Holiday")
-        .select("*")
-        .eq("orgId", orgId);
-      if (!existingHolidaysData || existingHolidaysData.length == -0) {
-        const holidaysToInsert = holidaysList?.map((holiday: any) => ({
-          name: holiday.name,
-          date: holiday.date,
-          isRecurring: holiday.isRecurring,
-          orgId,
-        }));
-        const { data, error } = await supabase
-          .from("Holiday")
-          .insert(holidaysToInsert);
-        if (data) {
-          console.log("holidays list inserted successfully");
-        } else {
-          console.log(error);
-        }
-      }
-
-      //notifications
-      console.log(notificatinData);
-      const { data: updatedNotificationData } = await supabase
-        .from("Organisation")
-        .update({
-          notificationDailySummary: notificatinData[0].dailySummary,
-          notificationLeaveChanged: notificatinData[0].leaveChange,
-          notificationToWhom: notificatinData[0].sendNtf[0],
-          notificationWeeklySummary: notificatinData[0].weeklySummary,
-        })
-        .eq("orgId", orgId);
-
-      //invite users
-      console.log(inviteUsersData);
-      const usersData = inviteUsersData?.map((user: any) => ({
-        name: user.name,
-        email: user.email,
-        teamId: teamId,
-      }));
-
-      const { data } = await supabase.from("User").insert(usersData);
-
-      router.push("/dashboard/timeline");
+      // @ts-ignore
+      const users = usersRef?.current.getUsers();
+      const done = await completeSetup(orgId, {
+        ...settingsData,
+        ...notificatinData,
+        leavePolicies: leavePolicies?.map(({ color, name, ...rest }: any) => ({
+          ...rest,
+        })),
+        holidaysList,
+        countryCode,
+        users,
+        teamId,
+      });
     } catch (error) {
-      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
+  const [countryCode, setCountryCode] = useState<string>("IN");
+  const fetchHolidays = async (countryCode: string) => {
+    const holidays = await fetchPublicHolidays(countryCode);
+    const holidayData = holidays.map((each) => ({
+      key: each.id,
+      name: each.name,
+      date: moment(each.date).toISOString(),
+      isRecurring: true,
+      isCustom: false,
+    }));
+    setHolidaysList(holidayData);
+  };
+
+  useEffect(() => {
+    fetchHolidays(countryCode);
+  }, [countryCode]);
+
   const steps = [
     {
       title: "Settings",
       content: (
-        <Settings
-          settingsData={settingsData}
-          setSettingsData={setSettingsData}
-        />
+        <Card>
+          <Setting
+            {...settingsData}
+            update={(values) => setSettingsData({ ...values })}
+          />
+        </Card>
       ),
     },
     {
       title: "Leave Policy",
       content: (
         <LeavePolicyPage
-          leavePoliciesData={leavePoliciesData}
-          setLeavePoliciesData={setLeavePoliciesData}
+          leavePoliciesData={leavePolicies || []}
+          update={(policies) => {
+            setLeavePolicies(policies);
+          }}
         />
       ),
     },
     {
       title: "Locations",
-      content: <LocationPage setHolidaysList={setHolidaysList} />,
+      content: (
+        <LocationPage
+          updateCountryCode={(code: string) => setCountryCode(code)}
+          holidaysList={holidaysList}
+          update={(values) => setHolidaysList(values)}
+        />
+      ),
     },
     {
       title: "Notifications",
       content: (
-        <NotificationPage
-          notificationData={notificatinData}
-          setNotificationData={setNotificationData}
-        />
+        <Card>
+          <Notification
+            {...notificatinData}
+            update={(values) => setNotificationData({ ...values })}
+          />
+        </Card>
       ),
     },
     {
       title: "Invite Users",
       content: (
-        <InviteUsers
-          inviteUsersData={inviteUsersData}
-          setInviteUsersData={setInviteUsersData}
-        />
+        <Card>
+          <Users ref={usersRef} />
+        </Card>
       ),
     },
   ];
+
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
+
   return (
-    <>
-      <Steps
-        current={current}
-        items={items}
-        className="border w-3/4"
-        type="navigation"
-      />
-      <Flex vertical className="h-full">
-        <Flex vertical>
-          <div className="w-3/4">{steps[current].content}</div>
-        </Flex>
-        <div style={{ marginTop: 24 }}>
-          {current < steps.length - 1 && (
-            <Button
-              className="bg-purple-600 mr-3 text-white"
-              onClick={() => next()}
-            >
-              Next
-            </Button>
-          )}
-          {current === steps.length - 1 && (
-            <Button
-              className="bg-purple-600 mr-3 text-white"
-              htmlType="submit"
-              onClick={Done}
-            >
-              Done
-            </Button>
-          )}
-          {current > 0 && (
-            <Button
-              onClick={() => prev()}
-              className="bg-purple-600 mr-3 text-white"
-            >
-              Previous
-            </Button>
-          )}
-        </div>
-      </Flex>
-    </>
+    <Row gutter={8} style={{ padding: "64px" }}>
+      <Col span={24}>
+        <Steps current={current} items={items} />
+      </Col>
+      <Col span={24} style={{ paddingTop: "32px" }}>
+        <Col push={4} span={16}>
+          <div>{steps[current].content}</div>
+        </Col>
+      </Col>
+      <Col span={24} style={{ paddingTop: "16px" }}>
+        <Col push={4} span={16}>
+          <Flex justify="end">
+            <Space>
+              {current > 0 && <Button onClick={() => prev()}>Previous</Button>}
+              {current < steps.length - 1 && (
+                <Button onClick={() => next()} type="primary">
+                  Next
+                </Button>
+              )}
+              {current === steps.length - 1 && (
+                <Button
+                  htmlType="submit"
+                  onClick={onDone}
+                  type="primary"
+                  loading={loading}
+                >
+                  Done
+                </Button>
+              )}
+            </Space>
+          </Flex>
+        </Col>
+      </Col>
+    </Row>
   );
 }
