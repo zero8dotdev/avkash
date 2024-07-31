@@ -7,6 +7,7 @@ import AppHeader from "./_components/header";
 import Content from "./_components/content";
 import { ApplicationProvider } from "./_context/appContext";
 import "./input.css";
+
 const roboto = Roboto_Flex({
   subsets: ["latin"],
   display: "swap",
@@ -25,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+      </head>
       <body
         style={{
           margin: 0,
