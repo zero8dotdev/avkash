@@ -1,29 +1,27 @@
 "use client";
+
 import React, { useRef, useState, useEffect } from "react";
 
 const tabData = [
   {
-    title: "Reporting",
-    description:
-      "Stay on top of things with always up-to-date reporting features.",
+    title: "",
+    description: "Customizable Settings",
     detail:
-      "We talked about reporting in the section above but we needed three items here, so mentioning it one more time for posterity.",
+      "Avkash allows you to fit your company’s unique leave policies be it casual leaves, location status, half day - anything and everything, ensuring a seamless fit with your organisational needs.",
     imgSrc: "/screen4.png",
   },
   {
-    title: "Reporting",
-    description:
-      "Stay on top of things with always up-to-date reporting features.",
+    title: "",
+    description: "User-Friendly Interface",
     detail:
-      "We talked about reporting in the section above but we needed three items here, so mentioning it one more time for posterity.",
+      "Say goodbye to separate apps for applying leave, Avkash integrates easily with your company’s choice of channel be it Google Workspace or Slack, allowing for a smooth and efficient leave management experience for team members and the founder",
     imgSrc: "/screen5.png",
   },
   {
-    title: "Reporting",
-    description:
-      "Stay on top of things with always up-to-date reporting features.",
+    title: "",
+    description: "Automated Tracking and Reporting",
     detail:
-      "We talked about reporting in the section above but we needed three items here, so mentioning it one more time for posterity.",
+      "Avkash tracks leave balances and keeps your records accurate and up-to-date. This feature helps founders with or without HR support, to maintain compliance and avoid manual errors. You get to focus on what matters.",
     imgSrc: "/screen4.png",
   },
 ];
@@ -55,6 +53,10 @@ export const ThirdSection = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
+      <p className="text-2xl align-middle">
+        Avkash is designed for founders who run new-age remote teams to embody
+        the spirit of work-life flow in their culture.
+      </p>
       <div className="flex justify-center mb-4 gap-4">
         {tabData.map((tab, index) => (
           <div
