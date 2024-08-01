@@ -367,7 +367,7 @@ export const getSubDetails = async (subscriptionId: string) => {
   return data;
 }
 
-export const contactUs = async({firstName,lastName,email,message,}:{firstName: string,lastName: string,email: string,message: string})=>{
+export const contactUs = async({firstName,lastName,email,message,}:{firstName: string,lastName: string,email: string,message: string, recaptchaToken: string})=>{
   const {data,error} = await supabaseAdmin
         .from("ContactEmail")
         .insert({
