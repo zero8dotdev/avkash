@@ -3,11 +3,8 @@
 import { Menu } from "antd";
 import {
   DashboardOutlined,
-  DashboardTwoTone,
   SettingOutlined,
-  SettingTwoTone,
   UserOutlined,
-  UserSwitchOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useRouter, usePathname } from "next/navigation";
