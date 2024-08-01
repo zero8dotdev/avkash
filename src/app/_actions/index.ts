@@ -189,7 +189,7 @@ export const fetchTeamsData = async (orgId: string) => {
   return processedData;
 }
 export const fetchPublicHolidays = async (countryCode: any) => {
-  console.log(countryCode)
+
   const supabase = createClient();
   const { data, error } = await supabase
     .from("PublicHolidays")
@@ -201,9 +201,9 @@ export const fetchPublicHolidays = async (countryCode: any) => {
     throw error;
   }
 
-  console.log('Holidays', data);
   return data
-}
+};
+
 export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string, leaveTypeId: any) => {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -303,9 +303,11 @@ export const fetchLeaveTypes = async (orgId: string) => {
 
     const { data, error } = await supabaseAdminClient
       .from('LeaveType')
-      .select('*');
+      .select('*')
+      .eq('orgId', orgId);
 
     if (error) {
+      console.log('This is the problem');
       throw error;
     }
 
@@ -422,14 +424,14 @@ export const signUpAction = async (values: any) => {
 
 
 
-export const getLeaves= async (idColumn:any, id:any)=>{
+export const getLeaves = async (idColumn: any, id: any) => {
   const supabase = createAdminClient();
-  const { data:leaves, error:leaveError } = await supabase
-      .from("Leave").select(`*, User(*)`).eq(`${idColumn}`, id)
-      if (leaveError) {
-        throw leaveError;
-      }
-      return leaves
+  const { data: leaves, error: leaveError } = await supabase
+    .from("Leave").select(`*, User(*)`).eq(`${idColumn}`, id)
+  if (leaveError) {
+    throw leaveError;
+  }
+  return leaves
 }
 
 
@@ -652,3 +654,21 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     console.log(error);
   }
 };
+
+export const isSlackTokenExists = async (orgId: string) => {
+  try {
+    const serverClient = createClient();
+    const { count, error } = await serverClient
+      .from('OrgAccessData')
+      .select('*', { count: 'exact', head: true })
+      .eq('orgId', orgId)
+
+    if (error) {
+      throw error;
+    }
+
+    return !!count;
+  } catch (error) {
+    throw error;
+  }
+}
