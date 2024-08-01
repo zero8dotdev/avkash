@@ -2,6 +2,7 @@
 'use server'
 
 import { createAdminClient } from "@/app/_utils/supabase/adminClient"
+import { createClient } from "@/app/_utils/supabase/server";
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server";
@@ -247,12 +248,10 @@ export async function fetchHolidays(startDate: string, endDate: string, location
       .lte('date', end);
 
     if (error) {
-      console.error('Error fetching holidays:', error);
       return null;
     }
     return data;
   } catch (error) {
-    console.error('Unexpected error fetching holidays:', error);
     return null;
   }
 }
@@ -267,7 +266,7 @@ export async function getSlackAccessToken(slackId: string) {
 }
 
 
-export const addSubscriptionToOrg = async (orgId:string, subscriptionId: string) => {
+export const addSubscriptionToOrg = async (orgId: string, subscriptionId: string) => {
   try {
     const { data, error } = await supabaseAdmin
       .from('Organisation')
@@ -284,7 +283,7 @@ export const addSubscriptionToOrg = async (orgId:string, subscriptionId: string)
   }
 };
 
-export const fetchInvoices = async (subscriptionId:any) => {
+export const fetchInvoices = async (subscriptionId: any) => {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID!;
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
@@ -308,7 +307,7 @@ export const fetchInvoices = async (subscriptionId:any) => {
   }
 };
 
-export const cancelSubscription = async (subscriptionId:any) => {
+export const cancelSubscription = async (subscriptionId: any) => {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID!;
     const keySecret = process.env.RAZORPAY_KEY_SECRET!;
@@ -339,7 +338,7 @@ export const getQuantity = async (orgId: string) => {
   const { data, error } = await supabaseAdmin
     .from("User")
     .select("userId", { count: "exact" })
-    .eq("orgId",orgId);
+    .eq("orgId", orgId);
   if (error) {
     console.log(error);
   }
@@ -348,21 +347,21 @@ export const getQuantity = async (orgId: string) => {
 
 export const insertData = async (res: any) => {
   try {
-    const {razorpay_payment_id,razorpay_signature,razorpay_subscription_id} = res
-  const data = await supabaseAdmin.from("PaySubMap").insert({"razorpayPaymentId":razorpay_payment_id,"razorpaySignature":razorpay_signature,"razorpaySubscriptionId":razorpay_subscription_id});
+    const { razorpay_payment_id, razorpay_signature, razorpay_subscription_id } = res
+    const data = await supabaseAdmin.from("PaySubMap").insert({ "razorpayPaymentId": razorpay_payment_id, "razorpaySignature": razorpay_signature, "razorpaySubscriptionId": razorpay_subscription_id });
   } catch (error) {
     console.error("Error inserting data:", error);
   }
 };
 
-export const getSubDetails = async(subscriptionId: string) => {
+export const getSubDetails = async (subscriptionId: string) => {
   const { data, error } = await supabaseAdmin
-        .from("Subscription")
-        .select("*")
-        .eq("id", subscriptionId)
-        .single();
-    if (error) {
-      console.log(error);
-      }
-    return data;
+    .from("Subscription")
+    .select("*")
+    .eq("id", subscriptionId)
+    .single();
+  if (error) {
+    console.log(error);
+  }
+  return data;
 }
