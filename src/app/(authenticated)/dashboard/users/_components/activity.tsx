@@ -3,7 +3,6 @@ import { Avatar, Steps } from "antd"
 
 
 export  default async function  Activity({ user }: { user: any }){
-  
     return (
         <>
        <Steps

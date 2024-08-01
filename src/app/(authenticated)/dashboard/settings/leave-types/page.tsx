@@ -22,6 +22,7 @@ import LeaveTypeEdit from "./leaveEditType";
 import { useApplicationContext } from "@/app/_context/appContext";
 import {
   fetchleaveTypes,
+
   insertNewLeaveType,
   updateLeaveTypeBasedOnOrg,
 } from "@/app/_actions";
@@ -38,7 +39,6 @@ interface LeaveType {
 export default function Page() {
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>();
   const [isModalVisible, setModalVisible] = useState(false);
-
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
@@ -60,6 +60,8 @@ export default function Page() {
   const [inActive, setInActive] = useState<undefined | LeaveType>(undefined);
   const confirm: PopconfirmProps["onConfirm"] = async () => {
     await updateLeaveTypeBasedOnOrg(true, orgId, inActive?.leaveTypeId);
+    const data = await fetchleaveTypes(orgId);
+    setLeaveTypes(data);
   };
 
   const [form] = Form.useForm();
@@ -115,7 +117,7 @@ export default function Page() {
                       >
                         Edit
                       </Button>
-                      ,
+                      
                       <Button
                         type="link"
                         danger
@@ -126,12 +128,12 @@ export default function Page() {
                       >
                         Disable
                       </Button>
-                      ,
+                      
                     </>
                   ) : (
                     <Popconfirm
-                      title="Delete the task"
-                      description="Are you sure to delete this task?"
+                      title="Enable Team"
+                      description="Are you sure to enable this leave type?"
                       onConfirm={confirm}
                       okText="Yes"
                       cancelText="No"
@@ -159,6 +161,7 @@ export default function Page() {
           onCancel={() => {
             setActiveItem(undefined);
           }}
+        
         />
         <LeaveTypeDisable
           item={disableItem}
@@ -166,6 +169,7 @@ export default function Page() {
           onCancel={() => {
             setDisableItem(undefined);
           }}
+          update={(data)=>setLeaveTypes(data)}
         />
       </Col>
       <Col>
