@@ -126,6 +126,7 @@ export default function SetupPage() {
       isRecurring: true,
       isCustom: false,
     }));
+    console.log(holidays);
     setHolidaysList(holidayData);
   };
 
@@ -157,22 +158,27 @@ export default function SetupPage() {
     {
       title: "Leave Policy",
       content: (
-        <LeavePolicyPage
-          leavePoliciesData={leavePolicies || []}
-          update={(policies) => {
-            setLeavePolicies(policies);
-          }}
-        />
+        <Card>
+          <LeavePolicyPage
+            leavePoliciesData={leavePolicies || []}
+            update={(policies) => {
+              setLeavePolicies(policies);
+            }}
+          />
+        </Card>
       ),
     },
     {
       title: "Locations",
       content: (
-        <LocationPage
-          updateCountryCode={(code: string) => setCountryCode(code)}
-          holidaysList={holidaysList}
-          update={(values) => setHolidaysList(values)}
-        />
+        <Card>
+          <LocationPage
+            updateCountryCode={(code: string) => setCountryCode(code)}
+            holidaysList={holidaysList}
+            update={(values) => setHolidaysList(values)}
+            countryCode={countryCode}
+          />
+        </Card>
       ),
     },
     {

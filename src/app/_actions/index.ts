@@ -148,15 +148,20 @@ export const fetchleaveTypes = async (orgId: string) => {
 }
 export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   const supabase = createClient();
+  const {color}=values 
+  
+  const leaveTypeValues={...values,color:color.slice(1)}
+  
 
   const { data, error } = await supabase
     .from("LeaveType")
-    .update({ ...values })
+    .update(leaveTypeValues)
     .eq("leaveTypeId", leaveTypeId)
     .select()
   if (error) {
     throw error;
   }
+  console.log(data)
   return data
 }
 export const fetchTeamsData = async (orgId: string) => {
@@ -189,9 +194,8 @@ export const fetchTeamsData = async (orgId: string) => {
   return processedData;
 }
 export const fetchPublicHolidays = async (countryCode: any) => {
-
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data:holidaysdata, error } = await supabase
     .from("PublicHolidays")
     .select("*")
     .eq("iso", countryCode)
@@ -200,8 +204,7 @@ export const fetchPublicHolidays = async (countryCode: any) => {
   if (error) {
     throw error;
   }
-
-  return data
+  return holidaysdata
 };
 
 export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string, leaveTypeId: any) => {
@@ -343,7 +346,7 @@ export const signUpAction = async (values: any) => {
     if (orgError) {
       throw orgError;
     }
-
+  console.log(org)
     const { data, error } = await supabaseAdminClient
       .from('OrgAccessData')
       .update({ orgId: org.orgId })
@@ -654,6 +657,61 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     console.log(error);
   }
 };
+
+export const updateHolidaysList=async(holidaysList:any,orgId:string,countryCode:any)=>{
+  const holidayData=holidaysList.map((e:any)=>{
+    return {
+      name:e.name,
+      date:e.date,
+      isRecurring:e.isRecurring,
+      isCustom:e.isCustom,
+      location:countryCode,
+      orgId:orgId
+    }
+  })
+  const supabase = createClient()
+  const {data:deleteData,error:deleteError}= await supabase
+  .from("Holiday")
+  .delete()
+  .eq("orgId",orgId)
+  .select()
+
+  if(deleteData){
+    console.log(deleteError)
+
+  const {data,error}=await supabase
+  .from('Holiday')
+  .insert(holidayData)
+  .select()
+  if(error){
+    console.log(error)
+  }
+  return data
+}
+
+export const fetchTeamUsers=async(teamId:string)=>{
+  const supabase = createClient()
+  const {data,error}=await supabase
+  .from("User")
+  .select("name")
+  .eq("teamId",teamId)
+  if(error){
+    console.log(error)
+  }
+  return data
+}
+
+export const fetchAllActivities=async(userId:string,teamId:string,orgId:string)=>{
+  const supabase=createClient()
+  const {data,error}=await supabase 
+  .from("ActivityLog")
+  .select("*")
+  .or(`userId.eq.${userId},teamId.eq.${userId},teamId.eq.${orgId}`);
+  if(error){
+    console.log(error)
+  }
+  return data
+}
 
 export const isSlackTokenExists = async (orgId: string) => {
   try {
