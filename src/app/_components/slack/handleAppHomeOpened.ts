@@ -82,7 +82,7 @@ export default async function handleAppHomeOpened({avkashUserInfo,yourDashboard}
     return new NextResponse('App home opened', { status: 200 });
   }
   
-  async function fetchLeavesHistory(userId?: any, teamId?: any) {
+  export async function fetchLeavesHistory(userId?: any, teamId?: any) {
     function changeDate(startDate: string | number | Date) {
       const date = new Date(startDate);
       const options: Intl.DateTimeFormatOptions = {
@@ -97,6 +97,7 @@ export default async function handleAppHomeOpened({avkashUserInfo,yourDashboard}
       const responseList = leavesList.map((leave: any) => {
         const formattedStartDate = changeDate(leave.startDate);
         const formattedEndDate = changeDate(leave.endDate);
+        console.log('this is home leaves' , leave)
         return {
           leaveId: leave.leaveId,
           leaveType: leave.leaveType,
@@ -104,7 +105,7 @@ export default async function handleAppHomeOpened({avkashUserInfo,yourDashboard}
           endDate: formattedEndDate,
           duration: leave.duration,
           isApproved: leave.isApproved,
-          userName: leave.User.slackId,
+          userName: leave.User.name,
           teamName: leave.Team.name,
   
         }

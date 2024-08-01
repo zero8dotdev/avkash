@@ -14,12 +14,17 @@ export async function logoutAction() {
   revalidatePath('/', "layout")
   redirect('/')
 }
+interface getUserDataProps {
+  id: string;
+  slackId?: string,
+  googleId? : string
+}
 
-export async function getUserData(slackId: any) {
+export async function getUserData({id, slackId, googleId}: getUserDataProps) {
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
     .select('*')
-    .eq("slackId", slackId)
+    .eq(`${slackId? 'slackId' : 'googleId'}` , id)
     .single()
 
   if (userData) {
@@ -62,7 +67,6 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
     })
     .select();
   if (data) {
-    console.log(data)
     return data
   }else{
     console.log(error);
@@ -73,11 +77,6 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
 export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
 
   let updateValue: any = allFields;
-  // if(allFields){
-  //   updateValue = allFields;
-  // }else{
-  //   updateValue = allFields;
-  // }
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .update(updateValue)
@@ -89,7 +88,7 @@ export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
   daysAgo.setDate(daysAgo.getDate() - 7);
   const { data, error } = await supabaseAdmin
     .from("Leave")
-    .select(`*,User(slackId),Team(name)`)
+    .select(`*,User(name),Team(name)`)
     .or(`createdOn.gte.${daysAgo.toISOString()},isApproved.eq.PENDING`);
 
 

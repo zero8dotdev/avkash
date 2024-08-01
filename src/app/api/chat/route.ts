@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from 'next/headers';
+import { getApplyLeaveCard } from "@/app/_components/googlechat/cards/applyLeave";
+import { trialCard } from "@/app/_components/googlechat/cards/trialCard";
+import { submitLeave } from "@/app/_components/googlechat/cards/submitLeave";
+import { googleUserInfoProps } from "@/app/api/home/route";
+import {getUserData} from '@/app/_components/header/_components/actions'
+import { successLeaveCard } from "@/app/_components/googlechat/cards/successLeaveCard";
+
+interface appHomeOpenedProps {
+  googleUserInfo: googleUserInfoProps
+}
 
 export async function POST(request: NextRequest) {
   let body: { [key: string]: any } = {};
   const headersList = headers();
   const contentType = headersList.get('content-type');
-  console.log('Content-Type:', contentType); 
-
+  const getDate = new Date().getTime()
+  
   try {
     if (contentType && contentType.includes('application/x-www-form-urlencoded')) {
       // Parse form data
@@ -21,9 +31,15 @@ export async function POST(request: NextRequest) {
     } else {
       throw new Error('Unsupported content type');
     }
+    // console.log('this is body', body)
+    // let userIdNormal = body.message.sender.name
+    let trialOne= body.user.name
+    let userIdNormal = body.message.sender.name
+    // const userId = userIdNormal.replace('users/','')
+    const userId = trialOne.match(/\d+/)?.[0];
+    const googleUserInfo = await getUserData({id: userId, googleId: 'googleId'})
     const userName = body.user.displayName
-    console.log('Parsed Body:', body);
-    console.log('Finding name' , body.user.displayName)
+
     
     let responseCard;
 
@@ -36,11 +52,11 @@ export async function POST(request: NextRequest) {
           break;
 
         case "/apply_paid_leave":
-          responseCard = getApplyPaidLeaveCard();
+          responseCard = getApplyLeaveCard(getDate, body);
           break;
 
         case "/applyLeave":
-          responseCard = getApplyLeaveCard();
+          responseCard = getApplyLeaveCard(getDate, body);
           break;
 
         case "/virtual_meet_support":
@@ -64,8 +80,8 @@ export async function POST(request: NextRequest) {
       return response;
 
     } else if (body.type === "CARD_CLICKED" && body.action.actionMethodName === "getApplyLeaveCard") {
-      console.log("this is triggered rohit")
-      responseCard = getApplyLeaveCard();
+      // console.log("this is triggered rohit")
+      responseCard = getApplyLeaveCard(getDate, body);
       
       const response = new NextResponse(JSON.stringify(responseCard), {
         headers: {
@@ -79,7 +95,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
     else if (body.type === "CARD_CLICKED" && body.action.actionMethodName === 'getApplyLeaveCard'){
-      responseCard = getApplyLeaveCard()
+      responseCard = getApplyLeaveCard(getDate, body)
       const response = new NextResponse(JSON.stringify(responseCard) , {
         headers : {
           'Content-Type' : 'application/json',
@@ -89,7 +105,25 @@ export async function POST(request: NextRequest) {
       });
       console.log("Response" , response)
       return response
-    } 
+    } else if(body.type === "CARD_CLICKED" && body.action.actionMethodName === 'applyLeave'){
+      const inputData = body.common.formInputs;
+      const appTime = body.common.formInputs.appointment_time
+      const appliedLeave = await  submitLeave(inputData, googleUserInfo)
+      
+      responseCard = trialCard()
+      if (appliedLeave){
+        responseCard = await successLeaveCard(appliedLeave)
+      }
+      const response = new NextResponse(JSON.stringify(responseCard) , {
+        headers: {
+          'Content-Type' : 'application/json',
+          "ngrok-skip-browser-warning": 'konda is here'
+        },
+        status: 200
+      })
+      console.log('Response apply leave card', response)
+      return response
+    }
     
     else {
       console.log("Not a type of message or unhandled action.");
@@ -182,8 +216,8 @@ function getHelloWorldCard() {
                         altText: "check calendar"
                       },
                       onClick: {
-                        openLink: {
-                          url: "https://developers.google.com/chat/ui/widgets/button-list"
+                        action: {
+                          function: 'applyLeave'
                         }
                       }
                     }
@@ -198,191 +232,233 @@ function getHelloWorldCard() {
   };
 }
 
-function getApplyPaidLeaveCard() {
-  return {
-    cardsV2: [{
-      cardId: 'applyPaidLeaveCard',
-      card: {
-        name: 'Apply Paid Leave Card',
-        header: {
-          title: 'Apply Paid Leave'
-        },
-        sections: [
-          {
-            header: 'Apply For Leaves',
-            collapsible: false,
-            uncollapsibleWidgetsCount: 1,
-            widgets: [
-              {
-                divider: {}
-              },
-              {
-                selectionInput: {
-                  name: 'size',
-                  label: 'Select Leave Type',
-                  type: 'DROPDOWN',
-                  items: [
-                    {
-                      text: 'Paid Leave',
-                      value: 'small',
-                      selected: false
-                    },
-                    {
-                      text: 'Sick Leave',
-                      value: 'medium',
-                      selected: true
-                    },
-                    {
-                      text: 'Leave A',
-                      value: 'large',
-                      selected: false
-                    }
-                  ]
-                }
-              },
-              {
-                dateTimePicker: {
-                  name: 'appointment_time',
-                  label: 'Book your appointment at:',
-                  type: 'DATE_ONLY',
-                  valueMsEpoch: 796435200000
-                }
-              },
-              {
-                dateTimePicker: {
-                  name: 'appointment_time',
-                  label: 'Book your appointment at:',
-                  type: 'DATE_ONLY',
-                  valueMsEpoch: 796435200000
-                }
-              },
-              {
-                textInput: {
-                  name: 'email_address',
-                  label: 'Note',
-                  validation: {
-                    inputType: 'TEXT'
-                  }
-                }
-              },
-              {
-                buttonList: {
-                  buttons: [
-                    {
-                      text: "Submit Your Leave",
-                      icon: {
-                        knownIcon: "INVITE",
-                        altText: "check calendar"
-                      },
-                      onClick: {
-                        openLink: {
-                          url: "https://developers.google.com/chat/ui/widgets/button-list"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }]
-  };
-}
+// function getApplyPaidLeaveCard() {
+//   return {
+//     cardsV2: [{
+//       cardId: 'applyPaidLeaveCard',
+//       card: {
+//         name: 'Apply Paid Leave Card',
+//         header: {
+//           title: 'Apply Paid Leave'
+//         },
+//         sections: [
+//           {
+//             header: 'Apply For Leaves',
+//             collapsible: false,
+//             uncollapsibleWidgetsCount: 1,
+//             widgets: [
+//               {
+//                 divider: {}
+//               },
+//               {
+//                 selectionInput: {
+//                   name: 'size',
+//                   label: 'Select Leave Type',
+//                   type: 'DROPDOWN',
+//                   items: [
+//                     {
+//                       text: 'Paid Leave',
+//                       value: 'small',
+//                       selected: false
+//                     },
+//                     {
+//                       text: 'Sick Leave',
+//                       value: 'medium',
+//                       selected: true
+//                     },
+//                     {
+//                       text: 'Leave A',
+//                       value: 'large',
+//                       selected: false
+//                     }
+//                   ]
+//                 }
+//               },
+//               {
+//                 dateTimePicker: {
+//                   name: 'appointment_time',
+//                   label: 'Book your appointment at:',
+//                   type: 'DATE_ONLY',
+//                   valueMsEpoch: 796435200000
+//                 }
+//               },
+//               {
+//                 dateTimePicker: {
+//                   name: 'appointment_time',
+//                   label: 'Book your appointment at:',
+//                   type: 'DATE_ONLY',
+//                   valueMsEpoch: 796435200000
+//                 }
+//               },
+//               {
+//                 textInput: {
+//                   name: 'email_address',
+//                   label: 'Note',
+//                   validation: {
+//                     inputType: 'TEXT'
+//                   }
+//                 }
+//               },
+//               {
+//                 buttonList: {
+//                   buttons: [
+//                     {
+//                       text: "Submit Your Leave",
+//                       icon: {
+//                         knownIcon: "INVITE",
+//                         altText: "check calendar"
+//                       },
+//                       onClick: {
+//                         openLink: {
+//                           url: "https://developers.google.com/chat/ui/widgets/button-list"
+//                         }
+//                       }
+//                     }
+//                   ]
+//                 }
+//               }
+//             ]
+//           }
+//         ]
+//       }
+//     }]
+//   };
+// }
 
-export function getApplyLeaveCard() {
-  return {
-    cardsV2: [{
-      cardId: 'applyLeaveCard',
-      card: {
-        name: 'Apply Leave Card',
-        header: {
-          title: 'Apply Leave'
-        },
-        sections: [
-          {
-            header: 'Apply For Leaves',
-            collapsible: false,
-            uncollapsibleWidgetsCount: 1,
-            widgets: [
-              {
-                divider: {}
-              },
-              {
-                selectionInput: {
-                  name: 'size',
-                  label: 'Select Leave Type',
-                  type: 'DROPDOWN',
-                  items: [
-                    {
-                      text: 'Paid Leave',
-                      value: 'small',
-                      selected: false
-                    },
-                    {
-                      text: 'Sick Leave',
-                      value: 'medium',
-                      selected: true
-                    },
-                    {
-                      text: 'Leave A',
-                      value: 'large',
-                      selected: false
-                    }
-                  ]
-                }
-              },
-              {
-                dateTimePicker: {
-                  name: 'appointment_time',
-                  label: 'Book your appointment at:',
-                  type: 'DATE_ONLY',
-                  valueMsEpoch: 796435200000
-                }
-              },
-              {
-                dateTimePicker: {
-                  name: 'appointment_time',
-                  label: 'Book your appointment at:',
-                  type: 'DATE_ONLY',
-                  valueMsEpoch: 796435200000
-                }
-              },
-              {
-                textInput: {
-                  name: 'email_address',
-                  label: 'Note',
-                  validation: {
-                    inputType: 'TEXT'
-                  }
-                }
-              },
-              {
-                buttonList: {
-                  buttons: [
-                    {
-                      text: "Submit Your Leave",
-                      icon: {
-                        knownIcon: "INVITE",
-                        altText: "check calendar"
-                      },
-                      onClick: {
-                        openLink: {
-                          url: "https://developers.google.com/chat/ui/widgets/button-list"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }]
-  };
-}
+// export function getApplyLeaveCard(getDate: any) {
+//   return {
+//     cardsV2: [{
+//       cardId: 'applyLeaveCard',
+//       card: {
+//         name: 'Apply Leave Card',
+//         header: {
+//           title: 'Apply Leave'
+//         },
+//         sections: [
+//           {
+//             collapsible: false,
+//             uncollapsibleWidgetsCount: 1,
+//             widgets: [
+//               {
+//                 divider: {}
+//               },
+//               {
+//                 selectionInput: {
+//                   name: 'selectLeaveType',
+//                   label: 'Select Leave Type',
+//                   type: 'DROPDOWN',
+//                   items: [
+//                     {
+//                       text: 'Paid Leave',
+//                       value: 'paidLeave',
+//                       selected: false
+//                     },
+//                     {
+//                       text: 'Sick Leave',
+//                       value: 'sickLeave',
+//                       selected: true
+//                     },
+//                     {
+//                       text: 'Leave A',
+//                       value: 'leaveA',
+//                       selected: false
+//                     }
+//                   ]
+//                 }
+//               },
+//               {
+//                 dateTimePicker: {
+//                   name: 'startDate',
+//                   label: 'Book your appointment at:',
+//                   type: 'DATE_ONLY',
+//                   valueMsEpoch: `${getDate}`
+//                 }
+//               },
+//               {
+//                 dateTimePicker: {
+//                   name: 'endDate',
+//                   label: 'Book your appointment at:',
+//                   type: 'DATE_ONLY',
+//                   valueMsEpoch: `${getDate}`
+//                 }
+//               },
+              // {
+              //   "selectionInput": {
+              //     "name": "selectDayType",
+              //     "label": "Select Day Type",
+              //     "type": "RADIO_BUTTON",
+              //     "items": [
+              //       {
+              //         "text": "Full Day",
+              //         "value": "small",
+              //         "selected": true
+              //       },
+              //       {
+              //         "text": "Half DAy",
+              //         "value": "medium",
+              //         "selected": true
+              //       }
+              //     ]
+              //   }
+              // },
+              // {
+              //   "selectionInput": {
+              //     "name": "selectShift",
+              //     "label": "Select Shift",
+              //     "type": "RADIO_BUTTON",
+              //     "items": [
+              //       {
+              //         "text": "NONE",
+              //         "value": "small",
+              //         "selected": true
+              //       },
+              //       {
+              //         "text": "Morning",
+              //         "value": "medium",
+              //         "selected": false
+              //       },
+              //       {
+              //         "text": "Afternoon",
+              //         "value": "large",
+              //         "selected": false
+              //       }
+              //     ]
+              //   }
+              // },
+//               {
+//                 textInput: {
+//                   name: 'note',
+//                   label: 'Note',
+//                   validation: {
+//                     inputType: 'TEXT'
+//                   }
+//                 }
+//               },
+//               {
+//                 buttonList: {
+//                   buttons: [
+//                     {
+//                       text: "Submit Your Leave",
+//                       icon: {
+//                         knownIcon: "INVITE",
+//                         altText: "check calendar"
+//                       },
+//                       onClick: {
+//                         action: {
+//                           function: 'applyLeave'
+//                         }
+//                       }
+//                     }
+//                   ]
+//                 }
+//               }
+//             ]
+//           }
+//         ]
+//       }
+//     }]
+//   };
+// }
 
 function getVirtualMeetSupportCard() {
   return {
