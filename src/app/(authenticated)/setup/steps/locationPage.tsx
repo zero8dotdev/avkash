@@ -26,8 +26,9 @@ interface props {
   holidaysList:holidaysList[]
   updateCountryCode: (data:string) => void;
   update: (values:any) => void;
+  countryCode:any
 }
-const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) => {
+const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,countryCode}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const moment = require('moment');
@@ -99,7 +100,7 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
       countryName: "United Kingdom",
     },
     {
-      countryCode: "Us",
+      countryCode: "US",
       countryName: "United States",
     },
     {
@@ -109,8 +110,16 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
   ];
 
   // holidays sorting based on date 
+  const dataSource=holidaysList.map((each)=>{
+    return {
+      ...each,
+      date:moment(new Date(each.date)).format('DD MMM YYYY')
+    }
+  })
+  
+ dataSource.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  holidaysList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
  
   const columns = [
     {
@@ -155,7 +164,7 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
           showSearch
           style={{ width: "300px", marginTop: "20px" }}
           onChange={handleCountryChange}
-          defaultValue="IN"
+          defaultValue={countryCode}
           options={locations.map((each: any) => ({
             label: each.countryName,
             value: each.countryCode,
@@ -165,7 +174,7 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update}) 
       <Col span={24}>
         <Table
           columns={columns}
-          dataSource={holidaysList}
+          dataSource={dataSource}
           pagination={false}
           scroll={{ x: 500, y: 400 }}
           bordered

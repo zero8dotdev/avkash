@@ -109,13 +109,14 @@ export default function SetupPage() {
       isRecurring: true,
       isCustom: false,
     }));
+    console.log(holidays)
     setHolidaysList(holidayData);
   };
 
   useEffect(() => {
     fetchHolidays(countryCode);
   }, [countryCode]);
-
+ console.log(holidaysList)
   const steps = [
     {
       title: "Settings",
@@ -146,6 +147,7 @@ export default function SetupPage() {
           updateCountryCode={(code: string) => setCountryCode(code)}
           holidaysList={holidaysList}
           update={(values) => setHolidaysList(values)}
+          countryCode={countryCode}
         />
       ),
     },
