@@ -58,12 +58,12 @@ export const ThirdSection = () => {
         Avkash is designed for founders who run new-age remote teams to embody
         the spirit of work-life flow in their culture.
       </p>
-      <div className="flex md:flex-row flex-col justify-center mb-6 gap-4">
+      <div className="flex md:flex-row flex-col justify-center lg:mt-4 mb-6 gap-4">
         {tabData.map((tab, index) => (
           <div key={index}>
             <div
               onClick={() => handleTabClick(index)}
-              className="cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide"
+              className={`cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide ${index === activeTab? 'lg:border-[1px] lg:border-slate-700 lg:p-2 lg:shadow-lg lg:ring-1 lg:ring-slate-700 lg:rounded-xl':"lg:p-2 lg:border-[1px] lg:border-transparent"}`}
             >
               <p className="text-blue-500">{tab.title}</p>
               <h1 className="text-lg text-black">{tab.description}</h1>
