@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Button, Space } from "antd";
+import Image from "next/image";
 import Title from "antd/es/typography/Title";
 import LogoutButton from "./_components/logout";
 import { Header } from "antd/es/layout/layout";
 import MainMenu from "./_components/main-menu";
-
+import logo from '../../(public)/avkash-logo.png'
 export default function AppHeader() {
   return (
     <Header
@@ -17,9 +18,10 @@ export default function AppHeader() {
       className=""
     >
       <Link href="/">
-        <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
+        {/* <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
           avkash
-        </Title>
+        </Title> */}
+        <Image src={logo} alt="avkash" height={60} width={60} style={{ marginRight: '16px' }} />
       </Link>
       <MainMenu />
       <div className="flex flex-1 items-center mx-10 font-semibold">
