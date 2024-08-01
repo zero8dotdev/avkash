@@ -29,13 +29,14 @@ import AllLeavesDrawer from "./_components/allLeavesDrawer";
 import UserProfileDrawer from "./_components/UserProfileDrawer";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { fetchAllTeams } from "@/app/_actions";
+import { applyLeave, getLeaves, getLeaveTypes, getTeamData, getTeamsList, getUsersList } from "@/app/_components/header/_components/actions";
 import ShowCalendarURL from "./_components/calenderfeed";
 const supabase = createClient();
 
 interface Team {
-  teamid: string;
+  teamId: string;
   name: string;
-  orgid: string;
+  orgId: string;
   isactive: boolean;
   manager: string | null;
   createdon: string;
@@ -66,11 +67,8 @@ const Timeline = () => {
   // TODO: need to be removed, as app context already has this data
   const fetchUserTeam = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc("get_team_by_id", {
-        id: teamId,
-      });
-      if (error) throw error;
-      setUserTeam(data[0]);
+      const data = await getTeamData(teamId)
+      setUserTeam(data);
     } catch (error) {
       console.error("Error fetching user team:", error);
     }
@@ -78,14 +76,8 @@ const Timeline = () => {
 
   const fetchTeamsData = useCallback(async () => {
     try {
-      // const { data, error } = await supabase.rpc("get_user_teams", {
-      //   id: userId,
-      // });
-
-      // if (error) throw error;
-      // setTeamData(data);
-      const allTeams = await fetchAllTeams(orgId);
-      console.log({ allTeams });
+      const allTeams = await getTeamsList(orgId);
+      setTeamData(allTeams)
     } catch (error) {
       console.error("Error fetching teams data:", error);
     }
@@ -93,10 +85,7 @@ const Timeline = () => {
 
   const fetchleavetypes = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc("get_leave_types_by_user_id", {
-        id: userId,
-      });
-      if (error) throw error;
+      const data = await getLeaveTypes(orgId);
       setLeavetypes(data);
     } catch (error) {
       console.error("Error fetching teams data:", error);
@@ -107,109 +96,43 @@ const Timeline = () => {
     try {
       if (visibility === "ORG") {
         if (role === "OWNER") {
-          const { data, error } = await supabase.rpc(
-            "get_users_by_organization",
-            {
-              id: userId,
-            }
-          );
-          if (error) throw error;
+          const data = await getUsersList("orgId",orgId)
           setUsers(data);
         } else if (role === "MANAGER") {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_users_by_team_id",
-            { id: teamId }
-          );
-
-          if (usererror) {
-            console.error(usererror);
-          } else {
+          const user = await getUsersList("teamId",teamId)
             setUsers(user);
-          }
-        } else {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_users_by_team_id",
-            { id: teamId }
-          );
-
-          if (usererror) {
-            console.error(usererror);
-          } else {
-            setUsers(user);
-          }
+        } else  {
+          const user = await getUsersList("teamId",teamId)
+            setUsers(user)
         }
       } else if (visibility === "TEAM") {
         if (role === "OWNER") {
-          const { data, error } = await supabase.rpc(
-            "get_users_by_organization",
-            {
-              id: userId,
-            }
-          );
-          if (error) throw error;
+          const data = await getUsersList("orgId",orgId)
           setUsers(data);
         } else if (role === "MANAGER") {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_users_by_team_id",
-            { id: teamId }
-          );
-
-          if (usererror) {
-            console.error(usererror);
-          } else {
+          const user = await getUsersList("teamId",teamId)
             setUsers(user);
-          }
-        } else {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_users_by_team_id",
-            { id: teamId }
-          );
-
-          if (usererror) {
-            console.error(usererror);
-          } else {
+        } else    {
+          const user = await getUsersList("teamId",teamId)
             setUsers(user);
-          }
         }
       } else {
         if (role === "OWNER") {
-          const { data, error } = await supabase.rpc(
-            "get_users_by_organization",
-            {
-              id: userId,
-            }
-          );
-          if (error) throw error;
+          const data = await getUsersList("orgId",orgId)
           setUsers(data);
         } else if (role === "MANAGER") {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_users_by_team_id",
-            { id: teamId }
-          );
-
-          if (usererror) {
-            console.error(usererror);
-          } else {
+          const user = await getUsersList("teamId",teamId)
             setUsers(user);
-          }
-        } else {
-          const { data: user, error: usererror } = await supabase.rpc(
-            "get_user_data_by_id",
-            {
-              id: userId,
-            }
-          );
-          if (usererror) {
-            console.error(usererror);
-          } else {
-            setUsers(user);
-          }
+        } else  {
+          const user = await getUsersList("userId",userId)
+            setUsers(user[0]);
         }
       }
     } catch (error) {
       console.error("Error fetching users data:", error);
     }
   }, [userId]);
+
 
   const fetchLeaves = useCallback(async () => {
     try {
@@ -219,72 +142,38 @@ const Timeline = () => {
           selectedTeam.length === 0 ||
           selectedTeam.length > 1
         ) {
-          const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
-            "get_leaves_by_user_org",
-            { id: userId }
-          );
-          if (allLeaveError) throw allLeaveError;
-          setLeaves(allLeaves);
+          const data = await getLeaves("orgId",orgId)
+          setLeaves(data);
         } else {
-          const { data: selectLeaves, error: teamLeaveError } =
-            await supabase.rpc("get_leaves_by_team", {
-              id: selectedTeam[0].teamid,
-            });
-          if (teamLeaveError) throw teamLeaveError;
-          setLeaves(selectLeaves);
+          const data = await getLeaves("teamId",teamId)
+          setLeaves(data);
         }
       } else if (role === "MANAGER") {
         if (!selectedTeam || selectedTeam.length === 0) {
-          const { data: selectLeaves, error: teamLeaveError } =
-            await supabase.rpc("get_leaves_by_team", {
-              id: teamId,
-            });
-          if (teamLeaveError) throw teamLeaveError;
-          setLeaves(selectLeaves);
+          const data = await getLeaves("teamId",teamId)
+          setLeaves(data);
         } else if (!selectedTeam || selectedTeam.length === 1) {
-          const { data: selectLeaves, error: teamLeaveError } =
-            await supabase.rpc("get_leaves_by_team", {
-              id: selectedTeam[0].teamid,
-            });
-          if (teamLeaveError) throw teamLeaveError;
-          setLeaves(selectLeaves);
+          const data = await getLeaves("teamId",teamId)
+          setLeaves(data);
         } else {
-          const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
-            "get_leaves_by_user_org",
-            { id: userId }
-          );
-          if (allLeaveError) throw allLeaveError;
-          setLeaves(allLeaves);
+          const data = await getLeaves("orgId",orgId)
+          setLeaves(data);
         }
       } else {
         if (visibility === "ORG" || visibility === "TEAM") {
           if (!selectedTeam || selectedTeam.length === 0) {
-            const { data: selectLeaves, error: teamLeaveError } =
-              await supabase.rpc("get_leaves_by_team", {
-                id: teamId,
-              });
-            if (teamLeaveError) throw teamLeaveError;
-            setLeaves(selectLeaves);
+            const data = await getLeaves("teamId",teamId)
+          setLeaves(data);
           } else if (!selectedTeam || selectedTeam.length === 1) {
-            const { data: selectLeaves, error: teamLeaveError } =
-              await supabase.rpc("get_leaves_by_team", {
-                id: selectedTeam[0].teamid,
-              });
-            if (teamLeaveError) throw teamLeaveError;
-            setLeaves(selectLeaves);
+            const data = await getLeaves("teamId",teamId)
+          setLeaves(data);
           } else {
-            const { data: allLeaves, error: allLeaveError } =
-              await supabase.rpc("get_leaves_by_user_org", { id: userId });
-            if (allLeaveError) throw allLeaveError;
-            setLeaves(allLeaves);
+            const data = await getLeaves("orgId",orgId)
+            setLeaves(data);
           }
         } else {
-          const { data: allLeaves, error: allLeaveError } = await supabase.rpc(
-            "get_leaves_by_user_id",
-            { id: userId }
-          );
-          if (allLeaveError) throw allLeaveError;
-          setLeaves(allLeaves);
+          const data = await getLeaves("userId",userId)
+          setLeaves(data);
         }
       }
     } catch (error) {
@@ -302,11 +191,8 @@ const Timeline = () => {
       }
     },
     [
-      // fetchVisibility,
-      // fetchUserTeam,
-      // fetchTeamsData,
-      // fetchUsersData,
-      // fetchleavetypes,
+      //fetchUserTeam
+      appState
     ]
   );
 
@@ -326,32 +212,29 @@ const Timeline = () => {
     if (teamId === "All") {
       try {
         const [
-          { data: teamsData, error: teamsError },
-          { data: usersData, error: usersError },
+          teamsData,
+          userdata,
         ] = await Promise.all([
-          supabase.rpc("get_user_teams", { id: userId }),
-          supabase.rpc("get_users_by_organization", { id: userId }),
+          getTeamsList(orgId),
+          getUsersList("orgId",orgId)
+
         ]);
-        if (teamsError) throw teamsError;
-        if (usersError) throw usersError;
 
         setSelectedTeam(teamsData);
-        setUsers(usersData);
+        setUsers(userdata);
       } catch (error) {
         console.error("Error fetching teams and users data:", error);
       }
     } else {
       try {
         const [
-          { data: team, error: teamError },
-          { data: users, error: userError },
+          team,
+          users,
         ] = await Promise.all([
-          supabase.rpc("get_team_by_id", { id: teamId }),
-          supabase.rpc("get_users_by_team_id", { id: teamId }),
+          getTeamData(teamId),
+          getUsersList("teamId",teamId)
         ]);
 
-        if (teamError) throw teamError;
-        if (userError) throw userError;
         setSelectedTeam(team);
         setUsers(users);
       } catch (error) {
@@ -368,21 +251,18 @@ const Timeline = () => {
 
   const onFinish = async (values: any) => {
     try {
-      const { data, error } = await supabase.rpc("insert_new_leave", {
-        leavetype: values.leaveType,
-        startdate: new Date(values.dates[0].$d),
-        enddate: new Date(values.dates[1].$d),
-        duration: "FULL_DAY",
-        shift: "NONE",
-        isapproved: values.approve === true ? "APPROVED" : "PENDING",
-        userid: user.userid,
-        teamid: user.teamid,
-        reason: values.leaveRequestNote,
-        createdby: "",
-        updatedby: "",
-        orgid: user.orgid,
-      });
-      if (error) throw error;
+      const data = await applyLeave(
+         values.leaveType,
+         values.dates[0],
+         values.dates[1],
+         "FULL_DAY",
+         "NONE",
+         values.approve === true ? "APPROVED" : "PENDING",
+         user.userId,
+         user.teamId,
+         values.leaveRequestNote,
+        user.orgId,
+     )
 
       setModalVisible(false);
       setDrawerVisible(false);
@@ -392,7 +272,7 @@ const Timeline = () => {
   };
 
   const formattedLeaves = leaves.map((leave) => ({
-    event_id: leave.leaveid,
+    event_id: leave.leaveId,
     title: `${leave.leavetype} - ${leave.username}`,
     start: new Date(leave.startdate),
     end: new Date(leave.enddate),
@@ -404,7 +284,7 @@ const Timeline = () => {
       return true; // Owner can always add leaves regardless of visibility
     }
     if (role === "MANAGER") {
-      return teamId === user.teamid; // Manager can add leaves only if the user is related to his team
+      return teamId === user.teamId; // Manager can add leaves only if the user is related to his team
     }
     if (role === "USER") {
       return userId === user.userid; // User can only add leaves for themselves
@@ -437,6 +317,8 @@ const Timeline = () => {
             icon={<SettingOutlined />}
             style={{ background: "none", color: "#000" }}
           />
+
+
           <Select
             style={{ width: "150px" }}
             placeholder="Select team"
@@ -447,22 +329,25 @@ const Timeline = () => {
                 ? true
                 : false
             }
-            defaultValue={role === "OWNER" ? "All" : userTeam?.teamid}
+            defaultValue={role === "OWNER" ? "All" : userTeam?.teamId}
           >
             <Select.Option value={"All"}>All Teams</Select.Option>
             {teamData.map((team: any) => (
-              <Select.Option key={team.teamid} value={team.teamid}>
+              <Select.Option key={team.teamId} value={team.teamId}>
                 {team.name}
               </Select.Option>
             ))}
           </Select>
         </Col>
+
+
+
         <Col span={4} style={{ marginTop: "15px" }}>
           {visibility === "SELF" ? (
             role === "USER" || role === "MANAGER" ? (
               userTeam ? (
                 <Teams
-                  key={userTeam.teamid}
+                  key={userTeam.teamId}
                   team={userTeam}
                   visibility={visibility}
                   role={role} // Pass the role of the current user
@@ -471,7 +356,7 @@ const Timeline = () => {
               ) : (
                 teamData.map((team: Team) => (
                   <Teams
-                    key={team.teamid}
+                    key={team.teamId}
                     team={team}
                     visibility={visibility}
                     role={role} // Pass the role of the current user
@@ -481,7 +366,7 @@ const Timeline = () => {
             ) : selectedTeam.length > 0 ? (
               selectedTeam.map((team: Team) => (
                 <Teams
-                  key={team.teamid}
+                  key={team.teamId}
                   team={team}
                   visibility={visibility}
                   role={role} // Pass the role of the current user
@@ -490,7 +375,7 @@ const Timeline = () => {
             ) : (
               teamData.map((team: Team) => (
                 <Teams
-                  key={team.teamid}
+                  key={team.teamId}
                   team={team}
                   visibility={visibility}
                   role={role} // Pass the role of the current user
@@ -500,7 +385,7 @@ const Timeline = () => {
           ) : selectedTeam.length > 0 ? (
             selectedTeam.map((team: Team) => (
               <Teams
-                key={team.teamid}
+                key={team.teamId}
                 team={team}
                 visibility={visibility}
                 role={role} // Pass the role of the current user
@@ -510,7 +395,7 @@ const Timeline = () => {
             (role === "MANAGER" || role === "USER") &&
             userTeam ? (
             <Teams
-              key={userTeam.teamid}
+              key={userTeam.teamId}
               team={userTeam}
               visibility={visibility}
               role={role} // Pass the role of the current user
@@ -518,7 +403,7 @@ const Timeline = () => {
           ) : (
             teamData.map((team: Team) => (
               <Teams
-                key={team.teamid}
+                key={team.teamId}
                 team={team}
                 visibility={visibility}
                 role={role} // Pass the role of the current user
@@ -526,6 +411,10 @@ const Timeline = () => {
             ))
           )}
         </Col>
+
+
+
+
 
         <Col span={20} style={{ marginTop: "15px" }}>
           <Scheduler
@@ -550,7 +439,7 @@ const Timeline = () => {
         <Select style={{ width: "100%" }} onChange={handleSelectUser}>
           {users && users.length > 0
             ? users.map((user: any) => (
-                <Select.Option key={user.userid} value={user.userid}>
+                <Select.Option key={user.userId} value={user.userId}>
                   {user.name} - ({user.teamname})
                 </Select.Option>
               ))

@@ -2,6 +2,7 @@ import { Button, Card, Drawer, Flex, Space, Typography } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/app/_utils/supabase/client";
 import { useApplicationContext } from "@/app/_context/appContext";
+import { getLeaves } from "@/app/_components/header/_components/actions";
 
 const supabase = createClient();
 
@@ -9,16 +10,13 @@ const AllLeavesDrawer = ({
   allLeaveDrawerVisible,
   setAllLeaveDrawerVisible,
 }: any) => {
-  const [leave, setLeave] = useState();
+  const [leave, setLeave] = useState<any[]>([]);
   const {
     state: { userId, user },
   } = useApplicationContext();
   const fetchLeave = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc("get_leaves_by_user_id", {
-        id: userId,
-      });
-      if (error) throw error;
+      const data = await getLeaves("userId",userId)
       setLeave(data);
     } catch (error) {
       console.error("Error fetching user team:", error);

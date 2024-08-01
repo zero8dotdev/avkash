@@ -29,7 +29,7 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
 
   let usersList: any = [];
   if (selectedTeamId) {
-    const usersInfo = await getUsersList(selectedTeamId);
+    const usersInfo = await getUsersList("teamId",selectedTeamId);
     usersList = usersInfo?.map((user) => ({
       "text": {
         "type": "plain_text",
