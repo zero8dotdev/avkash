@@ -25,7 +25,7 @@ export default function HomePage() {
         <SecondSection />
       </div>
       <div className="h-[500px] border-[1px]">Features</div>
-      <div className="w-full flex justify-center my-8">
+      <div className="w-full flex justify-center my-12">
         <ThirdSection />
       </div>
       <div id="priceSection">
