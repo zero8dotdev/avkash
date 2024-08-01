@@ -194,7 +194,6 @@ export const fetchTeamsData = async (orgId: string) => {
   return processedData;
 }
 export const fetchPublicHolidays = async (countryCode: any) => {
-  console.log("countryCode",countryCode)
   const supabase = createClient();
   const { data:holidaysdata, error } = await supabase
     .from("PublicHolidays")
@@ -641,6 +640,18 @@ export const fetchTeamUsers=async(teamId:string)=>{
   .from("User")
   .select("name")
   .eq("teamId",teamId)
+  if(error){
+    console.log(error)
+  }
+  return data
+}
+
+export const fetchAllActivities=async(userId:string,teamId:string,orgId:string)=>{
+  const supabase=createClient()
+  const {data,error}=await supabase 
+  .from("ActivityLog")
+  .select("*")
+  .or(`userId.eq.${userId},teamId.eq.${userId},teamId.eq.${orgId}`);
   if(error){
     console.log(error)
   }

@@ -1,6 +1,10 @@
 "use client";
 
-import { fetchOrg, fetchPublicHolidays, updateHolidaysList } from "@/app/_actions";
+import {
+  fetchOrg,
+  fetchPublicHolidays,
+  updateHolidaysList,
+} from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { Avatar, Button, Col, Flex, List, Row, Space, Typography } from "antd";
 
@@ -16,7 +20,7 @@ const Page = () => {
   const [isChangeLocation, setIsChangeLocation] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
-  
+
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
@@ -24,20 +28,17 @@ const Page = () => {
     const orgData = await fetchOrg(orgId);
     const { location } = orgData;
     setLocation(location);
-    setCountryCode(location)
+    setCountryCode(location);
   };
 
   useEffect(() => {
     fetchLocation(orgId);
-    
   }, [orgId]);
 
- 
   const handleChangeLocation = () => {
     setIsChangeLocation(true);
   };
 
-  
   const fetchHolidays = async (countryCode: any) => {
     const holidays = await fetchPublicHolidays(countryCode);
     const holidayData = holidays.map((each) => ({
@@ -48,37 +49,38 @@ const Page = () => {
       isCustom: false,
     }));
     setHolidaysList(holidayData);
-  }
+  };
 
   useEffect(() => {
     fetchHolidays(countryCode);
   }, [countryCode]);
 
-  const updateHolidays =async () => {
-  setLoading(true)
-  try {
-    const updatedOrgLocation=await updateHolidaysList(holidaysList,orgId,countryCode)
-    
-    
-    const supabase = createClient()
-    const { data, error } = await supabase
-    .from("Organisation")
-    .update({location:countryCode})
-    .eq("orgId", orgId)
-    .select()
+  const updateHolidays = async () => {
+    setLoading(true);
+    try {
+      const updatedOrgLocation = await updateHolidaysList(
+        holidaysList,
+        orgId,
+        countryCode
+      );
 
-    if(error){
-      console.log(error)
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("Organisation")
+        .update({ location: countryCode })
+        .eq("orgId", orgId)
+        .select();
+
+      if (error) {
+        console.log(error);
+      }
+      setLocation(countryCode);
+      setIsChangeLocation(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-    setLocation(countryCode)
-    setIsChangeLocation(false)
-    
-  } catch (error) {
-    console.log(error)
-  }finally{
-    setLoading(false)
-  }
-    
   };
 
   const locations = [
@@ -129,7 +131,9 @@ const Page = () => {
                     </Avatar>
                   }
                   title={
-                    <Typography.Title level={4}>{item.countryName}</Typography.Title>
+                    <Typography.Title level={4}>
+                      {item.countryName}
+                    </Typography.Title>
                   }
                 />
               </List.Item>
@@ -144,32 +148,37 @@ const Page = () => {
       </Col>
       {isChangeLocation && (
         <>
-        {countryCode&& <>
-          <Col span={24}>
-          
-            <LocationPage
-              updateCountryCode={(code: string) => setCountryCode(code)}
-              holidaysList={holidaysList}
-              update={(values) => setHolidaysList(values)}
-              countryCode={countryCode}
-            />
-            
-          </Col>
-          <Col push={19}>
-          <Flex gap={8}>
-            <Button
-              style={{ marginRight: "5px" }}
-              danger
-              onClick={() => setIsChangeLocation(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="primary" onClick={() => updateHolidays()} loading={loading} style={{ marginLeft: "8px" }}>
-              save
-            </Button>
+          {countryCode && (
+            <Flex vertical style={{width:'100%'}}>
+              <Col span={24}>
+                <LocationPage
+                  updateCountryCode={(code: string) => setCountryCode(code)}
+                  holidaysList={holidaysList}
+                  update={(values) => setHolidaysList(values)}
+                  countryCode={countryCode}
+                />
+              </Col>
+       
+              <Flex gap={8} justify="flex-end" style={{width:'100%'}}>
+                <Space>
+                  <Button
+                    style={{ marginRight: "5px" }}
+                    danger
+                    onClick={() => setIsChangeLocation(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => updateHolidays()}
+                    loading={loading}
+                  >
+                    save
+                  </Button>
+                </Space>
+              </Flex>
             </Flex>
-          </Col>
-        </>}
+          )}
         </>
       )}
     </Row>
