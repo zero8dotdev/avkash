@@ -21,17 +21,20 @@ export async function GET(request: NextRequest) {
       throw authError;
     }
 
-    const { data: user, error } = await supabase
+    const { data: user, error: userError } = await supabase
       .from("User")
       .select("*")
       .eq("userId", authUserSession.user.id)
       .single();
 
+    if (userError) {
+      throw userError;
+    }
+
     if (!user) {
       redirectPath = "/signup";
       return;
     }
-
     redirectPath = "/dashboard";
   } catch (error) {
     redirectPath = "/error";
