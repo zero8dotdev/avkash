@@ -2,6 +2,8 @@
 
 import { contactUs } from "@/app/_components/header/_components/actions";
 import { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+
 interface ContactProps {
   isOpen: boolean;
   closeModal: any;
@@ -14,7 +16,9 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
     email: "",
     message: "",
   });
+
   const [responseMessage, setResponseMessage] = useState("");
+  const [recaptchaToken , setRecaptchaToken] = useState<string | null>(null);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -24,12 +28,20 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setResponseMessage("");
-    const result = await contactUs({ ...formData })
+
+    if (!recaptchaToken) {
+      alert("Please complete the reCAPTCHA");
+      return;
+    }
+    const result = await contactUs({ ...formData, recaptchaToken })
     if (result) {
       alert(`Your message has been submitted successfully!!!!
              we will get back to you soon`);
     }
     closeModal();
+  };
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
   };
 
   return (
@@ -133,6 +145,12 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
                   required
                   onChange={handleChange}
                 ></textarea>
+              </div>
+              <div className="mb-4">
+                <ReCAPTCHA
+                  sitekey="6Ld-hB0qAAAAANWw-YcI_ELoS7Dz8X5PUfIXGbj5" 
+                  onChange={handleRecaptchaChange}
+                />
               </div>
               <button
                 type="submit"
