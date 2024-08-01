@@ -1,27 +1,28 @@
 
+import { fetchAllActivities } from "@/app/_actions"
 import { Avatar, Steps } from "antd"
 
-
 export  default async function  Activity({ user }: { user: any }){
-  
+  const activities=await fetchAllActivities(user.userId,user.teamId,user.orgId)
+  console.log(activities)
+  const items=activities?.map((each)=>{
+    const getDescription=(each:any)=>{
+    const isLeaveTableAvailable=
+
+    }
+    return {
+      title:each.changedOn,
+      status:"finish",
+      icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`}/>,
+      description:getDescription(each)
+    }
+  })
+
     return (
         <>
        <Steps
        direction="vertical"
-            items={[
-                {
-                  title: 'Login',
-                  status: 'finish',
-                  icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`}/>,
-                  
-                },
-                {
-                  title: 'Verification',
-                  status: 'finish',
-                  icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`}/>,
-                },
-                
-              ]}
+            items={items}
        />
         </>
     )

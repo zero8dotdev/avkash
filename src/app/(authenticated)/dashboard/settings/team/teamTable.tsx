@@ -19,8 +19,6 @@ import LeavePolicyPage from "./[teamId]/leavePolicy/page";
 import NotificationPage from "./[teamId]/notifications/page";
 import Users from "./[teamId]/users/page";
 import Managers from "./[teamId]/managers/page";
-import { updateTeamData } from "@/app/_actions";
-
 const tabItems = [
   {
     key: "1",
@@ -48,8 +46,19 @@ const tabItems = [
     children: <Managers />,
   },
 ];
+interface props{
+  teams:any,
+  status:any,
+ 
+}
+interface Props {
+  teams: any;
+  status: any;
+  onDisable: (teamData: any) => void;
+  onEnable: (teamData: any) => void;
+}
 
-const TeamTableActive = ({ teams, status }: any) => {
+const TeamTableActive:React.FC<Props> = ({ teams, status,onDisable,onEnable}) => {
   const [drawerVisibility, setDrawerVisibility] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<any>();
   const dataSource = teams?.map((team: any) => ({
@@ -60,15 +69,6 @@ const TeamTableActive = ({ teams, status }: any) => {
     status: team.status === true ? "Active" : "disabled",
     teamId: team.teamId,
   }));
-
-  const handleDisable = async (teamData: any) => {
-    await updateTeamData(false, teamData.teamId);
-  };
-
-  const handleEnable = async (teamData: any) => {
-    await updateTeamData(true, teamData.teamId);
-  };
-
   const items: MenuProps["items"] = [
     {
       label: (
@@ -80,7 +80,7 @@ const TeamTableActive = ({ teams, status }: any) => {
       label: (
         <Space
           style={{ width: "100%" }}
-          onClick={() => handleDisable(selectedTeam)}
+          onClick={() => onDisable(selectedTeam)}
         >
           Disable
         </Space>
@@ -143,9 +143,9 @@ const TeamTableActive = ({ teams, status }: any) => {
                   />
                 </Dropdown>
               ) : (
-                <Tag onClick={() => handleEnable(rowData)} color="green">
+                <Button type="link" onClick={() => onEnable(rowData)} color="green">
                   Enable
-                </Tag>
+                </Button>
               ),
           },
         ]}
