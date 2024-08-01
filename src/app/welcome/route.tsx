@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../_utils/supabase/server";
 import { type NextRequest } from "next/server";
+import { isInitialSetupDone } from "../_actions";
 
 export async function GET(request: NextRequest) {
   let redirectPath: string | null = null;
@@ -21,24 +22,34 @@ export async function GET(request: NextRequest) {
       throw authError;
     }
 
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError, count } = await supabase
       .from("User")
       .select("*")
-      .eq("userId", authUserSession.user.id)
-      .single();
+      .eq("userId", authUserSession.user.id);
 
     if (userError) {
       throw userError;
     }
 
-    if (!user) {
+    
+    if (user.length === 0) {
       redirectPath = "/signup";
       return;
     }
-    redirectPath = "/dashboard";
+
+let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId)
+     if (!isInitialSetupavailable?.initialSetup ) {
+      redirectPath = "/setup"
+    }else{
+      redirectPath = "/dashboard";
+    }
+
+    
   } catch (error) {
     redirectPath = "/error";
   } finally {
     redirect(redirectPath || "/");
   }
 }
+
+
