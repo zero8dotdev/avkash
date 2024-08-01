@@ -14,28 +14,34 @@ import {
   completeSetup,
   fetchLeaveTypes,
   fetchPublicHolidays,
+  isSlackTokenExists,
 } from "@/app/_actions";
+import AddToSlack from "./steps/add-to-slack";
+
 const moment = require("moment");
 
 export default function SetupPage() {
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [slackTokenExists, setSlackTokenExists] = useState<boolean>(false);
+  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
+
   const {
     state: { orgId, user, teamId },
     dispatch,
   } = useApplicationContext();
 
-  const [settingsData, setSettingsData] = useState({
-    startOfWorkWeek: "MONDAY",
-    workweek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
-    timeZone: "Asia/Kolkata",
-  });
-
-  const usersRef = useRef(null);
-  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
-
   useEffect(() => {
+    if (!orgId) return;
+
     (async () => {
+      const slackTokenExists = await isSlackTokenExists(orgId);
+      setSlackTokenExists(slackTokenExists);
+      if (slackTokenExists) {
+        setCurrent(1);
+      }
+
       const sampleLeavePolicy = {
         accruals: false,
         maxLeaves: 10,
@@ -59,8 +65,17 @@ export default function SetupPage() {
         })
       );
       setLeavePolicies(leaveTypesArr);
+      setInitialLoading(false);
     })();
   }, [orgId]);
+
+  const [settingsData, setSettingsData] = useState({
+    startOfWorkWeek: "MONDAY",
+    workweek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    timeZone: "Asia/Kolkata",
+  });
+
+  const usersRef = useRef(null);
 
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
   const [notificatinData, setNotificationData] = useState({
@@ -99,7 +114,9 @@ export default function SetupPage() {
       setLoading(false);
     }
   };
+
   const [countryCode, setCountryCode] = useState<string>("IN");
+
   const fetchHolidays = async (countryCode: string) => {
     const holidays = await fetchPublicHolidays(countryCode);
     const holidayData = holidays.map((each) => ({
@@ -113,10 +130,19 @@ export default function SetupPage() {
   };
 
   useEffect(() => {
+    if (!orgId) return;
     fetchHolidays(countryCode);
-  }, [countryCode]);
+  }, [countryCode, orgId]);
 
   const steps = [
+    {
+      title: "Connect to Slack",
+      content: (
+        <Card>
+          <AddToSlack />
+        </Card>
+      ),
+    },
     {
       title: "Settings",
       content: (
@@ -172,7 +198,13 @@ export default function SetupPage() {
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
-  return (
+  return initialLoading ? (
+    <Col span={24} style={{ paddingTop: "16px" }}>
+      <Col push={4} span={16}>
+        <Card loading={initialLoading} />
+      </Col>
+    </Col>
+  ) : (
     <Row gutter={8} style={{ padding: "64px" }}>
       <Col span={24}>
         <Steps current={current} items={items} />
@@ -186,8 +218,15 @@ export default function SetupPage() {
         <Col push={4} span={16}>
           <Flex justify="end">
             <Space>
-              {current > 0 && <Button onClick={() => prev()}>Previous</Button>}
-              {current < steps.length - 1 && (
+              {current > 0 && (
+                <Button
+                  onClick={() => prev()}
+                  disabled={slackTokenExists && current === 1}
+                >
+                  Previous
+                </Button>
+              )}
+              {current > 0 && (
                 <Button onClick={() => next()} type="primary">
                   Next
                 </Button>
