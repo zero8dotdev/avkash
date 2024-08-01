@@ -3,16 +3,15 @@
 import { Avatar, Button, Divider, Popover } from "antd";
 import { createClient } from "@/app/_utils/supabase/client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { logoutAction } from "./actions";
-
-const supabase = createClient();
+import Link from "next/link";
 
 export default function LogoutButton() {
+  const supabase = createClient();
   const { state, dispatch } = useApplicationContext();
   const { user } = state;
-  const router = useRouter();
+
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
@@ -72,6 +71,13 @@ export default function LogoutButton() {
       </Popover>
     );
   } else {
-    return;
+    return (
+      <Link
+        href="/login"
+        className="inline-flex items-center justify-center rounded-full py-2 px-4 text-sm  focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900"
+      >
+        Add to Slack
+      </Link>
+    );
   }
 }
