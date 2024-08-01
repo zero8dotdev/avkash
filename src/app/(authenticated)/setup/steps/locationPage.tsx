@@ -158,11 +158,11 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
 
 
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[16, 16]} style={{marginTop:'0px'}}>
       <Col span={4}>
         <Select
           showSearch
-          style={{ width: "300px", marginTop: "20px" }}
+          style={{ width: "300px"}}
           onChange={handleCountryChange}
           defaultValue={countryCode}
           options={locations.map((each: any) => ({
@@ -178,9 +178,11 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
           pagination={false}
           scroll={{ x: 500, y: 400 }}
           bordered
+          size="small"
+          
         />
       </Col>
-      <Button onClick={() => setIsModalOpen(true)} type="primary">
+      <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
         Add Custom Holidays
       </Button>
       <Modal
