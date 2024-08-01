@@ -18,9 +18,6 @@ export default function AppHeader() {
       className=""
     >
       <Link href="/">
-        {/* <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
-          avkash
-        </Title> */}
         <Image src={logo} alt="avkash" height={60} width={60} style={{ marginRight: '16px' }} />
       </Link>
       <MainMenu />
