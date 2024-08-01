@@ -275,3 +275,11 @@ CREATE TABLE "Subscription" (
     "scheduleChangeAt" INTEGER,
     "remainingCount" INTEGER
 );
+
+CREATE TABLE "ContactEmail" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "firstName" VARCHAR(255),
+    "lastName" VARCHAR(255),
+    "email" VARCHAR(255),
+    "message" VARCHAR(255)
+);

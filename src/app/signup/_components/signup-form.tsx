@@ -1,21 +1,17 @@
 "use client";
 
 import { signUpAction } from "@/app/_actions";
-import { useApplicationContext } from "@/app/_context/appContext";
 import { Form, Input, Button, Row, Col } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function SignUpForm() {
+export default function SignUpForm({ user }: { user: any }) {
   const [form] = Form.useForm();
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const router = useRouter();
-  const {
-    state: { user },
-  } = useApplicationContext();
 
   const userEmail = user?.email;
-  const userName = user?.full_name;
+  const userName = user?.user_metadata.full_name;
   const userCompany = userEmail?.split("@")[1] || "";
 
   useEffect(() => {
@@ -30,7 +26,10 @@ export default function SignUpForm() {
   const onFinish = async (values: any) => {
     setIsSaving(true);
     try {
-      const data = await signUpAction({ ...values, slackUserId: user?.sub });
+      const data = await signUpAction({
+        ...values,
+        slackUserId: user?.user_metadata.sub,
+      });
     } catch (error) {
       console.log(error);
     } finally {

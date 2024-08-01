@@ -205,7 +205,8 @@ export const fetchPublicHolidays = async (countryCode: any) => {
     throw error;
   }
   return holidaysdata
-}
+};
+
 export const updateLeaveTypeBasedOnOrg = async (isActive: boolean, orgId: string, leaveTypeId: any) => {
   const supabase = createClient()
   const { data, error } = await supabase
@@ -305,9 +306,11 @@ export const fetchLeaveTypes = async (orgId: string) => {
 
     const { data, error } = await supabaseAdminClient
       .from('LeaveType')
-      .select('*');
+      .select('*')
+      .eq('orgId', orgId);
 
     if (error) {
+      console.log('This is the problem');
       throw error;
     }
 
@@ -421,6 +424,58 @@ export const signUpAction = async (values: any) => {
     throw error;
   }
 };
+
+
+
+export const getLeaves = async (idColumn: any, id: any) => {
+  const supabase = createAdminClient();
+  const { data: leaves, error: leaveError } = await supabase
+    .from("Leave").select(`*, User(*)`).eq(`${idColumn}`, id)
+  if (leaveError) {
+    throw leaveError;
+  }
+  return leaves
+}
+
+
+export const getUserRole = async (userId: any) => {
+  const supabase = createAdminClient();
+
+  try {
+    const { data: role, error: roleError } = await supabase
+      .from("User")
+      .select("role")
+      .eq("userId", userId)
+      .single();
+
+    if (roleError) {
+      throw roleError;
+    }
+    return role.role;
+  } catch (error) {
+    throw error
+  }
+};
+
+export const getUserVisibility = async (orgId: any) => {
+  const supabase = createAdminClient();
+
+  try {
+    const { data: visibility, error: visibilityError } = await supabase
+      .from("Organisation")
+      .select("visibility")
+      .eq("orgId", orgId)
+      .single();
+
+    if (visibilityError) {
+      throw visibilityError;
+    }
+    return visibility.visibility;
+  } catch (error) {
+    throw error
+  }
+};
+
 
 export const fetchAllUsersFromChatApp = async (orgId: string) => {
   try {
@@ -602,6 +657,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     console.log(error);
   }
 };
+
 export const updateHolidaysList=async(holidaysList:any,orgId:string,countryCode:any)=>{
   const holidayData=holidaysList.map((e:any)=>{
     return {
@@ -633,7 +689,6 @@ export const updateHolidaysList=async(holidaysList:any,orgId:string,countryCode:
   return data
 }
 
-}
 export const fetchTeamUsers=async(teamId:string)=>{
   const supabase = createClient()
   const {data,error}=await supabase
@@ -656,4 +711,22 @@ export const fetchAllActivities=async(userId:string,teamId:string,orgId:string)=
     console.log(error)
   }
   return data
+}
+
+export const isSlackTokenExists = async (orgId: string) => {
+  try {
+    const serverClient = createClient();
+    const { count, error } = await serverClient
+      .from('OrgAccessData')
+      .select('*', { count: 'exact', head: true })
+      .eq('orgId', orgId)
+
+    if (error) {
+      throw error;
+    }
+
+    return !!count;
+  } catch (error) {
+    throw error;
+  }
 }
