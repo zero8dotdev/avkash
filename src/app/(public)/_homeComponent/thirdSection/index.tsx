@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 
 const tabData = [
@@ -52,28 +53,41 @@ export const ThirdSection = () => {
   }, [activeTab]);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <p className="text-2xl align-middle">
+    <div className="md:max-w-6xl mx-auto px-3">
+      <p className="text-2xl text-left">
         Avkash is designed for founders who run new-age remote teams to embody
         the spirit of work-life flow in their culture.
       </p>
-      <div className="flex justify-center mb-4 gap-4">
+      <div className="flex md:flex-row flex-col justify-center mb-6 gap-4">
         {tabData.map((tab, index) => (
-          <div
-            key={index}
-            onClick={() => handleTabClick(index)}
-            className="cursor-pointer p-4 flex flex-col justify-center items-start gap-4 tracking-wide"
-          >
-            {/* <Image src='/avkashLogo.jpeg' alt='logo' height={50} width={50} className='w-6 h-6'/> */}
-            <p className="text-blue-500">{tab.title}</p>
-            <h1 className="text-lg text-black">{tab.description}</h1>
-            <p className="text-sm text-gray-800">{tab.detail}</p>
+          <div key={index}>
+            <div
+              onClick={() => handleTabClick(index)}
+              className="cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide"
+            >
+              <p className="text-blue-500">{tab.title}</p>
+              <h1 className="text-lg text-black">{tab.description}</h1>
+              <p className="text-sm text-gray-800">{tab.detail}</p>
+            </div>
+            <div
+              key={index}
+              ref={screenRefs[index]}
+              className="md:hidden min-w-[70%] snap-center p-6"
+            >
+              <Image
+                src={tab.imgSrc}
+                alt={`screen ${index}`}
+                height={1024}
+                width={768}
+                className="w-full rounded-md"
+              />
+            </div>
           </div>
         ))}
       </div>
       <div
         ref={containerRef}
-        className="w-full flex overflow-x-auto scroll-smooth snap-x no-scrollbar p-12 bg-gray-300 gap-10 rounded-xl"
+        className="w-full hidden md:flex overflow-x-auto scroll-smooth snap-x no-scrollbar p-6 bg-gray-300 gap-6 rounded-xl"
       >
         {tabData.map((tab, index) => (
           <div
@@ -81,10 +95,12 @@ export const ThirdSection = () => {
             ref={screenRefs[index]}
             className="min-w-[70%] snap-center"
           >
-            <img
+            <Image
               src={tab.imgSrc}
               alt={`screen ${index}`}
-              className="w-full rounded-xl"
+              height={1024}
+              width={768}
+              className="w-full rounded-md"
             />
           </div>
         ))}

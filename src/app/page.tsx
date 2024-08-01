@@ -25,13 +25,13 @@ export default function HomePage() {
         <SecondSection />
       </div>
       <div className="h-[500px] border-[1px]">Features</div>
-      <div className="w-full flex justify-center my-8">
+      <div className="w-full flex justify-center my-12">
         <ThirdSection />
       </div>
       <div id="priceSection">
         <Pricing />
       </div>
-      <div className="w-full bg-[#2563ea] flex text-white h-[500px] border-[1px]">
+      <div className="w-full bg-[#2563ea] flex text-white justify-center">
         <FourthSection />
       </div>
       <div className="h-full">
