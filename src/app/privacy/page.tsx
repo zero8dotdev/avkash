@@ -3,13 +3,7 @@ import React from 'react'
 
 const Privacy = () => {
 
-    const privacyPolicy = [
-        {
-            title: "Introduction",
-            items: [
-                "This privacy policy describes how Zero8.Dev collects, uses, and discloses your information in connection with your use of our Google Sheet add-on, Invoices and its integrated web app Invoices Web App"
-            ]
-        },
+    const privacyPolicy = [ 
         {
             title: "Blog Comments",
             items: [
