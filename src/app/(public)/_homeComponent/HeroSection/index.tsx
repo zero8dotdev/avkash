@@ -3,8 +3,8 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-16 pt-20 text-center lg:pt-32 h-screen">
-      <h1 className="mx-auto max-w-4xl text-5xl font-semibold tracking-tight text-slate-900 md:text-7xl font-firaSans ">
+    <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-20 text-center  h-screen  flex flex-col items-center justify-center">
+      <h1 className="mx-auto max-w-4xl text-5xl font-semibold tracking-tight text-slate-900 md:text-7xl font-firaSans">
         Specify.&nbsp;
         <span className="text-blue-600">
           <span>Automate.&nbsp;</span>
@@ -19,21 +19,8 @@ const HeroSection = () => {
       <div className="mt-10 flex justify-center gap-x-6">
         <Link
           href="#"
-          className="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900"
-        >
+          className="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900">
           Add to Slack
-        </Link>
-        <Link
-          href="#"
-          className="group inline-flex ring-1 items-center justify-center rounded-full py-2 px-4 text-sm focus:outline-none ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-blue-600 focus-visible:ring-slate-300"
-        >
-          <svg
-            aria-hidden="true"
-            className="h-3 w-3 flex-none fill-blue-600 group-active:fill-current"
-          >
-            <path d="m9.997 6.91-7.583 3.447A1 1 0 0 1 1 9.447V2.553a1 1 0 0 1 1.414-.91L9.997 5.09c.782.355.782 1.465 0 1.82Z"></path>
-          </svg>
-          <span className="ml-3">Watch video</span>
         </Link>
       </div>
     </div>
