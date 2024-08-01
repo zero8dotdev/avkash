@@ -356,6 +356,7 @@ export const insertData = async (res: any) => {
 
 export const getSubDetails = async (subscriptionId: string) => {
   const { data, error } = await supabaseAdmin
+
     .from("Subscription")
     .select("*")
     .eq("id", subscriptionId)
@@ -364,4 +365,17 @@ export const getSubDetails = async (subscriptionId: string) => {
     console.log(error);
   }
   return data;
+}
+
+export const contactUs = async({firstName,lastName,email,message,}:{firstName: string,lastName: string,email: string,message: string})=>{
+  const {data,error} = await supabaseAdmin
+        .from("ContactEmail")
+        .insert({
+          firstName,
+          lastName,
+          email,
+          message,
+        })
+        .select();
+    return data
 }

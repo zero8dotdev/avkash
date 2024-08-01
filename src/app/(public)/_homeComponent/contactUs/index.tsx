@@ -1,5 +1,6 @@
 "use client";
 
+import { contactUs } from "@/app/_components/header/_components/actions";
 import { useState } from "react";
 interface ContactProps {
   isOpen: boolean;
@@ -8,8 +9,9 @@ interface ContactProps {
 
 const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
-    subject: "",
     message: "",
   });
   const [responseMessage, setResponseMessage] = useState("");
@@ -21,22 +23,11 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        setResponseMessage("Message sent successfully!");
-      } else {
-        setResponseMessage(`Failed to send message: ${result.error}`);
-      }
-    } catch (error: any) {
-      setResponseMessage(`An error occurred: ${error.message}`);
+    setResponseMessage("");
+    const result = await contactUs({ ...formData })
+    if (result) {
+      alert(`Your message has been submitted successfully!!!!
+             we will get back to you soon`);
     }
     closeModal();
   };
@@ -71,40 +62,61 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
             <form className="p-5" onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label
-                  htmlFor="email"
+                  htmlFor="firstName"
                   className="block mb-2 text-sm font-medium text-white"
                 >
-                  Your email
+                  First Name
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="name@company.com"
+                  placeholder="first name"
                   required
                   onChange={handleChange}
                 />
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="subject"
+                  htmlFor="lastName"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Subject
+                  Last Name
                 </label>
                 <input
                   type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Let us know how we can help you"
+                  placeholder="last name"
+                  required
+                  onChange={handleChange}
+                />
+
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Email
+                </label>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="abc@gmail.com"
                   required
                   onChange={handleChange}
                 />
               </div>
+
               <div className="mb-4">
                 <label
                   htmlFor="message"

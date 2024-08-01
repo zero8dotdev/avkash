@@ -98,36 +98,38 @@ const Terms = () => {
   ];
 
   return (
-    <main className="flex min-h-screen flex-col items-start justify-between py-24 text-gray-800 max-w-screen-xl mx-auto px-6">
-      <h1 className="font-semibold text-2xl self-center mb-6">
-        Terms & Conditions
-      </h1>
-      <p className="mb-6">
-        <b>
-          PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY. BY ACCESSING, USING
-          ANY PART OF OUR WEBSITE OR USING OUR SERVICES, YOU AGREE TO BE BOUND
-          BY THIS DOCUMENT. IF YOU DO NOT AGREE TO ALL OF THESE TERMS AND
-          CONDITIONS, DO NOT USE OUR WEBSITE OR OTHER PRODUCTS OR SERVICES
-          RELATED TO IT.
-        </b>
-      </p>
-      {terms.map((section, index) => (
-        <div key={index} className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">{section.title}</h2>
-          <ul className="pl-5">
-            {section.items.map((item, idx) => (
-              <li key={idx} className="mb-1">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-      <h2>
-        <b>Contact Us:</b> If you have any questions about these Terms, please
-        contact us at <b>support@zero8.dev</b>
-      </h2>
-    </main>
+    <div className="bg-white">
+      <main className="flex min-h-screen flex-col items-start justify-between py-24 text-gray-800w-full  lg:max-w-[50%] mx-auto px-6 ">
+        <h1 className="font-semibold text-2xl md:text-4xl self-center mb-6">
+          Terms & Conditions
+        </h1>
+        <p className="mb-6 font-mono text-gray-700">
+          <b>
+            PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY. BY ACCESSING, USING
+            ANY PART OF OUR WEBSITE OR USING OUR SERVICES, YOU AGREE TO BE BOUND
+            BY THIS DOCUMENT. IF YOU DO NOT AGREE TO ALL OF THESE TERMS AND
+            CONDITIONS, DO NOT USE OUR WEBSITE OR OTHER PRODUCTS OR SERVICES
+            RELATED TO IT.
+          </b>
+        </p>
+        {terms.map((section, index) => (
+          <div key={index} className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2">{section.title}</h2>
+            <ul className="p-0">
+              {section.items.map((item, idx) => (
+                <li key={idx} className="mb-1 text-lg">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <h2>
+          <b>Contact Us:</b> If you have any questions about these Terms, please
+          contact us at <b>support@zero8.dev</b>
+        </h2>
+      </main>
+    </div>
   );
 };
 
