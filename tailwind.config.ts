@@ -18,6 +18,9 @@ const config: Config = {
       fontFamily: {
         firaSans: ['var(--font-fira-sans)', 'sans-serif'],
       },
+      colors: {
+        'light-gray': "rgba(255, 255, 255, 0.5)"
+      },
       height: {
         "full-h-minus-header": "calc(100lvh - 64px)"
       },

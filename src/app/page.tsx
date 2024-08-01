@@ -31,7 +31,7 @@ export default function HomePage() {
       <div id="priceSection">
         <Pricing />
       </div>
-      <div className="w-full bg-[#2563ea] flex text-white h-[500px] border-[1px]">
+      <div className="w-full bg-[#2563ea] flex text-white justify-center">
         <FourthSection />
       </div>
       <div className="h-full">
