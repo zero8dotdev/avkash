@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { logoutAction } from "./actions";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default function LogoutButton() {
   const supabase = createClient();
@@ -27,6 +28,7 @@ export default function LogoutButton() {
       await supabase.auth.signOut();
       logoutAction();
       dispatch({ type: "logout", payload: null });
+      redirect('/')
     } catch (error) {
       console.log("Error while logging out ", error);
     }
