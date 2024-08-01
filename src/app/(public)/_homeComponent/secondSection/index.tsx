@@ -1,6 +1,6 @@
-"use client";
-import React, { useState } from "react";
-import Image from "next/image";
+'use client'
+import React, { useState } from 'react';
+import Image from 'next/image'
 
 interface TabItem {
   label: string;
@@ -15,41 +15,30 @@ interface TabsProps {
 }
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabClick }) => (
-  <div className="flex flex-col md:flex-row w-full gap-0 max-w-[80%]">
-    <div className=" w-full md:w-1/2 flex md:flex-col justify-center gap-1 md:gap-4 text-gray-100  tracking-wider">
+  <div className="lg:grid lg:grid-cols-12 lg:justify-end w-full md:rounded-t-xl bg-white/10 ring-1 lg:ring-0 ring-white/10 ring-inset pb-6 lg:bg-transparent pt-4 md:pt-6 md:pb-0 md:rounded-b-lg">
+    <div className="lg:col-span-5 xl:col-span-4 xl:col-start-2 mt-6 my-2 flex lg:flex-col  gap-x-6 md:gap-x-8 px-4 md:px-6 lg:px-0 py-4 justify-center md:justify-center items-center overflow-x-auto sm:overflow-visible text-[#2563ea] scrollbar-hide mx-auto lg:mx-0">
       {tabs.map((tab, index) => (
         <div
           key={index}
-          className={`py-4 px-2 md:px-6 font-semibold cursor-pointer flex flex-col gap-4
-                        hover:bg-gray-300 hover:border-gray-200 hover:border-opacity-10 hover:bg-opacity-5 hover:rounded-l-lg hover:border-x hover:border-y hover:border-r-0
-          ${
-            index === activeTab
-              ? "bg-gray-200 border-gray-200 border-opacity-10 bg-opacity-10 rounded-l-lg rounded-r-lg md:rounded-r-none border-x border-y md:border-r-0"
-              : ""
-          }}`}
+          className={`flex-shrink-0 lg:px-4 lg:py-2 lg:my-4
+                      lg:hover:bg-gray-300 lg:hover:border-gray-200 lg:hover:border-opacity-10 lg:hover:bg-opacity-5 lg:hover:rounded-l-lg lg:hover:border-x lg:hover:border-y lg:hover:border-r-0
+           ${index === activeTab ? ' lg:bg-white/10 lg:ring-1 lg:ring-white/10 lg:ring-inset lg:rounded-l-lg  lg:rounded-r-none lg:border-x lg:border-y lg:border-r-0' : ''}
+           lg:hover:bg-white/10 lg:hover:ring-1 lg:hover:ring-white/10 lg:hover:ring-inset  lg:hover:rounded-l-lg  lg:hover:rounded-r-none lg:hover:border-x lg:hover:border-y lg:hover:border-r-0'`}
           onClick={() => onTabClick(index)}
         >
-          <h1 className="text-gray-100 md:font-semibold text-lg">
-            {tab.label}
-          </h1>
-          <p className="hidden md:block text-md font-light">
-            {tab.description}
-          </p>
+          <h1 className={` lg:hover:inline-block ${index === activeTab ? 'text-[#2563ea] bg-white lg:bg-transparent lg:text-white rounded-full px-4 ' : 'text-white px-4 rounded-full hover:bg-white/10'}  lg:font-semibold py-2 text-lg md:text-xl whitespace-nowrap`}>{tab.label}</h1>
+          <p className='hidden lg:block text-md font-light text-white/90 lg:w-full xl:tracking-wide xl:leading-7'>{tab.description}</p>
         </div>
       ))}
     </div>
-    <p className="md:hidden text-lg text-gray-100 text-center my-4">
-      {tabs[activeTab].description}
-    </p>
-    <div className="flex-1 p-1 md:p-0 ">
+    <p className='block lg:hidden text-md md:text-lg lg:text-md font-light text-white/90 text-center tracking-normal px-2 md:px-4 mb-8'>{tabs[activeTab].description}</p>
+    <div className="flex justify-center mt-4 w-full lg:col-span-7 overflow-hidden">
       {tabs[activeTab] && (
-        <div className="w-full">
-          <Image
+        <div className='w-[95%] h-[60vh] md:w-full md:h-[50vh] lg:w-[78rem] lg:h-[90vh]'>
+          <img
             src={tabs[activeTab].imageUrl}
             alt="screen shot"
-            className="w-full rounded-lg"
-            width={768}
-            height={1000}
+            className='rounded-lg h-full w-full'
           />
         </div>
       )}
@@ -82,14 +71,10 @@ const SecondSection: React.FC = () => {
   ];
 
   return (
-    <div className="w-full flex flex-col my-24 p-1">
-      <h1 className=" mx-auto text-lg md:text-5xl text-white my-4 font-semibold text-center">
-        Want to be a founder with bandwidth?
-      </h1>
-      <p className=" mx-auto text-md md:text-lg text-gray-300 my-2 md:my-4 text-center">
-        Say goodbye to the hassle and hello to efficiency!
-      </p>
-      <div className="w-ful flex justify-end mt-12">
+    <div className='w-full flex flex-col my-24  '>
+      <h1 className=' mx-auto text-3xl md:text-5xl lg:text-5xl text-white my-4 font-semibold text-left md:text-center px-2 tracking-tight'> Want to be a founder with bandwidth?</h1>
+      <h2 className=' mx-auto text-lg md:text-xl text-gray-300 my-2 md:my-4 text-left md:text-center px-2 tracking-tight md:tracking-normal'>Say goodbye to the hassle and hello to efficiency!</h2>
+      <div className='w-full pt-10 md:p-4 lg:pr-0'>
         <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
       </div>
     </div>
