@@ -10,10 +10,14 @@ interface User {
   sub: string;
 }
 
+interface Team {
+  teamId: string;
+  name: string;
+}
 interface ContextState {
   orgId: string;
   org: { visibility: string } | undefined;
-  team: object | undefined;
+  team: Team | undefined;
   teamId: string;
   userId: string;
   user: User | undefined;
@@ -28,7 +32,7 @@ type ActionTypes =
   | "setOrg"
   | "setTeam"
   | "setTeams"
-  | "logout"
+  | "logout";
 
 interface Action {
   type: ActionTypes;
@@ -65,7 +69,7 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setOrg":
       return {
         ...state,
-        orgId: action.payload.orgId,
+        orgId: action?.payload?.orgId,
         org: action.payload,
       };
 
@@ -78,7 +82,7 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setTeam":
       return {
         ...state,
-        teamId: action.payload.teamId,
+        teamId: action?.payload?.teamId,
         team: action.payload,
       };
 
@@ -96,14 +100,14 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setUser":
       return {
         ...state,
-        userId: action.payload.userId,
+        userId: action?.payload?.userId,
         user: action.payload,
       };
-      case "logout":
-        return {
-          ...state,
-          ...INITIAL_STATE
-        };
+    case "logout":
+      return {
+        ...state,
+        ...INITIAL_STATE,
+      };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
