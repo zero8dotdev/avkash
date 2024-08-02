@@ -492,13 +492,23 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
       throw error;
     }
 
-    return result
-      .members
-      ?.filter(({
-        is_bot,
-        deleted,
-        is_email_confirmed
-      }) => !is_bot && !deleted && is_email_confirmed);
+    const users = result
+    .members
+    ?.filter(({
+      is_bot,
+      deleted,
+      is_email_confirmed
+    }) => !is_bot && !deleted && is_email_confirmed)
+  
+      const existedUsers = await supabaseAdminClient.from("User").select("*").eq("orgId",orgId)  
+      if (existedUsers.error){
+        throw existedUsers.error
+      } 
+      const existingUserEmails = new Set(existedUsers.data.map((user:any) => user.email));
+  
+      // Filter out non-existing users by email
+      const nonExistingUsers = users?.filter((user:any) => !existingUserEmails.has(user.profile.email));
+    return nonExistingUsers;
   } catch (error) {
     console.log(error);
   };
@@ -642,9 +652,15 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     if (usersError) {
       throw usersError;
     }
+    const result = await supabaseAdminClient.from('Organisation').update({"initialSetup": true })
+    if (result.error){
+      throw result.error
+    }
+    return true;
 
   } catch (error) {
     console.log(error);
+    throw error
   }
 };
 
