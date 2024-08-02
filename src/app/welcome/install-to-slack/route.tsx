@@ -50,9 +50,7 @@ export async function GET(request: NextRequest) {
       console.log(userError);
     }
 
-    console.log("main-user", user);
-    // const { data: accessData, error: accessDataError } = await serverClient
-    const { status, statusText } = await serverClient
+    const { status, statusText,error } = await serverClient
       .from("OrgAccessData")
       .insert({
         orgId: user?.orgId,
@@ -60,6 +58,10 @@ export async function GET(request: NextRequest) {
         ownerSlackId: res?.authed_user?.id,
       })
       .select();
+
+      if (error){
+        throw error
+      }
 
     if (status === 201 && statusText === "Created") {
       redirectPath = "/setup";

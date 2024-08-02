@@ -16,11 +16,16 @@ import {
   isSlackTokenExists,
 } from "@/app/_actions";
 import AddToSlack from "./steps/add-to-slack";
+
 import Notifications from "./steps/notification";
+
+
+import { useRouter } from "next/navigation";
 
 const moment = require("moment");
 
 export default function SetupPage() {
+  const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -97,7 +102,7 @@ export default function SetupPage() {
     setLoading(true);
     try {
       // @ts-ignore
-      const users = usersRef?.current.getUsers();
+      const users = usersRef?.current.getUsers() || [];
       const done = await completeSetup(orgId, {
         ...settingsData,
         ...notificatinData,
@@ -109,7 +114,13 @@ export default function SetupPage() {
         users,
         teamId,
       });
+
+      if (done) {
+        router.push("/dashboard")
+     }
+
     } catch (error) {
+      throw error
     } finally {
       setLoading(false);
     }
@@ -236,7 +247,7 @@ export default function SetupPage() {
                   Previous
                 </Button>
               )}
-              {current > 0 && (
+              {(current > 0 && current < 5) && (
                 <Button onClick={() => next()} type="primary">
                   Next
                 </Button>

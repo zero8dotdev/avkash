@@ -32,7 +32,7 @@ const faqItems = [
 
 const Faq: React.FC = () => {
   return (
-    <div id="faq" className="w-full flex flex-col items-center my-24">
+    <div id="faq" className="w-full flex flex-col items-center my-20">
       <section className="bg-slate-50 py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:mx-0">
