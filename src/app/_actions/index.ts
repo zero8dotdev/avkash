@@ -679,7 +679,6 @@ export const updateHolidaysList = async (holidaysList: any, orgId: string, count
     return data
   }
 }
-}
 
 export const fetchTeamUsers = async (teamId: string) => {
   const supabase = createClient()
@@ -725,9 +724,9 @@ export const isSlackTokenExists = async (orgId: string) => {
 }
 
 
-export const isInitialSetupDone = async (orgId:string) => {
+export const isInitialSetupDone = async (orgId: string) => {
   const supabase = createAdminClient();
-  const res = await supabase.from("Organisation").select("initialSetup").eq("orgId",orgId).single()
-  
+  const res = await supabase.from("Organisation").select("initialSetup").eq("orgId", orgId).single()
+
   return res.data
 }
