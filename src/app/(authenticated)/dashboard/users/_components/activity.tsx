@@ -1,6 +1,12 @@
+import { fetchAllActivities } from "@/app/_actions";
+import { Avatar, Steps } from "antd";
 
-import { fetchAllActivities } from "@/app/_actions"
-import { Avatar, Steps } from "antd"
+export default async function Activity({ user }: { user: any }) {
+  const activities = await fetchAllActivities(
+    user.userId,
+    user.teamId,
+    user.orgId
+  );
 
 export  default async function  Activity({ user }: { user: any }){
   const activities=await fetchAllActivities(user.userId,user.teamId,user.orgId)
@@ -21,4 +27,10 @@ export  default async function  Activity({ user }: { user: any }){
         </>
     )
 
+  return (
+    <>
+      {/* @ts-ignore */}
+      <Steps direction="vertical" items={items} />
+    </>
+  );
 }

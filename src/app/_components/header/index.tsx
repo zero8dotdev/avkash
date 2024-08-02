@@ -8,7 +8,6 @@ import MainMenu from "./_components/main-menu";
 import logo from '../../(public)/avkash-only.png'
 export default function AppHeader() {
   return (
-
       <Header
         style={{
           display: "flex",
@@ -22,7 +21,7 @@ export default function AppHeader() {
         <Title className="hidden sm:block m-0 mt-2 leading-none" style={{marginBottom:'0px',fontWeight:300, lineHeight:'30px', fontSize:30}} >avkash</Title>
       </Link>
         <MainMenu />
-        <Space >
+        <Space>
           <LogoutButton />
         </Space>
       </Header>
