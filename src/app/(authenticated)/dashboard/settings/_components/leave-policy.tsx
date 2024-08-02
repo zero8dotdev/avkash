@@ -57,7 +57,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
   return (
     <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
       <Card
-        style={{ marginBottom: "16px" }}
+        style={{ marginBottom: "16px", border: '1px solid #ccc' }}
         styles={{}}
         title={
           <Flex gap={8} justify="start" align="center">
