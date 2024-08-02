@@ -653,6 +653,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
       throw usersError;
     }
 
+
     const result = await supabaseAdminClient
       .from('Organisation')
       .update({ "initialSetup": true })
@@ -734,7 +735,6 @@ export const isSlackTokenExists = async (orgId: string) => {
       .select('*', { count: 'exact', head: true })
       .eq('orgId', orgId)
 
-    console.log('isSlackTokenExists');
     if (error) {
       throw error;
     }
