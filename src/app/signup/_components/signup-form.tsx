@@ -1,7 +1,7 @@
 "use client";
 
 import { signUpAction } from "@/app/_actions";
-import { Form, Input, Button, Row, Col } from "antd";
+import { Form, Input, Button, Flex, Card } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -39,8 +39,8 @@ export default function SignUpForm({ user }: { user: any }) {
   };
 
   return (
-    <Row gutter={8} style={{ minHeight: "100vh" }}>
-      <Col span={4} push={10}>
+    <Flex gap={8} justify="center" align="center" style={{ minHeight: "80vh" }}>
+      <Card title="Create your Organisation">
         <Form
           form={form}
           layout="vertical"
@@ -73,7 +73,7 @@ export default function SignUpForm({ user }: { user: any }) {
             </Button>
           </Form.Item>
         </Form>
-      </Col>
-    </Row>
+      </Card>
+    </Flex>
   );
 }
