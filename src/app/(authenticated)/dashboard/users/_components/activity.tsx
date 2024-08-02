@@ -7,25 +7,13 @@ export default async function Activity({ user }: { user: any }) {
     user.teamId,
     user.orgId
   );
-
-export  default async function  Activity({ user }: { user: any }){
-  const activities=await fetchAllActivities(user.userId,user.teamId,user.orgId)
-  const items=activities?.map((each)=>{
-
+  const items = activities?.map((each) => {
     return {
-      title:each.changedOn,
-      status:"finish",
-      icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`}/>,
-    }
-  })
-
-    return (
-        <>
-       <Steps
-       direction="vertical"
-       />
-        </>
-    )
+      title: each.changedOn,
+      status: "finish",
+      icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`} />,
+    };
+  });
 
   return (
     <>
