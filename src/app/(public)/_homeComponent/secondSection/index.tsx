@@ -72,7 +72,7 @@ const SecondSection: React.FC = () => {
 
   return (
     <div className='w-full flex flex-col my-24  '>
-      <h1 className=' mx-auto text-3xl md:text-5xl lg:text-5xl text-white my-4 font-semibold text-left md:text-center px-2 tracking-tight'> Want to be a founder with bandwidth?</h1>
+      <h1 className=' mx-auto text-3xl md:text-5xl lg:text-5xl text-white my-4  text-left md:text-center px-2 tracking-tight'> Want to be a founder with bandwidth?</h1>
       <h2 className=' mx-auto text-lg md:text-xl text-gray-300 my-2 md:my-4 text-left md:text-center px-2 tracking-tight md:tracking-normal'>Say goodbye to the hassle and hello to efficiency!</h2>
       <div className='w-full pt-10 md:p-4 lg:pr-0'>
         <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />

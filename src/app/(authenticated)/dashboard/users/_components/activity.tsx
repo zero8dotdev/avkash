@@ -8,17 +8,24 @@ export default async function Activity({ user }: { user: any }) {
     user.orgId
   );
 
-  const items = activities?.map((each) => {
-    const getDescription = (each: any) => {
-      const isLeaveTableAvailable = {};
-    };
+export  default async function  Activity({ user }: { user: any }){
+  const activities=await fetchAllActivities(user.userId,user.teamId,user.orgId)
+  const items=activities?.map((each)=>{
+
     return {
-      title: each.changedOn,
-      status: "finish",
-      icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`} />,
-      description: getDescription(each),
-    };
-  });
+      title:each.changedOn,
+      status:"finish",
+      icon: <Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=1`}/>,
+    }
+  })
+
+    return (
+        <>
+       <Steps
+       direction="vertical"
+       />
+        </>
+    )
 
   return (
     <>
