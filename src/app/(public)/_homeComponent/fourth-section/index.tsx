@@ -41,17 +41,17 @@ export default function FourthSection() {
     },
   ];
   return (
-    <div className="md:max-w-6xl p-3 py-[100px] m-auto">
-      <p className="text-4xl mb-10">
+    <div className="w-full md:max-w-6xl  py-[100px] mx-auto">
+      <p className="px-3 text-3xl font-semibold md:text-4xl mb-10 tracking-tighter">
         In my organisation, we are only 5 members, do I still need an automatic
         leave tracker?
       </p>
-      <p className="text-xl mb-10">
+      <p className="px-3 text-lg md:text-xl mb-10 tracking-tight">
         Small teams, even as small as three members, can thrive together only if
         all the members of the team are on the same page. Avkash ushers in a
         culture that stands tall on the shoulders of transparency and automation
       </p>
-      <div className="border border-[transparent] rounded-md overflow-hidden">
+      <div className="border border-[transparent] rounded-md overflow-x-auto md:overflow-hidden">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500">
           <thead className="text-xs text-gray-700 uppercase">
             <tr className="border-b border-gray-200">

@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+
+const { fontFamily } = require('tailwindcss/defaultTheme')
+
 const config: Config = {
 
   content: [
@@ -16,8 +19,11 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        firaSans: ['var(--font-fira-sans)', 'sans-serif'],
+        firaSans: ['var(--font-fira-sans)', ...fontFamily.sans],
       },
+      // fontFamily: {
+      //   firaSans: ['var(--font-fira-sans)', 'sans-serif'],
+      // },
       colors: {
         'light-gray': "rgba(255, 255, 255, 0.5)"
       },
