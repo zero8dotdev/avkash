@@ -30,45 +30,51 @@ export async function GET(request: NextRequest) {
       }),
     });
     const res = await response.json();
-    const serverClient = createClient();
 
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await serverClient.auth.getUser();
-
-    if (authError) {
-      throw authError;
-    }
-    const { data: user, error: userError } = await serverClient
-      .from("User")
-      .select()
-      .eq("userId", authUser?.id)
-      .single();
-
-    if (userError) {
-      console.log(userError);
-    }
-
-    const { status, statusText,error } = await serverClient
-      .from("OrgAccessData")
-      .insert({
-        orgId: user?.orgId,
-        slackAccessToken: res?.access_token,
-        ownerSlackId: res?.authed_user?.id,
-      })
-      .select();
-
-      if (error){
-        throw error
+    if(res.ok){
+      const serverClient = createClient();
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await serverClient.auth.getUser();
+  
+      if (authError) {
+        throw authError;
       }
-
-    if (status === 201 && statusText === "Created") {
-      redirectPath = "/setup";
-    } else {
-      redirectPath = "/error";
+      const { data: user, error: userError } = await serverClient
+        .from("User")
+        .select()
+        .eq("userId", authUser?.id)
+        .single();
+  
+      if (userError) {
+        console.log(userError);
+      }
+  
+      const { status, statusText,error } = await serverClient
+        .from("OrgAccessData")
+        .insert({
+          orgId: user?.orgId,
+          slackAccessToken: res?.access_token,
+          ownerSlackId: res?.authed_user?.id,
+        })
+        .select();
+  
+        if (error){
+          throw error
+        }
+  
+      if (status === 201 && statusText === "Created") {
+        redirectPath = "/setup";
+      } else {
+        redirectPath = "/error";
+      }
+    }
+    else{
+      redirectPath="/error"
     }
   } catch (error) {
+    console.log(error)
     throw error;
   } finally {
     redirect(redirectPath);
