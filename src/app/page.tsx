@@ -24,7 +24,7 @@ export default function HomePage() {
       <div className="w-full flex bg-[#2563ea]">
         <SecondSection />
       </div>
-      <div className="h-[500px] border-[1px]">Features</div>
+
       <div className="w-full flex justify-center my-12">
         <ThirdSection />
       </div>
@@ -36,9 +36,6 @@ export default function HomePage() {
       </div>
       <div className="h-full">
         <Faq />
-      </div>
-      <div className="h-[500px] border-[1px]">
-        <Team />
       </div>
       <FooterSection />
     </div>
