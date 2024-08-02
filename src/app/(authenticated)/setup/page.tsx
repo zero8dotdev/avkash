@@ -4,7 +4,6 @@ import { Button, Card, Col, Row, Steps, Flex, Space } from "antd";
 import { useEffect, useRef, useState } from "react";
 import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
-import Notification from "./steps/notification";
 import LeavePolicyPage from "./steps/leave-policy";
 
 import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
@@ -17,7 +16,12 @@ import {
   isSlackTokenExists,
 } from "@/app/_actions";
 import AddToSlack from "./steps/add-to-slack";
+
+import Notifications from "./steps/notification";
+
+
 import { useRouter } from "next/navigation";
+
 const moment = require("moment");
 
 export default function SetupPage() {
@@ -158,6 +162,10 @@ export default function SetupPage() {
           <Setting
             {...settingsData}
             update={(values) => setSettingsData({ ...values })}
+            isTeamnameVisable={false}
+            
+
+            
           />
         </Card>
       ),
@@ -192,7 +200,7 @@ export default function SetupPage() {
       title: "Notifications",
       content: (
         <Card>
-          <Notification
+          <Notifications
             {...notificatinData}
             update={(values) => setNotificationData({ ...values })}
           />

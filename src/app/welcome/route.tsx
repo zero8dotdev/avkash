@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
       throw authError;
     }
 
-    const { data: user, error: userError, count } = await supabase
+    const {
+      data: user,
+      error: userError,
+      count,
+    } = await supabase
       .from("User")
       .select("*")
       .eq("userId", authUserSession.user.id);
@@ -31,25 +35,20 @@ export async function GET(request: NextRequest) {
       throw userError;
     }
 
-    
     if (user.length === 0) {
       redirectPath = "/signup";
       return;
     }
 
-let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId)
-     if (!isInitialSetupavailable?.initialSetup ) {
-      redirectPath = "/setup"
-    }else{
+    let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId);
+    if (!isInitialSetupavailable?.initialSetup) {
+      redirectPath = "/setup";
+    } else {
       redirectPath = "/dashboard";
     }
-
-    
   } catch (error) {
     redirectPath = "/error";
   } finally {
     redirect(redirectPath || "/");
   }
 }
-
-
