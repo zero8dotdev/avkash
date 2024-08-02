@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-      <meta name="description" content="benchoooood its production day" />
+      <meta name="description" content="Avkash | Make a leave management easy for your teams" />
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
           async
