@@ -8,7 +8,6 @@ import { useApplicationContext } from "@/app/_context/appContext";
 import { addUsersToNewTeam, createNewTeam } from "@/app/_actions";
 import Setting from "@/app/(authenticated)/setup/steps/setting";
 
-
 const Page = () => {
   const [current, setCurrent] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -30,43 +29,44 @@ const Page = () => {
     {
       title: "Settings",
       content: (
-        <Card style={{width:'60%'}}>
-        <Setting
-          {...settingsData}
-          update={(values) => setSettingsData({ ...values })}
-          isTeamnameVisable={true}
-        />
+        <Card style={{ width: "60%" }}>
+          <Setting
+            {...settingsData}
+            // @ts-ignore
+            update={(values) => setSettingsData({ ...values })}
+            isTeamnameVisable={true}
+          />
         </Card>
       ),
     },
     {
       title: "Users",
       content: (
-        <Card style={{width:'60%'}}>
-        <Users update={(data) => setSTeamUsers(data)} Tusers={teamUsers} />
+        <Card style={{ width: "60%" }}>
+          <Users update={(data) => setSTeamUsers(data)} Tusers={teamUsers} />
         </Card>
       ),
     },
     {
       title: "Managers",
       content: (
-        <Card style={{width:'60%'}}>
-        <Managers
-          users={teamUsers}
-          managers={managers}
-          update={(data) => SetManagers(data)}
-        />
+        <Card style={{ width: "60%" }}>
+          <Managers
+            users={teamUsers}
+            managers={managers}
+            update={(data) => SetManagers(data)}
+          />
         </Card>
       ),
     },
     {
       title: "Notifications",
       content: (
-        <Card style={{width:'60%'}}>
-        <Notifications
-          {...notificatinData}
-          update={(values) => setNotificationData({ ...values })}
-        />
+        <Card style={{ width: "60%" }}>
+          <Notifications
+            {...notificatinData}
+            update={(values) => setNotificationData({ ...values })}
+          />
         </Card>
       ),
     },
