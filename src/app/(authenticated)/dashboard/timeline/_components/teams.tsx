@@ -1,61 +1,104 @@
 "use client";
-import { Card, Flex, List, Typography } from "antd";
-import { useEffect, useState } from "react";
-import { createClient } from "@/app/_utils/supabase/client";
 
-// Initialize Supabase client
-const supabase = createClient();
+import { fetchTeam, fetchTeamMembers } from "@/app/_actions";
+import { useApplicationContext } from "@/app/_context/appContext";
+import { Avatar, Card, List } from "antd";
+import { useState, useEffect } from "react";
 
-// Define Teams component
-const Teams = ({ team, role, visibility }: any) => {
-  const { teamid, name } = team;
-  const [users, setUsers] = useState<any[]>([]);
-  const userId = "b44487bb-824c-4777-a983-eeb88fe16de5";
+type User = {
+  name: string;
+};
+
+const TeamMembers = ({ teamId, name }: { teamId: string; name: string }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [users, setUsers] = useState<User[]>([]);
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      let data, error;
-
-      if (visibility === "ORG" || visibility === "TEAM") {
-        // Fetch users of this specific team for manager
-        const result = await supabase.rpc("get_users_by_team_id", {
-          id: teamid,
-        });
-        data = result.data;
-        error = result.error;
-      } else {
-        if (role === "OWNER" || role === "MANAGER") {
-          const result = await supabase.rpc("get_users_by_team_id", {
-            id: teamid,
-          });
-          data = result.data;
-
-          error = result.error;
-        } else {
-          const result = await supabase.rpc("get_user_data_by_id", {
-            id: userId,
-          });
-          data = result.data;
-
-          error = result.error;
-        }
-      }
-      if (data && !error) {
-        setUsers(data);
-      } else {
-        console.error("Error fetching users:", error);
-      }
-    };
-    fetchUsers();
-  }, [teamid, role, visibility]);
+    (async () => {
+      const users = await fetchTeamMembers(teamId);
+      setUsers(users as User[]);
+      setLoading(false);
+    })();
+  }, [teamId]);
 
   return (
-    <Card title={name} bodyStyle={{ padding: "0px" }} >
+    <Card
+      style={{
+        minWidth: "200px",
+        width: "100%",
+        margin: 0,
+        padding: 0,
+        marginBottom: "8px",
+      }}
+      title={name}
+      loading={loading}
+      styles={{
+        body: {
+          margin: "4px",
+          padding: "4px",
+        },
+      }}
+      size="small"
+    >
       <List
         dataSource={users}
-        renderItem={(i) => <List.Item style={{paddingLeft:'10px'}}>{i.name}</List.Item>}
-      />
+        style={{ margin: 0, padding: 0 }}
+        locale={{ emptyText: "0 members." }}
+        renderItem={(user, index) => (
+          <List.Item
+            style={{
+              margin: 0,
+              padding: "4px",
+            }}
+            key={index}
+          >
+            <List.Item.Meta
+              avatar={<Avatar size="small" />}
+              title={user.name}
+            ></List.Item.Meta>
+          </List.Item>
+        )}
+      ></List>
     </Card>
   );
 };
 
-export default Teams;
+export default function Teams({
+  selectedTeam,
+}: {
+  selectedTeam: string | undefined;
+}) {
+  const {
+    state: { teams },
+  } = useApplicationContext();
+  const [team, setTeam] = useState();
+
+  useEffect(() => {
+    if (!selectedTeam) {
+      setTeam(undefined);
+      return;
+    }
+
+    (async () => {
+      const _team = await fetchTeam(selectedTeam);
+      setTeam(_team);
+    })();
+  }, [selectedTeam]);
+
+  return (
+    <List
+      dataSource={team ? [team] : teams}
+      locale={{ emptyText: "" }}
+      renderItem={(team, index) => {
+        return (
+          <List.Item
+            key={team.teamId}
+            style={{ padding: "0px", margin: "0px" }}
+          >
+            <TeamMembers {...team} />
+          </List.Item>
+        );
+      }}
+    ></List>
+  );
+}

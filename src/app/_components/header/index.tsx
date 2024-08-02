@@ -13,6 +13,7 @@ export default function AppHeader() {
         justifyContent: "flex-start",
         alignItems: "center",
         backgroundColor: "#fff",
+        borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
       }}
       className=""
     >
