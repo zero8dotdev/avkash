@@ -31,15 +31,28 @@ let accessToken: any;
 
 export async function POST(request: NextRequest) {
   // fetching the body here from request
-  const [body, currentUserSlackId] = await getBodyAndSlackId(request);
-  console.log('new body gnani', body);
-  const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
-  const slackAccessToken = accessTokenData?.Organisation?.slackAccessToken;
-  avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
-  avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
-  avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
-  avkashUserInfo['accessToken'] = slackAccessToken;
-  accessToken = avkashUserInfo.accessToken;
+
+  // console.log("REQUEST123",await request.json())
+  const result = await request.json();
+  console.log("BODYYYYYYYYYYYYYYYYYYYs",result.type)
+      if (result.type === 'url_verification') {
+        console.log('srihari',result)
+        return new NextResponse(JSON.stringify({ challenge: result.challenge }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+
+  // const [body, currentUserSlackId] = await getBodyAndSlackId(request);
+  // console.log('new body gnani', body);
+  // const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
+  // const slackAccessToken = accessTokenData?.Organisation?.slackAccessToken;
+  // avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
+  // avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
+  // avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
+  // avkashUserInfo['accessToken'] = slackAccessToken;
+  // accessToken = avkashUserInfo.accessToken;
   /*
     [TODO]
     So from the slack, We are getting 4 kinds of interactions.
@@ -49,33 +62,29 @@ export async function POST(request: NextRequest) {
     3. Slack Command
     4. User type a message.
   */
-  try {
-    if (body.type === 'url_verification') {
-      return handleUrlVerification(body);
-    }
-    if (body.event?.type == 'message') {
-      return await handleBotIgnoreMessages(body.event);
-    }
+  // try {
+  //   if (body.type === 'url_verification') {
+  //     return handleUrlVerification(body);
+  //   }
+  //   if (body.event?.type == 'message') {
+  //     return await handleBotIgnoreMessages(body.event);
+  //   }
 
-    if (body.event?.type === 'app_home_opened') {
-      return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
-    }
-    if (body.payload) {
-      const payload = JSON.parse(body.payload);
-      return await handlePayload(avkashUserInfo, payload);
-    }
+  //   if (body.event?.type === 'app_home_opened') {
+  //     return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
+  //   }
+  //   if (body.payload) {
+  //     const payload = JSON.parse(body.payload);
+  //     return await handlePayload(avkashUserInfo, payload);
+  //   }
 
-    if (body.command) {
-      return handleSlashCommand(body.command);
-    }
-    // [TODO]: We can write a friendly message.
-    return new NextResponse('Unrecognized request', { status: 400 });
-  } catch (error) {
-    // console.error('Error processing request:', error);
-    // [TODO]: If our code execution comes to this point. Means error is at our end.
-    // WE can make this message more friendly.
-    return new NextResponse('An error occurred while processing your request.', { status: 500 });
-  }
+  //   if (body.command) {
+  //     return handleSlashCommand(body.command);
+  //   }
+  //   return new NextResponse('Unrecognized request', { status: 400 });
+  // } catch (error) {
+  //   return new NextResponse('An error occurred while processing your request.', { status: 500 });
+  // }
 }
 
 function handleUrlVerification(body: any) {
@@ -84,6 +93,3 @@ function handleUrlVerification(body: any) {
     status: 200,
   });
 }
-
-
-
