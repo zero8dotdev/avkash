@@ -17,20 +17,20 @@ export default function AppHeader() {
         }}
         className=""
       >
-        <Link href="/">
+        <Link href="/" style={{flex:1}}>
           <Title level={3} style={{ marginTop: "0px", marginBottom: "0px" }}>
             avkash
           </Title>
         </Link>
         <MainMenu />
-        <div className="flex flex-1 items-center mx-10 font-semibold" >
+        {/* <div className="flex flex-1 items-center mx-10 font-semibold" >
           <ul className="flex gap-x-10">
             <li>
               <Link href="/#faq" className="scroll-smooth">FAQ</Link></li>
             <li><Link href='/#priceSection' className="tracking-wider">Pricing</Link></li>
           </ul>
-        </div>
-        <Space>
+        </div> */}
+        <Space >
           <Link href="/login">
             <Button type="primary">Sign up</Button>
           </Link>
