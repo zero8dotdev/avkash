@@ -652,7 +652,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     if (usersError) {
       throw usersError;
     }
-    const result = await supabaseAdminClient.from('Organisation').update({"initialSetup": true })
+    const result = await supabaseAdminClient.from('Organisation').update({"initialSetup": true }).eq("orgId", orgId)
     if (result.error){
       throw result.error
     }
