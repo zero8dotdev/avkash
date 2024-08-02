@@ -1,101 +1,108 @@
 "use client";
-import { Button, Flex, Space, Steps } from "antd";
-import React, { useEffect, useState } from "react";
-import Settings from "./steps/settings";
-import LeavePolicies from "./steps/leavePolicy";
+import { Button, Card, Flex, Space, Steps } from "antd";
+import React, { useState } from "react";
 import Users from "./steps/users";
 import Managers from "./steps/managers";
-import Notifications from "./steps/notificationPage";
+import Notifications from "../../../../setup/steps/notification";
+import { useApplicationContext } from "@/app/_context/appContext";
+import { addUsersToNewTeam, createNewTeam } from "@/app/_actions";
+import Setting from "@/app/(authenticated)/setup/steps/setting";
 
-interface settingProps {
-  name:string,
-  startOfWorkWeek: string;
-  workweek: string[];
-  timeZone: string;
-}
-
-interface policyProps{
-  name:string,
-  isActive:boolean,
-  accurals:boolean,
-  maxLeaves:number,
-  autoApprove:boolean,
-  rollover:boolean,
-  color:string,
-  unlimited:boolean
-}
 
 const Page = () => {
   const [current, setCurrent] = useState(0);
-  const [settings, setSettings] = useState<settingProps[]>([
-    {
-      name:'',
-      startOfWorkWeek: "MONDAY",
-      workweek: ["MONDAY", "TUESDAY"],
-      timeZone: "Asia/Kolkata",
-    },
-  ]);
-  const [leavePolicies, setLeavePolicies] = useState<policyProps[]>([
-    {
-      name: "Paid Time Off",
-      isActive: true,
-      accurals: true,
-      maxLeaves: 10,
-      autoApprove: false,
-      rollover: false,
-      color: "#fff",
-      unlimited: true,
-    },
-    {
-      name: "Sick leave",
-      isActive: true,
-      accurals: true,
-      maxLeaves: 10,
-      autoApprove: false,
-      rollover: false,
-      color: "#fff",
-      unlimited: true,
-    },
-  ]);
-  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-  const [notification,
-    setNotification]=useState<any>([
-    {
-      leaveChange: false,
-      dailySummary: false,
-      weeklySummary: false,
-      sendNtf: ["OWNER"],
-    },
-
-  ])
- 
+  const [loader, setLoader] = useState(false);
+  const [settingsData, setSettingsData] = useState({
+    name: "",
+    startOfWorkWeek: "MONDAY",
+    workweek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    timeZone: "Asia/Kolkata",
+  });
+  const [teamUsers, setSTeamUsers] = useState<any[]>([]);
+  const [notificatinData, setNotificationData] = useState({
+    leaveChange: false,
+    dailySummary: false,
+    weeklySummary: false,
+    sendNtf: ["OWNER"],
+  });
+  const [managers, SetManagers] = useState<any>(null);
   const steps = [
     {
       title: "Settings",
-      content: <Settings settings={settings} setSettings={setSettings} />,
+      content: (
+        <Card style={{width:'60%'}}>
+        <Setting
+          {...settingsData}
+          update={(values) => setSettingsData({ ...values })}
+          isTeamnameVisable={true}
+        />
+        </Card>
+      ),
     },
-    {
-      title: "Leave Policy",
-      content: <LeavePolicies leavePolicies={leavePolicies} setLeavePolicies={setLeavePolicies}/>,
-    },
-    
     {
       title: "Users",
-      content: <Users selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />,
+      content: (
+        <Card style={{width:'60%'}}>
+        <Users update={(data) => setSTeamUsers(data)} Tusers={teamUsers} />
+        </Card>
+      ),
     },
     {
       title: "Managers",
-      content: <Managers users={selectedUsers}/>,
+      content: (
+        <Card style={{width:'60%'}}>
+        <Managers
+          users={teamUsers}
+          managers={managers}
+          update={(data) => SetManagers(data)}
+        />
+        </Card>
+      ),
     },
     {
       title: "Notifications",
-      content: <Notifications />,
+      content: (
+        <Card style={{width:'60%'}}>
+        <Notifications
+          {...notificatinData}
+          update={(values) => setNotificationData({ ...values })}
+        />
+        </Card>
+      ),
     },
   ];
+
+  const {
+    state: { orgId },
+  } = useApplicationContext();
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
-console.log(selectedUsers,"selected")
+
+  const handleDone = async () => {
+    setLoader(true);
+    const data = {
+      name: settingsData.name,
+      isActive: true,
+      manager: managers ? managers.userId : null,
+      startOfWorkWeek: settingsData.startOfWorkWeek,
+      workweek: settingsData.workweek,
+      timeZone: settingsData.timeZone,
+      notificationLeaveChanged: notificatinData.leaveChange,
+      notificationDailySummary: notificatinData.dailySummary,
+      notificationWeeklySummary: notificatinData.weeklySummary,
+      notificationToWhom: notificatinData.sendNtf[0],
+      orgId: orgId,
+    };
+    const newTeam = await createNewTeam(data, orgId);
+    if (newTeam) {
+      const addUserToNewTeam = async (user: any) => {
+        await addUsersToNewTeam(newTeam[0].teamId, user.userId);
+      };
+      const data = Promise.all(teamUsers.map((each) => addUserToNewTeam(each)));
+      setLoader(false);
+    }
+  };
   return (
-    <Flex vertical style={{ padding: "15px"}} gap={24} >
+    <Flex vertical style={{ padding: "15px" }} gap={24}>
       <Steps
         current={current}
         items={items}
@@ -105,7 +112,7 @@ console.log(selectedUsers,"selected")
           padding: "15px",
         }}
       />
-      <Flex >{steps[current].content}</Flex>
+      <Flex>{steps[current].content}</Flex>
       <Space>
         {current < steps.length - 1 && (
           <Button type="primary" onClick={() => setCurrent(current + 1)}>
@@ -113,10 +120,7 @@ console.log(selectedUsers,"selected")
           </Button>
         )}
         {current === steps.length - 1 && (
-          <Button
-            type="primary"
-            onClick={() => console.log("succesfully completed")}
-          >
+          <Button type="primary" onClick={() => handleDone()} loading={loader}>
             Done
           </Button>
         )}
