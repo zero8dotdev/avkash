@@ -1,5 +1,5 @@
 "use client";
-import { Card, Checkbox, Flex, Form, List, Select } from "antd";
+import { Card, Checkbox, Flex, Form, Input, List, Select } from "antd";
 import moment from "moment-timezone";
 import { useEffect, useState } from "react";
 const { Item: FormItem } = Form;
@@ -7,21 +7,26 @@ const { Option: SelectOption } = Select;
 const { Group: CheckboxGroup } = Checkbox;
 
 interface SettingProps {
+  isTeamnameVisable:boolean
   startOfWorkWeek: string;
   workweek: string[];
   timeZone: string;
+  name?:string | undefined
   update: (values: {
     startOfWorkWeek: string;
     workweek: string[];
     timeZone: string;
+    name?:string |undefined
   }) => void;
 }
 
 const Setting: React.FC<SettingProps> = ({
+  name,
   startOfWorkWeek,
   workweek,
   timeZone,
   update,
+  isTeamnameVisable
 }) => {
   const [timezones, setTimezones] = useState<any[]>([]);
 
@@ -34,14 +39,15 @@ const Setting: React.FC<SettingProps> = ({
 
   useEffect(() => {
     form.setFieldsValue({
+      name,
       startOfWorkWeek,
       workweek,
       timeZone,
     });
-  }, [form, startOfWorkWeek, workweek, timeZone]);
+  }, [form, startOfWorkWeek, workweek, timeZone,name]);
 
   const onValuesChange = (changedFields: any, allFields: any) => {
-    update({ startOfWorkWeek, workweek, timeZone, ...changedFields });
+    update({ name,startOfWorkWeek, workweek, timeZone, ...changedFields });
   };
 
   const formItemLayout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
@@ -53,6 +59,10 @@ const Setting: React.FC<SettingProps> = ({
       {...formItemLayout}
       onValuesChange={onValuesChange}
     >
+      {isTeamnameVisable&&
+      <Form.Item name="name" rules={[{ required: true, message: 'Please enter your team name' }]} label="Team Name">
+           <Input placeholder="Enter your team name"/>
+      </Form.Item>}
       <FormItem
         label="Start of work week"
         name="startOfWorkWeek"
