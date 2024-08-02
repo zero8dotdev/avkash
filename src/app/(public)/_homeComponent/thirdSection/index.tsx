@@ -9,21 +9,21 @@ const tabData = [
     description: "Customizable Settings",
     detail:
       "Avkash allows you to fit your company’s unique leave policies be it casual leaves, location status, half day - anything and everything, ensuring a seamless fit with your organisational needs.",
-    imgSrc: "/screen4.png",
+    imgSrc: "/feature-2.jpg",
   },
   {
     title: "",
     description: "User-Friendly Interface",
     detail:
       "Say goodbye to separate apps for applying leave, Avkash integrates easily with your company’s choice of channel be it Google Workspace or Slack, allowing for a smooth and efficient leave management experience for team members and the founder",
-    imgSrc: "/screen5.png",
+    imgSrc: "/feature-1.jpg",
   },
   {
     title: "",
     description: "Automated Tracking and Reporting",
     detail:
       "Avkash tracks leave balances and keeps your records accurate and up-to-date. This feature helps founders with or without HR support, to maintain compliance and avoid manual errors. You get to focus on what matters.",
-    imgSrc: "/screen4.png",
+    imgSrc: "/feature-3.jpg",
   },
 ];
 
@@ -63,7 +63,11 @@ export const ThirdSection = () => {
           <div key={index}>
             <div
               onClick={() => handleTabClick(index)}
-              className={`cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide ${index === activeTab? 'lg:border-[1px] lg:border-slate-700 lg:p-2 lg:shadow-lg lg:ring-1 lg:ring-slate-700 lg:rounded-xl':"lg:p-2 lg:border-[1px] lg:border-transparent"}`}
+              className={`cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide ${
+                index === activeTab
+                  ? "sm:border sm:border-slate-100 sm:p-2 sm:shadow-lg sm:ring-1 sm:ring-slate-100 sm:rounded-xl"
+                  : "sm:p-2 sm:border sm:border-transparent"
+              }`}
             >
               <p className="text-blue-500">{tab.title}</p>
               <h1 className="text-lg text-black">{tab.description}</h1>
