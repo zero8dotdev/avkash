@@ -161,7 +161,6 @@ export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   if (error) {
     throw error;
   }
-  console.log(data)
   return data
 }
 export const fetchTeamsData = async (orgId: string) => {
@@ -272,9 +271,7 @@ export const updateLeavePolicies = async (values: any, leaveTypeId: string, orgI
   if (error) {
     console.log(error)
   }
-  console.log(isDataAvailable)
   if (isDataAvailable === undefined || isDataAvailable?.length === 0 || isDataAvailable === null) {
-    console.log("keshav")
     const { data, error } = await supabase
       .from("LeavePolicy")
       .insert({ ...values, leaveTypeId, orgId })
@@ -310,7 +307,6 @@ export const fetchLeaveTypes = async (orgId: string) => {
       .eq('orgId', orgId);
 
     if (error) {
-      console.log('This is the problem');
       throw error;
     }
 
@@ -346,11 +342,6 @@ export const signUpAction = async (values: any) => {
     if (orgError) {
       throw orgError;
     }
-    console.log(org)
-    const { data, error } = await supabaseAdminClient
-      .from('OrgAccessData')
-      .update({ orgId: org.orgId })
-      .eq('slackUserId', authUser?.user_metadata.sub)
 
     // create a team with that orgId
     const { data: team, error: teamError } = await supabaseAdminClient
@@ -411,7 +402,6 @@ export const signUpAction = async (values: any) => {
       .select('*');
 
     if (leaveTypesError) {
-      console.log('here');
       throw leaveTypesError;
     }
 
@@ -689,6 +679,7 @@ export const updateHolidaysList = async (holidaysList: any, orgId: string, count
     return data
   }
 }
+}
 
 export const fetchTeamUsers = async (teamId: string) => {
   const supabase = createClient()
@@ -731,4 +722,12 @@ export const isSlackTokenExists = async (orgId: string) => {
   } catch (error) {
     throw error;
   }
+}
+
+
+export const isInitialSetupDone = async (orgId:string) => {
+  const supabase = createAdminClient();
+  const res = await supabase.from("Organisation").select("initialSetup").eq("orgId",orgId).single()
+  
+  return res.data
 }
