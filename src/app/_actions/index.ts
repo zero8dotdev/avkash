@@ -785,4 +785,53 @@ export const addUsersToNewTeam=async(values:any,userId:any)=>{
   console.log(data)
   return data
 }
+export const fetchUsers= async (teamId:any,orgId:any) => {
+  try {
+    const supabase = createClient();
+    if(teamId){
+      const { data: teamMembers, error } = await supabase
+      .from("User")
+      .select()
+      .eq("teamId", teamId);
+      if (error) {
+        throw error;
+      }
+      return teamMembers
+    }else{
+      const { data: orgUsers, error } = await supabase
+      .from("User")
+      .select()
+      .eq("orgId", orgId);
+      if (error) {
+        throw error;
+      }
+      return orgUsers
+    }
+   } catch (error) {
+    console.log(error);
+  }
+};
 
+
+export const insertLeaves= async(values:any)=>{
+  const supabase=createClient()
+  const {data,error}=await supabase
+  .from('Leave')
+  .insert({...values})
+  .single()
+  if(error){
+    console.log(error)
+  }
+ return data
+}
+export const fetchTeamId=async(userId:any)=>{
+  const supabase=createClient()
+  const {data,error}=await supabase
+  .from("User")
+  .select("teamId")
+  .eq("userId",userId)
+  if(error){
+    console.log(error)
+  }
+  return data
+}

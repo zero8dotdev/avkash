@@ -3,6 +3,7 @@ import { MoreOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Button,
+  Card,
   Drawer,
   Dropdown,
   Flex,
@@ -153,11 +154,11 @@ const TeamTableActive:React.FC<Props> = ({ teams, status,onDisable,onEnable}) =>
         pagination={false}
       />
       <Space>
-        {status === "inactive" && (
+       
           <Button type="link" href="settings/team/new-team" style={{border:'1px solid blue',marginTop:'12px'}}>
             Add new team
           </Button>
-        )}
+       
       </Space>
 
       <Drawer
@@ -170,7 +171,13 @@ const TeamTableActive:React.FC<Props> = ({ teams, status,onDisable,onEnable}) =>
         }
         closable={false}
       >
-        <Tabs items={tabItems} size="large" />
+        <Card  title="Team Settings" >
+          <Flex justify="center" align="center" style={{height:'500px'}}>
+          <Tag  color="success" style={{width:'15%',height:'10%',fontSize:'25px',display:'flex',justifyContent:'center',alignItems:'center'}}>Coming Soon</Tag>
+          </Flex>
+          
+
+        </Card>
       </Drawer>
     </Flex>
   );
