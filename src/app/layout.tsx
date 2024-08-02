@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
-import { Roboto_Flex } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider, Layout } from "antd";
 import AppHeader from "./_components/header";
@@ -8,15 +7,10 @@ import Content from "./_components/content";
 import { ApplicationProvider } from "./_context/appContext";
 import "./input.css";
 
-const roboto = Roboto_Flex({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-roboto",
-});
-
 export const metadata: Metadata = {
-  title: "Avkash | Make leave management easy for your teams",
-  description: "Avkash allows team to manage holidays and leaves smooth.",
+  title: "Avkash | Streamlines Leave Management for Modern Remote Teams",
+  description:
+    "Avkash is a leave management HR automation tool crafted for founders of new-age remote teams, promoting a seamless work-life balance. With effortless integration into Slack and Google Workspace, Avkash simplifies your leave management.",
 };
 
 export default function RootLayout({
