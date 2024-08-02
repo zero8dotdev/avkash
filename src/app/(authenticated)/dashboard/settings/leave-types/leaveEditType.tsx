@@ -1,3 +1,4 @@
+"use cleint"
 import { updateLeaveType } from "@/app/_actions";
 import {
   Avatar,
@@ -8,7 +9,7 @@ import {
   Input,
   Modal,
 } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface LeaveType {
   // define the leave type here as modeled in the backend
@@ -21,18 +22,24 @@ interface LeaveType {
 const LeaveTypeEdit = ({
   item,
   onCancel = () => {},
+  
 }: {
   item: LeaveType | undefined;
   onCancel: Function;
+  
 }) => {
   const visible = !!item;
 
-  console.log(item);
+ const [loader,setLoader]=useState(false)
 
   const onFinish = async (values: any) => {
+    setLoader(true)
     const data = await updateLeaveType(values, item?.leaveTypeId);
+    
     if (data) {
       console.log("leave type updated successfully");
+      onCancel()
+      setLoader(false)
     } else {
       console.log("something went wrong");
     }
@@ -61,7 +68,7 @@ const LeaveTypeEdit = ({
         <Button key="cancel" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" onClick={() => form.submit()}>
+        <Button key="submit" type="primary" loading={loader} onClick={() => form.submit()}>
           Save
         </Button>,
       ]}

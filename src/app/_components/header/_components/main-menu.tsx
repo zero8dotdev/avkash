@@ -3,14 +3,12 @@
 import { Menu } from "antd";
 import {
   DashboardOutlined,
-  DashboardTwoTone,
   SettingOutlined,
-  SettingTwoTone,
   UserOutlined,
-  UserSwitchOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useRouter, usePathname } from "next/navigation";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 type MenuItem = Required<MenuProps>["items"][number];
 const menuItems: MenuItem[] = [
@@ -34,6 +32,7 @@ const menuItems: MenuItem[] = [
 export default function MainMenu() {
   const router = useRouter();
   const pathname = usePathname();
+  const { state } = useApplicationContext();
 
   const handleMenuItemClick: MenuProps["onClick"] = (e) => {
     router.push(`/dashboard/${e.key}`);

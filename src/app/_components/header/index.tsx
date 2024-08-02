@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Button, Space } from "antd";
+import Image from "next/image";
 import Title from "antd/es/typography/Title";
 import LogoutButton from "./_components/logout";
 import { Header } from "antd/es/layout/layout";
 import MainMenu from "./_components/main-menu";
-import Image from "next/image";
-
+import logo from '../../(public)/avkash-only.png'
 export default function AppHeader() {
   return (
       <Header
@@ -31,9 +31,9 @@ export default function AppHeader() {
           </ul>
         </div> */}
         <Space >
-          <Link href="/login">
+          {/* <Link href="/login">
             <Button type="primary">Sign up</Button>
-          </Link>
+          </Link> */}
           <LogoutButton />
         </Space>
       </Header>
