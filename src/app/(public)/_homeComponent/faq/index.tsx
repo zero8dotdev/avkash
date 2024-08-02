@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import React from "react";
 
@@ -54,10 +55,10 @@ const Faq: React.FC = () => {
               </li>
             ))}
           </ul>
-          <p className="mt-12 text-lg tracking-tight text-slate-700">
+          {/* <p className="mt-12 text-lg tracking-tight text-slate-700">
             If you can&apos;t find what you&apos;re looking for, Read more{" "}
             <Link href="/faq">here</Link>
-          </p>
+          </p> */}
         </div>
       </section>
     </div>
