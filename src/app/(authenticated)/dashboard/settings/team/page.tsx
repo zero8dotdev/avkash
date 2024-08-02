@@ -1,5 +1,5 @@
 "use client";
-import { fetchTeamsData } from "@/app/_actions";
+import { fetchTeamsData, updateTeamData } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { Col, Flex, List, Row, Segmented } from "antd";
@@ -22,11 +22,27 @@ const Team = () => {
     };
     fetchData();
   }, [orgId]);
- console.log(teams)
+ 
   const activeTeams=teams?.filter((team:any)=>team.status===true)
   const inActiveTeams=teams?.filter((team:any)=>team.status==false)
 
-  console.log(activeTeams)
+  const handleDisable = async (teamData: any) => {
+    await updateTeamData(false, teamData.teamId);
+    setTeams((prevTeams: any) =>
+      prevTeams.map((team: any) =>
+        team.teamId === teamData.teamId ? { ...team, status: false } : team
+      )
+    );
+  };
+
+  const handleEnable = async (teamData: any) => {
+    await updateTeamData(true, teamData.teamId);
+    setTeams((prevTeams: any) =>
+      prevTeams.map((team: any) =>
+        team.teamId === teamData.teamId ? { ...team, status: true } : team
+      )
+    );
+  };
 
   return (
     <Row gutter={8}>
@@ -50,9 +66,9 @@ const Team = () => {
         <Flex vertical>
           {segmentValue === "active" ? (
 
-              <TeamTableActive teams={activeTeams} status={segmentValue} />
+              <TeamTableActive teams={activeTeams} status={segmentValue} onDisable={handleDisable} onEnable={handleEnable}/>
 
-          ) : <TeamTableActive teams={inActiveTeams} status={segmentValue}/>}
+          ) : <TeamTableActive teams={inActiveTeams} status={segmentValue} onDisable={handleDisable} onEnable={handleEnable}/>}
         </Flex>
 
 

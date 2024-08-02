@@ -68,7 +68,7 @@ const LeavePolicy: React.FC<props & { index: number }> = ({
             {name}
           </Space>
         }
-      >dValues)
+      >
         <Flex justify="space-between">
           <Flex vertical>
             <Text style={mainSectionHeading}>Unlimited</Text>
