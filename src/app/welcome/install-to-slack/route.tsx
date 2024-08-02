@@ -14,6 +14,11 @@ export async function GET(request: NextRequest) {
     return;
   }
   try {
+    const redirectTo = new URL(
+      "/welcome/install-to-slack",
+      request.nextUrl.origin
+    ).toString();
+
     const response = await fetch("https://slack.com/api/oauth.v2.access", {
       method: "POST",
       headers: {
@@ -26,7 +31,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.SLACK_CLIENT_SECRET!,
         grant_type: "authorization_code",
         redirect_uri:
-          "https://flounder-wise-completely.ngrok-free.app/welcome/install-to-slack",
+          redirectTo
       }),
     });
     const res = await response.json();

@@ -728,7 +728,6 @@ export const isSlackTokenExists = async (orgId: string) => {
       .select('*', { count: 'exact', head: true })
       .eq('orgId', orgId)
 
-    console.log('isSlackTokenExists');
     if (error) {
       throw error;
     }
