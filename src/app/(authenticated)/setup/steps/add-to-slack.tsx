@@ -13,7 +13,7 @@ export default function AddToSlack() {
   return (
     <Flex align="center" justify="center" style={{ minHeight: "200px" }}>
       <a
-        href={`https://slack.com/oauth/v2/authorize?client_id=6356258938273.7279987270326&scope=app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:read,im:history,im:read,mpim:history,users:read,users:read.email&user_scope=channels:history,channels:read,groups:read,im:history,im:read,mpim:history,mpim:read&redirect_uri=${redirectTo}`}
+        href={`https://slack.com/oauth/v2/authorize?client_id=6356258938273.7279987270326&scope=app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:read,im:history,im:read,mpim:history,users:read,users:read.email&user_scope=channels:history,channels:read,groups:read,im:history,im:read,mpim:history,mpim:read&redirect_uri=https://avkash.io/welcome/install-to-slack`}
       >
         <img
           alt="Add to Slack"
