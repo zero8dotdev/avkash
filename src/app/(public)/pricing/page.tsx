@@ -37,7 +37,7 @@ const Pricing = () => {
   return (
     <div className="bg-slate-900">
       <div className="lg:max-w-7xl mx-auto  min-h-screen flex flex-col items-center pt-12">
-        <h1 className="text-4xl text-white font-semibold mb-8">
+        <h1 className="text-3xl md:text-4xl text-white font-semibold mb-8 tracking-tight">
           Ditch Starbucks for a day.
         </h1>
         <div className="flex flex-col lg:flex-row justify-between w-full ">
