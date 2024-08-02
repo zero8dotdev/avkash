@@ -1,0 +1,24 @@
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 4s forwards;
+  }
+  
+  .slide-up {
+    transform: translateY(50px);
+    opacity: 0;
+    animation: slideUp 1.5s forwards;
+  }
+  
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
