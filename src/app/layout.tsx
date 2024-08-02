@@ -15,7 +15,7 @@ const roboto = Roboto_Flex({
 });
 
 export const metadata: Metadata = {
-  title: "Avkash | Make leave management easy for your teams",
+  title: "Specify | Automate | Elevate",
   description: "Avkash allows team to manage holidays and leaves smooth.",
 };
 
@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+      <meta name="description" content="benchoooood its production day" />
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
           async

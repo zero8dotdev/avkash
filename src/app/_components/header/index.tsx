@@ -19,7 +19,7 @@ export default function AppHeader() {
     >
       <Link href="/" className="flex justify-center align-center"> 
         <Image src={logo} alt="avkash" height={50} width={50}/>
-        <Title className="hidden sm:block m-0 mt-2 leading-none" style={{marginBottom:'0px',fontWeight:300, lineHeight:'30px'}} >avkash</Title>
+        <Title className="hidden sm:block m-0 mt-2 leading-none" style={{marginBottom:'0px',fontWeight:300, lineHeight:'30px', fontSize:30}} >avkash</Title>
       </Link>
 
       <MainMenu />
