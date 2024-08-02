@@ -18,7 +18,7 @@ const nextConfig = {
     return [
       {
         source: "/dashboard",
-        destination: "/dashboard/timeline-new",
+        destination: "/dashboard/timeline",
         permanent: true,
       },
     ];
