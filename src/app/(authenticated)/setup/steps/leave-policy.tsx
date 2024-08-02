@@ -17,17 +17,12 @@ const LeavePolicies: React.FC<LeavePolicyProps> = ({
   return (
   <Flex
     vertical
-    style={{  height: "500px", width: "100%",overflow:'auto' }}
+    style={{  width: "100%",overflow:'auto' }}
 
     >
     <List
       dataSource={leavePoliciesData}
-      grid={{
-        gutter: 24,
-        column:3
-      }}
       renderItem={(item, index) => (
-        <Flex>
         <LeavePolicy
           {...leavePoliciesData[index]}
           update={(values) => {
@@ -36,7 +31,6 @@ const LeavePolicies: React.FC<LeavePolicyProps> = ({
             leavePolicyUpdate(copy);
           }}
         />
-        </Flex>
       )}
     />
     </Flex>
