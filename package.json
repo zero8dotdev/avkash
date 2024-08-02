@@ -36,7 +36,6 @@
     "date-fns": "^3.6.0",
     "date-holidays": "^3.23.11",
     "flowbite": "^2.3.0",
-    "framer-motion": "^11.3.21",
     "google-auth-library": "^9.11.0",
     "googleapis": "^140.0.1",
     "moment-timezone": "^0.5.45",
