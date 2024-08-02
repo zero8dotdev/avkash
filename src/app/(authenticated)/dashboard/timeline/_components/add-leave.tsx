@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {Button,DatePicker,
+import {
+  Button,
+  DatePicker,
   Flex,
   Form,
   Input,
@@ -26,7 +28,7 @@ interface Props {
 const AddLeave: React.FC<Props> = ({ team }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState();
-  const [loader,setloader]=useState(false)
+  const [loader, setloader] = useState(false);
   const {
     state: { orgId },
   } = useApplicationContext();
@@ -34,17 +36,21 @@ const AddLeave: React.FC<Props> = ({ team }) => {
   const [users, setUsers] = useState<any[]>();
   useEffect(() => {
     (async () => {
-      const leaveTypes = await fetchLeaveTypes(orgId);
-      if (leaveTypes) {
-        setLeaveTypes(leaveTypes);
-      }
-      if (team) {
-        console.log("yes");
-        const user = await fetchTeamMembers(team);
-        setUsers(user);
-      } else {
-        const users = await fetchAllOrgUsers(orgId, true);
-        setUsers(users);
+      try {
+        const leaveTypes = await fetchLeaveTypes(orgId);
+        if (leaveTypes) {
+          setLeaveTypes(leaveTypes);
+        }
+        if (team) {
+          console.log("yes");
+          const user = await fetchTeamMembers(team);
+          setUsers(user);
+        } else {
+          const users = await fetchAllOrgUsers(orgId, true);
+          setUsers(users);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, [orgId, team]);
@@ -53,33 +59,33 @@ const AddLeave: React.FC<Props> = ({ team }) => {
     const { dates, approve, leaveType, leaveRequestNote } = values;
     const start = new Date(dates[0]);
     const end = new Date(dates[1]);
-    const teamid=await fetchTeamId(user)
-        const data = {
-        reason: leaveRequestNote,
-        startDate: start,
-        endDate: end,
-        isApproved: approve === true ? "APPROVED" : "PENDING",
-        leaveType: leaveType,
-        userId: user,
-        teamId:teamid&&teamid[0].teamId,
-        orgId: orgId,
-        duration: "FULL_DAY",
-        shift: "MORNING",
-      };
-      const insertedLeaves = await insertLeaves(data);
-      setloader(false)
-      setModalVisible(false)
+    const teamid = await fetchTeamId(user);
+    const data = {
+      reason: leaveRequestNote,
+      startDate: start,
+      endDate: end,
+      isApproved: approve === true ? "APPROVED" : "PENDING",
+      leaveType: leaveType,
+      userId: user,
+      teamId: teamid && teamid[0].teamId,
+      orgId: orgId,
+      duration: "FULL_DAY",
+      shift: "MORNING",
     };
+    const insertedLeaves = await insertLeaves(data);
+    setloader(false);
+    setModalVisible(false);
+  };
 
   const onCancel = () => {
     setModalVisible(false);
     setUser(undefined);
     form.resetFields();
   };
-  const submitForm=()=>{
-    form.submit()
-    setloader(true)
-  }
+  const submitForm = () => {
+    form.submit();
+    setloader(true);
+  };
   const [form] = Form.useForm();
   return (
     <>
@@ -92,13 +98,23 @@ const AddLeave: React.FC<Props> = ({ team }) => {
         title="Add Leave"
         onCancel={() => onCancel()}
         width={500}
-        footer={
-            [
-             <>
-             <Button type="primary" loading={loader} onClick={()=>submitForm()}>submit</Button>
-             </>   
-            ]
-        }
+        footer={[
+          <>
+            <Button type="default" danger onClick={() => onCancel()}>
+              Cancel
+            </Button>
+            {user!==undefined&&<Button
+              type="primary"
+              loading={loader}
+              onClick={() => submitForm()}
+            >
+              submit
+            </Button>
+
+            }
+            
+          </>,
+        ]}
       >
         <Flex vertical>
           <Typography.Text>Select user</Typography.Text>
