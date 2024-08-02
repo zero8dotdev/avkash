@@ -240,7 +240,6 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
     .from("User")
     .select(`${withTeam ? '*, Team(*)' : '*'}`)
     .eq("orgId", orgId)
-    .single();
   if (error) {
     throw error;
   }
@@ -727,4 +726,43 @@ export const isInitialSetupDone = async (orgId:string) => {
   const res = await supabase.from("Organisation").select("initialSetup").eq("orgId",orgId).single()
   
   return res.data
+}
+export const fetchUserDetails=async(userId:string)=>{
+  const supabase=createClient()
+  const {data,error}=await supabase
+  .from("User")
+  .select("*")
+  .eq('userId',userId)
+  .single()
+  if(error){
+    console.log(error)
+  }
+  return data
+
+}
+
+export const createNewTeam=async(values:any,orgId:string)=>{
+  const supabase=createClient()
+  const {data:teamData,error}=await supabase
+  .from("Team")
+  .insert({...values})
+  .select("*")
+  if(error){
+    console.log(error)
+  }
+  return teamData
+  
+}
+export const addUsersToNewTeam=async(values:any,userId:any)=>{
+   console.log(values)
+  const supabase=createClient()
+  const {data,error}=await supabase 
+  .from("User")
+  .update({teamId:values})
+  .eq("userId",userId)
+  if(error){
+    console.log(error)
+  }
+  console.log(data)
+  return data
 }
