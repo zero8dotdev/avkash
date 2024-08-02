@@ -3,8 +3,8 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-16 pt-20 text-center lg:pt-32 h-screen">
-      <h1 className="mx-auto max-w-4xl text-5xl font-semibold tracking-tight text-slate-900 md:text-7xl font-firaSans ">
+    <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-16 pt-20 text-center lg:pt-32 h-screen flex flex-col justify-center items-center">
+      <h1 className="mx-auto max-w-4xl text-3xl font-semibold tracking-tighter md:tracking-tight text-slate-900 md:text-5xl lg:text-7xl font-sans">
         Specify.&nbsp;
         <span className="text-blue-600">
           <span>Automate.&nbsp;</span>
