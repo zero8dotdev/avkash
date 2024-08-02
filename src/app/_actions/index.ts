@@ -324,7 +324,7 @@ export const signUpAction = async (values: any) => {
     throw new Error('Something went wrong!');
   };
 
-  const { name, company_name, team_name, email, slackId } = values;
+  const { name, company_name, team_name, email, slackUserId } = values;
   const supabaseAdminClient = createAdminClient();
 
   try {
@@ -354,6 +354,7 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a user as well
+    console.log('slackId', slackUserId)
     const { data: user, error: userError } = await supabaseAdminClient
       .from("User")
       .insert({
@@ -362,7 +363,7 @@ export const signUpAction = async (values: any) => {
         email: email,
         teamId: team.teamId,
         role: 'OWNER',
-        slackId,
+        slackId: slackUserId,
         accruedLeave: {},
         usedLeave: {},
         orgId: org.orgId,
@@ -492,21 +493,21 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
     }
 
     const users = result
-    .members
-    ?.filter(({
-      is_bot,
-      deleted,
-      is_email_confirmed
-    }) => !is_bot && !deleted && is_email_confirmed)
-  
-      const existedUsers = await supabaseAdminClient.from("User").select("*").eq("orgId",orgId)  
-      if (existedUsers.error){
-        throw existedUsers.error
-      } 
-      const existingUserEmails = new Set(existedUsers.data.map((user:any) => user.email));
-  
-      // Filter out non-existing users by email
-      const nonExistingUsers = users?.filter((user:any) => !existingUserEmails.has(user.profile.email));
+      .members
+      ?.filter(({
+        is_bot,
+        deleted,
+        is_email_confirmed
+      }) => !is_bot && !deleted && is_email_confirmed)
+
+    const existedUsers = await supabaseAdminClient.from("User").select("*").eq("orgId", orgId)
+    if (existedUsers.error) {
+      throw existedUsers.error
+    }
+    const existingUserEmails = new Set(existedUsers.data.map((user: any) => user.email));
+
+    // Filter out non-existing users by email
+    const nonExistingUsers = users?.filter((user: any) => !existingUserEmails.has(user.profile.email));
     return nonExistingUsers;
   } catch (error) {
     console.log(error);
@@ -651,8 +652,14 @@ export const completeSetup = async (orgId: string, setupData: any) => {
     if (usersError) {
       throw usersError;
     }
-    const result = await supabaseAdminClient.from('Organisation').update({"initialSetup": true })
-    if (result.error){
+
+    const result = await supabaseAdminClient
+      .from('Organisation')
+      .update({ "initialSetup": true })
+      .eq('orgId', orgId)
+      .select();
+
+    if (result.error) {
       throw result.error
     }
     return true;
@@ -746,40 +753,40 @@ export const isInitialSetupDone = async (orgId: string) => {
   return res.data
 }
 
-export const fetchUserDetails=async(userId:string)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase
-  .from("User")
-  .select("*")
-  .eq('userId',userId)
-  .single()
-  if(error){
+export const fetchUserDetails = async (userId: string) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("User")
+    .select("*")
+    .eq('userId', userId)
+    .single()
+  if (error) {
     console.log(error)
   }
   return data
 
 }
 
-export const createNewTeam=async(values:any,orgId:string)=>{
-  const supabase=createClient()
-  const {data:teamData,error}=await supabase
-  .from("Team")
-  .insert({...values})
-  .select("*")
-  if(error){
+export const createNewTeam = async (values: any, orgId: string) => {
+  const supabase = createClient()
+  const { data: teamData, error } = await supabase
+    .from("Team")
+    .insert({ ...values })
+    .select("*")
+  if (error) {
     console.log(error)
   }
   return teamData
-  
+
 }
-export const addUsersToNewTeam=async(values:any,userId:any)=>{
-   console.log(values)
-  const supabase=createClient()
-  const {data,error}=await supabase 
-  .from("User")
-  .update({teamId:values})
-  .eq("userId",userId)
-  if(error){
+export const addUsersToNewTeam = async (values: any, userId: any) => {
+  console.log(values)
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("User")
+    .update({ teamId: values })
+    .eq("userId", userId)
+  if (error) {
     console.log(error)
   }
   console.log(data)
