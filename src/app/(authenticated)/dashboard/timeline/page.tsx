@@ -1,12 +1,13 @@
 "use client";
 
-import { Button, Flex } from "antd";
+import { Flex } from "antd";
 
 import TeamSelect from "./_components/team-select";
 import Teams from "./_components/teams";
 import LeavePreview from "./_components/leave-preview";
 import LeaveCalendar from "./_components/leave-calendar";
 import { useState } from "react";
+import AddLeave from './_components/add-leave'
 
 export default function Page() {
   const [team, setTeam] = useState<string | undefined>(undefined);
@@ -14,7 +15,7 @@ export default function Page() {
   return (
     <Flex vertical gap={12}>
       <Flex gap={8} align="center" justify="space-between">
-        <Button type="primary">Add Leave</Button>
+        <AddLeave team={team}/>
         <TeamSelect
           changeTeam={(team: string) => {
             setTeam(team);
