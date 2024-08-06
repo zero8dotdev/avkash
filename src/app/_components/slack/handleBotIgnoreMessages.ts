@@ -1,7 +1,8 @@
+import { avkashUserInfoProps } from '@/app/api/slack/route';
 import { NextResponse } from "next/server";
 import { sendPostMessages } from "./sendMessages";
 
-export default async function handleBotIgnoreMessages(event: any) {
+export default async function handleBotIgnoreMessages(avkashUserInfo: avkashUserInfoProps,event: any) {
     const { user, text, channel, bot_id } = event;
     const isSlash = text[0] === '/';
     const channel_type = event.channel_type;
@@ -26,7 +27,7 @@ export default async function handleBotIgnoreMessages(event: any) {
     ];
 
     if (channel_type === 'im') {
-        sendPostMessages(channel, responseText, blocks);
+        sendPostMessages(avkashUserInfo,channel, responseText, blocks);
     }
 
     return new NextResponse('Message processed', { status: 200 });

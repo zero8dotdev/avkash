@@ -39,7 +39,7 @@ export default async function handleYourLeaves(avkashUserInfo: avkashUserInfoPro
 
     const responseText = 'Bleow are you Last 7 days leaves History';
 
-    sendPostMessages(channelId, responseText, blocks);
+    sendPostMessages(avkashUserInfo,channelId, responseText, blocks);
 
     return new NextResponse('User leaves sent', { status: 200 });
 

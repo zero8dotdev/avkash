@@ -20,9 +20,9 @@ export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps,
     }
 
     if (checkLeaveType) {
-        updateViews(viewId, view)
+        updateViews(avkashUserInfo,viewId, view)
     } else {
-        openView(
+        openView(avkashUserInfo,
             trigger_id,
             view
         );

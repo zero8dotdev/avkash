@@ -33,14 +33,15 @@ export async function POST(request: NextRequest) {
   // fetching the body here from request
 
   const [body, currentUserSlackId] = await getBodyAndSlackId(request);
-  
   const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
-  const slackAccessToken = accessTokenData?.Organisation?.slackAccessToken;
+  const slackAccessToken = accessTokenData[0]?.slackAccessToken;
   avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
   avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
   avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
   avkashUserInfo['accessToken'] = slackAccessToken;
   accessToken = avkashUserInfo.accessToken;
+
+
   /*
     [TODO]
     So from the slack, We are getting 4 kinds of interactions.
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       return handleUrlVerification(body);
     }
     if (body.event?.type == 'message') {
-      return await handleBotIgnoreMessages(body.event);
+      return await handleBotIgnoreMessages(avkashUserInfo,body.event);
     }
 
     if (body.event?.type === 'app_home_opened') {
