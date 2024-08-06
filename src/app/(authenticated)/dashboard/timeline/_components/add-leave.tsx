@@ -174,6 +174,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
               label="Leave request notes:"
               name="leaveRequestNote"
               initialValue=""
+              rules={[{required:true,message:'Enter your leave request reason'}]}
             >
               <Input.TextArea rows={2} placeholder="Enter your leave reason" />
             </Form.Item>
