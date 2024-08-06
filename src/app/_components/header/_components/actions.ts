@@ -259,10 +259,16 @@ export async function fetchHolidays(startDate: string, endDate: string, location
 export async function getSlackAccessToken(slackId: string) {
   const { data, error } = await supabaseAdmin
     .from("User")
-    .select("orgId,Organisation(slackAccessToken)")
+    .select("orgId,Organisation(orgId)")
     .eq('slackId', slackId)
     .single()
-  return data
+
+    const {data:slackToken,error:slackError} = await supabaseAdmin
+    .from("OrgAccessData")
+    .select("slackAccessToken,slackRefreshToken")
+    .eq("orgId",data?.orgId)
+
+  return slackToken
 }
 
 
