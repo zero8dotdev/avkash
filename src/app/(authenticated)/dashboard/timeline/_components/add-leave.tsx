@@ -27,14 +27,17 @@ interface Props {
 
 const AddLeave: React.FC<Props> = ({ team }) => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [user, setUser] = useState();
+  const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
+  const [loginUser,setLoginUser]=useState<any>()
   const {
-    state: { orgId },
+    state: { orgId,user},
   } = useApplicationContext();
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>();
   useEffect(() => {
+    if(!user?.role) return 
+    
     (async () => {
       try {
         const leaveTypes = await fetchLeaveTypes(orgId);
@@ -49,23 +52,27 @@ const AddLeave: React.FC<Props> = ({ team }) => {
           setUsers(users);
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
+      }
+      if(user?.role==="OWNER"|| user?.role==="MANAGER"){
+         setLoginUser(user.role)
+      
       }
     })();
-  }, [orgId, team]);
-
+  }, [orgId, team,user]);
+  
   const onFinish = async (values: any) => {
     const { dates, approve, leaveType, leaveRequestNote } = values;
     const start = new Date(dates[0]);
     const end = new Date(dates[1]);
-    const teamid = await fetchTeamId(user);
+    const teamid = await fetchTeamId(userId);
     const data = {
       reason: leaveRequestNote,
       startDate: start,
       endDate: end,
       isApproved: approve === true ? "APPROVED" : "PENDING",
       leaveType: leaveType,
-      userId: user,
+      userId: userId,
       teamId: teamid && teamid[0].teamId,
       orgId: orgId,
       duration: "FULL_DAY",
@@ -78,7 +85,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
 
   const onCancel = () => {
     setModalVisible(false);
-    setUser(undefined);
+    setUserId(undefined);
     form.resetFields();
   };
   const submitForm = () => {
@@ -102,7 +109,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
             <Button type="default" danger onClick={() => onCancel()}>
               Cancel
             </Button>
-            {user!==undefined&&<Button
+            {userId!==undefined&&<Button
               type="primary"
               loading={loader}
               onClick={() => submitForm()}
@@ -117,7 +124,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
       >
         <Flex vertical>
           <Typography.Text>Select user</Typography.Text>
-          <Select style={{ width: "100%" }} onSelect={(v) => setUser(v)}>
+          <Select style={{ width: "100%" }} onSelect={(v) => setUserId(v)}>
             {users?.map((each, index) => (
               <Select.Option key={index} value={each.userId}>
                 {each.name}
@@ -125,7 +132,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
             ))}
           </Select>
         </Flex>
-        {user ? (
+        {userId ? (
           <Form
             layout="vertical"
             style={{ width: "100%", marginTop: "20px" }}
@@ -173,17 +180,21 @@ const AddLeave: React.FC<Props> = ({ team }) => {
               label="Leave request notes:"
               name="leaveRequestNote"
               initialValue=""
+              rules={[{required:true,message:'Enter your leave request reason'}]}
             >
               <Input.TextArea rows={2} placeholder="Enter your leave reason" />
             </Form.Item>
-            <Form.Item
+            {loginUser==="OWNER" || loginUser==="MANAGER" ? <Form.Item
               label="Approve this leave?"
               name="approve"
               initialValue={false}
               valuePropName="checked"
             >
               <Switch />
-            </Form.Item>
+            </Form.Item>:null
+
+            }
+           
           </Form>
         ) : null}
       </Modal>
