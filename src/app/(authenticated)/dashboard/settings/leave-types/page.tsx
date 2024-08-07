@@ -28,7 +28,7 @@ import {
 } from "@/app/_actions";
 import LeaveTypeDisable from "./leaveTypeDisable";
 
-interface LeaveType {
+export interface LeaveTypes {
   // define the leave type here as modeled in the backend
   name: string;
   isActive: boolean;
@@ -37,8 +37,9 @@ interface LeaveType {
 }
 
 export default function Page() {
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>();
+  const [leaveTypes, setLeaveTypes] = useState<LeaveTypes[]>();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [loader,setLoader]=useState<boolean>(false)
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
@@ -51,13 +52,13 @@ export default function Page() {
   }, [orgId]);
 
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
-  const [activeItem, setActiveItem] = useState<undefined | LeaveType>(
+  const [activeItem, setActiveItem] = useState<undefined | LeaveTypes>(
     undefined
   );
-  const [disableItem, setDisableItem] = useState<undefined | LeaveType>(
+  const [disableItem, setDisableItem] = useState<undefined | LeaveTypes>(
     undefined
   );
-  const [inActive, setInActive] = useState<undefined | LeaveType>(undefined);
+  const [inActive, setInActive] = useState<undefined | LeaveTypes>(undefined);
   const confirm: PopconfirmProps["onConfirm"] = async () => {
     await updateLeaveTypeBasedOnOrg(true, orgId, inActive?.leaveTypeId);
     const data = await fetchleaveTypes(orgId);
@@ -66,13 +67,26 @@ export default function Page() {
 
   const [form] = Form.useForm();
   const onFinish = async (values: any) => {
-    const newValues = { ...values, color: values.color.slice(1), orgId: orgId };
-
-    const data = await insertNewLeaveType(newValues);
-    if (data) {
-      form.resetFields();
-      setModalVisible(false);
+    setLoader(true)
+    try {
+      const newValues = { ...values, color: values.color.slice(1), orgId: orgId,isActive:true};
+      const data = await insertNewLeaveType(newValues);
+      if (data) {
+        form.resetFields();
+        setModalVisible(false);
     }
+      
+    } catch (error) {
+      console.error(error)
+    }finally{
+      const data = await fetchleaveTypes(orgId);
+      setLeaveTypes(data)
+      setLoader(false)
+    }
+    
+   
+
+   
   };
 
   return (
@@ -161,6 +175,8 @@ export default function Page() {
           onCancel={() => {
             setActiveItem(undefined);
           }}
+          update={(data)=>setLeaveTypes(data)}
+          orgId={orgId}
         
         />
         <LeaveTypeDisable
@@ -186,7 +202,7 @@ export default function Page() {
             <Button key="cancel" onClick={() => setModalVisible(false)}>
               Cancel
             </Button>,
-            <Button key="submit" type="primary" onClick={() => form.submit()}>
+            <Button key="submit" loading={loader} type="primary" onClick={() => form.submit()}>
               Save
             </Button>,
           ]}

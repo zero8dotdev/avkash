@@ -2,34 +2,47 @@
 
 import { fetchleaveTypes, updateLeavePolicies } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { Button, Flex, List } from "antd";
+import { Button, Flex, List, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { LeavePolicy } from "../_components/leave-policy";
 
 const LeavePolicies = () => {
   const [leavePolicies, setLeavePolicies] = useState<any[]>([]);
+  const [loader,setLoader]=useState<boolean>(false)
   const { state: appState } = useApplicationContext();
+
   const { orgId } = appState;
 
   const fetchLeaveTypesData = async (orgId: string) => {
-    const leaveTypes = fetchleaveTypes(orgId);
-    const policies = (await leaveTypes).map((each) => {
-      return {
-        leaveTypeId: each.leaveTypeId,
-        accrualFrequency: null,
-        accrueOn: null,
-        rollOverLimit: null,
-        rollOverExpiry: null,
-        name: each.name,
-        isActive: true,
-        accruals: false,
-        maxLeaves: 10,
-        autoApprove: false,
-        rollOver: false,
-        unlimited: false,
-      };
-    });
-    setLeavePolicies(policies);
+    setLoader(true)
+    try {
+      const leaveTypes = fetchleaveTypes(orgId);
+    
+      const policies = (await leaveTypes).map((each) => {
+        return {
+          leaveTypeId: each.leaveTypeId,
+          accrualFrequency: "Monthly",
+          accrueOn: "End",
+          rollOverLimit: 1,
+          rollOverExpiry: null,
+          name: each.name,
+          isActive: true,
+          accruals: false,
+          maxLeaves: 10,
+          autoApprove: false,
+          rollOver: false,
+          unlimited: false,
+        };
+      });
+      setLeavePolicies(policies);
+      
+      
+    } catch (error) {
+      console.error(error)
+    }finally{
+      setLoader(false)
+    }
+   
   };
 
   useEffect(() => {
@@ -51,7 +64,7 @@ const LeavePolicies = () => {
     };
     return await updateLeavePolicies(newValues, each.leaveTypeId, orgId);
   };
-
+console.log(leavePolicies)
   const handleFormData = async () => {
     await Promise.all(
       leavePolicies.map(async (each) => {
@@ -61,35 +74,33 @@ const LeavePolicies = () => {
   };
 
   return (
-    <Flex
-      vertical
-      style={{ overflow: "scroll", height: "500px", width: "100%" }}
-    >
+    <Flex vertical style={{ overflow: "auto", height: "500px" }}>
       <List
         dataSource={leavePolicies}
-        grid={{
-          gutter: 24,
-        }}
+        loading={loader}
+        
         renderItem={(item, index) => (
           <List.Item key={index}>
             <LeavePolicy
               {...leavePolicies[index]}
               update={(values) => {
-                let copy = { ...leavePolicies };
+                let copy = [ ...leavePolicies ];
                 copy[index] = { ...values };
-                setLeavePolicies([...copy]);
+                setLeavePolicies(copy);
               }}
             />
           </List.Item>
         )}
       />
-      <Button
-        onClick={handleFormData}
-        style={{ alignSelf: "end" }}
-        type="primary"
-      >
-        Save
-      </Button>
+      {leavePolicies.length > 0 ? (
+        <Button
+          onClick={handleFormData}
+          style={{ alignSelf: "end" }}
+          type="primary"
+        >
+          Save
+        </Button>
+      ):null}
     </Flex>
   );
 };

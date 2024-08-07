@@ -23,7 +23,6 @@ const General: React.FC = () => {
     <Form
       initialValues={{
         whoCanSee: "SELF",
-        dateFormat: "MM/DD/YYYY",
         timeFormat: "hh:mm:ss A",
         halfDay: false,
       }}
@@ -33,17 +32,16 @@ const General: React.FC = () => {
       wrapperCol={{ span: 16 }}
       disabled={loader}
     >
-      <FormItem name="dateformat" label="Date Format" initialValue="MM/DD/YYYY">
+      <FormItem name="dateformat" label="Date Format" initialValue="DD MMM YYYY">
         <Select placeholder="Select a date format">
-          <SelectOption value="MM/DD/YYYY">MM/DD/YYYY</SelectOption>
-          <SelectOption value="DD/MM/YYYY">DD/MM/YYYY</SelectOption>
-          <SelectOption value="YYYY-MM-DD">YYYY-MM-DD</SelectOption>
+          <SelectOption value="DD MMM YYYY">07 Aug 2024</SelectOption>
+          <SelectOption value="MMMM D, YYYY">August 7, 2024</SelectOption>
         </Select>
       </FormItem>
-      <FormItem name="timeformat" label="Time Format" initialValue="HH:mm:ss">
+      <FormItem name="timeformat" label="Time Format" initialValue="HH:mm">
         <Select placeholder="Select a time format">
-          <SelectOption value="hh:mm:ss A">12-hour (hh:mm:ss)</SelectOption>
-          <SelectOption value="HH:mm:ss">24-hour (HH:mm:ss)</SelectOption>
+          <SelectOption value="hh:mm">12-hour (hh:mm)</SelectOption>
+          <SelectOption value="HH:mm">24-hour (HH:mm)</SelectOption>
         </Select>
       </FormItem>
       <FormItem
