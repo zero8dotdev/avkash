@@ -29,14 +29,15 @@ const AddLeave: React.FC<Props> = ({ team }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
+  const [loginUser,setLoginUser]=useState<any>()
   const {
     state: { orgId,user},
   } = useApplicationContext();
-
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>();
-  console.log(user)
   useEffect(() => {
+    if(!user?.role) return 
+    
     (async () => {
       try {
         const leaveTypes = await fetchLeaveTypes(orgId);
@@ -44,7 +45,7 @@ const AddLeave: React.FC<Props> = ({ team }) => {
           setLeaveTypes(leaveTypes);
         }
         if (team) {
-          console.log("yes");
+          
           const user = await fetchTeamMembers(team);
           setUsers(user);
         } else {
@@ -52,11 +53,15 @@ const AddLeave: React.FC<Props> = ({ team }) => {
           setUsers(users);
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
+      }
+      if(user?.role==="OWNER"|| user?.role==="MANAGER"){
+         setLoginUser(user.role)
+      
       }
     })();
-  }, [orgId, team]);
-
+  }, [orgId, team,user]);
+  
   const onFinish = async (values: any) => {
     const { dates, approve, leaveType, leaveRequestNote } = values;
     const start = new Date(dates[0]);
@@ -180,16 +185,17 @@ const AddLeave: React.FC<Props> = ({ team }) => {
             >
               <Input.TextArea rows={2} placeholder="Enter your leave reason" />
             </Form.Item>
-            {user?.role==="OWNER" ?
-            <Form.Item
+            {loginUser==="OWNER" || loginUser==="MANAGER" ? <Form.Item
               label="Approve this leave?"
               name="approve"
               initialValue={false}
               valuePropName="checked"
-              
             >
               <Switch />
-            </Form.Item>:null}
+            </Form.Item>:null
+
+            }
+           
           </Form>
         ) : null}
       </Modal>
