@@ -12,7 +12,6 @@ export const fetchTeamMembers = async (teamId: string) => {
     if (error) {
       throw error;
     }
-    console.log('client', teamMembers);
     return teamMembers;
   } catch (error) {
     console.log(error);

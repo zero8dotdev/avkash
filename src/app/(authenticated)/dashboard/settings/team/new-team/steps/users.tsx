@@ -72,7 +72,6 @@ const Users:React.FC<Props> = ({update,Tusers}) => {
         dataSource={Tusers}
         renderItem={(user, i) => {
           const {Team}=user
-          console.log(Team)
           return (
             <List.Item
               actions={[

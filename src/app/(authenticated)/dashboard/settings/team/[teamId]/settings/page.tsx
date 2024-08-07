@@ -21,10 +21,8 @@ const TeamSettings = () => {
   }, []);
 
   const onFinish = async(values: any) => {
-    console.log(values)
   };
 
-  console.log(timezones);
   return (
     <Card
       className="justify-center flex flex-col shadow-xl "
