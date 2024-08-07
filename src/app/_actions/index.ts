@@ -354,7 +354,6 @@ export const signUpAction = async (values: any) => {
     }
 
     // create a user as well
-    console.log('slackId', slackUserId)
     const { data: user, error: userError } = await supabaseAdminClient
       .from("User")
       .insert({
@@ -383,12 +382,12 @@ export const signUpAction = async (values: any) => {
       { name: 'Unpaid', isActive: false, color: '' }
     ];
 
-    console.log(defaultLeaveTypes
+    defaultLeaveTypes
       .map((leaveType: any) => ({
         ...leaveType,
         orgId: org.orgId,
         createdBy: authUser.id
-      })));
+      }));
 
 
     const { data: leaveTypes, error: leaveTypesError } = await supabaseAdminClient
@@ -690,8 +689,6 @@ export const updateHolidaysList = async (holidaysList: any, orgId: string, count
     .select()
 
   if (deleteData) {
-    console.log(deleteError)
-
     const { data, error } = await supabase
       .from('Holiday')
       .insert(holidayData)
@@ -780,7 +777,6 @@ export const createNewTeam = async (values: any, orgId: string) => {
 
 }
 export const addUsersToNewTeam = async (values: any, userId: any) => {
-  console.log(values)
   const supabase = createClient()
   const { data, error } = await supabase
     .from("User")

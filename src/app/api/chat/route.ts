@@ -5,7 +5,6 @@ export async function POST(request: NextRequest) {
   let body: { [key: string]: any } = {};
   const headersList = headers();
   const contentType = headersList.get('content-type');
-  console.log('Content-Type:', contentType); 
 
   try {
     if (contentType && contentType.includes('application/x-www-form-urlencoded')) {
@@ -22,8 +21,6 @@ export async function POST(request: NextRequest) {
       throw new Error('Unsupported content type');
     }
     const userName = body.user.displayName
-    console.log('Parsed Body:', body);
-    console.log('Finding name' , body.user.displayName)
     
     let responseCard;
 
@@ -60,11 +57,9 @@ export async function POST(request: NextRequest) {
         status: 200
       });
 
-      console.log('Response:', response);
       return response;
 
     } else if (body.type === "CARD_CLICKED" && body.action.actionMethodName === "getApplyLeaveCard") {
-      console.log("this is triggered rohit")
       responseCard = getApplyLeaveCard();
       
       const response = new NextResponse(JSON.stringify(responseCard), {
@@ -75,7 +70,6 @@ export async function POST(request: NextRequest) {
         status: 200
       });
 
-      console.log('Response:', response);
       return response;
     }
     else if (body.type === "CARD_CLICKED" && body.action.actionMethodName === 'getApplyLeaveCard'){
@@ -87,7 +81,6 @@ export async function POST(request: NextRequest) {
         },
         status: 200
       });
-      console.log("Response" , response)
       return response
     } 
     

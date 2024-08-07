@@ -42,7 +42,6 @@ const LeavePolicy: React.FC<props & { index: number }> = ({
   setLeavePolicies,
   index,
 }) => {
-  console.log(index)
   const [form] = Form.useForm();
   const { name } = item;
   useEffect(() => {
