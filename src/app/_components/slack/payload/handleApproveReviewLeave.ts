@@ -3,7 +3,6 @@ import { getLeaveDetails, updateLeaveStatus } from "../../header/_components/act
 import { sendPostMessages } from "../sendMessages";
 
 export async function handleApproveReviewLeave(action_id: any, view: any) {
-  console.log('approve',action_id);
     const leaveId = action_id.split('approve_leave_')[1];
     const startDate = view?.state?.values?.start_date_block?.start_date?.selected_date;
     const endDate = view?.state?.values?.end_date_block?.end_date?.selected_date;

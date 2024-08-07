@@ -42,7 +42,6 @@ const AddLeave: React.FC<Props> = ({ team }) => {
           setLeaveTypes(leaveTypes);
         }
         if (team) {
-          console.log("yes");
           const user = await fetchTeamMembers(team);
           setUsers(user);
         } else {
