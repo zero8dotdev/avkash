@@ -9,6 +9,5 @@ export default async function SignUpPage() {
     error,
   } = await supabase.auth.getUser();
 
-  console.log(user);  
   return <SignUpForm user={user} />;
 }

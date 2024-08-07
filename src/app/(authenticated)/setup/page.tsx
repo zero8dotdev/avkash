@@ -137,7 +137,6 @@ export default function SetupPage() {
       isRecurring: true,
       isCustom: false,
     }));
-    console.log(holidays);
     setHolidaysList(holidayData);
   };
 

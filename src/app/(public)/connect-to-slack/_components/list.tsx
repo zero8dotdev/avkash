@@ -22,7 +22,6 @@ const OrgList = ({
   }, []);
 
   const clientAction = async () => {
-    console.log("client action");
   };
 
   const serverActionHandler = async () => {
