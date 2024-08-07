@@ -36,9 +36,7 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
   // delete holiday function
 
   const handleDelete = (key: string) => {
-    console.log(key)
     const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
-    console.log(updatedHolidays)
     update(updatedHolidays);
   };
 
@@ -66,7 +64,6 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
   // adding new holiday
 
   const handleAddCustomForm = (values:any) => {
-    console.log(values)
 
     const { name, date, isRecurring } = values;
     const newHoliday = {

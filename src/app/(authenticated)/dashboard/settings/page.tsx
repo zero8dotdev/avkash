@@ -11,7 +11,6 @@ import Team from "./team/page";
 import LeavePolicies from "./leave-policy/page";
 
 const onChange = (key: string) => {
-  console.log(key);
 };
 
 const TabWrapper = ({

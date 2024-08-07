@@ -74,7 +74,6 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
     })
     .select();
   if (data) {
-    console.log(data)
     return data
   } else {
     console.log(error);
@@ -236,9 +235,7 @@ export async function fetchOrgWorkWeek(orgId: string) {
 
 export async function fetchHolidays(startDate: string, endDate: string, location: string) {
   try {
-    console.log(startDate);
     const start = new Date(startDate).toISOString().slice(0, 10);
-    console.log(start)
     const end = new Date(endDate).toISOString().slice(0, 10);
     const supabaseAdmin = createAdminClient();
     const { data, error } = await supabaseAdmin

@@ -33,7 +33,6 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
     actionId = 'add-leave';
     team_your_leave = 'Your Team Past 7 Leaves';
     let teamId;
-    // console.log("ownerSelectedTeamId",ownerSelectedTeamId);
     if (ownerSelectedTeamId) {
       teamId = ownerSelectedTeamId
     } else {
