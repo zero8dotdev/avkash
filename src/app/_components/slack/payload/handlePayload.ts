@@ -5,7 +5,6 @@ import handleBlockActions from "../handleBlockActions/handleBlockActions";
 
 export default async function handlePayload(avkashUserInfo: avkashUserInfoProps, payload: any) {
   const { type, view} = payload;
-  // console.log('konda',payload);
   switch (type) {
     case 'view_submission':
       return handleViewSubmission(view, avkashUserInfo);
