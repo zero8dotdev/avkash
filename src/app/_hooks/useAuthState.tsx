@@ -12,7 +12,6 @@ export default function useAuthState() {
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(event, session);
 
       if (event === "INITIAL_SESSION") {
         // handle initial session
@@ -36,7 +35,6 @@ export default function useAuthState() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log(session);
       // from this session
       // we can extract these values:
       // 1. Name

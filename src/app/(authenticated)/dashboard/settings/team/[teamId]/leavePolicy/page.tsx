@@ -4,7 +4,6 @@ import React from "react";
 
 const LeavePolicy = ({ name }: { name: string }) => {
   const onFinish = (values: any) => {
-    console.log(values);
   };
 
   return (
