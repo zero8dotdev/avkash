@@ -15,7 +15,7 @@ const LeavePolicies: React.FC<LeavePolicyProps> = ({
   update: leavePolicyUpdate,
 }) => {
   return (
-    <Flex vertical style={{ width: "100%", overflow: "auto" }}>
+    <Flex  vertical style={{ width: "100%", overflow: "auto" }}>
       <List
         dataSource={leavePoliciesData}
         renderItem={(item, index) => (

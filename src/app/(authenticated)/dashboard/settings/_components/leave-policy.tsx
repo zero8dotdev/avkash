@@ -23,9 +23,9 @@ export interface ILeavePolicyProps {
   autoApprove: boolean;
   rollOver: boolean;
   unlimited: boolean;
-  accrualFrequency: null;
-  accrueOn: null;
-  rollOverLimit: null;
+  accrualFrequency: string;
+  accrueOn: string;
+  rollOverLimit: number;
   rollOverExpiry: null;
 }
 
@@ -50,15 +50,15 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
     form.setFieldsValue(props);
   }, [form, props]);
 
-  const onValuesChange = (changedValues: any, allValues: any) => {
+  const onValuesChange = (changedValues: any,) => {
     update({ ...props, ...changedValues });
   };
 
   return (
-    <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
+    <Form form={form} layout="vertical" onValuesChange={onValuesChange} style={{width:'100%'}}>
       <Card
-        style={{ marginBottom: "16px", border: '1px solid #ccc' }}
-        styles={{}}
+        style={{ marginBottom: "16px", border: '1px solid #ccc',width:"100%"}}
+        
         title={
           <Flex gap={8} justify="start" align="center">
             <div
@@ -142,10 +142,9 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                   <Flex justify="space-between">
                     <FormItem
                       name="accrualFrequency"
-                      initialValue="Monthly"
                       label="Accrual Frequency"
                     >
-                      <Select>
+                      <Select >
                         <Select.Option value="Monthly">Monthly</Select.Option>
                         <Select.Option value="Quarterly">
                           Quarterly
@@ -158,7 +157,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                       initialValue="Beginning"
                       label="AccrueOn"
                     >
-                      <Segmented options={["Beginning", "End"]} />
+                      <Segmented style={{color:"red"}}options={["Beginning", "End"]}/>
                     </FormItem>
                   </Flex>
                 ) : null;
@@ -167,7 +166,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
 
             <Divider />
             <Flex justify="space-between">
-              <Text>Rollover</Text>
+              <Text>Roll Over</Text>
               <FormItem name="rollOver" valuePropName="checked">
                 <Switch />
               </FormItem>
@@ -182,7 +181,6 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                   <Flex justify="space-between" vertical>
                     <FormItem
                       name="rollOverLimit"
-                      initialValue={1}
                       label="Limit roll over days each year to"
                       help="Instead of rollin gover all unused days, this allows you to set a maximum number of days."
                     >
@@ -199,9 +197,8 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
 
                     <FormItem
                       name="rollOverExpiry"
-                      label="rollOverExpiry"
-                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."
-                    >
+                      label="Roll Over Expiry"
+                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
                       <DatePicker format="DD/MM" style={{ width: "30%" }} />
                     </FormItem>
                   </Flex>
