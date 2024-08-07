@@ -16,14 +16,11 @@ export async function POST(request: NextRequest) {
       throw new Error("Unsupported Content Type");
     }
     // Check if the event is onAppHome
-    console.log("rohit input body", body)
     const userId = body.chat?.user?.name
-    console.log("user id ", userId)
 
     const googleUserInfo = await getUserData(userId)
 
     if (body.commonEventObject && body.commonEventObject.invokedFunction === 'onAppHome') {
-      console.log('Home tab event detected');
       const response = new NextResponse(JSON.stringify({
         action: {
           navigations: [
@@ -120,7 +117,6 @@ export async function POST(request: NextRequest) {
         status: 200
       });
 
-      console.log('Home Tab Response:', response);
       return response;
     }
     if (body.commonEventObject && body.commonEventObject.invokedFunction === 'getApplyLeaveCard') {
@@ -164,7 +160,6 @@ export async function POST(request: NextRequest) {
       status: 200
     });
 
-    console.log('Default Response:', defaultResponse);
     return defaultResponse;
   } catch (error) {
     console.error('Error:', error);

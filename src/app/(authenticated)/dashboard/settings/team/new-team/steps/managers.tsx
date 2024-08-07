@@ -17,7 +17,6 @@ interface Props{
   managers:any
 }
 const Managers:React.FC<Props> = ({users,update,managers}) => {
-    console.log(users)
   
   const onSelectUser = async (userId: string) => {
     const user = users.filter((each) => each.userId === userId);
