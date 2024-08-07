@@ -6,21 +6,18 @@ function getAccessToken() {
 }
 
 
-export async function sendPostMessages(channel?: any, text?: any, blocks?: any) {
-  const accessToken = getAccessToken();
-  const slackClient = new WebClient(accessToken);
+export async function sendPostMessages(avkashUserInfo: any,channel?: any, text?: any, blocks?: any) {
+  const slackClient = new WebClient(avkashUserInfo.accessToken);
   await slackClient.chat.postMessage({ channel: channel, text: text, blocks: blocks });
 
 }
-export async function updateViews(viewId: any, view: any) {
-  const accessToken = getAccessToken();
-  const slackClient = new WebClient(accessToken);
+export async function updateViews(avkashUserInfo: any,viewId: any, view: any,) {
+  const slackClient = new WebClient(avkashUserInfo.accessToken);
   await slackClient.views.update({ view_id: viewId, view })
 
 }
-export async function openView(triggerId: any, view: any) {
-  const accessToken = getAccessToken();
-  const slackClient = new WebClient(accessToken);
+export async function openView(avkashUserInfo: any,triggerId: any, view: any,) {
+  const slackClient = new WebClient(avkashUserInfo.accessToken);
   await slackClient.views.open({ trigger_id: triggerId, view })
 
 }

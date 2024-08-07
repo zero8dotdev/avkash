@@ -50,8 +50,8 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     const allFields = { leaveType, startDate, endDate, duration, shift: 'NONE', isApproved: `${isReviewApproved === "approve" ? "APPROVED" : "REJECTED"}`, reason: leaveReason, managerComment: mngrNotes };
 
     await updateLeaveStatus(leaveId, allFields);
-    sendPostMessages(appliedUserSlackId, msgForUser);
-    sendPostMessages(managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
+    sendPostMessages(avkashUserInfo,appliedUserSlackId, msgForUser);
+    sendPostMessages(avkashUserInfo,managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
     // if (isReviewApproved == 'approve') {
     //   sendPostMessages(updates_channel_Id, `Hello Everyone!!!!\n\n<@${appliedUserSlackId}> is going on ${leaveType} leave from ${startDate} to ${endDate}`);
 
@@ -109,7 +109,7 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     }
   ];
 
-  sendPostMessages(avkashUserInfo.slackId, text);
-  sendPostMessages(managerSlackId, `Leave Request`, blocks);
+  sendPostMessages(avkashUserInfo,avkashUserInfo.slackId, text);
+  sendPostMessages(avkashUserInfo,managerSlackId, `Leave Request`, blocks);
   return new NextResponse(null, { status: 200 });
 }
