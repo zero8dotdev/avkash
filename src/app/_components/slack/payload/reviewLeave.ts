@@ -86,9 +86,9 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
   };
 
   if(callbackId && callbackId.startsWith('review_leave_')){
-    updateViews(viewId, review_model_view)
+    updateViews(avkashUserInfo,viewId, review_model_view)
   }else{
-    openView(trigger_id, review_model_view)
+    openView(avkashUserInfo,trigger_id, review_model_view)
 
   }
 

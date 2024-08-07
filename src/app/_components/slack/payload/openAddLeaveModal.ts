@@ -95,9 +95,9 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
   };
 
   if (selectedTeamId || checkLeaveType) {
-    updateViews(viewId, view)
+    updateViews(avkashUserInfo,viewId, view)
   } else {
-    openView(trigger_id, view);
+    openView(avkashUserInfo,trigger_id, view);
   }
   return new NextResponse('modal opened', { status: 200 });
 }

@@ -1,8 +1,10 @@
+import { avkashUserInfoProps } from '@/app/api/slack/route';
 import { NextResponse } from "next/server";
 import { getLeaveDetails, updateLeaveStatus } from "../../header/_components/actions";
 import { sendPostMessages } from "../sendMessages";
 
-export async function handleApproveReviewLeave(action_id: any, view: any) {
+export async function handleApproveReviewLeave(avkashUserInfo:avkashUserInfoProps,action_id: any, view: any) {
+  console.log('approve',action_id);
     const leaveId = action_id.split('approve_leave_')[1];
     const startDate = view?.state?.values?.start_date_block?.start_date?.selected_date;
     const endDate = view?.state?.values?.end_date_block?.end_date?.selected_date;
@@ -38,7 +40,7 @@ export async function handleApproveReviewLeave(action_id: any, view: any) {
     const user_name = fetchLeaev[0].User.name;
   
     await updateLeaveStatus(leaveId, allFields);
-    sendPostMessages(
+    sendPostMessages(avkashUserInfo,
       user_slack_id,
       `Hey <@${user_name}> your leave from ${startDate} to ${endDate} is Approved`,
     );
