@@ -32,6 +32,14 @@ let accessToken: any;
 export async function POST(request: NextRequest) {
   // fetching the body here from request
 
+  const reqestedBody = await request.json();
+  if(reqestedBody.type === 'url_verification'){
+    return new NextResponse(JSON.stringify({ challenge: reqestedBody.challenge }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }else{
+
   const [body, currentUserSlackId] = await getBodyAndSlackId(request);
   const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
   const slackAccessToken = accessTokenData[0]?.slackAccessToken;
@@ -41,20 +49,7 @@ export async function POST(request: NextRequest) {
   avkashUserInfo['accessToken'] = slackAccessToken;
   accessToken = avkashUserInfo.accessToken;
 
-
-  /*
-    [TODO]
-    So from the slack, We are getting 4 kinds of interactions.
-      Can we create 4 modules to handle these below types?
-    1. Url Verification [Mostly done only once OR automatically]
-    2. App home Opened
-    3. Slack Command
-    4. User type a message.
-  */
   try {
-    if (body.type === 'url_verification') {
-      return handleUrlVerification(body);
-    }
     if (body.event?.type == 'message') {
       return await handleBotIgnoreMessages(avkashUserInfo,body.event);
     }
@@ -75,10 +70,4 @@ export async function POST(request: NextRequest) {
     return new NextResponse('An error occurred while processing your request.', { status: 500 });
   }
 }
-
-function handleUrlVerification(body: any) {
-  return new NextResponse(JSON.stringify({ challenge: body.challenge }), {
-    headers: { 'Content-Type': 'application/json' },
-    status: 200,
-  });
 }
