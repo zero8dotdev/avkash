@@ -2,7 +2,7 @@
 
 import { fetchleaveTypes, updateLeavePolicies } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { Button, Flex, List, Typography } from "antd";
+import { Button, Flex, List} from "antd";
 import React, { useEffect, useState } from "react";
 import { LeavePolicy } from "../_components/leave-policy";
 
@@ -64,7 +64,6 @@ const LeavePolicies = () => {
     };
     return await updateLeavePolicies(newValues, each.leaveTypeId, orgId);
   };
-console.log(leavePolicies)
   const handleFormData = async () => {
     await Promise.all(
       leavePolicies.map(async (each) => {
