@@ -30,16 +30,6 @@ let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
-  // fetching the body here from request
-
-  const reqestedBody = await request.json();
-  if(reqestedBody.type === 'url_verification'){
-    return new NextResponse(JSON.stringify({ challenge: reqestedBody.challenge }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }else{
-
   const [body, currentUserSlackId] = await getBodyAndSlackId(request);
   const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
   const slackAccessToken = accessTokenData[0]?.slackAccessToken;
@@ -48,13 +38,13 @@ export async function POST(request: NextRequest) {
   avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
   avkashUserInfo['accessToken'] = slackAccessToken;
   accessToken = avkashUserInfo.accessToken;
-
   try {
     if (body.event?.type == 'message') {
-      return await handleBotIgnoreMessages(avkashUserInfo,body.event);
+      return await handleBotIgnoreMessages(avkashUserInfo, body.event);
     }
 
     if (body.event?.type === 'app_home_opened') {
+  
       return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
     }
     if (body.payload) {
@@ -69,5 +59,4 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return new NextResponse('An error occurred while processing your request.', { status: 500 });
   }
-}
 }
