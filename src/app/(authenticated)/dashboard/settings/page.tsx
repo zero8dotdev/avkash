@@ -75,9 +75,9 @@ const items: TabsProps["items"] = [
   },
   {
     key: "6",
-    label: "leave policies",
+    label: "Leave policies",
     children: (
-      <TabWrapper title="leave Policies">
+      <TabWrapper title="Leave policies">
         <LeavePolicies />
       </TabWrapper>
     ),

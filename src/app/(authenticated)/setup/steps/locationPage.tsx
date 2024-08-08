@@ -203,7 +203,7 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
             <DatePicker  style={{width:'100%'}}/>
           </Form.Item>
           <Form.Item label="Recurring" name="isRecurring" initialValue={true}>
-            <Checkbox checked />
+            <Checkbox  defaultChecked/>
           </Form.Item>
         </Form>
       </Modal>
