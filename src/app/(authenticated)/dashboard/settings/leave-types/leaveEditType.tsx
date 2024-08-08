@@ -1,5 +1,5 @@
 "use cleint"
-import { updateLeaveType } from "@/app/_actions";
+import { fetchleaveTypes, updateLeaveType } from "@/app/_actions";
 import {
   Avatar,
   Button,
@@ -18,23 +18,22 @@ interface LeaveType {
   color: string;
   leaveTypeId: string;
 }
+interface Props{
+  item:LeaveType | undefined,
+  onCancel:Function,
+  update:(values:LeaveType[])=>void
+  orgId:string
+}
 
-const LeaveTypeEdit = ({
-  item,
-  onCancel = () => {},
-  
-}: {
-  item: LeaveType | undefined;
-  onCancel: Function;
-  
-}) => {
+const LeaveTypeEdit:React.FC<Props> = ({item,onCancel,update,orgId}) => {
   const visible = !!item;
 
  const [loader,setLoader]=useState(false)
 
   const onFinish = async (values: any) => {
     setLoader(true)
-    const data = await updateLeaveType(values, item?.leaveTypeId);
+    try {
+      const data = await updateLeaveType(values, item?.leaveTypeId);
     
     if (data) {
       console.log("leave type updated successfully");
@@ -43,6 +42,15 @@ const LeaveTypeEdit = ({
     } else {
       console.log("something went wrong");
     }
+      
+    } catch (error) {
+      console.error(error)
+    }finally{
+      const data = await fetchleaveTypes(orgId);
+      update(data)
+    }
+    
+
   };
   const [form] = Form.useForm();
 
