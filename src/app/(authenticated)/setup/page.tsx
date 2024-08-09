@@ -6,7 +6,6 @@ import Setting from "./steps/setting";
 import LocationPage from "./steps/locationPage";
 import LeavePolicyPage from "./steps/leave-policy";
 
-import { type ILeavePolicyProps } from "../dashboard/settings/_components/leave-policy";
 import { Users } from "../dashboard/settings/_components/users";
 import { useApplicationContext } from "@/app/_context/appContext";
 import {
@@ -16,10 +15,7 @@ import {
   isSlackTokenExists,
 } from "@/app/_actions";
 import AddToSlack from "./steps/add-to-slack";
-
 import Notifications from "./steps/notification";
-
-
 import { useRouter } from "next/navigation";
 
 const moment = require("moment");
@@ -30,7 +26,7 @@ export default function SetupPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [slackTokenExists, setSlackTokenExists] = useState<boolean>(false);
-  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicyProps[]>();
+  const [leavePolicies, setLeavePolicies] = useState<ILeavePolicy[]>();
 
   const {
     state: { orgId, user, teamId },
@@ -47,14 +43,16 @@ export default function SetupPage() {
         setCurrent(1);
       }
 
-      const sampleLeavePolicy = {
+      const sampleLeavePolicy: ILeavePolicy = {
+        name: "",
+        isActive: false,
         accruals: false,
         maxLeaves: 10,
         autoApprove: false,
         rollOver: false,
         unlimited: false,
-        accrualFrequency: "Monthly",
-        accrueOn: "End",
+        accrualFrequency: "MONTHLY",
+        accrueOn: "END",
         rollOverLimit: 1,
         rollOverExpiry: null,
       };
@@ -62,11 +60,11 @@ export default function SetupPage() {
       const leaveTypes = await fetchLeaveTypes(orgId);
       const leaveTypesArr = leaveTypes?.map(
         ({ name, color, isActive, leaveTypeId }) => ({
+          ...sampleLeavePolicy,
           name,
           color,
           isActive,
           leaveTypeId,
-          ...sampleLeavePolicy,
         })
       );
       setLeavePolicies(leaveTypesArr);
@@ -103,6 +101,7 @@ export default function SetupPage() {
     try {
       // @ts-ignore
       const users = usersRef?.current.getUsers() || [];
+
       const done = await completeSetup(orgId, {
         ...settingsData,
         ...notificatinData,
@@ -116,11 +115,10 @@ export default function SetupPage() {
       });
 
       if (done) {
-        router.push("/dashboard")
-     }
-
+        router.push("/dashboard");
+      }
     } catch (error) {
-      throw error
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -162,9 +160,6 @@ export default function SetupPage() {
             {...settingsData}
             update={(values) => setSettingsData({ ...values })}
             isTeamnameVisable={false}
-            
-
-            
           />
         </Card>
       ),
@@ -246,7 +241,7 @@ export default function SetupPage() {
                   Previous
                 </Button>
               )}
-              {(current > 0 && current < 5) && (
+              {current > 0 && current < 5 && (
                 <Button onClick={() => next()} type="primary">
                   Next
                 </Button>

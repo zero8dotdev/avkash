@@ -1,21 +1,13 @@
 import { Flex, List } from "antd";
 
-import {
-  type ILeavePolicyProps,
-  LeavePolicy,
-} from "../../dashboard/settings/_components/leave-policy";
+import { LeavePolicy } from "../../dashboard/settings/_components/leave-policy";
 
-export type LeavePolicyProps = {
-  leavePoliciesData: ILeavePolicyProps[];
-  update: (policies: ILeavePolicyProps[]) => void;
-};
-
-const LeavePolicies: React.FC<LeavePolicyProps> = ({
-  leavePoliciesData,
-  update: leavePolicyUpdate,
-}) => {
+const LeavePolicies: React.FC<{
+  leavePoliciesData: ILeavePolicy[];
+  update: (policies: ILeavePolicy[]) => void;
+}> = ({ leavePoliciesData, update: leavePolicyUpdate }) => {
   return (
-    <Flex  vertical style={{ width: "100%", overflow: "auto" }}>
+    <Flex vertical style={{ width: "100%", overflow: "auto" }}>
       <List
         dataSource={leavePoliciesData}
         renderItem={(item, index) => (

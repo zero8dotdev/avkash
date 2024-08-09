@@ -1,9 +1,5 @@
 import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 
-
-type IFrequency = 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY';
-type IAccuredOn = 'BEGINNING' | 'END';
-
 const getAccuralCount = (frequency: IFrequency, maximumLeaves: number) => {
   switch (frequency) {
     case 'MONTHLY':

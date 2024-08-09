@@ -3,6 +3,7 @@
 import { createClient } from "@/app/_utils/supabase/server";
 import { createAdminClient } from "../_utils/supabase/adminClient";
 import { WebClient } from "@slack/web-api";
+import { calculateLeaveBalanceForPolicy } from "../_utils/calculation";
 
 
 /*
@@ -589,11 +590,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
 
 
     let accruedLeave = leavePoliciesData
-      .filter(({ isActive }) => isActive)
-      .reduce((acc, leavePolicy) => {
-        acc[leavePolicy.leaveTypeId] = { balance: leavePolicy.unlimited ? 'unlimited' : leavePolicy.maxLeaves }
-        return acc;
-      }, {});
+      .filter(({ isActive }) => isActive);
 
     let usedLeave = leavePoliciesData
       .filter(({ isActive }) => isActive)
@@ -610,7 +607,12 @@ export const completeSetup = async (orgId: string, setupData: any) => {
             id: currentUser?.id,
             slackId,
             orgId,
-            accruedLeave,
+            accruedLeave: accruedLeave.reduce((acc, leavePolicy) => {
+              acc[leavePolicy.leaveTypeId] = {
+                balance: calculateLeaveBalanceForPolicy(leavePolicy, isProrate)
+              }
+              return acc;
+            }, {}),
             usedLeave
           }
         } else {
@@ -619,7 +621,12 @@ export const completeSetup = async (orgId: string, setupData: any) => {
             name,
             email,
             orgId,
-            accruedLeave,
+            accruedLeave: accruedLeave.reduce((acc, leavePolicy) => {
+              acc[leavePolicy.leaveTypeId] = {
+                balance: calculateLeaveBalanceForPolicy(leavePolicy, isProrate)
+              }
+              return acc;
+            }, {}),
             usedLeave,
             teamId,
             createdBy: currentUser?.id
@@ -788,52 +795,52 @@ export const addUsersToNewTeam = async (values: any, userId: any) => {
   console.log(data)
   return data
 }
-export const fetchUsers= async (teamId:any,orgId:any) => {
+export const fetchUsers = async (teamId: any, orgId: any) => {
   try {
     const supabase = createClient();
-    if(teamId){
+    if (teamId) {
       const { data: teamMembers, error } = await supabase
-      .from("User")
-      .select()
-      .eq("teamId", teamId);
+        .from("User")
+        .select()
+        .eq("teamId", teamId);
       if (error) {
         throw error;
       }
       return teamMembers
-    }else{
+    } else {
       const { data: orgUsers, error } = await supabase
-      .from("User")
-      .select()
-      .eq("orgId", orgId);
+        .from("User")
+        .select()
+        .eq("orgId", orgId);
       if (error) {
         throw error;
       }
       return orgUsers
     }
-   } catch (error) {
+  } catch (error) {
     console.log(error);
   }
 };
 
 
-export const insertLeaves= async(values:any)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase
-  .from('Leave')
-  .insert({...values})
-  .single()
-  if(error){
+export const insertLeaves = async (values: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('Leave')
+    .insert({ ...values })
+    .single()
+  if (error) {
     console.log(error)
   }
- return data
+  return data
 }
-export const fetchTeamId=async(userId:any)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase
-  .from("User")
-  .select("teamId")
-  .eq("userId",userId)
-  if(error){
+export const fetchTeamId = async (userId: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("User")
+    .select("teamId")
+    .eq("userId", userId)
+  if (error) {
     console.log(error)
   }
   return data
