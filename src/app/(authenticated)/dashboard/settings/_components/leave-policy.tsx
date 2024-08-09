@@ -15,24 +15,6 @@ import Text from "antd/es/typography/Text";
 import React, { useEffect, useState } from "react";
 const { Item: FormItem } = Form;
 
-export interface ILeavePolicyProps {
-  name: string;
-  isActive: boolean;
-  accruals: boolean;
-  maxLeaves: number;
-  autoApprove: boolean;
-  rollOver: boolean;
-  unlimited: boolean;
-  accrualFrequency: string;
-  accrueOn: string;
-  rollOverLimit: number;
-  rollOverExpiry: null;
-}
-
-export interface ILeavePolicyUpdate {
-  update: (values: ILeavePolicyProps) => void;
-}
-
 const mainSectionHeading: React.CSSProperties = {
   fontWeight: "400",
 };
@@ -41,24 +23,31 @@ const mainSectionHelp: React.CSSProperties = {
   color: "#ccc",
 };
 
-export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
-  update,
-  ...props
-}) => {
+export const LeavePolicy: React.FC<
+  ILeavePolicy & { update: (values: ILeavePolicy) => void }
+> = ({ update, ...props }) => {
   const [form] = Form.useForm();
   useEffect(() => {
     form.setFieldsValue(props);
   }, [form, props]);
 
-  const onValuesChange = (changedValues: any,) => {
+  const onValuesChange = (changedValues: any) => {
     update({ ...props, ...changedValues });
   };
 
   return (
-    <Form form={form} layout="vertical" onValuesChange={onValuesChange} style={{width:'100%'}}>
+    <Form
+      form={form}
+      layout="vertical"
+      onValuesChange={onValuesChange}
+      style={{ width: "100%" }}
+    >
       <Card
-        style={{ marginBottom: "16px", border: '1px solid #ccc',width:"100%"}}
-        
+        style={{
+          marginBottom: "16px",
+          border: "1px solid #ccc",
+          width: "100%",
+        }}
         title={
           <Flex gap={8} justify="start" align="center">
             <div
@@ -122,7 +111,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                 }}
               </FormItem>
               <FormItem name="maxLeaves" style={{ margin: 0, padding: 0 }}>
-                <InputNumber type="number" max={14} min={1} />
+                <InputNumber type="number" max={365} min={1} />
               </FormItem>
             </Flex>
             <Divider />
@@ -140,13 +129,10 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
               {({ getFieldValue }) => {
                 return getFieldValue("accruals") ? (
                   <Flex justify="space-between">
-                    <FormItem
-                      name="accrualFrequency"
-                      label="Accrual Frequency"
-                    >
-                      <Select >
-                        <Select.Option value="Monthly">Monthly</Select.Option>
-                        <Select.Option value="Quarterly">
+                    <FormItem name="accrualFrequency" label="Accrual Frequency">
+                      <Select>
+                        <Select.Option value="MONTHLY">Monthly</Select.Option>
+                        <Select.Option value="QUARTERLY">
                           Quarterly
                         </Select.Option>
                       </Select>
@@ -157,7 +143,10 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                       initialValue="Beginning"
                       label="AccrueOn"
                     >
-                      <Segmented style={{color:"red"}}options={["Beginning", "End"]}/>
+                      <Segmented
+                        style={{ color: "red" }}
+                        options={["BEGINNING", "END"]}
+                      />
                     </FormItem>
                   </Flex>
                 ) : null;
@@ -182,7 +171,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                     <FormItem
                       name="rollOverLimit"
                       label="Limit roll over days each year to"
-                      help="Instead of rollin gover all unused days, this allows you to set a maximum number of days."
+                      help="Instead of rolling over all unused days, this allows you to set a maximum number of days for roll over."
                     >
                       <InputNumber
                         type="number"
@@ -198,7 +187,8 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                     <FormItem
                       name="rollOverExpiry"
                       label="Roll Over Expiry"
-                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
+                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."
+                    >
                       <DatePicker format="DD/MM" style={{ width: "30%" }} />
                     </FormItem>
                   </Flex>
