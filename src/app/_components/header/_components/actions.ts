@@ -39,6 +39,22 @@ export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
   }
 }
 
+export async function getSlackAccessToken(slackId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("User")
+    .select("orgId,Organisation(orgId)")
+    .eq('slackId', slackId)
+    .single()
+    const {data:slackToken,error:slackError} = await supabaseAdmin
+    .from("OrgAccessData")
+    .select("slackAccessToken")
+    .eq("orgId",data?.orgId)
+    if(slackError || !slackToken) {
+      return null
+    }
+  return slackToken && slackToken
+}
+
 export async function getUserDataBasedOnUUID(userId: any) {
   const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
@@ -253,20 +269,7 @@ export async function fetchHolidays(startDate: string, endDate: string, location
   }
 }
 
-export async function getSlackAccessToken(slackId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("User")
-    .select("orgId,Organisation(orgId)")
-    .eq('slackId', slackId)
-    .single()
 
-    const {data:slackToken,error:slackError} = await supabaseAdmin
-    .from("OrgAccessData")
-    .select("slackAccessToken,slackRefreshToken")
-    .eq("orgId",data?.orgId)
-
-  return slackToken
-}
 
 
 export const addSubscriptionToOrg = async (orgId: string, subscriptionId: string) => {
