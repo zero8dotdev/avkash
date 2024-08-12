@@ -51,7 +51,7 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
     }
   ];
 
-  const commonBlocks = await createCommonModalBlocks({avkashUserInfo, checkLeaveType, payload});
+  const commonBlocks = await createCommonModalBlocks({ avkashUserInfo, checkLeaveType, payload });
 
   const view: any = {
     type: 'modal',
@@ -95,10 +95,11 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
   };
 
   if (selectedTeamId || checkLeaveType) {
-    updateViews(avkashUserInfo,viewId, view)
+    updateViews(avkashUserInfo, viewId, view)
   } else {
-    console.timeEnd('add leave time');
-    openView(avkashUserInfo,trigger_id, view);
+
+    openView(avkashUserInfo, trigger_id, view);
   }
+  console.timeEnd('add leave time');
   return new NextResponse('modal opened', { status: 200 });
 }

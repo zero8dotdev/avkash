@@ -27,6 +27,7 @@ export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps,
             view
         );
     }
+    
     console.timeEnd('ended processing');
     return new NextResponse('Modal opened', { status: 200 });
 }

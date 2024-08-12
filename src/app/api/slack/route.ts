@@ -30,9 +30,7 @@ let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
-
   console.time('request started');
-
   const [body, currentUserSlackId] = await getBodyAndSlackId(request);
   const [accessTokenData, userInfo] = await Promise.all([
     getSlackAccessToken(currentUserSlackId),

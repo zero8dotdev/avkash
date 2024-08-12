@@ -11,8 +11,8 @@ interface appHomeOpenedProps {
   ownerSelectedTeamId?: string;
 }
 export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboard, viewId, ownerSelectedTeamId }: appHomeOpenedProps) {
-  // const slackClient = new WebClient(avkashUserInfo.accessToken);
-  const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
+  const slackClient = new WebClient(avkashUserInfo.accessToken);
+  // const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
 
 
   let teamsList: any;
