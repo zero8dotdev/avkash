@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.SLACK_CLIENT_SECRET!,
         grant_type: "authorization_code",
         redirect_uri:
-          "https://avkash.io/welcome/install-to-slack"
+          `${process.env.NEXT_PUBLIC_REDIRECT_URL}/welcome/install-to-slack`
       }),
     });
     const res = await response.json();
