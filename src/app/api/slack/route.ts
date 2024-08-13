@@ -30,14 +30,36 @@ let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
+  console.time('request started');
   const [body, currentUserSlackId] = await getBodyAndSlackId(request);
-  const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
-  const slackAccessToken = accessTokenData[0]?.slackAccessToken;
-  avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
+  const [accessTokenData, userInfo] = await Promise.all([
+    getSlackAccessToken(currentUserSlackId),
+    getUserData({ id: currentUserSlackId, slackId: 'slackId' })
+  ]);
+  avkashUserInfo = userInfo;
+  if (!accessTokenData || accessTokenData.length === 0) {
+    console.log('just ignore it!!!!!!')
+  } else {
+    const slackAccessToken = accessTokenData[0]?.slackAccessToken;
+    avkashUserInfo['accessToken'] = slackAccessToken;
+  }
   avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
   avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
-  avkashUserInfo['accessToken'] = slackAccessToken;
   accessToken = avkashUserInfo.accessToken;
+
+
+
+  // fetching the body here from request
+
+  // const [body, currentUserSlackId] = await getBodyAndSlackId(request);
+  // const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
+  // const slackAccessToken = accessTokenData[0]?.slackAccessToken;
+  // avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
+  // avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
+  // avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
+  // avkashUserInfo['accessToken'] = slackAccessToken;
+  // accessToken = avkashUserInfo.accessToken;
+
   try {
     if (body.event?.type == 'message') {
       return await handleBotIgnoreMessages(avkashUserInfo, body.event);
