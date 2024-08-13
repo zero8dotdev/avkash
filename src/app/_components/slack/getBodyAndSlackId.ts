@@ -7,26 +7,36 @@ export default async function getBodyAndSlackId(request: NextRequest): Promise<a
   const headersList = headers();
   const contentType = headersList.get('content-type');
 
-  let body: BodyProps = {};
+  let body: any = {};
   let currentUserSlackId: string = '';
-  try {
-    if (contentType === 'application/json') {
-      body = await request.json();
-      // if (body.type === 'url_verification') {
-      //   return new NextResponse(JSON.stringify({ challenge: body.challenge }), {
-      //     status: 200,
-      //     headers: { 'Content-Type': 'application/json' }
-      //   });
-      // }
-      currentUserSlackId = body.event.user;
-    }else if (contentType === 'application/x-www-form-urlencoded') {
-      const params = new URLSearchParams(await request.text());
-      body = Object.fromEntries(params.entries());
-      currentUserSlackId = JSON.parse(body.payload).user.id;
+  let appId = '';
+  // try {
+  if (contentType === 'application/json') {
+    body = await request.text();
+    body = JSON.parse(body)
+    console.log(body);
+    
+    // appId = body.api_app_id
+    // if (body.type === 'url_verification') {
+    //   const res = JSON.stringify({ challenge: body.challenge })
+    //   return NextResponse.json({ challenge: body.challenge }, {
+    //     status: 200,
+    //     headers: { 'Content-Type': 'application/json' }
+    //   });
+    // }
+    // currentUserSlackId = body.event.user;
+    //   } else if (contentType === 'application/x-www-form-urlencoded') {
+    //     const params = new URLSearchParams(await request.text());
+    //     body = Object.fromEntries(params.entries());
+    //     appId = JSON.parse(body.payload).api_app_id  
+    //     currentUserSlackId = JSON.parse(body.payload).user.id;
 
-    }
-    return [body, currentUserSlackId];
-  } catch (error) {
-    return new NextResponse('Invalid request body', { status: 400 });
+    //   }
+    //   console.log('hi');
+
+      return [body];
+    // } catch (error) {
+    //   return new NextResponse('Invalid request body', { status: 400 });
+    // }
   }
 }
