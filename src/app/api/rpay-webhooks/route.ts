@@ -150,6 +150,6 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ received: true });
   } catch (error: any) {
     console.log(`❌ Error message: ${error.message}`);
-    return NextResponse.json({ error: `Webhook Error: ${error.message}` }, { status: 400 });
+    return NextResponse.json({ error: `It is a Webhook Error: ${error.message}` }, { status: 400 });
   }
 };
