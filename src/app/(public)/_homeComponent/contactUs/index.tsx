@@ -18,7 +18,7 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
   });
 
   const [responseMessage, setResponseMessage] = useState("");
-  const [recaptchaToken , setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -33,7 +33,7 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
       alert("Please complete the reCAPTCHA");
       return;
     }
-    const result = await contactUs({ ...formData, recaptchaToken })
+    const result = await contactUs({ ...formData, recaptchaToken });
     if (result) {
       alert(`Your message has been submitted successfully!!!!
              we will get back to you soon`);
@@ -107,7 +107,6 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
                   required
                   onChange={handleChange}
                 />
-
               </div>
 
               <div className="mb-4">
@@ -148,7 +147,7 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
               </div>
               <div className="mb-4">
                 <ReCAPTCHA
-                  sitekey="6Ld-hB0qAAAAANWw-YcI_ELoS7Dz8X5PUfIXGbj5" 
+                  sitekey="6Ld-hB0qAAAAANWw-YcI_ELoS7Dz8X5PUfIXGbj5"
                   onChange={handleRecaptchaChange}
                 />
               </div>
@@ -160,13 +159,28 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
               </button>
             </form>
             <div className="p-5 border-t border-gray-200 dark:border-gray-700">
-              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Zero8 Dot Dev Pvt Ltd
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                CIN: U62011UT2024PTC016718
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                GST: 05AACCZ3291K1Z1
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Block 5 Floor 4, Mangluwala, Aradhana Greens Apartment
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Dehradun City, PIN: 248001, Uttarakhand
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 flex">
                 <a href="mailto:info@company.com" className="hover:underline">
                   support@avkash.io
                 </a>
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                <a href="tel:212-456-7890" className="hover:underline">
+                <a href="tel:+91-9621728267" className="hover:underline">
                   +91 9621728267
                 </a>
               </p>
