@@ -1,5 +1,14 @@
-if [[ "$VERCEL_GIT_COMMIT_REF" == "dev" || "$VERCEL_GIT_COMMIT_REF" == "main" ]]; then 
-  echo "✅ - Build can proceed"; exit 0; 
-else 
-  echo "⛔ - Build canceled for branch $VERCEL_GIT_COMMIT_REF"; exit 1; 
+#!/bin/bash
+
+echo "VERCEL_GIT_COMMIT_REF: $VERCEL_GIT_COMMIT_REF"
+
+if [[ "$VERCEL_GIT_COMMIT_REF" == "dev" || "$VERCEL_GIT_COMMIT_REF" == "main"  ]] ; then
+  # Proceed with the build
+    echo "✅ - Build can proceed"
+  exit 1;
+
+else
+  # Don't build
+  echo "🛑 - Build cancelled"
+  exit 0;
 fi
