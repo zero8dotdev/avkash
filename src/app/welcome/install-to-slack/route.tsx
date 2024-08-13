@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.SLACK_CLIENT_SECRET!,
         grant_type: "authorization_code",
         redirect_uri:
-          "https://avkash.io/welcome/install-to-slack"
+          "https://flounder-wise-completely.ngrok-free.app/welcome/install-to-slack"
       }),
     });
     const res = await response.json();
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         data: { user: authUser },
         error: authError,
       } = await serverClient.auth.getUser();
-  
+
       if (authError) {
         throw authError;
       }
@@ -46,11 +46,11 @@ export async function GET(request: NextRequest) {
         .select()
         .eq("userId", authUser?.id)
         .single();
-  
+
       if (userError) {
         console.log(userError);
       }
-  
+
       const { status, statusText,error } = await serverClient
         .from("OrgAccessData")
         .insert({
@@ -59,11 +59,11 @@ export async function GET(request: NextRequest) {
           ownerSlackId: res?.authed_user?.id,
         })
         .select();
-  
+
         if (error){
           throw error
         }
-  
+
       if (status === 201 && statusText === "Created") {
         redirectPath = "/setup";
       } else {

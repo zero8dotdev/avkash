@@ -4,6 +4,29 @@ import { createClient } from "@/app/_utils/supabase/server";
 import { createAdminClient } from "../_utils/supabase/adminClient";
 import { WebClient } from "@slack/web-api";
 
+/*
+  Fetch the current logged in user with all the details
+*/
+export const fetchCompositeUser = async () => {
+  const supabase = createClient();
+  const { data: { user: loggedInUser }, error } = await supabase.auth.getUser();
+
+  if (error || !loggedInUser) {
+    throw error;
+  }
+
+  const { data: user, error: userError } = await supabase
+    .from('User')
+    .select('*, Orgamisation(*), Team(*)')
+    .eq('userId', loggedInUser.id)
+    .single();
+
+  if (userError) {
+    throw error;
+  }
+
+  console.log(user);
+};
 
 /*
   Fetch the current logged in user
@@ -788,52 +811,52 @@ export const addUsersToNewTeam = async (values: any, userId: any) => {
   console.log(data)
   return data
 }
-export const fetchUsers= async (teamId:any,orgId:any) => {
+export const fetchUsers = async (teamId: any, orgId: any) => {
   try {
     const supabase = createClient();
-    if(teamId){
+    if (teamId) {
       const { data: teamMembers, error } = await supabase
-      .from("User")
-      .select()
-      .eq("teamId", teamId);
+        .from("User")
+        .select()
+        .eq("teamId", teamId);
       if (error) {
         throw error;
       }
       return teamMembers
-    }else{
+    } else {
       const { data: orgUsers, error } = await supabase
-      .from("User")
-      .select()
-      .eq("orgId", orgId);
+        .from("User")
+        .select()
+        .eq("orgId", orgId);
       if (error) {
         throw error;
       }
       return orgUsers
     }
-   } catch (error) {
+  } catch (error) {
     console.log(error);
   }
 };
 
 
-export const insertLeaves= async(values:any)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase
-  .from('Leave')
-  .insert({...values})
-  .single()
-  if(error){
+export const insertLeaves = async (values: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('Leave')
+    .insert({ ...values })
+    .single()
+  if (error) {
     console.log(error)
   }
- return data
+  return data
 }
-export const fetchTeamId=async(userId:any)=>{
-  const supabase=createClient()
-  const {data,error}=await supabase
-  .from("User")
-  .select("teamId")
-  .eq("userId",userId)
-  if(error){
+export const fetchTeamId = async (userId: any) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("User")
+    .select("teamId")
+    .eq("userId", userId)
+  if (error) {
     console.log(error)
   }
   return data

@@ -21,6 +21,7 @@ import {
   fetchTeamMembers,
   insertLeaves,
 } from "@/app/_actions";
+
 interface Props {
   team: string | undefined;
 }
@@ -29,21 +30,26 @@ const AddLeave: React.FC<Props> = ({ team }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
-  const [loginUser,setLoginUser]=useState<any>()
+  const [loginUser, setLoginUser] = useState<any>();
   const {
-    state: { orgId,user},
+    state: { orgId, user, org },
   } = useApplicationContext();
+
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>();
+
+  console.log(org);
+
   useEffect(() => {
-    if(!user?.role) return 
-    
+    if (!user?.role) return;
+
     (async () => {
       try {
         const leaveTypes = await fetchLeaveTypes(orgId);
         if (leaveTypes) {
           setLeaveTypes(leaveTypes);
         }
+
         if (team) {
           const user = await fetchTeamMembers(team);
           setUsers(user);
@@ -54,18 +60,18 @@ const AddLeave: React.FC<Props> = ({ team }) => {
       } catch (error) {
         console.error(error);
       }
-      if(user?.role==="OWNER"|| user?.role==="MANAGER"){
-         setLoginUser(user.role)
-      
+      if (user?.role === "OWNER" || user?.role === "MANAGER") {
+        setLoginUser(user.role);
       }
     })();
-  }, [orgId, team,user]);
-  
+  }, [orgId, team, user]);
+
   const onFinish = async (values: any) => {
     const { dates, approve, leaveType, leaveRequestNote } = values;
     const start = new Date(dates[0]);
     const end = new Date(dates[1]);
     const teamid = await fetchTeamId(userId);
+
     const data = {
       reason: leaveRequestNote,
       startDate: start,
@@ -100,30 +106,30 @@ const AddLeave: React.FC<Props> = ({ team }) => {
       </Button>
       <Modal
         open={isModalVisible}
-        closable={false}
-        title="Add Leave"
+        closable={true}
+        title="Add a leave"
         onCancel={() => onCancel()}
         width={500}
+        destroyOnClose={true}
         footer={[
           <>
             <Button type="default" danger onClick={() => onCancel()}>
               Cancel
             </Button>
-            {userId!==undefined&&<Button
-              type="primary"
-              loading={loader}
-              onClick={() => submitForm()}
-            >
-              submit
-            </Button>
-
-            }
-            
+            {userId !== undefined && (
+              <Button
+                type="primary"
+                loading={loader}
+                onClick={() => submitForm()}
+              >
+                Add a leave
+              </Button>
+            )}
           </>,
         ]}
       >
         <Flex vertical>
-          <Typography.Text>Select user</Typography.Text>
+          <Typography.Text>User</Typography.Text>
           <Select style={{ width: "100%" }} onSelect={(v) => setUserId(v)}>
             {users?.map((each, index) => (
               <Select.Option key={index} value={each.userId}>
@@ -140,19 +146,22 @@ const AddLeave: React.FC<Props> = ({ team }) => {
             form={form}
           >
             <Form.Item
-              label="Leave type:"
+              label="Leave Type"
               name="leaveType"
-              initialValue="paid of leave"
-              rules={[{ required: true, message: "Choose your leave type?" }]}
+              initialValue=""
+              rules={[{ required: true, message: "Leave type is required." }]}
             >
               <Radio.Group>
                 <Space direction="vertical">
                   {leaveTypes.length > 0 ? (
-                    leaveTypes.map((each) => (
-                      <Radio key={each.leavetypeid} value={each.name}>
-                        {each.name}
-                      </Radio>
-                    ))
+                    leaveTypes.map((each) => {
+                      console.log("leave Type", each);
+                      return (
+                        <Radio key={each.leavetypeid} value={each.name}>
+                          {each.name}
+                        </Radio>
+                      );
+                    })
                   ) : (
                     <Typography.Paragraph>
                       No leave types available for this organization.
@@ -180,21 +189,22 @@ const AddLeave: React.FC<Props> = ({ team }) => {
               label="Leave request notes:"
               name="leaveRequestNote"
               initialValue=""
-              rules={[{required:true,message:'Enter your leave request reason'}]}
+              rules={[
+                { required: true, message: "Enter your leave request reason" },
+              ]}
             >
               <Input.TextArea rows={2} placeholder="Enter your leave reason" />
             </Form.Item>
-            {loginUser==="OWNER" || loginUser==="MANAGER" ? <Form.Item
-              label="Approve this leave?"
-              name="approve"
-              initialValue={false}
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>:null
-
-            }
-           
+            {loginUser === "OWNER" || loginUser === "MANAGER" ? (
+              <Form.Item
+                label="Auto approve this leave?"
+                name="approve"
+                initialValue={false}
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
+            ) : null}
           </Form>
         ) : null}
       </Modal>

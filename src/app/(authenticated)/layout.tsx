@@ -1,5 +1,11 @@
 import { Row, Col } from "antd";
-import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "@/app/_actions";
+import {
+  fetchUser,
+  fetchTeam,
+  fetchOrg,
+  fetchAllTeams,
+  fetchCompositeUser,
+} from "@/app/_actions";
 import StoreToContext from "@/app/_components/store-to-context";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +13,10 @@ export const dynamic = "force-dynamic";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const compositeUser = await fetchCompositeUser();
+
+  console.log(compositeUser);
+
   const user = await fetchUser();
   const org = await fetchOrg(user.orgId);
   const team = await fetchTeam(user.teamId);
