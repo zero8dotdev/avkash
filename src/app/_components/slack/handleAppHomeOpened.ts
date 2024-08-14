@@ -11,8 +11,8 @@ interface appHomeOpenedProps {
   ownerSelectedTeamId?: string;
 }
 export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboard, viewId, ownerSelectedTeamId }: appHomeOpenedProps) {
-  const slackClient = new WebClient(avkashUserInfo.accessToken);
-  // const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
+  // const slackClient = new WebClient(avkashUserInfo.accessToken);
+  const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
 
 
   let teamsList: any;
@@ -208,46 +208,6 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
   return new NextResponse('App home opened', { status: 200 });
 }
 
-// export async function fetchLeavesHistory(userId?: any, teamId?: any) {
-//   function changeDate(startDate: string | number | Date) {
-//     const date = new Date(startDate);
-//     const options: Intl.DateTimeFormatOptions = {
-//       month: 'long',
-//       day: 'numeric',
-//     };
-//     const formattedDate: string = date.toLocaleDateString(undefined, options);
-//     return formattedDate;
-//   }
-
-//   function formatDates(leavesList: any[]) {
-//     const responseList = leavesList.map((leave: any) => {
-//       const formattedStartDate = changeDate(leave.startDate);
-//       const formattedEndDate = changeDate(leave.endDate);
-//       return {
-//         leaveId: leave.leaveId,
-//         leaveType: leave.leaveType,
-//         startDate: formattedStartDate,
-//         endDate: formattedEndDate,
-//         duration: leave.duration,
-//         isApproved: leave.isApproved,
-//         userName: leave.User.slackId,
-//         teamName: leave.Team.name,
-//         orgId: leave.User.orgId,
-
-//       }
-//     })
-//     return responseList
-
-//   }
-//   const { leaves, pending } = await getLeavesHistory(userId || teamId)
-//   console.log('from 1st', leaves);
-//   const allLeavesHistory = formatDates(leaves);
-//   const pendingHistory = formatDates(pending);
-
-//   return [allLeavesHistory, pendingHistory];
-
-
-// }
 
 export async function fetchLeavesHistory({ days, userId, teamId }: { days: number, userId?: string, teamId?: string, }) {
   function changeDate(startDate: string | number | Date) {
@@ -295,7 +255,7 @@ export async function fetchLeavesHistory({ days, userId, teamId }: { days: numbe
 
   const allLeavesHistory = formatDates(leaves);
   const pendingHistory = formatDates(pending);
-
+  
   return [allLeavesHistory, pendingHistory];
 
 

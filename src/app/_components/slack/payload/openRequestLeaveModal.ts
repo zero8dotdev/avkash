@@ -22,12 +22,12 @@ export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps,
     if (checkLeaveType) {
         updateViews(avkashUserInfo,viewId, view)
     } else {
+
         openView(avkashUserInfo,
             trigger_id,
             view
         );
     }
     
-    console.timeEnd('ended processing');
     return new NextResponse('Modal opened', { status: 200 });
 }
