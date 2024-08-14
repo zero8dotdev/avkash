@@ -15,7 +15,8 @@ export async function updateViews(avkashUserInfo: any,viewId: any, view: any,) {
 export async function openView(avkashUserInfo: any,triggerId: any, view: any,) {
   const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
   // const slackClient = new WebClient(avkashUserInfo.accessToken);
-  await slackClient.views.open({ trigger_id: triggerId, view })
-
+  const response = await slackClient.views.open({ trigger_id: triggerId, view })
+const view_id  = response.view?.id; 
+return view_id
 
 }
