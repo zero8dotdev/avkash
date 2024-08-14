@@ -5,9 +5,11 @@ import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
 import { act } from "react";
 
-export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any,callbackId?: any,values?: any,viewId?: any){
-  const leavesList: any = await getLeaveDetails(leaveId);
-  const leaveDetails = leavesList[0];
+export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any, callbackId?: any, values?: any, viewId?: any) {
+  const [leavesList, commonBlocks] = await Promise.all([getLeaveDetails(leaveId),
+  createCommonModalBlocks({ avkashUserInfo, checkLeaveType: false, leaveId, callbackId, values })
+]);
+  const leaveDetails = leavesList && leavesList[0];
   const start_dateFormat = new Date(leaveDetails.startDate);
   const end_dateFormat = new Date(leaveDetails.endDate);
   const start_date = start_dateFormat.toISOString().slice(0, 10)
@@ -26,9 +28,6 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
     text: { type: 'plain_text', text: durationText },
     value: durationValue
   }
-
-  const commonBlocks = await createCommonModalBlocks({avkashUserInfo,checkLeaveType:false,leaveId,callbackId,values});
-
   const review_model_view: any = {
     type: 'modal',
     callback_id: `review_leave_${leaveId}`,
@@ -85,13 +84,16 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
     ],
   };
 
-  if(callbackId && callbackId.startsWith('review_leave_')){
-    updateViews(avkashUserInfo,viewId, review_model_view)
-  }else{
-    openView(avkashUserInfo,trigger_id, review_model_view)
+  if (callbackId && callbackId.startsWith('review_leave_')) {
+    updateViews(avkashUserInfo, viewId, review_model_view)
+  } else {
+    openView(avkashUserInfo, trigger_id, review_model_view)
 
   }
-
+  
   return new NextResponse("opened leave review modal", { status: 200 });
 
 }
+
+
+

@@ -17,7 +17,7 @@ export default async function handleBlockActions(avkashUserInfo: avkashUserInfoP
     const values = actions?.[0]?.selected_option?.value;
 
 
-    if(callbackId && callbackId.startsWith('review_') && actionId === 'leave_type'){
+    if(callbackId && callbackId.startsWith('review_') && actionId === 'leave_type'){        
         const leaveId = callbackId.split('review_leave_')[1];
         return reviewLeave(avkashUserInfo,actionId,leaveId,triggerId,callbackId,values,viewId);
     }

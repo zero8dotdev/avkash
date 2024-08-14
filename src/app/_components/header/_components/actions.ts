@@ -1,8 +1,10 @@
+import { LeaveTypes } from './../../../(authenticated)/dashboard/settings/leave-types/page';
 
 'use server'
 
 import { createAdminClient } from "@/app/_utils/supabase/adminClient"
 import { createClient } from "@/app/_utils/supabase/server";
+import { FileTextFilled } from "@ant-design/icons";
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server";
@@ -39,6 +41,7 @@ export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
   }
 }
 
+
 export async function getSlackAccessToken(slackId: string) {
   const { data, error } = await supabaseAdmin
     .from("User")
@@ -52,8 +55,10 @@ export async function getSlackAccessToken(slackId: string) {
     if(slackError || !slackToken) {
       return null
     }
+
   return slackToken && slackToken
 }
+
 
 export async function getUserDataBasedOnUUID(userId: any) {
   const supabaseAdmin = createAdminClient();
@@ -157,8 +162,8 @@ export async function getLeavesHistory1({ days, userId, teamId }: { days: number
     throw new Error('This feature is coming soon!!!');
   }
 
-  const leaves = data ?? [];
 
+  const leaves = data ?? [];
   let filteredLeaves = leaves;
   if (userId) {
     filteredLeaves = filteredLeaves.filter(leave => leave.userId === userId);
@@ -166,10 +171,23 @@ export async function getLeavesHistory1({ days, userId, teamId }: { days: number
     filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
   }
 
+  const {data:leaveTypesData,error:leaveTypeError} = await supabaseAdmin
+    .from("LeaveType")
+    .select('leaveTypeId,name')
+    .eq('orgId',filteredLeaves[0].orgId)
 
-  const pendingLeaves = filteredLeaves.filter(leave => leave.isApproved === 'PENDING');
+    const addLeaveTypeName = filteredLeaves.map(leave=>{
+      const cLeaveType = leaveTypesData?.find(leaveType=>(leave.leaveType === leaveType.leaveTypeId))
+      return {
+        ...leave,
+        leaveType: cLeaveType?.name
+      }
+    })
 
-  return { leaves: filteredLeaves, pending: pendingLeaves };
+
+  const pendingLeaves = addLeaveTypeName.filter(leave => leave.isApproved === 'PENDING');
+
+  return { leaves: addLeaveTypeName, pending: pendingLeaves };
 }
 
 
