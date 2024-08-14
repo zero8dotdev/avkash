@@ -23,83 +23,46 @@ let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
-
   
+  const [body,currentUserSlackId,appId] = await getBodyAndSlackId(request);  
+  const [accessTokenData, userInfo] = await Promise.all([
+    getSlackAccessToken(currentUserSlackId),
+    getUserData({ id: currentUserSlackId, slackId: 'slackId' })
+  ]);
+  avkashUserInfo = userInfo;
 
-  const [body] = await getBodyAndSlackId(request);  
-  console.log(body);
+  if (!accessTokenData || accessTokenData.length === 0) {
+    console.log('just ignore it!!!!!!')
+  } else {
+    const slackAccessToken = accessTokenData[0]?.slackAccessToken;
+    if (appId === 'A07FMLF1CBH') {
+      avkashUserInfo['accessToken'] = process.env.DEV_SLACK_BOT_ID;
+    } else {
+      avkashUserInfo['accessToken'] = slackAccessToken;
+    }
+  }
+  avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;  
+  avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
 
-  return new NextResponse(JSON.stringify({ challenge: body.challenge }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  try {
+    if (body.event?.type == 'message') {
+      return await handleBotIgnoreMessages(avkashUserInfo, body.event);
+    }
 
+    if (body.event?.type === 'app_home_opened') {
 
-  // const [accessTokenData, userInfo] = await Promise.all([
-  //   getSlackAccessToken(currentUserSlackId),
-  //   getUserData({ id: currentUserSlackId, slackId: 'slackId' })
-  // ]);
-  // avkashUserInfo = userInfo;
+      return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
+    }
+    if (body.payload) {
+      const payload = JSON.parse(body.payload);
+      return await handlePayload(avkashUserInfo, payload);
+    }
 
-  // if (!accessTokenData || accessTokenData.length === 0) {
-  //   console.log('just ignore it!!!!!!')
-  // } else {
-  //   const slackAccessToken = accessTokenData[0]?.slackAccessToken;
-  //   if (appId === 'A07FMLF1CBH') {
-  //     avkashUserInfo['accessToken'] = process.env.DEV_SLACK_BOT_ID;
-  //   } else {
-  //     avkashUserInfo['accessToken'] = slackAccessToken;
-  //   }
-  // }
-  // avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
-  
-  // avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
-
-
-
- 
-  // try {
-  //   if (body.event?.type == 'message') {
-  //     return await handleBotIgnoreMessages(avkashUserInfo, body.event);
-  //   }
-
-  //   if (body.event?.type === 'app_home_opened') {
-
-  //     return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
-  //   }
-  //   if (body.payload) {
-  //     const payload = JSON.parse(body.payload);
-  //     return await handlePayload(avkashUserInfo, payload);
-  //   }
-
-  //   if (body.command) {
-  //     return handleSlashCommand(body.command);
-  //   }
-  //   return new NextResponse('Unrecognized request', { status: 400 });
-  // } catch (error) {
-  //   return new NextResponse('An error occurred while processing your request.', { status: 500 });
-  // }
+    if (body.command) {
+      return handleSlashCommand(body.command);
+    }
+    return new NextResponse('Unrecognized request', { status: 400 });
+  } catch (error) {
+    return new NextResponse('An error occurred while processing your request.', { status: 500 });
+  }
 }
-
-
- // fetching the body here from request
-
-  // const [body, currentUserSlackId] = await getBodyAndSlackId(request);
-  // const accessTokenData: any = await getSlackAccessToken(currentUserSlackId);
-  // const slackAccessToken = accessTokenData[0]?.slackAccessToken;
-  // avkashUserInfo = await getUserData({ id: currentUserSlackId, slackId: 'slackId' });
-  // avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;
-  // avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
-  // avkashUserInfo['accessToken'] = slackAccessToken;
-
-
-
-
-
-
-
-
-
-
-
-
