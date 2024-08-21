@@ -1,14 +1,11 @@
-import { applyLeave, getLeaveDetails, getManagerIds, getUserDataBasedOnUUID, updateLeaveStatus } from "../../header/_components/actions";
+import { applyLeave, getLeaveDetails, getNotifiedUser, getUserDataBasedOnUUID, updateLeaveStatus } from "../../header/_components/actions";
 import { avkashUserInfoProps } from "../../../api/slack/route"
 import { NextResponse } from "next/server";
-import { sendPostMessages, updateViews } from "../sendMessages";
-import { calculateWorkingDays } from "../createCommonModalBlocks";
-
-
+import { sendPostMessages } from "../sendMessages";
 
 export async function handleViewSubmission(view: any, avkashUserInfo: avkashUserInfoProps) {
+  const whoGetNotified = await getNotifiedUser(avkashUserInfo.teamId, avkashUserInfo.orgId);
   // const updates_channel_Id = 'C06GP1QCS0Y';
-
   // const managerSlackId = await getManagerIds(avkashUserInfo.orgId);
   const managerSlackId = avkashUserInfo.slackId;
   const startDate = view?.state?.values?.start_date_block?.start_date?.selected_date;
@@ -50,8 +47,8 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     const allFields = { leaveType, startDate, endDate, duration, shift: 'NONE', isApproved: `${isReviewApproved === "approve" ? "APPROVED" : "REJECTED"}`, reason: leaveReason, managerComment: mngrNotes };
 
     await updateLeaveStatus(leaveId, allFields);
-    sendPostMessages(avkashUserInfo,appliedUserSlackId, msgForUser);
-    sendPostMessages(avkashUserInfo,managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
+    sendPostMessages(avkashUserInfo, appliedUserSlackId, msgForUser);
+    sendPostMessages(avkashUserInfo, managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
     // if (isReviewApproved == 'approve') {
     //   sendPostMessages(updates_channel_Id, `Hello Everyone!!!!\n\n<@${appliedUserSlackId}> is going on ${leaveType} leave from ${startDate} to ${endDate}`);
 
@@ -109,7 +106,14 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     }
   ];
 
-  sendPostMessages(avkashUserInfo,avkashUserInfo.slackId, text);
-  sendPostMessages(avkashUserInfo,managerSlackId, `Leave Request`, blocks);
+  sendPostMessages(avkashUserInfo, avkashUserInfo.slackId, text);
+
+  whoGetNotified.map((manager: any) => {
+    sendPostMessages(avkashUserInfo, manager, `Leave Request`, blocks);
+    return null
+  })
   return new NextResponse(null, { status: 200 });
 }
+
+
+

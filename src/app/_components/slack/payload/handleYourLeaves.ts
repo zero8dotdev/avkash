@@ -2,14 +2,16 @@ import { avkashUserInfoProps } from "@/app/api/slack/route";
 import { NextResponse } from "next/server";
 import { fetchLeavesHistory } from "../handleAppHomeOpened";
 import { sendPostMessages } from "../sendMessages";
-import { Divider } from "antd";
 import { calculateWorkingDays } from "../createCommonModalBlocks";
+import { fetchOrgWorkWeek } from "../../header/_components/actions";
 
 export default async function handleYourLeaves(avkashUserInfo: avkashUserInfoProps, channelId: string) {
     const userId = avkashUserInfo.userId;
-    const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({ days:30,userId });
+    const [leavesAllData,workWeekData] = await Promise.all([fetchLeavesHistory({ days:30,userId }),fetchOrgWorkWeek(avkashUserInfo.orgId)]);
+    const [allLeavesHistory, pendingHistory] = leavesAllData;
+
     const leavesHistory = await Promise.all(allLeavesHistory.map(async (leave) => {
-        const workingDays = await calculateWorkingDays(leave.orgId, leave.startDate, leave.endDate, leave.leaveType);
+        const workingDays = await calculateWorkingDays(leave.orgId, leave.startDate, leave.endDate, leave.leaveType,workWeekData);
         return {
             "type": "section",
             "text": {

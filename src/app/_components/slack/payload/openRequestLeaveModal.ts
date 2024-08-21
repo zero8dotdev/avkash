@@ -4,30 +4,36 @@ import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
 
 export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps, trigger_id: string, user_id: string, checkLeaveType: boolean, payload?: any) {
-    let viewId: string = '';
-    if (payload) {
-        const { view } = payload;
-        viewId = view?.id;
+    let viewId: string = payload && payload.view.id;
 
-    }
+    const loadingView = {
+        type: 'modal',
+        callback_id: 'home-req-leave',
+        title: { type: 'plain_text', text: 'Request Leave' },
+        blocks: [
+            {
+                type: 'section',
+                text: { type: 'mrkdwn', text: 'Loading...' }
+            }
+        ]
+    };
+    const view_id = await openView(avkashUserInfo, trigger_id, loadingView);
     const commonBlocks = await createCommonModalBlocks({ avkashUserInfo, checkLeaveType, payload });
-    const view = {
+
+    const fullView = {
         type: 'modal',
         callback_id: 'home-req-leave',
         title: { type: 'plain_text', text: 'Request Leave' },
         submit: { type: 'plain_text', text: 'Submit', emoji: true },
         blocks: commonBlocks
-    }
+    };
 
     if (checkLeaveType) {
-        updateViews(avkashUserInfo,viewId, view)
+        await updateViews(avkashUserInfo, viewId, fullView);
+
     } else {
-        openView(avkashUserInfo,
-            trigger_id,
-            view
-        );
+        await updateViews(avkashUserInfo, view_id, fullView);
     }
-    
-    console.timeEnd('ended processing');
-    return new NextResponse('Modal opened', { status: 200 });
+
+    return new NextResponse('Modal opened and updated', { status: 200 });
 }

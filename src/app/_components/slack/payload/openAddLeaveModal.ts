@@ -16,7 +16,21 @@ interface openAddLeaveProps {
   payload?: any
 }
 
+const loadingView = {
+  type: 'modal',
+  callback_id: 'home-req-leave',
+  title: { type: 'plain_text', text: 'Request Leave' },
+  blocks: [
+      {
+          type: 'section',
+          text: { type: 'mrkdwn', text: 'Loading...' }
+      }
+  ]
+};
+
 export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigger_id, selectedTeamId, action_id, leaveId, checkLeaveType = false, payload }: openAddLeaveProps) {
+  
+  const openedModalViewId = await openView(avkashUserInfo, trigger_id, loadingView);
   let teamsInfo = await getTeamsList(avkashUserInfo.orgId);
   const teamsList = teamsInfo?.map((team) => ({
     "text": {
@@ -94,12 +108,11 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
     ]
   };
 
-  if (selectedTeamId || checkLeaveType) {
-    updateViews(avkashUserInfo, viewId, view)
-  } else {
 
-    openView(avkashUserInfo, trigger_id, view);
+  if (selectedTeamId || checkLeaveType) {
+    updateViews(avkashUserInfo, viewId || openedModalViewId, view)
+  } else {
+    updateViews(avkashUserInfo, openedModalViewId, view);
   }
-  console.timeEnd('add leave time');
   return new NextResponse('modal opened', { status: 200 });
 }
