@@ -23,16 +23,13 @@ let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
-  
   const [body,currentUserSlackId,appId] = await getBodyAndSlackId(request);  
   const [accessTokenData, userInfo] = await Promise.all([
     getSlackAccessToken(currentUserSlackId),
     getUserData({ id: currentUserSlackId, slackId: 'slackId' })
   ]);
   avkashUserInfo = userInfo;
-
   if (!accessTokenData || accessTokenData.length === 0) {
-    console.log('just ignore it!!!!!!')
   } else {
     const slackAccessToken = accessTokenData[0]?.slackAccessToken;
     if (appId === 'A07FMLF1CBH') {
@@ -54,7 +51,7 @@ export async function POST(request: NextRequest) {
       return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
     }
     if (body.payload) {
-      const payload = JSON.parse(body.payload);
+      const payload = JSON.parse(body.payload);      
       return await handlePayload(avkashUserInfo, payload);
     }
 
