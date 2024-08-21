@@ -48,17 +48,46 @@ export async function getSlackAccessToken(slackId: string) {
     .select("orgId,Organisation(orgId)")
     .eq('slackId', slackId)
     .single()
-    const {data:slackToken,error:slackError} = await supabaseAdmin
+  const { data: slackToken, error: slackError } = await supabaseAdmin
     .from("OrgAccessData")
     .select("slackAccessToken")
-    .eq("orgId",data?.orgId)
-    if(slackError || !slackToken) {
-      return null
-    }
+    .eq("orgId", data?.orgId)
+  if (slackError || !slackToken) {
+    return null
+  }
 
   return slackToken && slackToken
 }
 
+export async function getNotifiedUser(teamId: string, orgId: string) {
+  const { data: notifyData, error: notifyError } = await supabaseAdmin
+    .from('Organisation')
+    .select('notificationToWhom')
+    .eq('orgId', orgId)
+    .single()
+
+  let managersList: any = [];
+  if (notifyData?.notificationToWhom === 'MANAGER') {
+    const { data: managerData, error: managerError } = await supabaseAdmin
+      .from("User")
+      .select('slackId')
+      .eq('role', 'MANAGER')
+      .eq('teamId', teamId)
+      .eq('orgId', orgId)
+    managersList = managerData
+  } else {
+    const { data: managerData, error: managerError } = await supabaseAdmin
+      .from("User")
+      .select('slackId')
+      .eq('role', 'OWNER')
+      .eq('orgId', orgId)
+    managersList = managerData
+  }
+
+  const filteredList = managersList.map((manager: any)=>(manager.slackId))
+  
+  return filteredList
+}
 
 export async function getUserDataBasedOnUUID(userId: any) {
   const supabaseAdmin = createAdminClient();
@@ -171,18 +200,18 @@ export async function getLeavesHistory1({ days, userId, teamId }: { days: number
     filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
   }
 
-  const {data:leaveTypesData,error:leaveTypeError} = await supabaseAdmin
+  const { data: leaveTypesData, error: leaveTypeError } = await supabaseAdmin
     .from("LeaveType")
     .select('leaveTypeId,name')
-    .eq('orgId',filteredLeaves[0].orgId)
+    .eq('orgId', filteredLeaves[0].orgId)
 
-    const addLeaveTypeName = filteredLeaves.map(leave=>{
-      const cLeaveType = leaveTypesData?.find(leaveType=>(leave.leaveType === leaveType.leaveTypeId))
-      return {
-        ...leave,
-        leaveType: cLeaveType?.name
-      }
-    })
+  const addLeaveTypeName = filteredLeaves.map(leave => {
+    const cLeaveType = leaveTypesData?.find(leaveType => (leave.leaveType === leaveType.leaveTypeId))
+    return {
+      ...leave,
+      leaveType: cLeaveType?.name
+    }
+  })
 
 
   const pendingLeaves = addLeaveTypeName.filter(leave => leave.isApproved === 'PENDING');
