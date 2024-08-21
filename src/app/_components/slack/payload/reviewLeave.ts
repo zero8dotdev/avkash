@@ -5,7 +5,21 @@ import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
 import { act } from "react";
 
+const loadingView = {
+  type: 'modal',
+  callback_id: 'home-req-leave',
+  title: { type: 'plain_text', text: 'Request Leave' },
+  blocks: [
+      {
+          type: 'section',
+          text: { type: 'mrkdwn', text: 'Loading...' }
+      }
+  ]
+};
+
 export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any, callbackId?: any, values?: any, viewId?: any) {
+const openedReviewModalViewId = await  openView(avkashUserInfo, trigger_id, loadingView)
+
   const [leavesList, commonBlocks] = await Promise.all([getLeaveDetails(leaveId),
   createCommonModalBlocks({ avkashUserInfo, checkLeaveType: false, leaveId, callbackId, values })
 ]);
@@ -87,10 +101,11 @@ export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, a
   if (callbackId && callbackId.startsWith('review_leave_')) {
     updateViews(avkashUserInfo, viewId, review_model_view)
   } else {
-    openView(avkashUserInfo, trigger_id, review_model_view)
+    updateViews(avkashUserInfo, openedReviewModalViewId, review_model_view)
+
+    // openView(avkashUserInfo, trigger_id, review_model_view)
 
   }
-  
   return new NextResponse("opened leave review modal", { status: 200 });
 
 }
