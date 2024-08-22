@@ -10,19 +10,18 @@ const loadingView = {
   callback_id: 'home-req-leave',
   title: { type: 'plain_text', text: 'Request Leave' },
   blocks: [
-      {
-          type: 'section',
-          text: { type: 'mrkdwn', text: 'Loading...' }
-      }
+    {
+      type: 'section',
+      text: { type: 'mrkdwn', text: 'Loading...' }
+    }
   ]
 };
 
 export default async function reviewLeave(avkashUserInfo: avkashUserInfoProps, action_id: string, leaveId: string, trigger_id: any, callbackId?: any, values?: any, viewId?: any) {
-const openedReviewModalViewId = await  openView(avkashUserInfo, trigger_id, loadingView)
-
+  const openedReviewModalViewId = await openView(avkashUserInfo, trigger_id, loadingView);
   const [leavesList, commonBlocks] = await Promise.all([getLeaveDetails(leaveId),
   createCommonModalBlocks({ avkashUserInfo, checkLeaveType: false, leaveId, callbackId, values })
-]);
+  ]);
   const leaveDetails = leavesList && leavesList[0];
   const start_dateFormat = new Date(leaveDetails.startDate);
   const end_dateFormat = new Date(leaveDetails.endDate);
