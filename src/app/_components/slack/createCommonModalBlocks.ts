@@ -239,7 +239,6 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
   };
 
   const [holidays,fetchLeaveTypes]: [any,any] = await Promise.all([fetchHolidays(startDate, endDate, location),getLeaveTypeDetails(leaveType, orgId)])
-
   const holidaysCount = holidays.length > 0 ? holidays.length : 0;
 
   const workWeekNumbers = workweek.map((day: string) => daysMap[day]);
@@ -253,7 +252,8 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  const leaveTypeDetails = fetchLeaveTypes?.LeavePolicy[0].unlimited;
+  const leaveTypeDetails = fetchLeaveTypes?.LeavePolicy[0]?.unlimited;
+
   count = count - holidaysCount;
   if (!usedLeave) {
     return count

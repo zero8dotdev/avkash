@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     getSlackAccessToken(currentUserSlackId),
     getUserData({ id: currentUserSlackId, slackId: 'slackId' })
   ]);
+
   avkashUserInfo = userInfo;
   if (!accessTokenData || accessTokenData.length === 0) {
   } else {

@@ -146,45 +146,13 @@ export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
     .eq("leaveId", leaveId)
 }
 
-export async function getLeavesHistory({ userId, teamId }: LeaveHistoryParams) {
-  const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate() - 7);
-  const supabaseAdmin = createAdminClient();
-  const { data, error } = await supabaseAdmin
-    .from("Leave")
-    .select(`*,User(name,orgId,slackId),Team(name)`)
-    .or(`createdOn.gte.${daysAgo.toISOString()},isApproved.eq.PENDING`);
-
-
-  if (error) {
-    console.error('Error fetching leave history:', error);
-    throw new Error('This feature is coming soon!!!');
-  }
-
-  const leaves = data ?? [];
-
-  let filteredLeaves = leaves;
-  if (userId) {
-    filteredLeaves = filteredLeaves.filter(leave => leave.userId === userId);
-  } else if (teamId) {
-    filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
-  }
-
-
-  const pendingLeaves = filteredLeaves.filter(leave => leave.isApproved === 'PENDING');
-
-  return { leaves: filteredLeaves, pending: pendingLeaves };
-}
-
-export async function getLeavesHistory1({ days, userId, teamId }: { days: number, userId?: string, teamId?: string }) {
+export async function getLeavesHistory({ days, userId, teamId }: { days: number, userId?: string, teamId?: string }) {
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - days);
-  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .select(`*,User(name,orgId,slackId),Team(name)`)
     .or(`createdOn.gte.${daysAgo.toISOString()},isApproved.eq.PENDING`);
-
 
   if (error) {
     console.error('Error fetching leave history:', error);
@@ -194,16 +162,21 @@ export async function getLeavesHistory1({ days, userId, teamId }: { days: number
 
   const leaves = data ?? [];
   let filteredLeaves = leaves;
+
   if (userId) {
     filteredLeaves = filteredLeaves.filter(leave => leave.userId === userId);
   } else if (teamId) {
     filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
   }
+
+if (filteredLeaves.length === 0) {
+  return { leaves: [], pending: [] };
+}
 
   const { data: leaveTypesData, error: leaveTypeError } = await supabaseAdmin
     .from("LeaveType")
     .select('leaveTypeId,name')
-    .eq('orgId', filteredLeaves[0].orgId)
+    .eq('orgId', filteredLeaves[0]?.orgId)
 
   const addLeaveTypeName = filteredLeaves.map(leave => {
     const cLeaveType = leaveTypesData?.find(leaveType => (leave.leaveType === leaveType.leaveTypeId))
@@ -215,7 +188,6 @@ export async function getLeavesHistory1({ days, userId, teamId }: { days: number
 
 
   const pendingLeaves = addLeaveTypeName.filter(leave => leave.isApproved === 'PENDING');
-
   return { leaves: addLeaveTypeName, pending: pendingLeaves };
 }
 
