@@ -21,8 +21,8 @@ const LeavePolicies = () => {
       const policies = (await leaveTypes).map((each) => {
         return {
           leaveTypeId: each.leaveTypeId,
-          accrualFrequency: "Monthly",
-          accrueOn: "End",
+          accrualFrequency: "MONTHLY",
+          accrueOn: "END",
           rollOverLimit: 1,
           rollOverExpiry: null,
           name: each.name,

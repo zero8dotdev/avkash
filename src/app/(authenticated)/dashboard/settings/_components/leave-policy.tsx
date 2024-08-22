@@ -145,8 +145,8 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                       label="Accrual Frequency"
                     >
                       <Select >
-                        <Select.Option value="Monthly">Monthly</Select.Option>
-                        <Select.Option value="Quarterly">
+                        <Select.Option value="MONTHLY">Monthly</Select.Option>
+                        <Select.Option value="QUARTERLY">
                           Quarterly
                         </Select.Option>
                       </Select>
@@ -157,7 +157,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                       initialValue="Beginning"
                       label="AccrueOn"
                     >
-                      <Segmented style={{color:"red"}}options={["Beginning", "End"]}/>
+                      <Segmented style={{color:"red"}}options={["BEGINNING", "END"]}/>
                     </FormItem>
                   </Flex>
                 ) : null;
