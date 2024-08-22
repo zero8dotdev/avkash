@@ -53,8 +53,8 @@ export default function SetupPage() {
         autoApprove: false,
         rollOver: false,
         unlimited: false,
-        accrualFrequency: "Monthly",
-        accrueOn: "End",
+        accrualFrequency: "MONTHLY",
+        accrueOn: "END",
         rollOverLimit: 1,
         rollOverExpiry: null,
       };
