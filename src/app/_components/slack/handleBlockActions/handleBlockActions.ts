@@ -56,7 +56,7 @@ export default async function handleBlockActions(avkashUserInfo: avkashUserInfoP
         case 'team-dashboard':
             return handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
 
-        case 'your-dashboard':
+        case 'your-dashboard':            
             return handleAppHomeOpened({ avkashUserInfo, yourDashboard: true });
 
         case 'owner_select_team':
