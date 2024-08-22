@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { avkashUserInfoProps } from "../../api/slack/route";
 import { WebClient } from "@slack/web-api";
-import { getLeavesHistory, getLeavesHistory1, getTeamsList } from "@/app/_components/header/_components/actions";
+import { getLeavesHistory, getTeamsList } from "@/app/_components/header/_components/actions";
 
 
 interface appHomeOpenedProps {
@@ -11,10 +11,7 @@ interface appHomeOpenedProps {
   ownerSelectedTeamId?: string;
 }
 export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboard, viewId, ownerSelectedTeamId }: appHomeOpenedProps) {
-  // const slackClient = new WebClient(avkashUserInfo.accessToken);
-  const slackClient = new WebClient(process.env.DEV_SLACK_BOT_ID);
-
-
+  const slackClient = new WebClient(avkashUserInfo.accessToken);
   let teamsList: any;
   if (avkashUserInfo.isOwner) {
     teamsList = await getTeamsList(avkashUserInfo.orgId);
@@ -29,7 +26,6 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
   const currentTeamId = avkashUserInfo?.teamId;
   const orgId = avkashUserInfo?.orgId;
 
-
   if (avkashUserInfo.isOwner && !yourDashboard) {
     req_btn_text = 'Add Leave';
     actionId = 'add-leave';
@@ -40,14 +36,15 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
     } else {
       teamId = avkashUserInfo.teamId;
     }
-    const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({days:7, teamId });
+    const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({ days: 7, teamId });
     formattedLeavesHistory = allLeavesHistory;
     pendingLeaves = pendingHistory;
   } else if (!isManager || yourDashboard) {
     req_btn_text = 'Request Leave';
     actionId = 'home-req-leave';
     team_your_leave = 'Your Past 7 Days Leaves';
-    const [allLeavesHistory] = await fetchLeavesHistory({days:7, userId });
+    // this is the problem for your-dashboard check fetchLeavesHistory method
+    const [allLeavesHistory] = await fetchLeavesHistory({ days: 7, userId });
     formattedLeavesHistory = allLeavesHistory;
   } else {
     req_btn_text = 'Add Leave';
@@ -59,64 +56,15 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
     } else {
       teamId = avkashUserInfo.teamId;
     }
-    const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({days:7, teamId });
+    const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({ days: 7, teamId });
     formattedLeavesHistory = allLeavesHistory;
     pendingLeaves = pendingHistory;
   }
-
   const common_top_block = createButtonsBlock([
     { text: req_btn_text, action_id: actionId },
     { text: "Web App", action_id: 'home-web-app', url: 'https://www.avkash.io/' },
     { text: "Options", action_id: 'home-options' },
   ]);
-
-  // const teamDashboardBlock = () => {
-  //   if (avkashUserInfo.isOwner) {
-  //     return [{
-  //       type: 'input',
-  //       dispatch_action: true,
-  //       block_id: 'owner_team_block',
-  //       element: {
-  //         type: "static_select",
-  //         placeholder: {
-  //           type: "plain_text",
-  //           text: "Select an option",
-  //           emoji: true
-  //         },
-  //         options: teamsList.map((team: { teamId: string, name: string }) => ({
-  //           text: {
-  //             type: "plain_text",
-  //             text: team.name,
-  //             emoji: true
-  //           },
-  //           value: team.teamId
-  //         })),
-  //         action_id: "owner_select_team"
-  //       },
-  //       label: {
-  //         type: "plain_text",
-  //         text: "Select Team",
-  //         emoji: true
-  //       }
-  //     },
-  //     {
-  //       type: 'actions',
-  //       elements: [
-  //         {
-  //           type: 'button',
-  //           text: { type: 'plain_text', text: 'Your Dashboard', emoji: true },
-  //           action_id: 'your-dashboard',
-  //         }]
-  //     }
-  //     ]
-  //   } else {
-  //     return createButtonsBlock([
-  //       { text: "Team Dashboard", action_id: 'team-dashboard' },
-  //       { text: "Your Dashboard", action_id: 'your-dashboard' }
-  //     ]);
-  //   }
-  // }
-
 
   const teamDashboardBlock = () => {
     if (avkashUserInfo.isOwner) {
@@ -160,16 +108,10 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
       ]);
     }
   }
-
-
   const leaveHistoryBlocks = createLeaveHistoryBlock(formattedLeavesHistory);
-
   const teamDashboardBlockArray: any = teamDashboardBlock();
   const pendingLeavesBlocks = createPendingLeaveBlocks(pendingLeaves);
-
   const checkOwnerOrManagerOrUser = (avkashUserInfo.isOwner ? [{ type: 'divider' }, ...teamDashboardBlockArray] : isManager ? [{ type: 'divider' }, teamDashboardBlockArray] : []);
-  // const checkOwnerOrManagerOrUser = (isManager || avkashUserInfo.isOwner ? [{ type: 'divider' }, ...teamDashboardBlockArray] : []);
-
   const blocks = [
     common_top_block,
     ...checkOwnerOrManagerOrUser,
@@ -203,8 +145,6 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
     await slackClient.views.publish({ user_id: avkashUserInfo.slackId, view });
   }
 
-  // !viewId && await slackClient.views.publish({ user_id: avkashUserInfo.slackId, view });
-  // viewId && await slackClient.views.update({ view_id: viewId, view })
   return new NextResponse('App home opened', { status: 200 });
 }
 
@@ -242,12 +182,10 @@ export async function fetchLeavesHistory({ days, userId, teamId }: { days: numbe
   }
 
   let allLeaves: any;
-
   if (userId) {
-
-    allLeaves = await getLeavesHistory1({ days, userId })
+    allLeaves = await getLeavesHistory({ days, userId })
   } else {
-    allLeaves = await getLeavesHistory1({ days, teamId })
+  allLeaves = await getLeavesHistory({ days, teamId })
 
   }
 
@@ -255,12 +193,11 @@ export async function fetchLeavesHistory({ days, userId, teamId }: { days: numbe
 
   const allLeavesHistory = formatDates(leaves);
   const pendingHistory = formatDates(pending);
-  
+
   return [allLeavesHistory, pendingHistory];
 
 
 }
-
 
 function createButtonsBlock(buttons: { text: string, action_id: string, url?: string }[]) {
   return {
@@ -278,7 +215,19 @@ function createButtonsBlock(buttons: { text: string, action_id: string, url?: st
 
 function createLeaveHistoryBlock(leaves: { leaveId: string, leaveType: any, startDate: any, endDate: any, duration: string, isApproved: any, userName: any, teamName: any }[]) {
 
-  const res = leaves.map(leave => (
+  if(leaves.length === 0) {
+    return [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "There are no history of leaves at the moment."
+        }
+      }
+    ];
+  }
+
+  return leaves.map(leave => (
     {
       type: "section",
       text: {
@@ -288,7 +237,6 @@ function createLeaveHistoryBlock(leaves: { leaveId: string, leaveType: any, star
     }
   ))
 
-  return res
 }
 
 function createPendingLeaveBlocks(pendingLeaves: { leaveId: string, startDate: string, endDate: string, leaveType: string, userName: string, teamName: string }[]) {
