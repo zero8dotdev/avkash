@@ -15,6 +15,7 @@ export interface avkashUserInfoProps {
   usedLeave: { 'Paid time off': string, sick: string },
   slackId: string,
   orgId: string,
+  Team: any,
   isOwner?: boolean,
   isManager?: boolean,
   accessToken?: string,

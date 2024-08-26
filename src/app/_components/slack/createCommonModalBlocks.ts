@@ -1,5 +1,6 @@
+import { LeaveTypes } from './../../(authenticated)/dashboard/settings/leave-types/page';
 import { avkashUserInfoProps } from "@/app/api/slack/route";
-import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails } from "../header/_components/actions";
+import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails, fetchIsHalfDay } from "../header/_components/actions";
 import { type } from "os";
 
 interface commonModelProps {
@@ -11,7 +12,7 @@ interface commonModelProps {
   values?: any
 }
 
-interface WorkWeekDataProps {
+export interface WorkWeekDataProps {
   location: string;
   workweek: string[];
 }
@@ -23,14 +24,13 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
   let userDetails: any;
   let durationText: string = '';
   let durationValue: string = '';
-  let shift: string = '';  
-
-  const [leavesList, leaveTypesList, workWeekData]: [any,any,WorkWeekDataProps|null] = await Promise.all([
+  let shift: string = '';
+    const [leavesList, leaveTypesList, workWeekData, isHalfDayAllowed]: [any, any, WorkWeekDataProps | null, boolean] = await Promise.all([
     leaveId ? getLeaveDetails(leaveId) : null,
     getLeaveTypes(avkashUserInfo.orgId),
     fetchOrgWorkWeek(avkashUserInfo.orgId),
+    fetchIsHalfDay(avkashUserInfo.orgId),
   ]);
-
   // this one for review leave
   const leaveDetails = leavesList && leavesList[0];
   if (leaveId) {
@@ -60,7 +60,6 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
   };
   let initialLeaveType: any;
   const leaveTypes = leaveTypesList && leaveTypesList.map((leave: { leaveTypeId: String, name: string }) => {
-
     const res = {
       "text": {
         "type": "plain_text",
@@ -70,12 +69,70 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
       "value": leave.leaveTypeId
     };
     if (leaveId) {
-      if (leaveDetails.leaveType === leave.name) {
+      if (leaveDetails.leaveType === leave.leaveTypeId) {
         initialLeaveType = res
       }
     }
     return res
   })
+
+  const dayAndShiftTypeBlocks = () => {
+    return [
+      {
+        type: 'input',
+        block_id: 'day_type_block',
+        element: {
+          type: 'radio_buttons',
+          action_id: 'day_type',
+          options: [
+            {
+              text: { type: 'plain_text', text: 'Full Day' },
+              value: 'full_day',
+            },
+            ...(isHalfDayAllowed
+              ? [
+                  {
+                    text: { type: 'plain_text', text: 'Half Day' },
+                    value: 'half_day',
+                  },
+                ]
+              : []),
+          ],
+          initial_option: leaveId && initial_radio_option,
+        },
+        label: { type: 'plain_text', text: 'Day Type' },
+      },
+      ...(isHalfDayAllowed
+        ? [
+            {
+              type: 'input',
+              block_id: 'shift_type_block',
+              element: {
+                type: 'radio_buttons',
+                action_id: 'shift_type',
+                options: [
+                  {
+                    text: { type: 'plain_text', text: 'NONE' },
+                    value: 'NONE',
+                  },
+                  {
+                    text: { type: 'plain_text', text: 'Morning' },
+                    value: 'MORNING',
+                  },
+                  {
+                    text: { type: 'plain_text', text: 'Afternoon' },
+                    value: 'AFTERNOON',
+                  },
+                ],
+                initial_option: leaveId && initial_shift_value,
+              },
+              label: { type: 'plain_text', text: 'Shift' },
+            },
+          ]
+        : []),
+    ];
+  };
+
   const blocks: any[] = [
 
     {
@@ -100,52 +157,10 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
       },
       label: { type: 'plain_text', text: 'End Date' }
     },
-    {
-      type: 'input',
-      block_id: 'day_type_block',
-      element: {
-        type: 'radio_buttons',
-        action_id: 'day_type',
-        options: [
-          {
-            text: { type: 'plain_text', text: 'Full Day' },
-            value: 'full_day'
-          },
-          {
-            text: { type: 'plain_text', text: 'Half Day' },
-            value: 'half_day'
-          },
+    // day type block
 
-        ],
-        initial_option: leaveId && initial_radio_option,
-      },
-      label: { type: 'plain_text', text: 'Day Type' }
-    },
-    {
-      type: 'input',
-      block_id: 'shift_type_block',
-      element: {
-        type: 'radio_buttons',
-        action_id: 'shift_type',
-        options: [
-          {
-            text: { type: 'plain_text', text: 'NONE' },
-            value: 'NONE'
-          },
-          {
-            text: { type: 'plain_text', text: 'Morning' },
-            value: 'MORNING'
-          },
-          {
-            text: { type: 'plain_text', text: 'Afternoon' },
-            value: 'AFTERNOON'
-          },
-
-        ],
-        initial_option: leaveId && initial_shift_value,
-      },
-      label: { type: 'plain_text', text: 'Shift' }
-    },
+    ...dayAndShiftTypeBlocks(),
+    // below block is for leave Type
     {
       type: 'input',
       dispatch_action: true,
@@ -164,13 +179,25 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
       block_id: 'notes_block',
       element: {
         type: 'plain_text_input',
-        initial_value: leaveId ? leaveDetails.reason : '',
+        initial_value: leaveId ? leaveDetails.reason ? leaveDetails.reason : '' : '',
         action_id: 'notes',
         placeholder: { type: 'plain_text', text: 'Enter any notes' }
       },
-      label: { type: 'plain_text', text: 'Notes' }
+      label: { type: 'plain_text', text: 'Notes' },
+      optional: true
     }
   ]
+
+
+  // applylingTeam = view?.state?.values?.select_team_block?.select_team?.selected_option?.value;
+  // const dynamicUserBlockId = `select_user_block_${applylingTeam}`;    
+  // const userBlockId = dynamicUserBlockId in view.state.values ? dynamicUserBlockId : 'select_user_block';
+  // appliedUserId = view?.state?.values?.[userBlockId]?.select_user?.selected_option?.value;
+  // const appliedUserSlackId = await getUserDataBasedOnUUID(appliedUserId);
+  // applyiedUserName = view?.state?.values?.select_user_block?.select_user?.selected_option?.text?.text;
+  // channelId = managerSlackId;
+
+
 
   if (checkLeaveType && payload) {
     const values = payload?.view?.state?.values;
@@ -179,7 +206,7 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     endDate = values.end_date_block.end_date.selected_date;
     leaveType = values.type_block.leave_type.selected_option.value;
     userDetails = await getUserDataBasedOnUUID(selectedUserId);
-    const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType,workWeekData, userDetails.accruedLeave, userDetails.usedLeave);
+    const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, userDetails.accruedLeave, userDetails.usedLeave);
     blocks.splice(5, 0, {
       "type": "context",
       "elements": [
@@ -192,8 +219,9 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
   }
 
   if (leaveId) {
+    // this wil get trigger when manager changes leaveType after opened review modal
     if (callbackId?.startsWith('review_leave_')) {
-      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, values,workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, values, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
       blocks.splice(5, 0, {
         "type": "context",
         "elements": [
@@ -205,7 +233,7 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
       },)
     } else {
       // this is for review when manager clicks on review card
-      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveDetails.leaveType,workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveDetails.leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
       blocks.splice(5, 0, {
         "type": "context",
         "elements": [
@@ -222,7 +250,8 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
 
 
 
-export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string,workWeekData:WorkWeekDataProps | null, accruedLeave?: any, usedLeave?: any) {
+export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string, workWeekData: WorkWeekDataProps | null, accruedLeave?: any, usedLeave?: any) {
+
   let availableLeaves;
   if (!workWeekData) {
     throw new Error(`No work week data found for organization ID: ${orgId}`);
@@ -238,7 +267,7 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
     "SATURDAY": 6,
   };
 
-  const [holidays,fetchLeaveTypes]: [any,any] = await Promise.all([fetchHolidays(startDate, endDate, location),getLeaveTypeDetails(leaveType, orgId)])
+  const [holidays, fetchLeaveTypes]: [any, any] = await Promise.all([fetchHolidays(startDate, endDate, location), getLeaveTypeDetails(leaveType, orgId)])
   const holidaysCount = holidays.length > 0 ? holidays.length : 0;
 
   const workWeekNumbers = workweek.map((day: string) => daysMap[day]);
@@ -252,20 +281,23 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  const leaveTypeDetails = fetchLeaveTypes?.LeavePolicy[0]?.unlimited;
-
   count = count - holidaysCount;
+  const isUnlimited = fetchLeaveTypes?.LeavePolicy[0]?.unlimited;
+let showAccruedLeaves;
+  if(accruedLeave[leaveType]){
+    showAccruedLeaves = accruedLeave[leaveType].balance;
+  }
   if (!usedLeave) {
     return count
   }
-  else if (leaveTypeDetails) {
+  else if (isUnlimited) {
     availableLeaves = 'you have unlimited leaves';
   }
   else {
     if (count > accruedLeave[fetchLeaveTypes.name]) {
       availableLeaves = `applied leaves are exceeding the avaliable accrued leave count \n you have ${accruedLeave["Paid time off"]} available leaves`;
     } else {
-      availableLeaves = `${count} applied leaves will be deducted from ${accruedLeave['Paid time off']} avaliable accrued leaves\n you have ${accruedLeave["Paid time off"]} available leaves`;
+      availableLeaves = `${count} applied leaves will be deducted from ${showAccruedLeaves} avaliable accrued leaves\n you have ${showAccruedLeaves} available leaves`;
     }
   }
 

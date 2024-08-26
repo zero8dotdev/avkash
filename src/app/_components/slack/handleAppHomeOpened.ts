@@ -32,7 +32,8 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
     team_your_leave = 'Your Team Past 7 Leaves';
     let teamId;
     if (ownerSelectedTeamId) {
-      teamId = ownerSelectedTeamId
+      teamId = ownerSelectedTeamId;
+
     } else {
       teamId = avkashUserInfo.teamId;
     }
@@ -77,8 +78,7 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
         value: team.teamId
       }));
 
-      const initialOption = options[0];
-
+      const initialOption = options.find((option: {value: string})  => option.value === avkashUserInfo.teamId);
       return [{
         type: 'actions',
         block_id: 'owner_team_block',
