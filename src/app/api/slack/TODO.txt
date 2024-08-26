@@ -1,6 +1,12 @@
-[Review comments]
+[slack issues]
 
-1. We need to investigate, If we can make our API completely about accepting `application/json` content-type.
-If yes, Then we can get rid of handling `application/x-www-form-urlencoded`.
+1. In showing the number of leaves the number is coming as undefined
+2. Need the slack channels of the organization where they want to post messages to everyone like when someone is going on leave then it should notify everyone.
+3. Need discussion on leaveTypes and leavePolicies, how to calculate them.
 
-2. 
+
+change avkash to avkash.io in slack app
+your team past 7 'days' leaves
+auto select the team--> in add leave
+auto select the current user--> add leave
+notes should be optional

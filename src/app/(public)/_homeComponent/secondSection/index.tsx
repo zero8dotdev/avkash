@@ -95,7 +95,7 @@ const SecondSection: React.FC = () => {
         Want to be a founder with bandwidth?
       </h1>
       <h2 className=" mx-auto text-lg md:text-xl text-gray-300 my-2 md:my-4 text-left md:text-center px-2 tracking-tight md:tracking-normal">
-        Say goodbye to the hassle and hello to efficiency!
+        Say goodbye to hassle and hello to efficiency!
       </h2>
       <div className="w-full pt-10 md:p-4 lg:pr-0">
         <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
