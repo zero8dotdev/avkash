@@ -37,6 +37,7 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
   const selectedUserId = payload?.view?.state?.values?.[selectedUserIdBlock]?.select_user?.selected_option?.value;
 
   const openedModalViewId = await openView(avkashUserInfo, trigger_id, loadingView);
+
   let teamsInfo = await getTeamsList(avkashUserInfo.orgId);
   const teamsList = teamsInfo?.map((team) => ({
     "text": {

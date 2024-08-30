@@ -28,10 +28,9 @@ interface getUserDataProps {
 const supabaseAdmin = createAdminClient();
 
 export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
-  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
-    .select('*,Team(name)')
+    .select('*,Team(name),Organisation(notificationToWhom)')
     .eq(`${slackId ? 'slackId' : 'googleId'}`, id)
     .single()
 
@@ -60,18 +59,18 @@ export async function getSlackAccessToken(slackId: string) {
   return slackToken && slackToken
 }
 
-export async function getNotifiedUser(teamId: string, orgId: string) {
-  const { data: notifyData, error: notifyError } = await supabaseAdmin
-    .from('Organisation')
-    .select('notificationToWhom')
-    .eq('orgId', orgId)
-    .single()
 
+export async function getNotifiedUser(toWhom: string,teamId: string, orgId: string) {
+  // const { data: notifyData, error: notifyError } = await supabaseAdmin
+  //   .from('Organisation')
+  //   .select('notificationToWhom')
+  //   .eq('orgId', orgId)
+  //   .single()
   let managersList: any = [];
-  if (notifyData?.notificationToWhom === 'MANAGER') {
+  if (toWhom === 'MANAGER') {
     const { data: managerData, error: managerError } = await supabaseAdmin
       .from("User")
-      .select('slackId')
+      .select('slackId,name')
       .eq('role', 'MANAGER')
       .eq('teamId', teamId)
       .eq('orgId', orgId)
@@ -83,6 +82,7 @@ export async function getNotifiedUser(teamId: string, orgId: string) {
       .eq('role', 'OWNER')
       .eq('orgId', orgId)
     managersList = managerData
+
   }
 
   const filteredList = managersList.map((manager: any) => (manager.slackId))
@@ -229,6 +229,7 @@ export async function getLeaveDetails(leaveId: string) {
   const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave").select("*,User(name,email,slackId,accruedLeave,usedLeave),Team(name)").eq('leaveId', leaveId)
+    console.log(data);
   return data
 }
 
