@@ -20,6 +20,7 @@ import LeavePolicyPage from "./[teamId]/leavePolicy/page";
 import NotificationPage from "./[teamId]/notifications/page";
 import Users from "./[teamId]/users/page";
 import Managers from "./[teamId]/managers/page";
+
 const tabItems = [
   {
     key: "1",
@@ -89,10 +90,10 @@ const TeamTableActive:React.FC<Props> = ({ teams, status,onDisable,onEnable}) =>
       key: 1,
     },
   ];
-
   return (
     <Flex gap={12} vertical>
       <Table
+      scroll={{x:true}}
         columns={[
           {
             title: "NAME",

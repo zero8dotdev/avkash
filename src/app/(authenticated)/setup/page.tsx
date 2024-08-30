@@ -219,18 +219,18 @@ export default function SetupPage() {
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   return initialLoading ? (
-    <Col span={24} style={{ paddingTop: "16px" }}>
+    <Col span={24} className="pt-4">
       <Col push={4} span={16}>
         <Card loading={initialLoading} />
       </Col>
     </Col>
   ) : (
-    <Row gutter={8} style={{ padding: "64px" }}>
-      <Col span={24}>
-        <Steps current={current} items={items} />
+    <Row gutter={8} className="lg:p-16 pb-4" >
+      <Col span={24} >
+        <Steps current={current} items={items}/>
       </Col>
       <Col span={24} style={{ paddingTop: "32px" }}>
-        <Col push={4} span={16}>
+        <Col xs={24} lg={16} className="mx-auto">
           <div>{steps[current].content}</div>
         </Col>
       </Col>
