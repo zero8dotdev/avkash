@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
 
 export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps, trigger_id: string, user_id: string, checkLeaveType: boolean, payload?: any) {
+
     let viewId: string = payload && payload.view.id;
+    let updatingViewId;
 
     const loadingView = {
         type: 'modal',
@@ -17,7 +19,9 @@ export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps,
             }
         ]
     };
-    const view_id = await openView(avkashUserInfo, trigger_id, loadingView);
+    if (!checkLeaveType) {
+        updatingViewId = await openView(avkashUserInfo, trigger_id, loadingView);
+    }
     const commonBlocks = await createCommonModalBlocks({ avkashUserInfo, checkLeaveType, payload });
 
     const fullView = {
@@ -27,13 +31,13 @@ export async function openRequestLeaveModal(avkashUserInfo: avkashUserInfoProps,
         submit: { type: 'plain_text', text: 'Submit', emoji: true },
         blocks: commonBlocks
     };
-
     if (checkLeaveType) {
         await updateViews(avkashUserInfo, viewId, fullView);
+        return new NextResponse('Modal opened and updated', { status: 200 });
 
     } else {
-        await updateViews(avkashUserInfo, view_id, fullView);
+        await updateViews(avkashUserInfo, updatingViewId, fullView);
+        return new NextResponse('Modal opened and updated', { status: 200 });
     }
 
-    return new NextResponse('Modal opened and updated', { status: 200 });
 }

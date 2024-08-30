@@ -2,11 +2,10 @@ import { applyLeave, fetchIsHalfDay, fetchOrgWorkWeek, getLeaveDetails, getNotif
 import { avkashUserInfoProps } from "../../../api/slack/route"
 import { NextResponse } from "next/server";
 import { sendPostMessages } from "../sendMessages";
-import { log } from "node:console";
 import { calculateWorkingDays } from "../createCommonModalBlocks";
 
 export async function handleViewSubmission(view: any, avkashUserInfo: avkashUserInfoProps) {
-  const whoGetNotified = await getNotifiedUser(avkashUserInfo.teamId, avkashUserInfo.orgId);
+  let whoGetNotified ; 
   // const updates_channel_Id = 'C06GP1QCS0Y';
   // const managerSlackId = await getManagerIds(avkashUserInfo.orgId);
   const managerSlackId = avkashUserInfo.slackId;
@@ -37,25 +36,37 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
     const dynamicUserBlockId = `select_user_block_${applylingTeam}`;
     const userBlockId = dynamicUserBlockId in view.state.values ? dynamicUserBlockId : 'select_user_block';
     appliedUserId = view?.state?.values?.[userBlockId]?.select_user?.selected_option?.value;
-    const appliedUserSlackId = await getUserDataBasedOnUUID(appliedUserId);
+
+    const [appliedUserSlackId,whoGetNotified_temp] = await Promise.all([
+      getUserDataBasedOnUUID(appliedUserId),
+      getNotifiedUser(avkashUserInfo.Organisation.notificationToWhom,avkashUserInfo.teamId, avkashUserInfo.orgId)
+    ])
+    whoGetNotified = whoGetNotified_temp;
     applyiedUserName = view?.state?.values?.select_user_block?.select_user?.selected_option?.text?.text;
     channelId = managerSlackId;
     text = `Leave apply for <@${appliedUserSlackId.slackId}> from ${startDate} to ${endDate} has been successfully`;
+
   }
   // it will when manager is reviewing and approving/reject leave request
   else if (callback_id.startsWith('review_leave_')) {
     const leaveId = callback_id.split("review_leave_")[1];
-    const leaveDetailsList: any = await getLeaveDetails(leaveId);
+  
+    const [leaveDetailsList,whoGetNotified_temp,workWeekData]:[any,any,any] = await Promise.all([
+      getLeaveDetails(leaveId),
+      getNotifiedUser(avkashUserInfo.Organisation.notificationToWhom,avkashUserInfo.teamId, avkashUserInfo.orgId),
+      fetchOrgWorkWeek(avkashUserInfo.orgId)
+    ])
+    whoGetNotified = whoGetNotified_temp;
     const leaveDetails = leaveDetailsList[0]
     const appliedUserSlackId = leaveDetails.User.slackId;
     const isReviewApproved = view?.state?.values?.approve_reject_block?.approve_reject_type.selected_option?.value;
     const mngrNotes = view?.state?.values?.mngr_notes_block?.mngr_notes?.value;
-    const msgForUser = `Hey <@${avkashUserInfo.slackId}>! your leave from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? `Approved` : 'Rejected'}\n\nChek comments: ${mngrNotes}`;
+    const msgForUser = `Hey <@${appliedUserSlackId}>! your leave from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? `Approved` : 'Rejected'}\n\nChek comments: ${mngrNotes}`;
     shift = shift_temp ? shift_temp : 'NONE';
     const allFields = { leaveType, startDate, endDate, duration, shift: shift, isApproved: `${isReviewApproved === "approve" ? "APPROVED" : "REJECTED"}`, reason: leaveReason, managerComment: mngrNotes };
-    const workWeekData: any = await fetchOrgWorkWeek(avkashUserInfo.orgId)
-    const leaveCalculate: any = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
-    const leaveCount: number = leaveCalculate[0];
+    const [res,count,isLeaveInAccured]:[string,number,boolean] = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+    // const leaveCalculate: any = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+    const leaveCount: number = count;
     const newAccuredBalance: number = Number(leaveDetails.User.accruedLeave[leaveType]?.balance) - leaveCount;
     const newUsedBalance: number = Number(leaveDetails.User.usedLeave[leaveType]?.balance) + Number(leaveCount);
     const newAccruedLeaveObj = {
@@ -70,12 +81,14 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
         balance: newUsedBalance
       }
     };
-    await updateLeaveStatus(leaveId, allFields, newAccruedLeaveObj, newUsedLeaveObj, leaveDetails.userId);
+    await updateLeaveStatus(leaveId, allFields, isLeaveInAccured ? newAccruedLeaveObj : leaveDetails.User.accruedLeave, isLeaveInAccured ? newUsedLeaveObj : leaveDetails.User.usedLeave[leaveType], leaveDetails.userId);
     sendPostMessages(avkashUserInfo, appliedUserSlackId, msgForUser);
-    sendPostMessages(avkashUserInfo, managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails[0].Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
+    sendPostMessages(avkashUserInfo, managerSlackId, `Leaves applied for <@${appliedUserSlackId}> from ${leaveDetails.Team.name} from ${startDate} to ${endDate} has been ${isReviewApproved == 'approve' ? "Approved" : "Rejected"}`);
     return new NextResponse(null, { status: 200 })
   }
   else {
+    const [whoGetNotified_temp] = await Promise.all([getNotifiedUser(avkashUserInfo.Organisation.notificationToWhom,avkashUserInfo.teamId, avkashUserInfo.orgId)]);
+    whoGetNotified = whoGetNotified_temp;
     appliedUserId = avkashUserInfo.userId;
     applylingTeam = avkashUserInfo.teamId;
     text = `Your Leave apply from ${startDate} to ${endDate} has been submitted successfully`;
@@ -93,37 +106,46 @@ export async function handleViewSubmission(view: any, avkashUserInfo: avkashUser
   const appliedLeaveDetailsList: any = await getLeaveDetails(leaveId);
   const appliedLeaveDetails = appliedLeaveDetailsList[0];
 
+
+
   const blocks: any = [
     {
-      type: "rich_text",
-      elements: [
-        {
-          "type": "rich_text_preformatted",
-          "elements": [
-            {
-              "type": "text",
-              "text": `Leave Request\n\nTeam:  ${appliedLeaveDetails.Team.name}\nUser:  ${appliedLeaveDetails.User.name}\nEmail: ${appliedLeaveDetails.User.email}\nFrom: ${appliedLeaveDetails.startDate}\nTo: ${appliedLeaveDetails.endDate}\nType: ${leaveTypeName}\nReason: ${leaveReason ? leaveReason : ""}`,
-            }
-          ]
-        },
-      ]
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "New Leave Request",
+        "emoji": true
+      }
     },
-
     {
-      type: 'actions',
-      elements: [
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": `*Name*: ${appliedLeaveDetails.User.name} (${appliedLeaveDetails.Team.name})\n*Email*: ${appliedLeaveDetails.User.email}\n\n*Date*: ${appliedLeaveDetails.startDate} - ${appliedLeaveDetails.endDate}\n*Type*: ${leaveTypeName}\n*Reason*: ${leaveReason ? leaveReason : ""}`
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "actions",
+      "elements": [
         {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "Review",
-            emoji: true
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Review",
+            "emoji": true
           },
-          action_id: `review_${leaveId}`
+          "action_id": `review_${leaveId}`,
+          "style": "primary"
         }
       ]
-    }
-  ];
+    },
+    {
+      "type": "divider"
+    },
+];
 
   sendPostMessages(avkashUserInfo, avkashUserInfo.slackId, text);
 
