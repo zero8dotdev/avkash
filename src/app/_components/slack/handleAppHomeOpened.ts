@@ -25,29 +25,30 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
   const userId = avkashUserInfo?.userId;
   const currentTeamId = avkashUserInfo?.teamId;
   const orgId = avkashUserInfo?.orgId;
+  let pendingText;
 
   if (avkashUserInfo.isOwner && !yourDashboard) {
     req_btn_text = 'Add Leave';
     actionId = 'add-leave';
     team_your_leave = 'Your Team Past 7 Leaves';
+    pendingText = "Pending Leaves";
     let teamId;
-    if (ownerSelectedTeamId) {
-      teamId = ownerSelectedTeamId;
-
-    } else {
-      teamId = avkashUserInfo.teamId;
-    }
+    teamId = ownerSelectedTeamId ? ownerSelectedTeamId :  avkashUserInfo.teamId;
     const [allLeavesHistory, pendingHistory] = await fetchLeavesHistory({ days: 7, teamId });
     formattedLeavesHistory = allLeavesHistory;
     pendingLeaves = pendingHistory;
   } else if (!isManager || yourDashboard) {
+    pendingText = "Upcoming Leaves";
     req_btn_text = 'Request Leave';
     actionId = 'home-req-leave';
     team_your_leave = 'Your Past 7 Days Leaves';
     // this is the problem for your-dashboard check fetchLeavesHistory method
-    const [allLeavesHistory] = await fetchLeavesHistory({ days: 7, userId });
+    const [allLeavesHistory,pendingHistory] = await fetchLeavesHistory({ days: 7, userId });
     formattedLeavesHistory = allLeavesHistory;
+    pendingLeaves = pendingHistory;
+
   } else {
+    pendingText = "Pending Leaves";
     req_btn_text = 'Add Leave';
     actionId = 'add-leave';
     team_your_leave = 'Your Team Past 7 Leaves';
@@ -110,7 +111,7 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
   }
   const leaveHistoryBlocks = createLeaveHistoryBlock(formattedLeavesHistory);
   const teamDashboardBlockArray: any = teamDashboardBlock();
-  const pendingLeavesBlocks = createPendingLeaveBlocks(pendingLeaves);
+  const pendingLeavesBlocks: any = (!isManager || yourDashboard) ? userUpcomingBlock(pendingLeaves): createPendingLeaveBlocks(pendingLeaves);
   const checkOwnerOrManagerOrUser = (avkashUserInfo.isOwner ? [{ type: 'divider' }, ...teamDashboardBlockArray] : isManager ? [{ type: 'divider' }, teamDashboardBlockArray] : []);
   const blocks = [
     common_top_block,
@@ -121,7 +122,7 @@ export default async function handleAppHomeOpened({ avkashUserInfo, yourDashboar
       type: "header",
       text: {
         type: "plain_text",
-        text: "Pending Leaves",
+        text: pendingText,
         emoji: true
       }
     },
@@ -185,7 +186,7 @@ export async function fetchLeavesHistory({ days, userId, teamId }: { days: numbe
   if (userId) {
     allLeaves = await getLeavesHistory({ days, userId })
   } else {
-  allLeaves = await getLeavesHistory({ days, teamId })
+    allLeaves = await getLeavesHistory({ days, teamId })
 
   }
 
@@ -193,7 +194,6 @@ export async function fetchLeavesHistory({ days, userId, teamId }: { days: numbe
 
   const allLeavesHistory = formatDates(leaves);
   const pendingHistory = formatDates(pending);
-
   return [allLeavesHistory, pendingHistory];
 
 
@@ -215,7 +215,9 @@ function createButtonsBlock(buttons: { text: string, action_id: string, url?: st
 
 function createLeaveHistoryBlock(leaves: { leaveId: string, leaveType: any, startDate: any, endDate: any, duration: string, isApproved: any, userName: any, teamName: any }[]) {
 
-  if(leaves.length === 0) {
+  const noPendingLeaves = leaves.filter(leave => leave.isApproved !== 'PENDING');
+
+  if(noPendingLeaves.length === 0) {
     return [
       {
         type: "section",
@@ -227,12 +229,12 @@ function createLeaveHistoryBlock(leaves: { leaveId: string, leaveType: any, star
     ];
   }
 
-  return leaves.map(leave => (
+  return noPendingLeaves.map(leave => (
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<@${leave.userName}> from ${leave.teamName}\n${leave.startDate} - ${leave.endDate}\n${leave.leaveType} - ${leave.isApproved}  ${leave.isApproved === 'APPROVED' ? ':thumbsup:' : (leave.isApproved === 'PENDING' ? ':wink:' : ':laughing:')}`
+        text: `<@${leave.userName}> from ${leave.teamName}\n${leave.startDate} - ${leave.endDate}\n${leave.leaveType} - ${leave.isApproved}  ${leave.isApproved === 'APPROVED' ? ':white_check_mark:' : (leave.isApproved === 'PENDING' ? ':wink:' : ':x:')}`
       }
     }
   ))
@@ -270,11 +272,39 @@ function createPendingLeaveBlocks(pendingLeaves: { leaveId: string, startDate: s
             text: "Review",
             emoji: true
           },
-          action_id: `review_${leave.leaveId}`
+          action_id: `review_${leave.leaveId}`,
+          style:'primary',
         }
       ]
     }
   ])).flat();
+}
+
+function userUpcomingBlock(pendingLeaves: { leaveId: string, startDate: string, endDate: string, leaveType: string, userName: string, teamName: string }[]){
+  
+  if (pendingLeaves.length === 0) {
+    return [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "There are no pending leave requests at the moment."
+        }
+      }
+    ];
+  }
+
+  const block = pendingLeaves.map(leave => (
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `(${leave.startDate} - ${leave.endDate})\n${leave.leaveType} - Pending :hourglass_flowing_sand:`,
+      }
+    }
+  ))
+  return block;
+
 }
 
 function createHomeView(slackId: string, blocks: any[]) {
@@ -284,7 +314,7 @@ function createHomeView(slackId: string, blocks: any[]) {
     blocks: [
       { type: 'section', text: { type: 'mrkdwn', text: `Welcome to your Home tab, <@${slackId}>!` } },
       { type: 'divider' },
-      { type: 'section', text: { type: 'mrkdwn', text: 'Here you can add various interactive blocks, buttons, and more.' } },
+      { type: 'section', text: { type: 'mrkdwn', text: 'check below to know what you can do with Avkash!!' } },
       ...blocks
     ]
   };

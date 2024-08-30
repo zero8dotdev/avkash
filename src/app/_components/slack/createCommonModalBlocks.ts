@@ -1,7 +1,5 @@
-import { LeaveTypes } from './../../(authenticated)/dashboard/settings/leave-types/page';
 import { avkashUserInfoProps } from "@/app/api/slack/route";
 import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails, fetchIsHalfDay } from "../header/_components/actions";
-import { type } from "os";
 
 interface commonModelProps {
   avkashUserInfo: avkashUserInfoProps,
@@ -188,26 +186,16 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     }
   ]
 
-
-  // applylingTeam = view?.state?.values?.select_team_block?.select_team?.selected_option?.value;
-  // const dynamicUserBlockId = `select_user_block_${applylingTeam}`;    
-  // const userBlockId = dynamicUserBlockId in view.state.values ? dynamicUserBlockId : 'select_user_block';
-  // appliedUserId = view?.state?.values?.[userBlockId]?.select_user?.selected_option?.value;
-  // const appliedUserSlackId = await getUserDataBasedOnUUID(appliedUserId);
-  // applyiedUserName = view?.state?.values?.select_user_block?.select_user?.selected_option?.text?.text;
-  // channelId = managerSlackId;
-
-
-
   if (checkLeaveType && payload) {
-    const values = payload?.view?.state?.values;
+  const values = payload?.view?.state?.values;
     const selectedUserId = values.select_user_block ? values.select_user_block.select_user.selected_option.value : avkashUserInfo.userId;
     startDate = values.start_date_block.start_date.selected_date;
     endDate = values.end_date_block.end_date.selected_date;
     leaveType = values.type_block.leave_type.selected_option.value;
     userDetails = await getUserDataBasedOnUUID(selectedUserId);
-    const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, userDetails.accruedLeave, userDetails.usedLeave);
-    blocks.splice(5, 0, {
+    const [res,count,isLeaveInAccured]:[string,number,boolean] = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, userDetails.accruedLeave, userDetails.usedLeave);
+    console.log(count);
+    blocks.splice(4, 0, {
       "type": "context",
       "elements": [
         {
@@ -221,8 +209,8 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
   if (leaveId) {
     // this wil get trigger when manager changes leaveType after opened review modal
     if (callbackId?.startsWith('review_leave_')) {
-      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, values, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
-      blocks.splice(5, 0, {
+      const [res,count,isLeaveInAccured]:[string,number,boolean] = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, values, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+    blocks.splice(5, 0, {
         "type": "context",
         "elements": [
           {
@@ -233,7 +221,7 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
       },)
     } else {
       // this is for review when manager clicks on review card
-      const res = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveDetails.leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
+      const [res,count,isLeaveInAccured]:[string,number,boolean] = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveDetails.leaveType, workWeekData, leaveDetails.User.accruedLeave, leaveDetails.User.usedLeave);
       blocks.splice(5, 0, {
         "type": "context",
         "elements": [
@@ -250,9 +238,9 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
 
 
 
-export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string, workWeekData: WorkWeekDataProps | null, accruedLeave?: any, usedLeave?: any) {
+export async function calculateWorkingDays(orgId: string, startDate: string, endDate: string, leaveType: string, workWeekData: WorkWeekDataProps | null, accruedLeave?: any, usedLeave?: any): Promise<[string,number,boolean]> {
 
-  let availableLeaves;
+  let availableLeaves: string;
   if (!workWeekData) {
     throw new Error(`No work week data found for organization ID: ${orgId}`);
   }
@@ -271,7 +259,7 @@ export async function calculateWorkingDays(orgId: string, startDate: string, end
   const holidaysCount = holidays.length > 0 ? holidays.length : 0;
 
   const workWeekNumbers = workweek.map((day: string) => daysMap[day]);
-  let count = 0;
+  let count: number = 0;
   const currentDate = new Date(startDate);
 
   while (currentDate <= new Date(endDate)) {
@@ -288,20 +276,24 @@ let showAccruedLeaves;
     showAccruedLeaves = accruedLeave[leaveType].balance;
   }
   if (!usedLeave) {
-    return count
+    return ['',count,false]
   }
   else if (isUnlimited) {
     availableLeaves = 'you have unlimited leaves';
   }
-  else {
+  else if(Object.keys(accruedLeave).includes(leaveType)) {
     if (count > accruedLeave[fetchLeaveTypes.name]) {
-      availableLeaves = `applied leaves are exceeding the avaliable accrued leave count \n you have ${accruedLeave["Paid time off"]} available leaves`;
+      availableLeaves = `applied leaves are exceeding the avaliable accrued leave count \n you have ${accruedLeave[fetchLeaveTypes.name]} available leaves`;
     } else {
       availableLeaves = `${count} applied leaves will be deducted from ${showAccruedLeaves} avaliable accrued leaves\n you have ${showAccruedLeaves} available leaves`;
     }
+  }else{
+    availableLeaves = `No accrued leaves found for leave type "${fetchLeaveTypes.name}".`;
   }
 
-  return availableLeaves;
+  const isLeaveInAccured = Object.keys(accruedLeave).includes(leaveType);
+
+  return [availableLeaves,count,isLeaveInAccured];
 
 }
 
