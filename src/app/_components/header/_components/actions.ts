@@ -8,6 +8,7 @@ import { FileTextFilled } from "@ant-design/icons";
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server";
+import { log } from 'node:console';
 
 interface LeaveHistoryParams {
   userId?: string;
@@ -27,10 +28,9 @@ interface getUserDataProps {
 const supabaseAdmin = createAdminClient();
 
 export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
-  const supabaseAdmin = createAdminClient();
   const { data: userData, error: userError } = await supabaseAdmin
     .from("User")
-    .select('*')
+    .select('*,Team(name),Organisation(notificationToWhom)')
     .eq(`${slackId ? 'slackId' : 'googleId'}`, id)
     .single()
 
@@ -59,18 +59,18 @@ export async function getSlackAccessToken(slackId: string) {
   return slackToken && slackToken
 }
 
-export async function getNotifiedUser(teamId: string, orgId: string) {
-  const { data: notifyData, error: notifyError } = await supabaseAdmin
-    .from('Organisation')
-    .select('notificationToWhom')
-    .eq('orgId', orgId)
-    .single()
 
+export async function getNotifiedUser(toWhom: string,teamId: string, orgId: string) {
+  // const { data: notifyData, error: notifyError } = await supabaseAdmin
+  //   .from('Organisation')
+  //   .select('notificationToWhom')
+  //   .eq('orgId', orgId)
+  //   .single()
   let managersList: any = [];
-  if (notifyData?.notificationToWhom === 'MANAGER') {
+  if (toWhom === 'MANAGER') {
     const { data: managerData, error: managerError } = await supabaseAdmin
       .from("User")
-      .select('slackId')
+      .select('slackId,name')
       .eq('role', 'MANAGER')
       .eq('teamId', teamId)
       .eq('orgId', orgId)
@@ -82,10 +82,11 @@ export async function getNotifiedUser(teamId: string, orgId: string) {
       .eq('role', 'OWNER')
       .eq('orgId', orgId)
     managersList = managerData
+
   }
 
-  const filteredList = managersList.map((manager: any)=>(manager.slackId))
-  
+  const filteredList = managersList.map((manager: any) => (manager.slackId))
+
   return filteredList
 }
 
@@ -131,20 +132,25 @@ export async function applyLeave(leaveType: string, startDate: string, endDate: 
 
 };
 
-export async function updateLeaveStatus(leaveId: string, allFields: any = {}) {
-
+export async function updateLeaveStatus(leaveId: string, allFields: any = {}, newAccruedBalance: any, newUsedBalance: any, userId: string) {
   let updateValue: any = allFields;
-  // if(allFields){
-  //   updateValue = allFields;
-  // }else{
-  //   updateValue = allFields;
-  // }
-  const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave")
     .update(updateValue)
     .eq("leaveId", leaveId)
+  if (allFields.isApproved === 'APPROVED') {
+    const { data: checkLeaveData, error: checkLeaveError } = await supabaseAdmin
+      .from("User")
+      .update({
+        accruedLeave: newAccruedBalance,
+        usedLeave: newUsedBalance
+      })
+      .eq("userId", userId);
+      return checkLeaveData
+  }
+  return data
 }
+
 
 export async function getLeavesHistory({ days, userId, teamId }: { days: number, userId?: string, teamId?: string }) {
   const daysAgo = new Date();
@@ -169,9 +175,9 @@ export async function getLeavesHistory({ days, userId, teamId }: { days: number,
     filteredLeaves = filteredLeaves.filter(leave => leave.teamId === teamId);
   }
 
-if (filteredLeaves.length === 0) {
-  return { leaves: [], pending: [] };
-}
+  if (filteredLeaves.length === 0) {
+    return { leaves: [], pending: [] };
+  }
 
   const { data: leaveTypesData, error: leaveTypeError } = await supabaseAdmin
     .from("LeaveType")
@@ -223,6 +229,7 @@ export async function getLeaveDetails(leaveId: string) {
   const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
     .from("Leave").select("*,User(name,email,slackId,accruedLeave,usedLeave),Team(name)").eq('leaveId', leaveId)
+    console.log(data);
   return data
 }
 
@@ -256,6 +263,20 @@ export async function getManagerIds(orgId: string) {
     .eq('orgId', orgId)
     .single()
   return data.slackId
+}
+
+export async function fetchIsHalfDay(orgId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("Organisation")
+    .select("halfDayLeave")
+    .eq("orgId", orgId)
+  console.log(data);
+
+  if (data) {
+    return data[0].halfDayLeave
+  } else {
+    return error
+  }
 }
 
 export async function fetchOrgWorkWeek(orgId: string) {

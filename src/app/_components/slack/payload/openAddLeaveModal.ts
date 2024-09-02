@@ -3,6 +3,7 @@ import { getTeamsList, getUsersList } from "../../header/_components/actions";
 import { createCommonModalBlocks } from "../createCommonModalBlocks";
 import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
+import UserList from "@/app/(authenticated)/dashboard/users/_components/user-list";
 
 interface openAddLeaveProps {
   userId?: any,
@@ -19,18 +20,24 @@ interface openAddLeaveProps {
 const loadingView = {
   type: 'modal',
   callback_id: 'home-req-leave',
-  title: { type: 'plain_text', text: 'Request Leave' },
+  title: { type: 'plain_text', text: 'Add Leave' },
   blocks: [
-      {
-          type: 'section',
-          text: { type: 'mrkdwn', text: 'Loading...' }
-      }
+    {
+      type: 'section',
+      text: { type: 'mrkdwn', text: '⏳ Please wait while we load you request...' }
+    }
   ]
 };
 
 export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigger_id, selectedTeamId, action_id, leaveId, checkLeaveType = false, payload }: openAddLeaveProps) {
-  
+
+  const selectedTeam = payload?.view?.state?.values?.select_team_block?.select_team?.selected_option?.value;
+  const dynamicUserBlockId = `select_user_block_${selectedTeam}`;    
+  const selectedUserIdBlock = checkLeaveType && dynamicUserBlockId in payload?.view?.state?.values ? dynamicUserBlockId : 'select_user_block';
+  const selectedUserId = payload?.view?.state?.values?.[selectedUserIdBlock]?.select_user?.selected_option?.value;
+
   const openedModalViewId = await openView(avkashUserInfo, trigger_id, loadingView);
+
   let teamsInfo = await getTeamsList(avkashUserInfo.orgId);
   const teamsList = teamsInfo?.map((team) => ({
     "text": {
@@ -41,7 +48,13 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
     "value": team.teamId
   }));
 
+  const ownTeam = teamsList?.filter(team => (team.value === avkashUserInfo.teamId));
+  const userBlockId = selectedTeamId ? `select_user_block_${selectedTeamId }`: 'select_user_block';
   let usersList: any = [];
+  let initialUserOption: any;
+  let initialUserOptionForTeamChange: any;
+
+
   if (selectedTeamId) {
     const usersInfo = await getUsersList(selectedTeamId);
     usersList = usersInfo?.map((user) => ({
@@ -52,7 +65,33 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
       },
       "value": user.userId
     }));
+    initialUserOptionForTeamChange = usersList[0];
+
+  }else if(checkLeaveType){
+    const usersInfo = await getUsersList(selectedTeam);
+    usersList = usersInfo?.map((user) => ({
+      "text": {
+        "type": "plain_text",
+        "text": user.name,
+        "emoji": true
+      },
+      "value": user.userId
+    }));
+    initialUserOptionForTeamChange = usersList.find((u:{value: string;}) => u.value === selectedUserId);
   }
+  else {
+    const initailTeamUsers = await getUsersList(avkashUserInfo.teamId);
+    usersList = initailTeamUsers?.map((user) => ({
+      "text": {
+        "type": "plain_text",
+        "text": user.name,
+        "emoji": true
+      },
+      "value": user.userId
+    }));
+    initialUserOption = usersList.find((user: { value: string; }) => user.value === avkashUserInfo.userId)
+  }
+
 
   const noUserView = [
     {
@@ -66,12 +105,11 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
   ];
 
   const commonBlocks = await createCommonModalBlocks({ avkashUserInfo, checkLeaveType, payload });
-
   const view: any = {
     type: 'modal',
     callback_id: 'add-leave',
     title: { type: 'plain_text', text: 'Add Leave' },
-    submit: { type: 'plain_text', text: 'Submit', emoji: true },
+    submit: { type: 'plain_text', text: 'add leave', emoji: true },
     blocks: [
       {
         type: 'input',
@@ -85,13 +123,14 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
             emoji: true,
           },
           "options": teamsList,
+          initial_option: ownTeam && ownTeam[0],
           "action_id": "select_team"
         },
         label: { type: 'plain_text', text: 'Team' }
       },
       {
         type: 'input',
-        block_id: 'select_user_block',
+        block_id: userBlockId,
         element: {
           type: "static_select",
           placeholder: {
@@ -99,7 +138,8 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
             text: "Select an item",
             emoji: true,
           },
-          "options": selectedTeamId && usersList.length ? usersList : noUserView,
+          "options": usersList.length ? usersList : noUserView,
+          initial_option: selectedTeamId || checkLeaveType ? initialUserOptionForTeamChange : initialUserOption,
           "action_id": "select_user"
         },
         label: { type: 'plain_text', text: 'User' }
@@ -110,7 +150,7 @@ export async function openAddLeaveModal({ avkashUserInfo, userId, viewId, trigge
 
 
   if (selectedTeamId || checkLeaveType) {
-    updateViews(avkashUserInfo, viewId || openedModalViewId, view)
+    updateViews(avkashUserInfo, viewId, view)
   } else {
     updateViews(avkashUserInfo, openedModalViewId, view);
   }
