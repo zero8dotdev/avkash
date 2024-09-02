@@ -1,12 +1,14 @@
-import { Row, Col } from "antd";
+import { Row, Col, Grid } from "antd";
 import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "@/app/_actions";
 import StoreToContext from "@/app/_components/store-to-context";
 
 export const dynamic = "force-dynamic";
 
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
   const user = await fetchUser();
   const org = await fetchOrg(user.orgId);
   const team = await fetchTeam(user.teamId);
@@ -23,8 +25,8 @@ export default async function DashboardLayout({
         style={{
           minHeight: "calc(100vh - 64px)",
           background: "#F2F2F2",
-          padding: "32px",
         }}
+        className="p-1 lg:p-8"
       >
         <Col span={24}>{children}</Col>
       </Row>

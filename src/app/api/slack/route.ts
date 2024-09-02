@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSlackAccessToken, getUserData } from '@/app/_components/header/_components/actions';
+import { fetchOrgWorkWeek, getSlackAccessToken, getUserData } from '@/app/_components/header/_components/actions';
 import getBodyAndSlackId from '../../_components/slack/getBodyAndSlackId';
 import handleAppHomeOpened from '../../_components/slack/handleAppHomeOpened';
 import handlePayload from '@/app/_components/slack/payload/handlePayload';
@@ -15,6 +15,8 @@ export interface avkashUserInfoProps {
   usedLeave: { 'Paid time off': string, sick: string },
   slackId: string,
   orgId: string,
+  Team: any,
+  Organisation: any,
   isOwner?: boolean,
   isManager?: boolean,
   accessToken?: string,
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
   const [body,currentUserSlackId,appId] = await getBodyAndSlackId(request);  
   const [accessTokenData, userInfo] = await Promise.all([
     getSlackAccessToken(currentUserSlackId),
-    getUserData({ id: currentUserSlackId, slackId: 'slackId' })
+    getUserData({ id: currentUserSlackId, slackId: 'slackId' }),
   ]);
 
   avkashUserInfo = userInfo;
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
       return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
     }
     if (body.payload) {
-      const payload = JSON.parse(body.payload);      
+      const payload = JSON.parse(body.payload);    
       return await handlePayload(avkashUserInfo, payload);
     }
 

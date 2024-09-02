@@ -8,14 +8,18 @@ import LeavePreview from "./_components/leave-preview";
 import LeaveCalendar from "./_components/leave-calendar";
 import { useState } from "react";
 import AddLeave from "./_components/add-leave";
+import ShowCalendarURL from "./_components/calenderfeed";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 export default function Page() {
   const [team, setTeam] = useState<string | undefined>(undefined);
-
+  const {
+    state: { orgId, userId, teamId },
+  } = useApplicationContext();
   return (
     <Flex vertical gap={12}>
       <Flex gap={8} align="center" justify="space-between">
-        <AddLeave team={team}/>
+        <AddLeave team={team} />
         <TeamSelect
           changeTeam={(team: string) => {
             setTeam(team);
@@ -32,7 +36,8 @@ export default function Page() {
           <LeaveCalendar />
         </Flex>
       </Flex>
-      <Flex gap={8}>
+      <Flex gap={8} vertical>
+        <ShowCalendarURL userId={userId} teamId={teamId} orgId={orgId} />
         <LeavePreview />
       </Flex>
     </Flex>

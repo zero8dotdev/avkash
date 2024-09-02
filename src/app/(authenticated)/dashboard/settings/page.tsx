@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Row, Tabs, Col, Card } from "antd";
+import { Row, Tabs, Col, Card,Grid,Breakpoint } from "antd";
 import LeaveTypes from "./leave-types/page";
 
 import type { TabsProps } from "antd";
@@ -9,6 +9,8 @@ import Billing from "./billing/page";
 import Location from "./location/page";
 import Team from "./team/page";
 import LeavePolicies from "./leave-policy/page";
+
+const { useBreakpoint } = Grid;
 
 const onChange = (key: string) => {
 };
@@ -20,14 +22,15 @@ const TabWrapper = ({
   title: String;
   children: React.ReactElement;
 }) => {
+const screens = useBreakpoint();
   return (
-    <Col span={18}>
+     <Col xs={24} md={20} lg={18}>
       <Card title={title}>{children}</Card>
     </Col>
   );
 };
 
-const items: TabsProps["items"] = [
+const items: TabsProps["items"] =  [
   {
     key: "1",
     label: "General",
@@ -85,11 +88,13 @@ const items: TabsProps["items"] = [
 ];
 
 const SettingsPage: React.FC = () => {
+const screens = useBreakpoint();
+
   return (
-    <Row gutter={8} style={{ paddingTop: "24px" }}>
-      <Col span={20} push={4}>
+    <Row gutter={{xs:0,lg:8}} >
+      <Col xs={24} md={22} lg={20}   push={screens.xs ? 0 : screens.md ? 2 : 4 } className="mx-auto">
         <Tabs
-          tabPosition="left"
+          tabPosition={screens.xs ? 'top' : 'left'}
           defaultActiveKey="1"
           items={items}
           onChange={onChange}

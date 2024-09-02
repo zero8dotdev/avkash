@@ -16,10 +16,10 @@ export default async function handleBlockActions(avkashUserInfo: avkashUserInfoP
     const callbackId = view?.callback_id;
     const values = actions?.[0]?.selected_option?.value;
 
-// it will trigger when you change anything in the review modal after it is opened
-    if(callbackId && callbackId.startsWith('review_') && actionId === 'leave_type'){        
+    // it will trigger when you change anything in the review modal after it is opened
+    if (callbackId && callbackId.startsWith('review_') && actionId === 'leave_type') {
         const leaveId = callbackId.split('review_leave_')[1];
-        return reviewLeave(avkashUserInfo,actionId,leaveId,triggerId,callbackId,values,viewId);
+        return reviewLeave(avkashUserInfo, actionId, leaveId, triggerId, callbackId, values, viewId);
     }
 
     // it will trigger when you clicks on review button
@@ -27,22 +27,21 @@ export default async function handleBlockActions(avkashUserInfo: avkashUserInfoP
         const leaveId = actionId.split('review_')[1];
         return reviewLeave(avkashUserInfo, actionId, leaveId, triggerId);
     }
-    if(actionId === 'leave_type' && view.callback_id === 'add-leave'){
-        return openAddLeaveModal({ avkashUserInfo, userId, viewId, trigger_id,checkLeaveType: true, payload });
- 
+    if (actionId === 'leave_type' && view.callback_id === 'add-leave') {
+        return openAddLeaveModal({ avkashUserInfo, userId, viewId, trigger_id, checkLeaveType: true, payload });
+
     }
-    if(actionId === 'leave_type' && view.callback_id === 'home-req-leave'){
-        return openRequestLeaveModal( avkashUserInfo, trigger_id,userId,true, payload );
- 
+    if (actionId === 'leave_type' && view.callback_id === 'home-req-leave') {
+        return openRequestLeaveModal(avkashUserInfo, trigger_id, userId, true, payload);
     }
     switch (actionId) {
         case 'msg-req-leave':
         case 'home-req-leave':
-            return openRequestLeaveModal(avkashUserInfo, triggerId, userId,false);
+            return openRequestLeaveModal(avkashUserInfo, triggerId, userId, false);
 
         case 'msg-your-leaves':
             const channelId = payload?.container?.channel_id;
-        return handleYourLeaves(avkashUserInfo,channelId);
+            return handleYourLeaves(avkashUserInfo, channelId);
 
         case 'msg-leave-reports':
             return new NextResponse('User leaves reports', { status: 200 });
@@ -56,12 +55,12 @@ export default async function handleBlockActions(avkashUserInfo: avkashUserInfoP
         case 'team-dashboard':
             return handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
 
-        case 'your-dashboard':            
+        case 'your-dashboard':
             return handleAppHomeOpened({ avkashUserInfo, yourDashboard: true });
 
         case 'owner_select_team':
-            const ownerSelectedTeamId = view.state.values.owner_team_block.owner_select_team.selected_option.value; 
-            return handleAppHomeOpened({avkashUserInfo,yourDashboard: false,viewId,ownerSelectedTeamId})
+            const ownerSelectedTeamId = view.state.values.owner_team_block.owner_select_team.selected_option.value;
+            return handleAppHomeOpened({ avkashUserInfo, yourDashboard: false, viewId, ownerSelectedTeamId })
 
         default:
             return new NextResponse('Unrecognized action', { status: 400 });
