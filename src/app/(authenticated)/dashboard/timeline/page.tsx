@@ -17,29 +17,17 @@ export default function Page() {
     state: { orgId, userId, teamId },
   } = useApplicationContext();
   return (
-    <Flex vertical gap={12}>
-      <Flex gap={8} align="center" justify="space-between">
-        <AddLeave team={team} />
-        <TeamSelect
-          changeTeam={(team: string) => {
-            setTeam(team);
-          }}
-        />
-      </Flex>
-      <Flex gap={8}>
-        <Flex
-          style={{ minWidth: "200px", maxHeight: "500px", overflowY: "scroll" }}
-        >
-          <Teams selectedTeam={team} />
-        </Flex>
-        <Flex flex={1} align="center" justify="stretch">
-          <LeaveCalendar />
-        </Flex>
-      </Flex>
+    <>
+      <TeamSelect
+        changeTeam={(team: string) => {
+          setTeam(team);
+        }}
+      />
+      <LeaveCalendar />
       <Flex gap={8} vertical>
         <ShowCalendarURL userId={userId} teamId={teamId} orgId={orgId} />
         <LeavePreview />
       </Flex>
-    </Flex>
+    </>
   );
 }

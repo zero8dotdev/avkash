@@ -4,7 +4,6 @@ const path = require("path");
 
 // Create a PostgreSQL client
 const connectionString = process.env.SUPABASE_DIRECT_URL;
-
 (async function () {
   if (!connectionString) {
     throw new Error(
