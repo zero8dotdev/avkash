@@ -33,7 +33,18 @@ export default function RootLayout({
         }}
       >
         <AntdRegistry>
-          <ConfigProvider>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorBgBase: "#F7FFF7",
+                colorPrimary: "#15616D",
+                colorText: "#000000",
+              },
+              components: {
+                Card: { colorBgContainer: "#F7FFF7" },
+              },
+            }}
+          >
             <ApplicationProvider>
               <Layout>
                 <AppHeader />

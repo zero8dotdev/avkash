@@ -19,7 +19,6 @@ import AddToSlack from "./steps/add-to-slack";
 
 import Notifications from "./steps/notification";
 
-
 import { useRouter } from "next/navigation";
 
 const moment = require("moment");
@@ -116,11 +115,10 @@ export default function SetupPage() {
       });
 
       if (done) {
-        router.push("/dashboard")
-     }
-
+        router.push("/dashboard");
+      }
     } catch (error) {
-      throw error
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -162,9 +160,6 @@ export default function SetupPage() {
             {...settingsData}
             update={(values) => setSettingsData({ ...values })}
             isTeamnameVisable={false}
-            
-
-            
           />
         </Card>
       ),
@@ -225,9 +220,9 @@ export default function SetupPage() {
       </Col>
     </Col>
   ) : (
-    <Row gutter={8} className="lg:p-16 pb-4" >
-      <Col span={24} >
-        <Steps current={current} items={items}/>
+    <Row gutter={8} className="lg:p-16 pb-4">
+      <Col span={24}>
+        <Steps current={current} items={items} />
       </Col>
       <Col span={24} style={{ paddingTop: "32px" }}>
         <Col xs={24} lg={16} className="mx-auto">
@@ -246,7 +241,7 @@ export default function SetupPage() {
                   Previous
                 </Button>
               )}
-              {(current > 0 && current < 5) && (
+              {current > 0 && current < 5 && (
                 <Button onClick={() => next()} type="primary">
                   Next
                 </Button>

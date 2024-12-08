@@ -21,7 +21,6 @@ export default async function DashboardLayout({
         gutter={8}
         style={{
           minHeight: "calc(100vh - 64px)",
-          background: "#F2F2F2",
         }}
         className="p-1 lg:p-8"
       >
