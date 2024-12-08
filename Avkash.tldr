@@ -71,8 +71,8 @@
 			"typeName": "shape"
 		},
 		{
-			"x": -597.1303400326889,
-			"y": -4802.8705222723665,
+			"x": -654.4884152265731,
+			"y": -4811.600295255172,
 			"rotation": 0,
 			"isLocked": false,
 			"opacity": 1,
@@ -230,84 +230,6 @@
 			"parentId": "page:page",
 			"index": "a921q",
 			"typeName": "shape"
-		},
-		{
-			"id": "pointer:pointer",
-			"typeName": "pointer",
-			"x": 616.5471632746717,
-			"y": -1971.278945024981,
-			"lastActivityTimestamp": 1733389079022,
-			"meta": {}
-		},
-		{
-			"followingUserId": null,
-			"opacityForNextShape": 1,
-			"stylesForNextShape": {
-				"tldraw:geo": "rectangle"
-			},
-			"brush": null,
-			"scribbles": [],
-			"cursor": {
-				"type": "default",
-				"rotation": 0
-			},
-			"isFocusMode": false,
-			"exportBackground": true,
-			"isDebugMode": false,
-			"isToolLocked": true,
-			"screenBounds": {
-				"x": 0,
-				"y": 0,
-				"w": 1852,
-				"h": 912
-			},
-			"insets": [
-				false,
-				false,
-				true,
-				false
-			],
-			"zoomBrush": null,
-			"isGridMode": false,
-			"isPenMode": false,
-			"chatMessage": "",
-			"isChatting": false,
-			"highlightedUserIds": [],
-			"isFocused": true,
-			"devicePixelRatio": 1,
-			"isCoarsePointer": false,
-			"isHoveringCanvas": true,
-			"openMenus": [],
-			"isChangingStyle": false,
-			"isReadonly": false,
-			"meta": {},
-			"duplicateProps": null,
-			"id": "instance:instance",
-			"currentPageId": "page:page",
-			"typeName": "instance"
-		},
-		{
-			"editingShapeId": "shape:TZOvu8CChSRiAmBlaB4PP",
-			"croppingShapeId": null,
-			"selectedShapeIds": [
-				"shape:TZOvu8CChSRiAmBlaB4PP"
-			],
-			"hoveredShapeId": "shape:TZOvu8CChSRiAmBlaB4PP",
-			"erasingShapeIds": [],
-			"hintingShapeIds": [],
-			"focusedGroupId": null,
-			"meta": {},
-			"id": "instance_page_state:page:page",
-			"pageId": "page:page",
-			"typeName": "instance_page_state"
-		},
-		{
-			"x": 758.3560344594969,
-			"y": 2624.456987657376,
-			"z": 0.619327692599226,
-			"meta": {},
-			"id": "camera:page:page",
-			"typeName": "camera"
 		},
 		{
 			"x": -326.8901833548535,
@@ -570,6 +492,317 @@
 			},
 			"parentId": "page:page",
 			"index": "aI40k",
+			"typeName": "shape"
+		},
+		{
+			"x": -2430.7533195927426,
+			"y": -4900.978576861019,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:tSp_2LkcH9VOn7Jbyg7PJ",
+			"type": "geo",
+			"props": {
+				"w": 1074.0082862625004,
+				"h": 577.6098293461582,
+				"geo": "rectangle",
+				"color": "black",
+				"labelColor": "black",
+				"fill": "none",
+				"dash": "draw",
+				"size": "m",
+				"font": "draw",
+				"text": "",
+				"align": "middle",
+				"verticalAlign": "middle",
+				"growY": 0,
+				"url": "",
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aJ3Tl",
+			"typeName": "shape"
+		},
+		{
+			"x": -2345.3678883475764,
+			"y": -4841.84466012054,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:Xe6t10_p_VfcCppZ-WLUy",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 239.734375,
+				"text": "initial setup - org -",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aK6ec",
+			"typeName": "shape"
+		},
+		{
+			"x": -2423.059789597036,
+			"y": -4243.364536697631,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:cqrk8DWx9U2_QfqZhCAU9",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 1167.3079010438755,
+				"text": "export const completeSetup = async (orgId: string, setupData: any) => {\n  try {\n    const {\n      startOfWorkWeek,\n      workweek,\n      timeZone,\n      leaveChange: notificationLeaveChanged,\n      dailySummary: notificationDailySummary,\n      weeklySummary: notificationWeeklySummary,\n      sendNtf: notificationToWhom,\n      leavePolicies,\n      holidaysList,\n      countryCode,\n      users,\n      teamId\n    } = setupData;\n\n    const supabaseServerClient = createClient();\n    const { data: { user: currentUser }, error } = await supabaseServerClient.auth.getUser();\n\n    const supabaseAdminClient = createAdminClient();\n\n    const { data: organisation, error: orgError } = await supabaseAdminClient\n      .from('Organisation')\n      .update({\n        startOfWorkWeek,\n        workweek,\n        notificationLeaveChanged,\n        notificationDailySummary,\n        notificationWeeklySummary,\n        // notificationToWhom: Array.isArray(notificationToWhom) && notificationToWhom[0]\n      })\n      .eq('orgId', orgId)\n      .select('*');\n\n    if (orgError) {\n      throw orgError;\n    }\n\n    // leavePolicies\n    const { data: leavePoliciesData, error: leavePoliciesError } = await supabaseAdminClient\n      .from('LeavePolicy')\n      .insert(leavePolicies.map((policy: any) => ({ ...policy, orgId })))\n      .select('*');\n\n    if (leavePoliciesError) {\n      throw leavePoliciesError;\n    }\n\n    // holidays\n    const { data: holidaysData, error: holidaysError } = await supabaseAdminClient\n      .from('Holiday')\n      .insert(\n        holidaysList\n          .map(({\n            name,\n            isRecurring,\n            isCustom,\n            date\n          }: any) => ({\n            name,\n            isRecurring,\n            isCustom,\n            orgId,\n            date,\n            createdBy: currentUser?.id,\n            location: countryCode\n          })))\n      .select();\n\n    if (holidaysError) {\n      throw holidaysError;\n    }\n\n\n    let accruedLeave = leavePoliciesData\n      .filter(({ isActive }) => isActive)\n      .reduce((acc, leavePolicy) => {\n        acc[leavePolicy.leaveTypeId] = { balance: leavePolicy.unlimited ? 'unlimited' : leavePolicy.maxLeaves }\n        return acc;\n      }, {});\n\n    let usedLeave = leavePoliciesData\n      .filter(({ isActive }) => isActive)\n      .reduce((acc, leavePolicy) => {\n        acc[leavePolicy.leaveTypeId] = { balance: leavePolicy.unlimited ? 'unlimited' : 0 }\n        return acc;\n      }, {});\n\n    const acc = { loggedInUser: {}, users: [] };\n    const { loggedInUser, users: restUsers } = users\n      .reduce((acc: any, { slackId, name, email, isProrate }: any) => {\n        if (slackId === currentUser?.user_metadata.sub) {\n          acc.loggedInUser = {\n            id: currentUser?.id,\n            slackId,\n            orgId,\n            accruedLeave,\n            usedLeave\n          }\n        } else {\n          acc.users.push({\n            slackId,\n            name,\n            email,\n            orgId,\n            accruedLeave,\n            usedLeave,\n            teamId,\n            createdBy: currentUser?.id\n          });\n        }\n        return acc;\n      }, acc);\n\n\n    const { data: userData, error: userError } = await supabaseAdminClient\n      .from('User')\n      .update({\n        slackId: loggedInUser.slackId,\n        accruedLeave: loggedInUser.accruedLeave,\n        usedLeave: loggedInUser.usedLeave\n      })\n      .eq('userId', loggedInUser.id)\n      .select();\n\n    if (userError) {\n      throw userError;\n    }\n\n    const { data: usersData, error: usersError } = await supabaseAdminClient\n      .from('User')\n      .insert(restUsers)\n      .select('*');\n\n    if (usersError) {\n      throw usersError;\n    }\n\n\n    const result = await supabaseAdminClient\n      .from('Organisation')\n      .update({ \"initialSetup\": true })\n      .eq('orgId', orgId)\n      .select();\n\n    if (result.error) {\n      throw result.error\n    }\n    return true;\n\n  } catch (error) {\n    console.log(error);\n    throw error\n  }\n};",
+				"font": "serif",
+				"textAlign": "start",
+				"autoSize": false,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aL5hW",
+			"typeName": "shape"
+		},
+		{
+			"x": -531.1242672480505,
+			"y": -698.4993619277011,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:gFvjUeSUSERUQOH-IE_Te",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 623.015625,
+				"text": "/timeline - timeline page\n/users - users page\n/company/settings - settings\n/company/settings/billing - billing settings\n/company/settings/leavetypes -leavetype settings\n/company/settings/teams - teams settings\n/company/settings/locations - location settings",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aMAxQ",
+			"typeName": "shape"
+		},
+		{
+			"x": -517.5310715541295,
+			"y": -272.85700539814474,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:Ty9XAnWnFdjPh2n6riaV5",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 370.390625,
+				"text": "/teams/new-team\n/teams/{teamid}/general\n/teams/{teamid}/policies\n/teams/{teamid}/notifications\n/teams/{teamid}/users\n/teams/{teamid}/managers",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aN962",
+			"typeName": "shape"
+		},
+		{
+			"x": -516.8052030115224,
+			"y": 56.48643327037962,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:YMRGPqeEB8OxuqElXyQwr",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 215.765625,
+				"text": "/connect-to-slack\n/settings\n/policies\n/locations\n/notifications\n/invite-users\n/free-trial",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aOC38",
+			"typeName": "shape"
+		},
+		{
+			"x": -511.8945300266471,
+			"y": 11.640534438747181,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:EKKN_2iBFMlZEx51eo0d8",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 148.9375,
+				"text": "initial setup",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aP5jU",
+			"typeName": "shape"
+		},
+		{
+			"x": -512.0278283725064,
+			"y": -320.40051823734024,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:Y7uMyoxN6UqyNxQk8wO5X",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 174.40625,
+				"text": "team settings",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aQ9Ke",
+			"typeName": "shape"
+		},
+		{
+			"x": -527.9979955783432,
+			"y": -743.5663708866348,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:qldT7i85I-wo0-Z-fuFih",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 152.015625,
+				"text": "org settings",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aRBad",
+			"typeName": "shape"
+		},
+		{
+			"id": "pointer:pointer",
+			"typeName": "pointer",
+			"x": -4332.8015734691135,
+			"y": -3977.592248910878,
+			"lastActivityTimestamp": 1733631931053,
+			"meta": {}
+		},
+		{
+			"followingUserId": null,
+			"opacityForNextShape": 1,
+			"stylesForNextShape": {},
+			"brush": null,
+			"scribbles": [],
+			"cursor": {
+				"type": "default",
+				"rotation": 0
+			},
+			"isFocusMode": false,
+			"exportBackground": true,
+			"isDebugMode": false,
+			"isToolLocked": false,
+			"screenBounds": {
+				"x": 0,
+				"y": 0,
+				"w": 799,
+				"h": 915
+			},
+			"insets": [
+				false,
+				false,
+				true,
+				false
+			],
+			"zoomBrush": null,
+			"isGridMode": false,
+			"isPenMode": false,
+			"chatMessage": "",
+			"isChatting": false,
+			"highlightedUserIds": [],
+			"isFocused": true,
+			"devicePixelRatio": 1,
+			"isCoarsePointer": false,
+			"isHoveringCanvas": true,
+			"openMenus": [],
+			"isChangingStyle": false,
+			"isReadonly": false,
+			"meta": {},
+			"duplicateProps": null,
+			"id": "instance:instance",
+			"currentPageId": "page:page",
+			"typeName": "instance"
+		},
+		{
+			"editingShapeId": null,
+			"croppingShapeId": null,
+			"selectedShapeIds": [],
+			"hoveredShapeId": null,
+			"erasingShapeIds": [],
+			"hintingShapeIds": [],
+			"focusedGroupId": null,
+			"meta": {},
+			"id": "instance_page_state:page:page",
+			"pageId": "page:page",
+			"typeName": "instance_page_state"
+		},
+		{
+			"x": 4981.749702392746,
+			"y": 4307.075019225796,
+			"z": 0.5724407829269139,
+			"meta": {},
+			"id": "camera:page:page",
+			"typeName": "camera"
+		},
+		{
+			"x": -4180.49324289524,
+			"y": -4029.917530220935,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:xeLNUeCXOoddXWwrH-nPb",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 291.21875,
+				"text": "enable ? \n      ! unlimited?\n              show detailes",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "aS0WL",
 			"typeName": "shape"
 		}
 	]

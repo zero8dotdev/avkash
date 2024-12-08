@@ -286,18 +286,6 @@
 
 
 
-SELECT
-  DATE (created_at) AS date,
-  COUNT(*) AS new_sign_ups
-FROM
-  auth.users
-WHERE
-  created_at >= NOW() - INTERVAL '7 days'
-GROUP BY
-  DATE (created_at)
-ORDER BY
-  date;
-
 -- Drop all existing tables and enums
 DO $$
 DECLARE
@@ -342,17 +330,16 @@ CREATE TYPE "Shift" AS ENUM('MORNING', 'AFTERNOON', 'NONE');
 
 CREATE TYPE "LeaveStatus" AS ENUM('PENDING', 'APPROVED', 'REJECTED', 'DELETED');
 
-CREATE TYPE "Role" AS ENUM('OWNER', 'MANAGER', 'USER', 'ANON');
+CREATE TYPE "Role" AS ENUM('OWNER', 'MANAGER', 'USER', 'ANON', 'ADMIN');
 
 -- Updated Tables
 CREATE TABLE
   "Organisation" (
     "orgId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     "subscriptionId" VARCHAR(255),
-    "name" VARCHAR(255) NOT NULL,
     "dateformat" VARCHAR(255) NOT NULL DEFAULT 'DD-MM-YYYY',
     "timeformat" VARCHAR(255) NOT NULL DEFAULT 'HH:MM',
-    "location" VARCHAR(255),
+    "location" VARCHAR(255)[],
     "visibility" "Visibility" NOT NULL DEFAULT 'SELF',
     "ownerId" UUID,
     "halfDayLeave" BOOLEAN NOT NULL DEFAULT FALSE,
@@ -369,7 +356,7 @@ CREATE TABLE
     "name" VARCHAR(255) NOT NULL,
     "orgId" UUID NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
-    "manager" UUID,
+    "managers" UUID[],
     "location" VARCHAR(255),
     "startOfWorkWeek" "DaysOfWeek" DEFAULT 'MONDAY',
     "workweek" "DaysOfWeek" [] DEFAULT ARRAY[
@@ -489,12 +476,12 @@ CREATE TABLE
     "location" VARCHAR(255),
     "isRecurring" BOOLEAN NOT NULL DEFAULT TRUE,
     "isCustom" BOOLEAN NOT NULL DEFAULT TRUE,
-    "orgId" UUID NOT NULL,
+    "teamId" UUID NOT NULL,
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_holiday_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
+    CONSTRAINT "fk_holiday_org" FOREIGN KEY ("teamId") REFERENCES "Organisation" ("teamId")
   );
 
 CREATE TABLE
