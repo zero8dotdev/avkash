@@ -324,7 +324,7 @@ export const signUpAction = async (values: any) => {
     throw new Error('Something went wrong!');
   };
 
-  const { name, company_name, team_name, email, slackUserId } = values;
+  const { name, team_name, email, slackUserId } = values;
   const supabaseAdminClient = createAdminClient();
 
   try {
@@ -332,7 +332,6 @@ export const signUpAction = async (values: any) => {
     const { data: org, error: orgError } = await supabaseAdminClient
       .from('Organisation')
       .insert({
-        name: company_name,
         createdBy: authUser.id
       })
       .select('*')
@@ -785,7 +784,6 @@ export const addUsersToNewTeam = async (values: any, userId: any) => {
   if (error) {
     console.log(error)
   }
-  console.log(data)
   return data
 }
 export const fetchUsers= async (teamId:any,orgId:any) => {
