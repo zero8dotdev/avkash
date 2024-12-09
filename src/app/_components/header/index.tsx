@@ -13,7 +13,7 @@ export default function AppHeader() {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: "#fff",
+        backgroundColor: "#F7FFF7",
         borderBottom: "1px solid rgba(0, 0, 100, 0.17)",
         padding: "0px 24px",
       }}
