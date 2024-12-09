@@ -118,19 +118,23 @@ const LocationPage = () => {
   );
 
   useEffect(() => {
-    async () => {
-      const holidays = await fetchPublicHolidays(countryCode);
-
-      const holidayData = holidays.map((each) => ({
-        key: each.id,
-        name: each.name,
-        date: moment(each.date).toISOString(),
-        isRecurring: true,
-        isCustom: false,
-      }));
-
-      setHolidaysList(holidayData);
+    const fetchHolidays = async () => {
+      try {
+        const holidays = await fetchPublicHolidays(countryCode);
+        const holidayData = holidays.map((each: any) => ({
+          key: each.id,
+          name: each.name,
+          date: moment(each.date).toISOString(),
+          isRecurring: true,
+          isCustom: false,
+        }));
+        setHolidaysList(holidayData);
+      } catch (error) {
+        console.error("Failed to fetch holidays", error);
+      }
     };
+  
+    fetchHolidays();
   }, [countryCode, moment]);
 
   const columns = [
@@ -167,7 +171,7 @@ const LocationPage = () => {
       ),
     },
   ];
-  console.log("holidaysList", holidaysList);
+
   return (
     <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
       <Col span={4}>
@@ -175,6 +179,7 @@ const LocationPage = () => {
           showSearch
           style={{ width: "300px" }}
           onChange={(code) => setCountryCode(code)}
+          defaultValue={countryCode}
           // defaultValue={countryCode}
           options={locations.map((each: any) => ({
             label: each.countryName,
