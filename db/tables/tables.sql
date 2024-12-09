@@ -481,7 +481,7 @@ CREATE TABLE
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_holiday_org" FOREIGN KEY ("teamId") REFERENCES "Organisation" ("teamId")
+    CONSTRAINT "fk_holiday_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId")
   );
 
 CREATE TABLE
@@ -510,7 +510,15 @@ CREATE TABLE
     "tableName" VARCHAR,
     "teamId" UUID,
     "userId" UUID,
-    "keyword" VARCHAR
+    "keyword" VARCHAR,
+    "createdBy" VARCHAR(255),
+    "createdOn" TIMESTAMP(6) DEFAULT now(),
+    "updatedBy" VARCHAR(255),
+    "updatedOn" TIMESTAMP(6) DEFAULT now(),
+    CONSTRAINT "fk_activity_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId"),
+    CONSTRAINT "fk_activity_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId"),
+    CONSTRAINT "fk_activity_user" FOREIGN KEY ("userId") REFERENCES "User" ("userId")
+
   );
 
 CREATE TABLE
@@ -595,7 +603,7 @@ CREATE INDEX idx_user_email ON "User" ("email");
 -- Team Table
 CREATE INDEX idx_team_org_id ON "Team" ("orgId");
 
-CREATE INDEX idx_team_manager ON "Team" ("manager");
+CREATE INDEX idx_team_manager ON "Team" ("managers");
 
 -- Organisation Table
 CREATE INDEX idx_organisation_subscription_id ON "Organisation" ("subscriptionId");
@@ -613,7 +621,7 @@ CREATE INDEX idx_leavepolicy_type_team ON "LeavePolicy" ("leaveTypeId", "teamId"
 CREATE INDEX idx_leavepolicy_active ON "LeavePolicy" ("isActive");
 
 -- Holiday Table
-CREATE INDEX idx_holiday_org_id ON "Holiday" ("orgId");
+CREATE INDEX idx_holiday_org_id ON "Holiday" ("teamId");
 
 CREATE INDEX idx_holiday_date ON "Holiday" ("date");
 
