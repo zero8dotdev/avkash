@@ -12,7 +12,8 @@ BEGIN
         EXECUTE 'ALTER TABLE "' || r.tablename || '" ENABLE ROW LEVEL SECURITY';
     END LOOP;
 
-    -- Explicitly disable RLS for case-sensitive table names
+
+    -- -- Explicitly disable RLS for case-sensitive table names
     EXECUTE 'ALTER TABLE "ActivityLog" DISABLE ROW LEVEL SECURITY';
     EXECUTE 'ALTER TABLE "OrgAccessData" DISABLE ROW LEVEL SECURITY';
     EXECUTE 'ALTER TABLE "PublicHolidays" DISABLE ROW LEVEL SECURITY';
