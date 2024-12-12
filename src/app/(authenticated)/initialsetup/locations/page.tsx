@@ -11,10 +11,20 @@ import {
   Modal,
   Row,
   Select,
+  Steps,
   Table,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  LeftOutlined,
+  SmileOutlined,
+  SolutionOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { fetchPublicHolidays } from "@/app/_actions";
+import { Card } from "antd";
+import { useRouter } from "next/navigation";
+import TopSteps from "../componenets/steps";
 
 export interface holidaysList {
   key: string;
@@ -36,6 +46,7 @@ const LocationPage = () => {
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
 
   const moment = require("moment");
+  const router = useRouter();
 
   // delete holiday function
 
@@ -47,7 +58,17 @@ const LocationPage = () => {
   };
 
   // onChange isRecuring
+  const handlenext = () => {
+    router.push(
+      new URL("/initialsetup/notifications", window?.location.origin).toString()
+    );
+  };
 
+  const handlePrevious = () => {
+    router.push(
+      new URL("/initialsetup/leave-policy", window?.location.origin).toString()
+    );
+  };
   const handleIsRecurringChange = (isChecked: boolean, rowData: any) => {
     const updatedHolidays: holidaysList[] = [];
     for (const holiday of holidaysList) {
@@ -133,7 +154,7 @@ const LocationPage = () => {
         console.error("Failed to fetch holidays", error);
       }
     };
-  
+
     fetchHolidays();
   }, [countryCode, moment]);
 
@@ -173,66 +194,104 @@ const LocationPage = () => {
   ];
 
   return (
-    <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
-      <Col span={4}>
-        <Select
-          showSearch
-          style={{ width: "300px" }}
-          onChange={(code) => setCountryCode(code)}
-          defaultValue={countryCode}
-          // defaultValue={countryCode}
-          options={locations.map((each: any) => ({
-            label: each.countryName,
-            value: each.countryCode,
-          }))}
-        />
-      </Col>
-      <Col span={24}>
-        <Table
-          columns={columns}
-          dataSource={holidaysList}
-          pagination={false}
-          bordered
-          size="small"
-        />
-      </Col>
-      {/* <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
+    <Row
+      style={{
+        padding: "50px 50px 180px 20px",
+        height: "100%",
+      }}
+    >
+      <TopSteps position={3} />
+
+      <Col span={16} push={4}>
+        <Card
+          style={{
+            margin: "25px 0px 25px 0px",
+            minHeight: "300px",
+            overflow: "auto",
+          }}
+        >
+          <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
+            <Col span={4}>
+              <Select
+                showSearch
+                style={{ width: "300px" }}
+                onChange={(code) => setCountryCode(code)}
+                defaultValue={countryCode}
+                // defaultValue={countryCode}
+                options={locations.map((each: any) => ({
+                  label: each.countryName,
+                  value: each.countryCode,
+                }))}
+              />
+            </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={holidaysList}
+                pagination={false}
+                bordered
+                size="small"
+              />
+            </Col>
+            {/* <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
         Add Custom Holidays
       </Button> */}
-      <Modal
-        title="Add New Holiday"
-        open={isModalOpen}
-        closable={false}
-        footer={
-          <Flex justify="space-between">
-            {/* onClick={() => setIsModalOpen(false)} */}
-            <Button>Cancel</Button>
-            <Button key="submit" type="primary" onClick={() => form.submit()}>
-              Save
-            </Button>
-          </Flex>
-        }
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Holiday Name"
-            rules={[{ required: true, message: "Please enter holiday name" }]}
-          >
-            <Input placeholder="Name" />
-          </Form.Item>
-          <Form.Item
-            name="date"
-            label="Holiday Date"
-            rules={[{ required: true, message: "Please select a date!" }]}
-          >
-            <DatePicker style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="Recurring" name="isRecurring" initialValue={true}>
-            <Checkbox defaultChecked />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Modal
+              title="Add New Holiday"
+              open={isModalOpen}
+              closable={false}
+              footer={
+                <Flex justify="space-between">
+                  {/* onClick={() => setIsModalOpen(false)} */}
+                  <Button>Cancel</Button>
+                  <Button
+                    key="submit"
+                    type="primary"
+                    onClick={() => form.submit()}
+                  >
+                    Save
+                  </Button>
+                </Flex>
+              }
+            >
+              <Form form={form} layout="vertical">
+                <Form.Item
+                  name="name"
+                  label="Holiday Name"
+                  rules={[
+                    { required: true, message: "Please enter holiday name" },
+                  ]}
+                >
+                  <Input placeholder="Name" />
+                </Form.Item>
+                <Form.Item
+                  name="date"
+                  label="Holiday Date"
+                  rules={[{ required: true, message: "Please select a date!" }]}
+                >
+                  <DatePicker style={{ width: "100%" }} />
+                </Form.Item>
+                <Form.Item
+                  label="Recurring"
+                  name="isRecurring"
+                  initialValue={true}
+                >
+                  <Checkbox defaultChecked />
+                </Form.Item>
+              </Form>
+            </Modal>
+          </Row>
+        </Card>
+        <Flex justify="space-between">
+          <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
+            Previous
+          </Button>
+          <Button type="primary" onClick={handlenext}>
+            Next
+          </Button>
+          {/* <Button type="primary">Done</Button> */}
+        </Flex>
+      </Col>
     </Row>
   );
 };

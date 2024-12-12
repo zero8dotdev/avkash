@@ -39,6 +39,7 @@ export default function RootLayout({
                 colorBgBase: "#F7FFF7",
                 colorPrimary: "#15616D",
                 colorText: "#000000",
+                fontFamily: "General Sans, sans-serif",
               },
               components: {
                 Card: { colorBgContainer: "#F7FFF7" },
