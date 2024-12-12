@@ -48,7 +48,6 @@ const LocationPage = () => {
   const moment = require("moment");
   const router = useRouter();
 
-  // delete holiday function
 
   const handleDelete = (key: string) => {
     const updatedHolidays = holidaysList.filter(
@@ -57,8 +56,8 @@ const LocationPage = () => {
     setHolidaysList(updatedHolidays);
   };
 
-  // onChange isRecuring
-  const handlenext = () => {
+  const handlenext = (values: any) => {
+    console.log("holidaysList", holidaysList);
     router.push(
       new URL("/initialsetup/notifications", window?.location.origin).toString()
     );
@@ -81,27 +80,9 @@ const LocationPage = () => {
     setHolidaysList(updatedHolidays);
   };
 
-  // onChange for country code
 
   const [form] = Form.useForm();
-  // const handleAddCustomForm = (values: any) => {
-  //   const { name, date, isRecurring } = values;
-  //   const newHoliday = {
-  //     key: values.date,
-  //     name: name,
-  //     date: moment(date).format("DD MMM YYYY"),
-  //     isRecurring: isRecurring,
-  //     isCustom: true,
-  //   };
 
-  //   const updatedHolidays = [...holidaysList, newHoliday];
-  //   update(updatedHolidays);
-
-  //   setIsModalOpen(false);
-  //   form.resetFields();
-  // };
-
-  // locations list
 
   const locations = [
     {
@@ -127,16 +108,15 @@ const LocationPage = () => {
   ];
 
   // holidays sorting based on date
-  const dataSource = holidaysList.map((each) => {
-    return {
-      ...each,
-      date: moment(new Date(each.date)).format("DD MMM YYYY"),
-    };
-  });
-
+  const dataSource = holidaysList.map((each) => ({
+    ...each,
+    date: moment(each.date).format("DD MMM YYYY"), // Format date here
+  }));
+  
   dataSource.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
+  
 
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -145,7 +125,7 @@ const LocationPage = () => {
         const holidayData = holidays.map((each: any) => ({
           key: each.id,
           name: each.name,
-          date: moment(each.date).toISOString(),
+          date: moment(each.date).format("DD MMM YYYY"),
           isRecurring: true,
           isCustom: false,
         }));
@@ -168,6 +148,7 @@ const LocationPage = () => {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date: string) => moment(date).format("DD MMM YYYY"), // Format date here
     },
     {
       title: "Recurring",
@@ -233,9 +214,9 @@ const LocationPage = () => {
                 size="small"
               />
             </Col>
-            {/* <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
-        Add Custom Holidays
-      </Button> */}
+            <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
+              Add Custom Holidays
+            </Button>
             <Modal
               title="Add New Holiday"
               open={isModalOpen}
@@ -243,7 +224,7 @@ const LocationPage = () => {
               footer={
                 <Flex justify="space-between">
                   {/* onClick={() => setIsModalOpen(false)} */}
-                  <Button>Cancel</Button>
+                  <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
                   <Button
                     key="submit"
                     type="primary"
@@ -254,7 +235,25 @@ const LocationPage = () => {
                 </Flex>
               }
             >
-              <Form form={form} layout="vertical">
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={(values) => {
+                  const { name, date, isRecurring } = values;
+                  const newHoliday = {
+                    key: moment(date).toISOString(), // Unique identifier
+                    name,
+                    date: moment(date).format("DD MMM YYYY"),
+                    isRecurring,
+                    isCustom: true,
+                  };
+
+                  setHolidaysList((prev) => [...prev, newHoliday]);
+                  setIsModalOpen(false);
+                  form.resetFields();
+                }}
+              >
+                {" "}
                 <Form.Item
                   name="name"
                   label="Holiday Name"
@@ -286,10 +285,11 @@ const LocationPage = () => {
           <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
             Previous
           </Button>
-          <Button type="primary" onClick={handlenext}>
-            Next
-          </Button>
-          {/* <Button type="primary">Done</Button> */}
+          <Form.Item>
+            <Button type="primary" onClick={handlenext}>
+              Next
+            </Button>
+          </Form.Item>
         </Flex>
       </Col>
     </Row>

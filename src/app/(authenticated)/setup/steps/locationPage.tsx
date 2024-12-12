@@ -176,7 +176,6 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
           scroll={{ x: 500, y: 400 }}
           bordered
           size="small"
-          
         />
       </Col>
       <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>

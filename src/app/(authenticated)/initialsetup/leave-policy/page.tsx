@@ -283,50 +283,11 @@ const Page = () => {
                                           <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days.">
                                             <Form.Item
                                               name={[e.name, "rollOverLimit"]}
-                                              rules={[
-                                                {
-                                                  validator: async (
-                                                    _,
-                                                    value
-                                                  ) => {
-                                                    const maxLeavesValue =
-                                                      Number(
-                                                        form.getFieldValue([
-                                                          e.name,
-                                                          "maxLeaves",
-                                                        ])
-                                                      );
-                                                    const rollOverValue =
-                                                      Number(value);
-
-                                                    console.log(
-                                                      "value:",
-                                                      rollOverValue,
-                                                      "maxLeavesValue:",
-                                                      maxLeavesValue,
-                                                      "comparison:",
-                                                      rollOverValue >
-                                                        maxLeavesValue
-                                                    );
-
-                                                    if (
-                                                      rollOverValue >
-                                                      maxLeavesValue
-                                                    ) {
-                                                      return Promise.reject(
-                                                        new Error(
-                                                          "Roll over limit cannot be greater than maximum leaves"
-                                                        )
-                                                      );
-                                                    }
-                                                    return Promise.resolve();
-                                                  },
-                                                },
-                                              ]}
                                             >
                                               <Input
                                                 type="number"
                                                 min={1}
+                                                max={form.getFieldValue([e.name, "maxLeaves"])}
                                                 suffix={
                                                   <span
                                                     style={{
