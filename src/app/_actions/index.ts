@@ -193,12 +193,13 @@ export const fetchTeamsData = async (orgId: string) => {
   return processedData;
 }
 export const fetchPublicHolidays = async (countryCode: any) => {
+  const currentYear = new Date().getFullYear();
   const supabase = createClient();
   const { data: holidaysdata, error } = await supabase
     .from("PublicHolidays")
     .select("*")
     .eq("iso", countryCode)
-    .eq("year", 2024)
+    .eq("year", currentYear)
 
   if (error) {
     throw error;
