@@ -25,6 +25,12 @@ import { fetchPublicHolidays } from "@/app/_actions";
 import { Card } from "antd";
 import { useRouter } from "next/navigation";
 import TopSteps from "../componenets/steps";
+import {
+  insertHolidays,
+  updateInitialsetupState,
+  updateLocation,
+} from "../_actions";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 export interface holidaysList {
   key: string;
@@ -47,7 +53,9 @@ const LocationPage = () => {
 
   const moment = require("moment");
   const router = useRouter();
-
+  const {
+    state: { orgId, userId, teamId },
+  } = useApplicationContext();
 
   const handleDelete = (key: string) => {
     const updatedHolidays = holidaysList.filter(
@@ -56,11 +64,40 @@ const LocationPage = () => {
     setHolidaysList(updatedHolidays);
   };
 
-  const handlenext = (values: any) => {
-    console.log("holidaysList", holidaysList);
-    router.push(
-      new URL("/initialsetup/notifications", window?.location.origin).toString()
-    );
+  const handlenext = async () => {
+    try {
+      // Update team settings
+      const data = await insertHolidays(
+        teamId,
+        holidaysList,
+        userId,
+        countryCode
+      );
+      if (!data) {
+        // Handle failure to update team settings
+        throw new Error("Failed to update team holidays");
+      }
+
+      await updateLocation(orgId, [countryCode], "org");
+      await updateLocation(teamId, countryCode, "team");
+
+      // Update initial setup state
+      const status = await updateInitialsetupState(orgId, "4");
+      if (status) {
+        // Navigate to the next page if update is successful
+        router.push(
+          new URL(
+            "/initialsetup/notifications",
+            window?.location.origin
+          ).toString()
+        );
+      } else {
+        // Handle failure to update initial setup state
+        throw new Error("Failed to update initial setup state");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handlePrevious = () => {
@@ -80,9 +117,7 @@ const LocationPage = () => {
     setHolidaysList(updatedHolidays);
   };
 
-
   const [form] = Form.useForm();
-
 
   const locations = [
     {
@@ -112,11 +147,10 @@ const LocationPage = () => {
     ...each,
     date: moment(each.date).format("DD MMM YYYY"), // Format date here
   }));
-  
+
   dataSource.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
-  
 
   useEffect(() => {
     const fetchHolidays = async () => {

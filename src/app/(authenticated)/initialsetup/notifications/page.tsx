@@ -20,18 +20,45 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import TopSteps from "../componenets/steps";
+import { updateInitialsetupState, updateTeamNotificationsSettings } from "../_actions";
+import { useApplicationContext } from "@/app/_context/appContext";
 const { Item } = Form;
 const { Group } = Checkbox;
 
 const Notifications = () => {
   const [form] = Form.useForm();
   const router = useRouter();
+  const {
+    state: { orgId, userId, teamId },
+    dispatch,
+  } = useApplicationContext();
 
-  // onChange isRecuring
-  const handlenext = () => {
-    router.push(
-      new URL("/initialsetup/invite-users", window?.location.origin).toString()
-    );
+  const handlenext = async () => {
+    // Log form values
+    const formValues = form.getFieldsValue();
+    try {
+      // Update team settings
+      const data = await updateTeamNotificationsSettings(teamId, { ...formValues });
+      if (!data) {
+        // Handle failure to update team settings
+        throw new Error("Failed to update team notification settings");
+      }
+
+      // Update initial setup state
+      const status = await updateInitialsetupState(orgId, "5");
+      if (status) {
+        // // Navigate to the next page if update is successful
+        router.push(
+          new URL("/initialsetup/invite-users", window?.location.origin).toString()
+        );
+      } else {
+        // Handle failure to update initial setup state
+        throw new Error("Failed to update initial setup state");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
   };
 
   const handlePrevious = () => {
@@ -39,6 +66,7 @@ const Notifications = () => {
       new URL("/initialsetup/locations", window?.location.origin).toString()
     );
   };
+
   return (
     <Row
       style={{
@@ -58,19 +86,21 @@ const Notifications = () => {
         >
           <Form
             form={form}
+            name="notifications"
             layout="vertical"
             size="small"
             style={{ marginTop: "25px", width: "70%" }}
+            initialValues={{
+              leaveChanged: false,
+              dailySummary: false,
+              weeklySummary: false,
+              sendntw: ["OWNER"], // Default selected notifications
+            }}
           >
             <Flex justify="space-between">
               <Typography.Text>Leave Changed</Typography.Text>
               <Flex gap={15}>
-                <Item
-                  name="leaveChanged"
-
-                  // help="Send a notification
-                  //   whenever leave is approved or deleted."
-                >
+                <Item name="leaveChanged" valuePropName="checked">
                   <Switch />
                 </Item>
                 <Typography.Text>
@@ -81,10 +111,7 @@ const Notifications = () => {
             <Flex justify="space-between">
               <Typography.Text>Daily Summary</Typography.Text>
               <Flex gap={15}>
-                <Item
-                  name="dailySummary"
-                  // help="Send a report of upcoming work days leave"
-                >
+                <Item name="dailySummary" valuePropName="checked">
                   <Switch />
                 </Item>
                 <Typography.Text style={{ marginRight: "95px" }}>
@@ -95,7 +122,7 @@ const Notifications = () => {
             <Flex justify="space-between">
               <Typography.Text>Weekly Summary</Typography.Text>
               <Flex gap={15}>
-                <Item name="weeklySummary">
+                <Item name="weeklySummary" valuePropName="checked">
                   <Switch />
                 </Item>
                 <Typography.Text style={{ marginRight: "118px" }}>
@@ -104,11 +131,9 @@ const Notifications = () => {
               </Flex>
             </Flex>
 
-            <Item label="Send notications to" name="sendNtf">
+            <Item label="Send notifications to" name="sendntw">
               <Group>
-                <Checkbox value="OWNER" defaultChecked>
-                  Owner
-                </Checkbox>
+                <Checkbox value="OWNER">Owner</Checkbox>
                 <Checkbox value="MANAGER">Managers</Checkbox>
               </Group>
             </Item>
@@ -121,10 +146,10 @@ const Notifications = () => {
           <Button type="primary" onClick={handlenext}>
             Next
           </Button>
-          {/* <Button type="primary">Done</Button> */}
         </Flex>
       </Col>
     </Row>
   );
 };
+
 export default Notifications;

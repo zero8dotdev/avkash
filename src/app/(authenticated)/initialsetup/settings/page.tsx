@@ -22,6 +22,8 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import TopSteps from "../componenets/steps";
+import { updateInitialsetupState, updateteamsettings } from "../_actions";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
@@ -37,7 +39,10 @@ const Setting = ({}) => {
     "FRIDAY",
   ]);
   const router = useRouter();
-
+  const {
+    state: { orgId, user, teamId },
+    dispatch,
+  } = useApplicationContext();
   useEffect(() => {
     const allTimezones = moment.tz.names();
     setTimezones(allTimezones);
@@ -63,15 +68,29 @@ const Setting = ({}) => {
     form.setFieldValue("startOfWorkWeek", data[0]);
   };
 
-  const redirectToNext = new URL(
-    "/initialsetup/leave-policy",
-    window?.location.origin
-  ).toString();
-
-  const handlenext = (values: any) => {
-    console.log(values);
-    router.push(redirectToNext);
+  const handlenext = async (values: any) => {
+    try {
+      // Update team settings
+      const data = await updateteamsettings(teamId, { ...values });
+      if (!data) {
+        // Handle failure to update team settings
+        throw new Error("Failed to update team settings");
+      }
+  
+      // Update initial setup state
+      const status = await updateInitialsetupState(orgId, "2");
+      if (status) {
+        // Navigate to the next page if update is successful
+        router.push(new URL("/initialsetup/leave-policy", window?.location.origin).toString());
+      } else {
+        // Handle failure to update initial setup state
+        throw new Error("Failed to update initial setup state");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+  
 
   const handlePrevious = () => {
     router.push(
