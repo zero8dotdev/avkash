@@ -18,8 +18,8 @@ BEGIN
         IF OLD."isActive" IS DISTINCT FROM NEW."isActive" THEN
             changedColumns := jsonb_set(changedColumns, '{isActive}', jsonb_build_object('old', OLD."isActive", 'new', NEW."isActive"));
         END IF;
-        IF OLD."manager" IS DISTINCT FROM NEW."manager" THEN
-            changedColumns := jsonb_set(changedColumns, '{manager}', jsonb_build_object('old', OLD."manager", 'new', NEW."manager"));
+        IF OLD."managers" IS DISTINCT FROM NEW."managers" THEN
+            changedColumns := jsonb_set(changedColumns, '{managers}', jsonb_build_object('old', OLD."managers", 'new', NEW."managers"));
         END IF;
         IF OLD."location" IS DISTINCT FROM NEW."location" THEN
             changedColumns := jsonb_set(changedColumns, '{location}', jsonb_build_object('old', OLD."location", 'new', NEW."location"));
