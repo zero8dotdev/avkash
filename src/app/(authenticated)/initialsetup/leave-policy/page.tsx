@@ -28,20 +28,46 @@ import {
 import React from "react";
 import { useRouter } from "next/navigation";
 import TopSteps from "../componenets/steps";
+import { insertLeavePolicies, updateInitialsetupState } from "../_actions";
+import { useApplicationContext } from "@/app/_context/appContext";
 
 const Page = () => {
   const [leaveTypes, setLeaveTypes] = React.useState<any[]>([
-    { name: "Paid time of", color: "#85a7de", active: true },
+    { name: "Paid Time Off", color: "#85a7de", active: true },
     { name: "Sick", color: "#d7a4ed", active: true },
     { name: "Unpaid", color: "#dbd1ce", active: false },
   ]);
   const router = useRouter();
+  const [form] = Form.useForm();
+  const {
+    state: { orgId, userId, teamId },
+    dispatch,
+  } = useApplicationContext();
+  const handlenext = async (values: any) => {
+    try {
+      // Update team settings
+      const data = await insertLeavePolicies(orgId, userId, teamId, {
+        ...values,
+      });
+      if (!data) {
+        // Handle failure to update team settings
+        throw new Error("Failed to update team leave policies");
+      }
 
-  const handlenext = (values: any) => {
-    console.log(values);
-    router.push(
-      new URL("/initialsetup/locations", window?.location.origin).toString()
-    );
+      // Update initial setup state
+      const status = await updateInitialsetupState(orgId, "3");
+      if (status) {
+        // Navigate to the next page if update is successful
+        router.push(
+          new URL("/initialsetup/locations", window?.location.origin).toString()
+        );
+      } else {
+        // Handle failure to update initial setup state
+        throw new Error("Failed to update initial setup state");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handlePrevious = () => {
@@ -49,7 +75,6 @@ const Page = () => {
       new URL("/initialsetup/settings", window?.location.origin).toString()
     );
   };
-  const [form] = Form.useForm();
   const handleLeaveTypes = (type: string) => {
     setLeaveTypes((prevLeaveTypes) =>
       prevLeaveTypes.map((leaveType) =>
@@ -60,6 +85,7 @@ const Page = () => {
     );
   };
   const activeLeaveTypesCount = leaveTypes.filter((e) => e.active).length;
+
   return (
     <Row
       style={{
@@ -143,6 +169,7 @@ const Page = () => {
                             <Form.Item
                               name={[e.name, "unlimited"]}
                               style={{ margin: "0px 0px 10px 0px" }}
+                              initialValue={false}
                             >
                               <Switch />
                             </Form.Item>
@@ -184,6 +211,7 @@ const Page = () => {
                                     <Form.Item
                                       name={[e.name, "accruals"]}
                                       style={{ margin: "0px 0px 10px 0px" }}
+                                      initialValue={false}
                                     >
                                       <Switch />
                                     </Form.Item>
@@ -240,7 +268,7 @@ const Page = () => {
                                               margin: "0px 0px 0px 0px",
                                             }}
                                             name={[e.name, "accrueOn"]}
-                                            initialValue="Beginning"
+                                            initialValue="BEGINNING"
                                           >
                                             <Segmented
                                               options={["BEGINNING", "END"]}
@@ -255,8 +283,9 @@ const Page = () => {
                                   <Typography.Text>Roll over</Typography.Text>
                                   <Popover content="Roll over unused leave to next year">
                                     <Form.Item
-                                      name={[e.name, "rollover"]}
+                                      name={[e.name, "rollOver"]}
                                       style={{ margin: "0px 0px 10px 0px" }}
+                                      initialValue={false}
                                     >
                                       <Switch />
                                     </Form.Item>
@@ -265,14 +294,14 @@ const Page = () => {
                                 <Form.Item
                                   style={{ margin: "0px" }}
                                   shouldUpdate={(prevValues, currentValues) =>
-                                    prevValues[e.name].rollover !==
-                                    currentValues[e.name].rollover
+                                    prevValues[e.name].rollOver !==
+                                    currentValues[e.name].rollOver
                                   }
                                 >
                                   {({ getFieldValue }) => {
                                     return getFieldValue([
                                       e.name,
-                                      "rollover",
+                                      "rollOver",
                                     ]) ? (
                                       <Flex justify="space-between">
                                         <Flex vertical gap={5}>
@@ -287,7 +316,10 @@ const Page = () => {
                                               <Input
                                                 type="number"
                                                 min={1}
-                                                max={form.getFieldValue([e.name, "maxLeaves"])}
+                                                max={form.getFieldValue([
+                                                  e.name,
+                                                  "maxLeaves",
+                                                ])}
                                                 suffix={
                                                   <span
                                                     style={{
@@ -328,8 +360,9 @@ const Page = () => {
                           <Typography.Text>Auto approve</Typography.Text>
                           <Popover content="Auto approve each leave request">
                             <Form.Item
-                              name={[e.name, "autoAprrive"]}
+                              name={[e.name, "autoApprove"]}
                               style={{ margin: "0px 0px 10px 0px" }}
+                              initialValue={false}
                             >
                               <Switch />
                             </Form.Item>
