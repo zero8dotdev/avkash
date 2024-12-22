@@ -3,8 +3,8 @@ import { Button, Card, Col, Flex, Row } from "antd";
 import React, { useRef } from "react";
 import { LeftOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import TopSteps from "../componenets/steps";
-import { Users } from "../componenets/users";
+import TopSteps from "../_componenets/steps";
+import { Users } from "../_componenets/users";
 import {
   fetchLeavePolicies,
   insertLeavePolicies,
@@ -45,7 +45,7 @@ const Page = () => {
           };
           return acc;
         }, {});
-        
+
         const data = await insertUsers(
           orgId,
           users,
@@ -54,10 +54,10 @@ const Page = () => {
           accruedLeave,
           usedLeave
         );
-        if (!data) {
-          // Handle failure to update team settings
-          throw new Error("Failed to insert users");
-        }
+        // if (!data) {
+        //   // Handle failure to update team settings
+        //   throw new Error("Failed to insert users");
+        // }
 
         // Update initial setup state
         const status = await updateInitialsetupState(orgId, "6");

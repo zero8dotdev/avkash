@@ -8,6 +8,7 @@ import {
   Flex,
   Form,
   Input,
+  List,
   Modal,
   Row,
   Select,
@@ -24,7 +25,7 @@ import {
 import { fetchPublicHolidays } from "@/app/_actions";
 import { Card } from "antd";
 import { useRouter } from "next/navigation";
-import TopSteps from "../componenets/steps";
+import TopSteps from "../_componenets/steps";
 import {
   insertHolidays,
   updateInitialsetupState,
@@ -50,7 +51,7 @@ const LocationPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [countryCode, setCountryCode] = useState<string>("IN");
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const moment = require("moment");
   const router = useRouter();
   const {
@@ -67,6 +68,7 @@ const LocationPage = () => {
   const handlenext = async () => {
     try {
       // Update team settings
+      setLoading(true);
       const data = await insertHolidays(
         teamId,
         holidaysList,
@@ -97,6 +99,10 @@ const LocationPage = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 10000);
     }
   };
 
@@ -216,116 +222,121 @@ const LocationPage = () => {
       }}
     >
       <TopSteps position={3} />
-
-      <Col span={16} push={4}>
-        <Card
-          style={{
-            margin: "25px 0px 25px 0px",
-            minHeight: "300px",
-            overflow: "auto",
-          }}
-        >
-          <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
-            <Col span={4}>
-              <Select
-                showSearch
-                style={{ width: "300px" }}
-                onChange={(code) => setCountryCode(code)}
-                defaultValue={countryCode}
-                // defaultValue={countryCode}
-                options={locations.map((each: any) => ({
-                  label: each.countryName,
-                  value: each.countryCode,
-                }))}
-              />
-            </Col>
-            <Col span={24}>
-              <Table
-                columns={columns}
-                dataSource={holidaysList}
-                pagination={false}
-                bordered
-                size="small"
-              />
-            </Col>
-            <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
-              Add Custom Holidays
-            </Button>
-            <Modal
-              title="Add New Holiday"
-              open={isModalOpen}
-              closable={false}
-              footer={
-                <Flex justify="space-between">
-                  {/* onClick={() => setIsModalOpen(false)} */}
-                  <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                  <Button
-                    key="submit"
-                    type="primary"
-                    onClick={() => form.submit()}
-                  >
-                    Save
-                  </Button>
-                </Flex>
-              }
-            >
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={(values) => {
-                  const { name, date, isRecurring } = values;
-                  const newHoliday = {
-                    key: moment(date).toISOString(), // Unique identifier
-                    name,
-                    date: moment(date).format("DD MMM YYYY"),
-                    isRecurring,
-                    isCustom: true,
-                  };
-
-                  setHolidaysList((prev) => [...prev, newHoliday]);
-                  setIsModalOpen(false);
-                  form.resetFields();
-                }}
+      <List loading={loading} style={{ width: "100%" }}>
+        <Col span={16} push={4}>
+          <Card
+            style={{
+              margin: "25px 0px 25px 0px",
+              minHeight: "300px",
+              overflow: "auto",
+            }}
+          >
+            <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
+              <Col span={4}>
+                <Select
+                  showSearch
+                  style={{ width: "300px" }}
+                  onChange={(code) => setCountryCode(code)}
+                  defaultValue={countryCode}
+                  // defaultValue={countryCode}
+                  options={locations.map((each: any) => ({
+                    label: each.countryName,
+                    value: each.countryCode,
+                  }))}
+                />
+              </Col>
+              <Col span={24}>
+                <Table
+                  columns={columns}
+                  dataSource={holidaysList}
+                  pagination={false}
+                  bordered
+                  size="small"
+                />
+              </Col>
+              <Button onClick={() => setIsModalOpen(true)} type="primary" ghost>
+                Add Custom Holidays
+              </Button>
+              <Modal
+                title="Add New Holiday"
+                open={isModalOpen}
+                closable={false}
+                footer={
+                  <Flex justify="space-between">
+                    {/* onClick={() => setIsModalOpen(false)} */}
+                    <Button onClick={() => setIsModalOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      key="submit"
+                      type="primary"
+                      onClick={() => form.submit()}
+                    >
+                      Save
+                    </Button>
+                  </Flex>
+                }
               >
-                {" "}
-                <Form.Item
-                  name="name"
-                  label="Holiday Name"
-                  rules={[
-                    { required: true, message: "Please enter holiday name" },
-                  ]}
+                <Form
+                  form={form}
+                  layout="vertical"
+                  onFinish={(values) => {
+                    const { name, date, isRecurring } = values;
+                    const newHoliday = {
+                      key: moment(date).toISOString(), // Unique identifier
+                      name,
+                      date: moment(date).format("DD MMM YYYY"),
+                      isRecurring,
+                      isCustom: true,
+                    };
+
+                    setHolidaysList((prev) => [...prev, newHoliday]);
+                    setIsModalOpen(false);
+                    form.resetFields();
+                  }}
                 >
-                  <Input placeholder="Name" />
-                </Form.Item>
-                <Form.Item
-                  name="date"
-                  label="Holiday Date"
-                  rules={[{ required: true, message: "Please select a date!" }]}
-                >
-                  <DatePicker style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                  label="Recurring"
-                  name="isRecurring"
-                  initialValue={true}
-                >
-                  <Checkbox defaultChecked />
-                </Form.Item>
-              </Form>
-            </Modal>
-          </Row>
-        </Card>
-        <Flex justify="space-between">
-          <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
-            Previous
-          </Button>
-          <Form.Item>
-            <Button type="primary" onClick={handlenext}>
-              Next
+                  {" "}
+                  <Form.Item
+                    name="name"
+                    label="Holiday Name"
+                    rules={[
+                      { required: true, message: "Please enter holiday name" },
+                    ]}
+                  >
+                    <Input placeholder="Name" />
+                  </Form.Item>
+                  <Form.Item
+                    name="date"
+                    label="Holiday Date"
+                    rules={[
+                      { required: true, message: "Please select a date!" },
+                    ]}
+                  >
+                    <DatePicker style={{ width: "100%" }} />
+                  </Form.Item>
+                  <Form.Item
+                    label="Recurring"
+                    name="isRecurring"
+                    initialValue={true}
+                  >
+                    <Checkbox defaultChecked />
+                  </Form.Item>
+                </Form>
+              </Modal>
+            </Row>
+          </Card>
+          <Flex justify="space-between">
+            <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
+              Previous
             </Button>
-          </Form.Item>
-        </Flex>
-      </Col>
+            <Form.Item>
+              <Button type="primary" onClick={handlenext}>
+                Next
+              </Button>
+            </Form.Item>
+          </Flex>
+        </Col>
+      </List>
     </Row>
   );
 };
