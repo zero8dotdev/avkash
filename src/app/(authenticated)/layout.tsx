@@ -17,13 +17,7 @@ export default async function DashboardLayout({
     <>
       {/* this client side component is used to hydrate the application context */}
       <StoreToContext user={user} org={org} team={team} teams={teams} />
-      <Row
-        gutter={8}
-        style={{
-          minHeight: "calc(100vh - 64px)",
-        }}
-        className="p-1 lg:p-8"
-      >
+      <Row style={{ padding: "0px 0px 0px 200px" }}>
         <Col span={24}>{children}</Col>
       </Row>
     </>

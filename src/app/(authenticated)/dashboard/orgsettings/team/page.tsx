@@ -5,6 +5,7 @@ import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { Col, Flex, List, Row, Segmented } from "antd";
 import { useEffect, useState } from "react";
 import TeamTableActive from "./teamTable";
+import SideMenu from "../_components/menu";
 
 const Team = () => {
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
@@ -18,13 +19,12 @@ const Team = () => {
       const data = await fetchTeamsData(orgId);
 
       setTeams(data);
-
     };
     fetchData();
   }, [orgId]);
- 
-  const activeTeams=teams?.filter((team:any)=>team.status===true)
-  const inActiveTeams=teams?.filter((team:any)=>team.status==false)
+
+  const activeTeams = teams?.filter((team: any) => team.status === true);
+  const inActiveTeams = teams?.filter((team: any) => team.status == false);
 
   const handleDisable = async (teamData: any) => {
     await updateTeamData(false, teamData.teamId);
@@ -45,8 +45,11 @@ const Team = () => {
   };
 
   return (
-    <Row gutter={8}>
-      <Col span={24}>
+    <Row gutter={8} style={{ padding: "80px" }}>
+      <Col span={3}>
+        <SideMenu position="team" />
+      </Col>
+      <Col span={16}>
         <Segmented
           value={segmentValue}
           onChange={setSegmentValue}
@@ -65,13 +68,21 @@ const Team = () => {
         />
         <Flex vertical>
           {segmentValue === "active" ? (
-
-              <TeamTableActive teams={activeTeams} status={segmentValue} onDisable={handleDisable} onEnable={handleEnable}/>
-
-          ) : <TeamTableActive teams={inActiveTeams} status={segmentValue} onDisable={handleDisable} onEnable={handleEnable}/>}
+            <TeamTableActive
+              teams={activeTeams}
+              status={segmentValue}
+              onDisable={handleDisable}
+              onEnable={handleEnable}
+            />
+          ) : (
+            <TeamTableActive
+              teams={inActiveTeams}
+              status={segmentValue}
+              onDisable={handleDisable}
+              onEnable={handleEnable}
+            />
+          )}
         </Flex>
-
-
       </Col>
     </Row>
   );
