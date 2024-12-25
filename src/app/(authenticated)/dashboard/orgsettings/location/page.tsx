@@ -6,13 +6,24 @@ import {
   updateHolidaysList,
 } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { Avatar, Button, Col, Flex, List, Row, Space, Typography } from "antd";
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Flex,
+  List,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 
 import { useEffect, useState } from "react";
 import Flag from "react-world-flags";
 import LocationPage from "@/app/(authenticated)/setup/steps/locationPage";
 import moment from "moment-timezone";
 import { createClient } from "@/app/_utils/supabase/client";
+import SideMenu from "../_components/menu";
 
 const Page = () => {
   const [location, setLocation] = useState<string>();
@@ -109,78 +120,85 @@ const Page = () => {
   const code = locations.filter((each) => location === each.countryCode);
 
   return (
-    <Row gutter={[16, 16]}>
-      <Col span={24}>
-        <List
-          style={{ marginTop: "12px" }}
-          bordered
-          itemLayout="horizontal"
-          dataSource={code}
-          renderItem={(item, index) => {
-            return (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={
-                    <Avatar style={{ background: "none" }}>
-                      {" "}
-                      <Flag
-                        code={item.countryCode}
-                        style={{ width: "50px", height: "50px" }}
-                        alt={item.countryName}
-                      />
-                    </Avatar>
-                  }
-                  title={
-                    <Typography.Title level={4}>
-                      {item.countryName}
-                    </Typography.Title>
-                  }
-                />
-              </List.Item>
-            );
-          }}
-        />
+    <Row style={{ padding: "80px" }}>
+      <Col span={3}>
+        <SideMenu position="location" />
       </Col>
-      <Col span={4}>
-        <Button onClick={() => handleChangeLocation()} type="primary">
+      <Col span={16}>
+        <Card>
+          <List
+            style={{ margin: "12px" }}
+            bordered
+            itemLayout="horizontal"
+            dataSource={code}
+            renderItem={(item, index) => {
+              return (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar style={{ background: "none" }}>
+                        {" "}
+                        <Flag
+                          code={item.countryCode}
+                          style={{ width: "50px", height: "50px" }}
+                          alt={item.countryName}
+                        />
+                      </Avatar>
+                    }
+                    title={
+                      <Typography.Title level={4}>
+                        {item.countryName}
+                      </Typography.Title>
+                    }
+                  />
+                </List.Item>
+              );
+            }}
+          />
+        </Card>
+        <Button
+          onClick={() => handleChangeLocation()}
+          type="primary"
+          style={{ marginTop: "15px" }}
+        >
           Change Location
         </Button>
-      </Col>
-      {isChangeLocation && (
-        <>
-          {countryCode && (
-            <Flex vertical style={{width:'100%'}}>
-              <Col span={24}>
-                <LocationPage
-                  updateCountryCode={(code: string) => setCountryCode(code)}
-                  holidaysList={holidaysList}
-                  update={(values) => setHolidaysList(values)}
-                  countryCode={countryCode}
-                />
-              </Col>
-       
-              <Flex gap={8} justify="flex-end" style={{width:'100%'}}>
-                <Space>
-                  <Button
-                    style={{ marginRight: "5px" }}
-                    danger
-                    onClick={() => setIsChangeLocation(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="primary"
-                    onClick={() => updateHolidays()}
-                    loading={loading}
-                  >
-                    save
-                  </Button>
-                </Space>
+        {isChangeLocation && (
+          <>
+            {countryCode && (
+              <Flex vertical style={{ width: "100%" }}>
+                <Col span={24}>
+                  <LocationPage
+                    updateCountryCode={(code: string) => setCountryCode(code)}
+                    holidaysList={holidaysList}
+                    update={(values) => setHolidaysList(values)}
+                    countryCode={countryCode}
+                  />
+                </Col>
+
+                <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+                  <Space>
+                    <Button
+                      style={{ marginRight: "5px" }}
+                      danger
+                      onClick={() => setIsChangeLocation(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={() => updateHolidays()}
+                      loading={loading}
+                    >
+                      save
+                    </Button>
+                  </Space>
+                </Flex>
               </Flex>
-            </Flex>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </Col>
     </Row>
   );
 };
