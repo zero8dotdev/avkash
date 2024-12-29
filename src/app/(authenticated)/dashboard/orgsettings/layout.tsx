@@ -11,7 +11,7 @@ export default async function SettingsLayout({
             colorBorder: "transparent",
             inkBarColor: "transparent",
             cardBg: "transparent",
-            fontSize: 20,
+            fontSize: 15,
           },
         },
       }}

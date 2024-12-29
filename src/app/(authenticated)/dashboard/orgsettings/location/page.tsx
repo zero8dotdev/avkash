@@ -125,7 +125,7 @@ const Page = () => {
         <SideMenu position="location" />
       </Col>
       <Col span={16}>
-        <Card>
+        <Card title="Location Settings">
           <List
             style={{ margin: "12px" }}
             bordered

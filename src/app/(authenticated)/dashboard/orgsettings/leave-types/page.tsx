@@ -11,59 +11,72 @@ import {
   PopconfirmProps,
   Modal,
   Form,
-  Input,
   ColorPicker,
-  Checkbox,
-  Select,
+  Input,
   Card,
 } from "antd";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import LeaveTypeEdit from "./leaveEditType";
 import { useApplicationContext } from "@/app/_context/appContext";
-import {
-  fetchleaveTypes,
-  insertNewLeaveType,
-  updateLeaveTypeBasedOnOrg,
-} from "@/app/_actions";
+import useSWR from "swr";
 import LeaveTypeDisable from "./leaveTypeDisable";
 import SideMenu from "../_components/menu";
-
-export interface LeaveTypes {
-  // define the leave type here as modeled in the backend
-  name: string;
-  isActive: boolean;
-  color: string;
-  leaveTypeId: string;
-}
+import {
+  fetchOrgleaveTypes,
+  insertNewLeaveType,
+  updateLeaveTypeBasedOnOrg,
+} from "../_actions";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import { init } from "emoji-mart";
+import predefinedColors, { Emoji, LeaveTypes } from "../_utils";
+init({ data });
 
 export default function Page() {
-  const [leaveTypes, setLeaveTypes] = useState<LeaveTypes[]>();
+  // const [leaveTypes, setLeaveTypes] = useState<LeaveTypes[]>();
   const [isModalVisible, setModalVisible] = useState(false);
   const [loader, setLoader] = useState<boolean>(false);
   const { state: appState } = useApplicationContext();
-  const { orgId } = appState;
+  const { orgId, userId } = appState;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchleaveTypes(orgId);
-      setLeaveTypes(data);
-    };
-    fetchData();
-  }, [orgId]);
+  // Fetcher function for SWR
+  const orgleaves = async (orgId: string) => {
+    const org = orgId.split("*")[1];
 
+    const data = await fetchOrgleaveTypes(org);
+
+    if (error) {
+      throw new Error("Failed to fetch organization data");
+    }
+    return data;
+  };
+
+  const {
+    data: leaveTypes,
+    error,
+    mutate,
+  } = useSWR(orgId ? `orgLeavetypes*${orgId}` : null, orgleaves);
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
   const [activeItem, setActiveItem] = useState<undefined | LeaveTypes>(
     undefined
   );
+  const [color, setColor] = useState<string>("");
+
   const [disableItem, setDisableItem] = useState<undefined | LeaveTypes>(
     undefined
   );
   const [inActive, setInActive] = useState<undefined | LeaveTypes>(undefined);
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
+  const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string>("");
+
   const confirm: PopconfirmProps["onConfirm"] = async () => {
+    // Disable the leave type based on the organization and the leave type ID
     await updateLeaveTypeBasedOnOrg(true, orgId, inActive?.leaveTypeId);
-    const data = await fetchleaveTypes(orgId);
-    setLeaveTypes(data);
+
+    // Update the SWR data to reflect the latest state
+    mutate(); // This will trigger a re-fetch of the leave types
   };
 
   const [form] = Form.useForm();
@@ -75,7 +88,10 @@ export default function Page() {
         color: values.color.slice(1),
         orgId: orgId,
         isActive: true,
+        createdBy: userId,
       };
+
+      console.log(newValues);
       const data = await insertNewLeaveType(newValues);
       if (data) {
         form.resetFields();
@@ -84,10 +100,15 @@ export default function Page() {
     } catch (error) {
       console.error(error);
     } finally {
-      const data = await fetchleaveTypes(orgId);
-      setLeaveTypes(data);
+      mutate();
       setLoader(false);
     }
+  };
+
+  const handleIconSelect = (data: Emoji) => {
+    setSelectedEmoji(data.native); // Update emoji state
+    form.setFieldValue("emoji", data.native); // Update form value
+    setEmojiPickerVisible(false); // Hide picker
   };
 
   return (
@@ -97,7 +118,7 @@ export default function Page() {
       </Col>
 
       <Col span={16}>
-        <Card>
+        <Card title="Leave Types">
           <Segmented
             value={segmentValue}
             onChange={setSegmentValue}
@@ -137,7 +158,6 @@ export default function Page() {
                         >
                           Edit
                         </Button>
-
                         <Button
                           type="link"
                           danger
@@ -180,7 +200,7 @@ export default function Page() {
             onCancel={() => {
               setActiveItem(undefined);
             }}
-            update={(data) => setLeaveTypes(data)}
+            update={mutate}
             orgId={orgId}
           />
           <LeaveTypeDisable
@@ -189,7 +209,7 @@ export default function Page() {
             onCancel={() => {
               setDisableItem(undefined);
             }}
-            update={(data) => setLeaveTypes(data)}
+            update={mutate}
           />
         </Card>
         <Button
@@ -219,13 +239,7 @@ export default function Page() {
         closable={false}
       >
         <Form onFinish={onFinish} form={form}>
-          <Form.Item
-            label="Leave Type name"
-            name="name"
-            rules={[
-              { required: true, message: "Please Enter leave type  name" },
-            ]}
-          >
+          <Form.Item label="Leave Type name" name="name">
             <Input />
           </Form.Item>
           <Form.Item
@@ -235,38 +249,82 @@ export default function Page() {
               { required: true, message: "Please select leave type color" },
             ]}
           >
-            <ColorPicker
-              onChange={(_, hex) => form.setFieldValue("color", hex)}
+            <div
+              onClick={() => setColorPickerVisible(!colorPickerVisible)}
+              style={{
+                backgroundColor: form.getFieldValue("color") || "#d9d9d9",
+                width: "40px",
+                height: "40px",
+                borderRadius: "10%",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                border: "2px solid transparent",
+              }}
+            >
+              {!form.getFieldValue("color") && <span>Select</span>}
+            </div>
+          </Form.Item>
+
+          <div>
+            {colorPickerVisible && (
+              <div
+                style={{
+                  marginTop: "10px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(5, 1fr)",
+                  gap: "10px",
+                }}
+              >
+                {predefinedColors.map((color) => (
+                  <div
+                    key={color}
+                    style={{
+                      backgroundColor: color,
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10%",
+                      cursor: "pointer",
+                      border: "2px solid transparent",
+                    }}
+                    onClick={() => {
+                      form.setFieldValue("color", color);
+                      setColor(color); // Update the form value
+                      setColorPickerVisible(false); // Hide picker
+                    }}
+                  >
+                    {form.getFieldValue("color") === color && (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          boxShadow: `0 0 5px 2px ${color}`,
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <Form.Item label="Leave Type Emoji" name="emoji">
+            <Avatar
+              size={40}
+              style={{ fontSize: "30px", backgroundColor: "transparent" }}
+              icon={selectedEmoji || "😊"}
+              onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
             />
           </Form.Item>
-          <Form.Item
-            label="Set Slack Status"
-            name="setSlackStatus"
-            initialValue={false}
-          >
-            <Checkbox />
-          </Form.Item>
-          <Form.Item
-            label="Set Slack Status"
-            name="statusMsg"
-            initialValue="on Paid time of leave"
-          >
-            <Select>
-              <Select.Option value="on Paid time of leave">
-                On Paid time off Leave
-              </Select.Option>
-              <Select.Option value="on Slack time of leave">
-                On Slack Leave
-              </Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Leave Type Emoji"
-            name="emoji"
-            initialValue="https://api.dicebear.com/7.x/miniavs/svg?seed=8"
-          >
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" />
-          </Form.Item>
+          {emojiPickerVisible && (
+            <div style={{ position: "absolute", zIndex: 10 }}>
+              <Button
+                onClick={() => setEmojiPickerVisible(!emojiPickerVisible)}
+              />
+              <Picker data={data} onEmojiSelect={handleIconSelect} />
+            </div>
+          )}
         </Form>
       </Modal>
     </Row>

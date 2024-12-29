@@ -162,16 +162,27 @@ const SubscriptionButton: React.FC = () => {
       </Col>
 
       <Col span={16}>
-        <Card bordered={false} style={{ marginTop: 16 }}>
-          <Text>You currently have {userCount} users.</Text>
-          <br />
-          <Text strong style={{ color: "#1890ff" }}>
-            Avkash is free to use for companies with 5 or fewer users. Avkash
-            costs ₹99 per user per month if you have more than 5 users.
+        <Card style={{ marginTop: 16 }} title="Billing">
+          <Text style={{ display: "block", marginBottom: 24 }}>
+            You currently have {userCount} users.
+          </Text>
+          <Text
+            strong
+            style={{ color: "#3c8cd8", display: "block", marginBottom: 24 }}
+          >
+            अvkash costs ₹99 per user per month.
+          </Text>
+          <Text
+            strong
+            style={{ color: "#3c8cd8", display: "block", marginBottom: 16 }}
+          >
+            To ensure uninterrupted service, add your billing information. We
+            will not start billing you until you have added at least 5 users to
+            अvkash.
           </Text>
           {subscriptionId && subscriptionDetails && (
             <div style={{ marginTop: 16 }}>
-              <Text strong style={{ color: "#ff4d4f" }}>
+              <Text strong style={{ color: "#ff4d4f", display: "block" }}>
                 {subscriptionDetails.status === "cancelled"
                   ? "Your subscription expiry date: "
                   : "Next Due Date: "}
