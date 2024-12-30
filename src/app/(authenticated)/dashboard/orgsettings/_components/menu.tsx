@@ -4,11 +4,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useTransition } from "react";
 import { start } from "repl";
 
-const items: any = {
-  key: "0",
-  label: "General",
-  children: <>General</>,
-};
 const SideMenu = ({ position }: { position: string }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
