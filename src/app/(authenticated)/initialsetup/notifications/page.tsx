@@ -6,12 +6,13 @@ import {
   Col,
   Flex,
   Form,
+  List,
   Row,
   Steps,
   Switch,
   Typography,
 } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   LeftOutlined,
   SmileOutlined,
@@ -19,9 +20,13 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import TopSteps from "../componenets/steps";
-import { updateInitialsetupState, updateTeamNotificationsSettings } from "../_actions";
+import TopSteps from "../_componenets/steps";
+import {
+  updateInitialsetupState,
+  updateTeamNotificationsSettings,
+} from "../_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
+import { set } from "date-fns";
 const { Item } = Form;
 const { Group } = Checkbox;
 
@@ -32,13 +37,16 @@ const Notifications = () => {
     state: { orgId, userId, teamId },
     dispatch,
   } = useApplicationContext();
-
+  const [loading, setLoading] = useState(false);
   const handlenext = async () => {
     // Log form values
     const formValues = form.getFieldsValue();
     try {
       // Update team settings
-      const data = await updateTeamNotificationsSettings(teamId, { ...formValues });
+      setLoading(true);
+      const data = await updateTeamNotificationsSettings(teamId, {
+        ...formValues,
+      });
       if (!data) {
         // Handle failure to update team settings
         throw new Error("Failed to update team notification settings");
@@ -49,7 +57,10 @@ const Notifications = () => {
       if (status) {
         // // Navigate to the next page if update is successful
         router.push(
-          new URL("/initialsetup/invite-users", window?.location.origin).toString()
+          new URL(
+            "/initialsetup/invite-users",
+            window?.location.origin
+          ).toString()
         );
       } else {
         // Handle failure to update initial setup state
@@ -57,8 +68,11 @@ const Notifications = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 10000);
     }
-
   };
 
   const handlePrevious = () => {
@@ -75,79 +89,80 @@ const Notifications = () => {
       }}
     >
       <TopSteps position={4} />
-
-      <Col span={16} push={4}>
-        <Card
-          style={{
-            margin: "25px 0px 25px 0px",
-            minHeight: "300px",
-            overflow: "auto",
-          }}
-        >
-          <Form
-            form={form}
-            name="notifications"
-            layout="vertical"
-            size="small"
-            style={{ marginTop: "25px", width: "70%" }}
-            initialValues={{
-              leaveChanged: false,
-              dailySummary: false,
-              weeklySummary: false,
-              sendntw: ["OWNER"], // Default selected notifications
+      <List loading={loading} style={{ width: "100%" }}>
+        <Col span={16} push={4}>
+          <Card
+            style={{
+              margin: "25px 0px 25px 0px",
+              minHeight: "300px",
+              overflow: "auto",
             }}
           >
-            <Flex justify="space-between">
-              <Typography.Text>Leave Changed</Typography.Text>
-              <Flex gap={15}>
-                <Item name="leaveChanged" valuePropName="checked">
-                  <Switch />
-                </Item>
-                <Typography.Text>
-                  Send a notification whenever leave is approved or deleted.
-                </Typography.Text>
+            <Form
+              form={form}
+              name="notifications"
+              layout="vertical"
+              size="small"
+              style={{ marginTop: "25px", width: "70%" }}
+              initialValues={{
+                leaveChanged: false,
+                dailySummary: false,
+                weeklySummary: false,
+                sendntw: ["OWNER"], // Default selected notifications
+              }}
+            >
+              <Flex justify="space-between">
+                <Typography.Text>Leave Changed</Typography.Text>
+                <Flex gap={15}>
+                  <Item name="leaveChanged" valuePropName="checked">
+                    <Switch />
+                  </Item>
+                  <Typography.Text>
+                    Send a notification whenever leave is approved or deleted.
+                  </Typography.Text>
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex justify="space-between">
-              <Typography.Text>Daily Summary</Typography.Text>
-              <Flex gap={15}>
-                <Item name="dailySummary" valuePropName="checked">
-                  <Switch />
-                </Item>
-                <Typography.Text style={{ marginRight: "95px" }}>
-                  Send a report of upcoming work days leave
-                </Typography.Text>
+              <Flex justify="space-between">
+                <Typography.Text>Daily Summary</Typography.Text>
+                <Flex gap={15}>
+                  <Item name="dailySummary" valuePropName="checked">
+                    <Switch />
+                  </Item>
+                  <Typography.Text style={{ marginRight: "95px" }}>
+                    Send a report of upcoming work days leave
+                  </Typography.Text>
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex justify="space-between">
-              <Typography.Text>Weekly Summary</Typography.Text>
-              <Flex gap={15}>
-                <Item name="weeklySummary" valuePropName="checked">
-                  <Switch />
-                </Item>
-                <Typography.Text style={{ marginRight: "118px" }}>
-                  Send a report of upcoming weeks leave
-                </Typography.Text>
+              <Flex justify="space-between">
+                <Typography.Text>Weekly Summary</Typography.Text>
+                <Flex gap={15}>
+                  <Item name="weeklySummary" valuePropName="checked">
+                    <Switch />
+                  </Item>
+                  <Typography.Text style={{ marginRight: "118px" }}>
+                    Send a report of upcoming weeks leave
+                  </Typography.Text>
+                </Flex>
               </Flex>
-            </Flex>
 
-            <Item label="Send notifications to" name="sendntw">
-              <Group>
-                <Checkbox value="OWNER">Owner</Checkbox>
-                <Checkbox value="MANAGER">Managers</Checkbox>
-              </Group>
-            </Item>
-          </Form>
-        </Card>
-        <Flex justify="space-between">
-          <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
-            Previous
-          </Button>
-          <Button type="primary" onClick={handlenext}>
-            Next
-          </Button>
-        </Flex>
-      </Col>
+              <Item label="Send notifications to" name="sendntw">
+                <Group>
+                  <Checkbox value="OWNER">Owner</Checkbox>
+                  <Checkbox value="MANAGER">Managers</Checkbox>
+                </Group>
+              </Item>
+            </Form>
+          </Card>
+          <Flex justify="space-between">
+            <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
+              Previous
+            </Button>
+            <Button type="primary" onClick={handlenext}>
+              Next
+            </Button>
+          </Flex>
+        </Col>
+      </List>
     </Row>
   );
 };

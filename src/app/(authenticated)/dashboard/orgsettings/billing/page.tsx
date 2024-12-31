@@ -4,7 +4,15 @@ import { Button, Typography, Card, Row, Col, Space } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { createClient } from "@/app/_utils/supabase/client";
 import dayjs from "dayjs";
-import { addSubscriptionToOrg, cancelSubscription, fetchInvoices, getQuantity, getSubDetails, insertData } from "@/app/_components/header/_components/actions";
+import {
+  addSubscriptionToOrg,
+  cancelSubscription,
+  fetchInvoices,
+  getQuantity,
+  getSubDetails,
+  insertData,
+} from "@/app/_components/header/_components/actions";
+import SideMenu from "../_components/menu";
 
 const { Text } = Typography;
 const supabase = createClient();
@@ -105,9 +113,9 @@ const SubscriptionButton: React.FC = () => {
         },
         modal: {
           ondismiss: function () {
-            window.location.href = '/cancel';
+            window.location.href = "/cancel";
           },
-        }
+        },
       };
 
       const rzp = new window.Razorpay(options);
@@ -144,48 +152,70 @@ const SubscriptionButton: React.FC = () => {
   };
 
   const formatInvoiceTitle = (date: number) => {
-    return dayjs(date * 1000).format('MMMM YYYY') + ' Invoice';
+    return dayjs(date * 1000).format("MMMM YYYY") + " Invoice";
   };
 
   return (
-    <Card bordered={false} style={{ marginTop: 16 }}>
-      <Row>
-        <Col span={24}>
-          <Text>
+    <Row style={{ padding: "80px" }}>
+      <Col span={3}>
+        <SideMenu position="billing" />
+      </Col>
+
+      <Col span={16}>
+        <Card style={{ marginTop: 16 }} title="Billing">
+          <Text style={{ display: "block", marginBottom: 24 }}>
             You currently have {userCount} users.
           </Text>
-          <br />
-          <Text strong style={{ color: '#1890ff' }}>
-            Avkash is free to use for companies with 5 or fewer users.
-            Avkash costs ₹99 per user per month if you have more than 5 users.
+          <Text
+            strong
+            style={{ color: "#3c8cd8", display: "block", marginBottom: 24 }}
+          >
+            अvkash costs ₹99 per user per month.
+          </Text>
+          <Text
+            strong
+            style={{ color: "#3c8cd8", display: "block", marginBottom: 16 }}
+          >
+            To ensure uninterrupted service, add your billing information. We
+            will not start billing you until you have added at least 5 users to
+            अvkash.
           </Text>
           {subscriptionId && subscriptionDetails && (
             <div style={{ marginTop: 16 }}>
-              <Text strong style={{ color: '#ff4d4f' }}>
+              <Text strong style={{ color: "#ff4d4f", display: "block" }}>
                 {subscriptionDetails.status === "cancelled"
                   ? "Your subscription expiry date: "
                   : "Next Due Date: "}
-                {dayjs(subscriptionDetails.currentEnd * 1000).format('DD/MM/YYYY')}
+                {dayjs(subscriptionDetails.currentEnd * 1000).format(
+                  "DD/MM/YYYY"
+                )}
               </Text>
             </div>
           )}
-        </Col>
-      </Row>
+        </Card>
+      </Col>
+
       {userCount > 5 && (
         <Row style={{ marginTop: 16 }}>
           <Col span={24}>
-            <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+            <Space
+              direction="vertical"
+              size="middle"
+              style={{ display: "flex" }}
+            >
               {subscriptionId && (
                 <>
                   <Button
                     type="default"
-                    onClick={() => setShowSubscriptionDetails(prev => !prev)}
+                    onClick={() => setShowSubscriptionDetails((prev) => !prev)}
                   >
-                    {showSubscriptionDetails ? "Hide Subscription" : "View Subscription"}
+                    {showSubscriptionDetails
+                      ? "Hide Subscription"
+                      : "View Subscription"}
                   </Button>
                   <Button
                     type="default"
-                    onClick={() => setShowInvoices(prev => !prev)}
+                    onClick={() => setShowInvoices((prev) => !prev)}
                   >
                     {showInvoices ? "Hide Invoices" : "View Invoices"}
                   </Button>
@@ -194,38 +224,89 @@ const SubscriptionButton: React.FC = () => {
               <Button
                 danger={subscriptionId ? true : false}
                 loading={loading && !subscriptionId}
-                onClick={subscriptionId ? handleCancelSubscription : handlePurchase}
-                disabled={subscriptionDetails && subscriptionDetails.status === "cancelled"}
+                onClick={
+                  subscriptionId ? handleCancelSubscription : handlePurchase
+                }
+                disabled={
+                  subscriptionDetails &&
+                  subscriptionDetails.status === "cancelled"
+                }
               >
                 {subscriptionId ? "Cancel Subscription" : "Buy Subscription"}
               </Button>
               {showSubscriptionDetails && subscriptionDetails && (
                 <Card
                   title="Subscription Details"
-                  style={{ marginTop: 16, backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}
+                  style={{
+                    marginTop: 16,
+                    backgroundColor: "#e6f7ff",
+                    border: "1px solid #91d5ff",
+                  }}
                 >
-                  <p><strong>Status:</strong> {subscriptionDetails.status}</p>
-                  <p><strong>No of Users:</strong> {subscriptionDetails.quantity}</p>
-                  <p><strong>Start Date:</strong> {dayjs(subscriptionDetails.startAt * 1000).format("DD/MM/YYYY")}</p>
-                  <p><strong>Next Due Date:</strong> {dayjs(subscriptionDetails.currentEnd * 1000).format("DD/MM/YYYY")}</p>
-                  <Button type="link" href={subscriptionDetails.shortUrl} target="_blank">
+                  <p>
+                    <strong>Status:</strong> {subscriptionDetails.status}
+                  </p>
+                  <p>
+                    <strong>No of Users:</strong> {subscriptionDetails.quantity}
+                  </p>
+                  <p>
+                    <strong>Start Date:</strong>{" "}
+                    {dayjs(subscriptionDetails.startAt * 1000).format(
+                      "DD/MM/YYYY"
+                    )}
+                  </p>
+                  <p>
+                    <strong>Next Due Date:</strong>{" "}
+                    {dayjs(subscriptionDetails.currentEnd * 1000).format(
+                      "DD/MM/YYYY"
+                    )}
+                  </p>
+                  <Button
+                    type="link"
+                    href={subscriptionDetails.shortUrl}
+                    target="_blank"
+                  >
                     View Subscription
                   </Button>
                 </Card>
               )}
               {showInvoices && invoices.length > 0 && (
-                <Space direction="vertical" size="middle" style={{ display: "flex", marginTop: 16 }}>
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ display: "flex", marginTop: 16 }}
+                >
                   {invoices.map((invoice) => (
                     <Card
                       key={invoice.id}
                       title={formatInvoiceTitle(invoice.issued_at)}
-                      style={{ width: '100%', border: '1px solid #d9d9d9', backgroundColor: '#f5f5f5', color: '#333', }}
-                      headStyle={{ backgroundColor: '#e6f7ff', fontWeight: 'bold' }}
+                      style={{
+                        width: "100%",
+                        border: "1px solid #d9d9d9",
+                        backgroundColor: "#f5f5f5",
+                        color: "#333",
+                      }}
+                      headStyle={{
+                        backgroundColor: "#e6f7ff",
+                        fontWeight: "bold",
+                      }}
                     >
-                      <p><strong>Amount:</strong> {invoice.gross_amount / 100} INR</p>
-                      <p><strong>Status:</strong> {invoice.status}</p>
-                      <p><strong>Issued On:</strong> {dayjs(invoice.issued_at * 1000).format('DD/MM/YYYY')}</p>
-                      <Button type="link" href={invoice.short_url} target="_blank">
+                      <p>
+                        <strong>Amount:</strong> {invoice.gross_amount / 100}{" "}
+                        INR
+                      </p>
+                      <p>
+                        <strong>Status:</strong> {invoice.status}
+                      </p>
+                      <p>
+                        <strong>Issued On:</strong>{" "}
+                        {dayjs(invoice.issued_at * 1000).format("DD/MM/YYYY")}
+                      </p>
+                      <Button
+                        type="link"
+                        href={invoice.short_url}
+                        target="_blank"
+                      >
                         View Invoice
                       </Button>
                     </Card>
@@ -236,7 +317,7 @@ const SubscriptionButton: React.FC = () => {
           </Col>
         </Row>
       )}
-    </Card>
+    </Row>
   );
 };
 
