@@ -70,7 +70,7 @@ const LocationPage = () => {
       // Update team settings
       setLoading(true);
       const data = await insertHolidays(
-        teamId,
+        orgId,
         holidaysList,
         userId,
         countryCode

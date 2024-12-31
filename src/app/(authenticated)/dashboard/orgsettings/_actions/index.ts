@@ -128,3 +128,73 @@ export const fetchTeamUsers = async (teamId: string) => {
   }
   return data;
 };
+
+export const fetchOrg = async (orgId: string) => {
+  try {
+    const supabase = createClient();
+
+    const { data: organisation, error } = await supabase
+      .from("Organisation")
+      .select()
+      .eq("orgId", orgId)
+      .single();
+
+    if (error || !organisation) {
+      throw error;
+    }
+
+    return organisation;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+export const fetchPublicHolidays = async (countryCode: any) => {
+  const currentYear = new Date().getFullYear();
+  const supabase = createClient();
+  const { data: holidaysdata, error } = await supabase
+    .from("PublicHolidays")
+    .select("*")
+    .eq("iso", countryCode)
+    .eq("year", currentYear);
+
+  if (error) {
+    throw error;
+  }
+  return holidaysdata;
+};
+
+export const updateHolidaysList = async (
+  holidaysList: any,
+  orgId: string,
+  countryCode: any
+) => {
+  const holidayData = holidaysList.map((e: any) => {
+    return {
+      name: e.name,
+      date: e.date,
+      isRecurring: e.isRecurring,
+      isCustom: e.isCustom,
+      location: countryCode,
+      orgId: orgId,
+    };
+  });
+  const supabase = createClient();
+  const { data: deleteData, error: deleteError } = await supabase
+    .from("Holiday")
+    .delete()
+    .eq("orgId", orgId)
+    .select();
+
+  if (deleteData) {
+    const { data, error } = await supabase
+      .from("Holiday")
+      .insert(holidayData)
+      .select();
+    if (error) {
+      console.log(error);
+    }
+    return data;
+  }
+};

@@ -156,7 +156,7 @@ const TeamTableActive:React.FC<Props> = ({ teams, status,onDisable,onEnable}) =>
       />
       <Space>
        
-          <Button type="link" href="settings/team/new-team" style={{border:'1px solid blue',marginTop:'12px'}}>
+          <Button type="link" href="team/new-team" style={{border:'1px solid blue',marginTop:'12px'}}>
             Add new team
           </Button>
        
