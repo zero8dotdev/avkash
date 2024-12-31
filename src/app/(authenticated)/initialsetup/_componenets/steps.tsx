@@ -47,6 +47,7 @@ const TopSteps: React.FC<TopStepsProps> = ({ position }) => {
           icon: <UserOutlined />,
         },
       ]}
+      style={{ padding: "0px 100px 20px 100px" }}
     />
   );
 };

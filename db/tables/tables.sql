@@ -188,12 +188,12 @@ CREATE TABLE
     "location" VARCHAR(255),
     "isRecurring" BOOLEAN NOT NULL DEFAULT TRUE,
     "isCustom" BOOLEAN NOT NULL DEFAULT TRUE,
-    "teamId" UUID NOT NULL,
+    "orgId" UUID NOT NULL,
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_holiday_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId")
+    CONSTRAINT "fk_holiday_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
   );
 
 CREATE TABLE
@@ -333,7 +333,7 @@ CREATE INDEX idx_leavepolicy_type_team ON "LeavePolicy" ("leaveTypeId", "teamId"
 CREATE INDEX idx_leavepolicy_active ON "LeavePolicy" ("isActive");
 
 -- Holiday Table
-CREATE INDEX idx_holiday_org_id ON "Holiday" ("teamId");
+CREATE INDEX idx_holiday_org_id ON "Holiday" ("orgId");
 
 CREATE INDEX idx_holiday_date ON "Holiday" ("date");
 

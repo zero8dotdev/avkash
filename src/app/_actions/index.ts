@@ -363,7 +363,7 @@ export const signUpAction = async (values: any) => {
         name: team_name,
         orgId: org.orgId,
         createdBy: authUser.id,
-        managers: authUser.id,
+        managers: [authUser.id],
       })
       .select()
       .single();
