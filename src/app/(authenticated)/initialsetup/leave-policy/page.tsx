@@ -422,11 +422,16 @@ const Page = () => {
               </>
             </Card>
             <Flex justify="space-between">
-              <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
+              <Button
+                danger
+                icon={<LeftOutlined />}
+                onClick={handlePrevious}
+                size="middle"
+              >
                 Previous
               </Button>
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" size="middle">
                   Next
                 </Button>
               </Form.Item>
