@@ -336,7 +336,7 @@ export const updateLocation = async (
 
 // Insert Holidays
 export const insertHolidays = async (
-  teamId: any,
+  orgId: any,
   holidaysList: any,
   currentUserId: any,
   countryCode: any
@@ -350,7 +350,7 @@ export const insertHolidays = async (
         name,
         isRecurring,
         isCustom,
-        teamId,
+        orgId,
         date,
         createdBy: currentUserId,
         location: countryCode,

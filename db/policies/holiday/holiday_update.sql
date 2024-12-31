@@ -10,7 +10,7 @@ CREATE POLICY "holiday_update" ON "public"."Holiday" FOR update
                 -- Allow access if the user is a manager or user to see their org only
                 (
                 public.fetch_user_role(auth.uid()) IN ('OWNER')
-                AND "teamId" = public.fetch_user_teamid(auth.uid())
+                AND "orgId" = public.fetch_user_orgid(auth.uid())
                 )
             )
         )
