@@ -36,8 +36,6 @@ const SubscriptionButton: React.FC = () => {
 
   useEffect(() => {
     const fetchSubscriptionId = async () => {
-      // const userCount = await getQuantity(appState.orgId);
-      // userCount && setUserCount(userCount);
       const { data, error } = await supabase
         .from("Organisation")
         .select("subscriptionId")

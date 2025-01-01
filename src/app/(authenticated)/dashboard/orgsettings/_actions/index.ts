@@ -206,3 +206,109 @@ export const updateOrgLocations = async (
   }
   return data;
 };
+
+
+export const fetchTeamsData = async (orgId: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Team")
+    .select(`*, User(*)`)
+    .eq("orgId", orgId);
+
+  if (error) {
+    throw error;
+  }
+
+  const processedData = data.map((team) => {
+    console.log("team", team);
+    const teamId = team.teamId;
+    const name = team.name;
+    const status = team.isActive;
+    const users = team.User.length;
+
+    // Get the names of all managers
+    const managerIds = team.managers || [];
+    const managers = managerIds
+      .map((managerId: string) => {
+        const manager = team.User.find((user: any) => user.userId === managerId);
+        return manager ? manager.name : null;
+      })
+      .filter((managerName: string | null) => managerName !== null);  // Filter out null values
+
+    return {
+      teamId,
+      name,
+      managers,
+      users,
+      status,
+    };
+  });
+
+  return processedData;
+};
+
+
+export const updateTeamData = async (isActive: boolean, teamId: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Team")
+    .update({ isActive: isActive })
+    .eq("teamId", teamId)
+    .select();
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
+export const fetchAllUsersFromChatApp = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
+
+    const { data: organisation, error } = await supabaseAdminClient
+      .from("Organisation")
+      .select("*, OrgAccessData(slackAccessToken)")
+      .eq("orgId", orgId)
+      .single();
+
+    const slackAccessToken =
+      organisation["OrgAccessData"][0]["slackAccessToken"];
+    const slackClient = new WebClient(slackAccessToken);
+
+    const result = await slackClient.users.list({
+      limit: 1000,
+    });
+
+    if (!result.ok) {
+      throw new Error(`Error fetching users: ${result.error}`);
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    const users = result.members?.filter(
+      ({ is_bot, deleted, is_email_confirmed }) =>
+        !is_bot && !deleted && is_email_confirmed
+    );
+
+    const existedUsers = await supabaseAdminClient
+      .from("User")
+      .select("*")
+      .eq("orgId", orgId);
+    if (existedUsers.error) {
+      throw existedUsers.error;
+    }
+    const existingUserEmails = new Set(
+      existedUsers.data.map((user: any) => user.email)
+    );
+
+    // Filter out non-existing users by email
+    const nonExistingUsers = users?.filter(
+      (user: any) => !existingUserEmails.has(user.profile.email)
+    );
+    return nonExistingUsers;
+  } catch (error) {
+    console.log(error);
+  }
+};

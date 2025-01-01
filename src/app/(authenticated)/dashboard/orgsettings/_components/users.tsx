@@ -1,6 +1,5 @@
 "use client";
 
-import { fetchAllUsersFromChatApp } from "@/app/_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { DeleteOutlined } from "@ant-design/icons";
 import {
@@ -17,6 +16,7 @@ import {
 import Item, { Meta } from "antd/es/list/Item";
 import Search from "antd/es/transfer/search";
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { fetchAllUsersFromChatApp } from "../_actions";
 
 export const Users = forwardRef(function Users(props, ref) {
   const [users, setUsers] = useState<any[]>();

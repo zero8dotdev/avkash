@@ -16,11 +16,9 @@ import {
   Typography,
 } from "antd";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Flag from "react-world-flags";
-import LocationPage from "@/app/(authenticated)/setup/steps/locationPage";
 import moment from "moment-timezone";
-import { createClient } from "@/app/_utils/supabase/client";
 import SideMenu from "../_components/menu";
 import {
   fetchOrg,
@@ -29,6 +27,7 @@ import {
   updateOrgLocations,
 } from "../_actions";
 import useSWR from "swr";
+import LocationPage from "../_components/locations";
 
 const Page = () => {
   const [locations, setLocations] = useState<string[]>([]);
@@ -42,20 +41,13 @@ const Page = () => {
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
-  // const fetchLocation = async (orgId: string) => {
-  //   const orgData = await fetchOrg(orgId);
-  //   console.log("orgData", orgData);
-  //   const { location } = orgData;
-  //   setLocations(location);
-  // };
+
   const fetchorg = async (orgId: string) => {
     const org = orgId.split("*")[1];
     const orgData = await fetchOrg(org);
     const { location } = orgData;
     setLocations(location);
-    // if (error) {
-    //   throw new Error("Failed to fetch organization data");
-    // }
+
     return orgData;
   };
 
@@ -69,24 +61,6 @@ const Page = () => {
     setIsChangeLocation(true);
     setSelectedCountryCode(null);
   };
-
-  // const fetchHolidays = async (countryCode: string) => {
-  //   const holidays = await fetchPublicHolidays(countryCode);
-  //   const holidayData = holidays.map((each) => ({
-  //     key: each.id,
-  //     name: each.name,
-  //     date: moment(each.date).toISOString(),
-  //     isRecurring: true,
-  //     isCustom: false,
-  //   }));
-  //   setHolidaysList(holidayData);
-  // };
-
-  // useEffect(() => {
-  //   if (selectedCountryCode) {
-  //     fetchHolidays(selectedCountryCode);
-  //   }
-  // }, [selectedCountryCode]);
 
   const fetcherPublicHolidays = (countryCode: string) =>
     fetchPublicHolidays(countryCode);
