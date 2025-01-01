@@ -84,8 +84,6 @@ export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   return data;
 };
 
-
-
 export const insertNewLeaveType = async (values: any) => {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -149,7 +147,6 @@ export const fetchOrg = async (orgId: string) => {
   }
 };
 
-
 export const fetchPublicHolidays = async (countryCode: any) => {
   const currentYear = new Date().getFullYear();
   const supabase = createClient();
@@ -181,20 +178,31 @@ export const updateHolidaysList = async (
     };
   });
   const supabase = createClient();
-  const { data: deleteData, error: deleteError } = await supabase
+
+  const { data, error } = await supabase
     .from("Holiday")
-    .delete()
+    .insert(holidayData)
+    .select();
+  if (error) {
+    console.log(error);
+  }
+  return data;
+};
+
+export const updateOrgLocations = async (
+  locations: any,
+  selectedCountryCode: any,
+  orgId: string
+) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Organisation")
+    .update({ location: [...locations, selectedCountryCode] })
     .eq("orgId", orgId)
     .select();
 
-  if (deleteData) {
-    const { data, error } = await supabase
-      .from("Holiday")
-      .insert(holidayData)
-      .select();
-    if (error) {
-      console.log(error);
-    }
-    return data;
+  if (error) {
+    throw error;
   }
+  return data;
 };
