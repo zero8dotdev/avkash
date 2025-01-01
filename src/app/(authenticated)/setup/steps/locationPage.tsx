@@ -21,29 +21,34 @@ export interface holidaysList {
   isRecurring: boolean,
   isCustom: boolean,
 }
-
 interface props {
-  holidaysList:holidaysList[]
-  updateCountryCode: (data:string) => void;
-  update: (values:any) => void;
-  countryCode:any
+  holidaysList: holidaysList[];
+  updateCountryCode: (data: string) => void;
+  update: (values: any) => void;
+  countryCode: any;
+  availableLocations?: { countryCode: string; countryName: string }[]; // New prop
 }
-const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,countryCode}) => {
+
+const LocationPage: React.FC<props> = ({
+  updateCountryCode,
+  holidaysList,
+  update,
+  countryCode,
+  availableLocations, // New prop
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const moment = require('moment');
+  const moment = require("moment");
 
   // delete holiday function
-
   const handleDelete = (key: string) => {
     const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
     update(updatedHolidays);
   };
 
   // onChange isRecuring
-
   const handleIsRecurringChange = (isChecked: boolean, rowData: any) => {
-    const updatedHolidays:holidaysList[] = [];
+    const updatedHolidays: holidaysList[] = [];
     for (const holiday of holidaysList) {
       if (holiday.key === rowData.key) {
         updatedHolidays.push({ ...holiday, isRecurring: isChecked });
@@ -52,22 +57,20 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
       }
     }
     update(updatedHolidays);
-   };
+  };
 
   // onChange for country code
- 
   const handleCountryChange = async (code: any) => {
     updateCountryCode(code);
   };
+
   const [form] = Form.useForm();
 
   // adding new holiday
-
-  const handleAddCustomForm = (values:any) => {
-
+  const handleAddCustomForm = (values: any) => {
     const { name, date, isRecurring } = values;
     const newHoliday = {
-      key:values.date,
+      key: values.date,
       name: name,
       date: moment(date).format("DD MMM YYYY"),
       isRecurring: isRecurring,
@@ -76,59 +79,33 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
 
     const updatedHolidays = [...holidaysList, newHoliday];
     update(updatedHolidays);
-    
+
     setIsModalOpen(false);
-    form.resetFields()
+    form.resetFields();
   };
 
-// locations list
-
-  const locations = [
-    {
-      countryCode: "IN",
-      countryName: "India",
-    },
-    {
-      countryCode: "DE",
-      countryName: "Germany",
-    },
-    {
-      countryCode: "GB",
-      countryName: "United Kingdom",
-    },
-    {
-      countryCode: "US",
-      countryName: "United States",
-    },
-    {
-      countryCode: "NL",
-      countryName: "Netherlands",
-    },
+  // locations list
+  const defaultLocations = [
+    { countryCode: "IN", countryName: "India" },
+    { countryCode: "DE", countryName: "Germany" },
+    { countryCode: "GB", countryName: "United Kingdom" },
+    { countryCode: "US", countryName: "United States" },
+    { countryCode: "NL", countryName: "Netherlands" },
   ];
 
-  // holidays sorting based on date 
-  const dataSource=holidaysList.map((each)=>{
-    return {
-      ...each,
-      date:moment(new Date(each.date)).format('DD MMM YYYY')
-    }
-  })
-  
- dataSource.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const locationsToUse = availableLocations || defaultLocations;
 
-  
- 
+  // holidays sorting based on date
+  const dataSource = holidaysList.map((each) => ({
+    ...each,
+    date: moment(new Date(each.date)).format("DD MMM YYYY"),
+  }));
+
+  dataSource.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
   const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-    },
+    { title: "Name", dataIndex: "name", key: "name" },
+    { title: "Date", dataIndex: "date", key: "date" },
     {
       title: "Recurring",
       dataIndex: "isRecurring",
@@ -147,22 +124,21 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
         <Button
           type="link"
           icon={<DeleteOutlined />}
-          onClick={(event) => handleDelete(rowData.key)}
+          onClick={() => handleDelete(rowData.key)}
         />
       ),
     },
   ];
 
-
   return (
-    <Row gutter={[16, 16]} style={{marginTop:'0px'}}>
+    <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
       <Col span={4}>
         <Select
           showSearch
-          style={{ width: "300px"}}
+          style={{ width: "300px" }}
           onChange={handleCountryChange}
           defaultValue={countryCode}
-          options={locations.map((each: any) => ({
+          options={locationsToUse.map((each: any) => ({
             label: each.countryName,
             value: each.countryCode,
           }))}
@@ -187,22 +163,30 @@ const LocationPage: React.FC<props> = ({updateCountryCode,holidaysList,update,co
         closable={false}
         footer={
           <Flex justify="space-between">
-            <Button  onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button key="submit" type="primary" onClick={()=>form.submit()}>
+            <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button key="submit" type="primary" onClick={() => form.submit()}>
               Save
             </Button>
           </Flex>
         }
       >
         <Form onFinish={handleAddCustomForm} form={form} layout="vertical">
-          <Form.Item name="name" label="Holiday Name" rules={[{ required: true, message: 'Please enter holiday name' }]}>
+          <Form.Item
+            name="name"
+            label="Holiday Name"
+            rules={[{ required: true, message: "Please enter holiday name" }]}
+          >
             <Input placeholder="Name" />
           </Form.Item>
-          <Form.Item name="date" label="Holiday Date" rules={[{ required: true, message: 'Please select a date!' }]}>
-            <DatePicker  style={{width:'100%'}}/>
+          <Form.Item
+            name="date"
+            label="Holiday Date"
+            rules={[{ required: true, message: "Please select a date!" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="Recurring" name="isRecurring" initialValue={true}>
-            <Checkbox  defaultChecked/>
+            <Checkbox defaultChecked />
           </Form.Item>
         </Form>
       </Modal>
