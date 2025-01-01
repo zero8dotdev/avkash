@@ -1,35 +1,6 @@
-"use client";
 import { MoreOutlined } from "@ant-design/icons";
 import { Button, Flex, Space, Table, Tag, Typography } from "antd";
 import { useRouter } from "next/navigation";
-
-// const tabItems = [
-//   {
-//     key: "1",
-//     label: "settings",
-//     children: <TeamSettings />,
-//   },
-//   {
-//     key: "2",
-//     label: "leave-policy",
-//     children: <LeavePolicyPage />,
-//   },
-//   {
-//     key: "3",
-//     label: "notifications",
-//     children: <NotificationPage />,
-//   },
-//   {
-//     key: "4",
-//     label: "users",
-//     children: <Users />,
-//   },
-//   {
-//     key: "5",
-//     label: "managers",
-//     children: <Managers />,
-//   },
-// ];
 
 interface Props {
   teams: any;
@@ -43,11 +14,22 @@ const TeamTableActive: React.FC<Props> = ({ teams, onDisable, onEnable }) => {
   const dataSource = teams?.map((team: any) => ({
     key: team.name,
     name: team.name,
-    manager: team.manager,
+    managers: team.managers?.join(", ") || "No managers",  // Join manager names as a comma-separated string
     users: team.users,
     status: team.status === true ? "Active" : "disabled",
     teamId: team.teamId,
   }));
+
+  const handleButtonClick = (e: React.MouseEvent, teamData: any) => {
+    // Prevent the event from bubbling up and triggering the row click
+    e.stopPropagation();
+    if (teamData.status === "Active") {
+      onDisable(teamData);
+    } else {
+      onEnable(teamData);
+    }
+  };
+
   return (
     <Flex gap={12} vertical>
       <Table
@@ -67,12 +49,12 @@ const TeamTableActive: React.FC<Props> = ({ teams, onDisable, onEnable }) => {
             ),
           },
           {
-            title: "MANGERS",
-            dataIndex: "manager",
-            key: "manager",
+            title: "MANAGERS",
+            dataIndex: "managers",
+            key: "managers",
           },
           {
-            title: "No.USERS",
+            title: "No. USERS",
             dataIndex: "users",
             key: "users",
           },
@@ -90,24 +72,15 @@ const TeamTableActive: React.FC<Props> = ({ teams, onDisable, onEnable }) => {
             title: "",
             dataIndex: "action",
             key: "action",
-            render: (text, rowData) =>
-              rowData.status === "Active" ? (
-                <Button
-                  type="link"
-                  onClick={() => onDisable(rowData)}
-                  color="green"
-                >
-                  Disable
-                </Button>
-              ) : (
-                <Button
-                  type="link"
-                  onClick={() => onEnable(rowData)}
-                  color="green"
-                >
-                  Enable
-                </Button>
-              ),
+            render: (text, rowData) => (
+              <Button
+                type="link"
+                onClick={(e) => handleButtonClick(e, rowData)} // Handle the click here
+                color="green"
+              >
+                {rowData.status === "Active" ? "Disable" : "Enable"}
+              </Button>
+            ),
           },
         ]}
         dataSource={dataSource}
