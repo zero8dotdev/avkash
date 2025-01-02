@@ -44,11 +44,13 @@ const Team = () => {
   const handleDisable = async (teamData: any) => {
     await updateTeamData(false, teamData.teamId);
     mutate();
+    setSegmentValue("inactive");
   };
 
   const handleEnable = async (teamData: any) => {
     await updateTeamData(true, teamData.teamId);
     mutate();
+    setSegmentValue("active");
   };
 
   return (
