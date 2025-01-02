@@ -14,7 +14,7 @@ const TeamTableActive: React.FC<Props> = ({ teams, onDisable, onEnable }) => {
   const dataSource = teams?.map((team: any) => ({
     key: team.name,
     name: team.name,
-    managers: team.managers?.join(", ") || "No managers",  // Join manager names as a comma-separated string
+    managers: team.managers?.join(", ") || "No managers", // Join manager names as a comma-separated string
     users: team.users,
     status: team.status === true ? "Active" : "disabled",
     teamId: team.teamId,
@@ -91,15 +91,6 @@ const TeamTableActive: React.FC<Props> = ({ teams, onDisable, onEnable }) => {
           },
         })}
       />
-      <Space>
-        <Button
-          type="link"
-          href="settings/team/new-team"
-          style={{ border: "1px solid blue", marginTop: "12px" }}
-        >
-          Add new team
-        </Button>
-      </Space>
     </Flex>
   );
 };

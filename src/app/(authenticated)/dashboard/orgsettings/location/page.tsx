@@ -9,6 +9,7 @@ import {
   Empty,
   Flex,
   List,
+  Modal,
   Popover,
   Row,
   Space,
@@ -28,19 +29,18 @@ import {
 } from "../_actions";
 import useSWR from "swr";
 import LocationPage from "../_components/locations";
+import { EditOutlined } from "@ant-design/icons";
 
 const Page = () => {
   const [locations, setLocations] = useState<string[]>([]);
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
-  const [isChangeLocation, setIsChangeLocation] = useState<boolean>(false);
+  const [locationMode, setLocationMode] = useState<string | null>(null);
   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(
     null
   );
   const [loading, setLoading] = useState<boolean>(false);
-
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
-
 
   const fetchorg = async (orgId: string) => {
     const org = orgId.split("*")[1];
@@ -58,7 +58,7 @@ const Page = () => {
   } = useSWR(`orgLocations*${orgId}`, fetchorg);
 
   const handleAddLocation = () => {
-    setIsChangeLocation(true);
+    setLocationMode("create");
     setSelectedCountryCode(null);
   };
 
@@ -82,6 +82,8 @@ const Page = () => {
     }
   );
 
+  console.log("holidaysList", holidaysList);
+
   const updateHolidays = async () => {
     setLoading(true);
     try {
@@ -101,7 +103,7 @@ const Page = () => {
         await updateOrgLocations(locations, selectedCountryCode, orgId);
       }
 
-      setIsChangeLocation(false);
+      setLocationMode(null);
       setSelectedCountryCode(null);
       setHolidaysList([]);
     } catch (error) {
@@ -144,14 +146,27 @@ const Page = () => {
   const availableLocations = countryList.filter(
     (each) => !locations.includes(each.countryCode)
   );
-  console.log("selectedCountryCode", selectedCountryCode, locations);
   return (
     <Row style={{ padding: "80px" }}>
       <Col span={3}>
         <SideMenu position="location" />
       </Col>
       <Col span={16}>
-        <Card title="Location Settings">
+        <Card
+          title="Location Settings"
+          extra={
+            <Tooltip>
+              <Button
+                onClick={handleAddLocation}
+                type="primary"
+                style={{ marginTop: "15px", marginBottom: "15px" }}
+                disabled={availableLocations.length === 0}
+              >
+                Add Location
+              </Button>
+            </Tooltip>
+          }
+        >
           <List
             style={{ margin: "12px" }}
             bordered
@@ -175,6 +190,19 @@ const Page = () => {
                     </Typography.Title>
                   }
                 />
+                <Flex gap={10}>
+                  <Button
+                    icon={
+                      <EditOutlined
+                        onClick={() => {
+                          setLocationMode("edit");
+                          setSelectedCountryCode(item.countryCode);
+                        }}
+                      />
+                    }
+                  />
+                  <Button>Delete</Button>
+                </Flex>
               </List.Item>
             )}
             locale={{
@@ -187,27 +215,27 @@ const Page = () => {
             }}
           />
         </Card>
-        <Tooltip>
-          <Button
-            onClick={handleAddLocation}
-            type="primary"
-            style={{ marginTop: "15px", marginBottom: "15px" }}
-            disabled={availableLocations.length === 0}
-          >
-            Add Location
-          </Button>
-        </Tooltip>
-        {isChangeLocation && (
+
+        <Modal
+          open={locationMode === "create" || locationMode === "edit"}
+          footer={null}
+          onCancel={() => {
+            setLocationMode(null), setSelectedCountryCode(null);
+          }}
+          title={locationMode}
+          width={1000}
+        >
           <Flex vertical style={{ width: "100%" }}>
             <Col span={24} style={{ marginBottom: "15px" }}>
               <LocationPage
+                locationMode={locationMode}
                 updateCountryCode={(code: string) =>
                   setSelectedCountryCode(code)
                 }
                 holidaysList={holidaysList}
                 update={(values) => setHolidaysList(values)}
                 countryCode={selectedCountryCode}
-                availableLocations={availableLocations} // Pass only available locations  //note: we need to filter the available locations in the component
+                availableLocations={availableLocations}
               />
             </Col>
             <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
@@ -216,7 +244,7 @@ const Page = () => {
                   style={{ marginRight: "5px" }}
                   danger
                   onClick={() => {
-                    setIsChangeLocation(false);
+                    setLocationMode(null);
                     setSelectedCountryCode(null);
                     setHolidaysList([]);
                   }}
@@ -233,7 +261,7 @@ const Page = () => {
               </Space>
             </Flex>
           </Flex>
-        )}
+        </Modal>
       </Col>
     </Row>
   );

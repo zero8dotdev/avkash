@@ -15,18 +15,19 @@ import {
 import { DeleteOutlined } from "@ant-design/icons";
 
 export interface holidaysList {
-  key: string,
-  name: string,
-  date: string,
-  isRecurring: boolean,
-  isCustom: boolean,
+  key: string;
+  name: string;
+  date: string;
+  isRecurring: boolean;
+  isCustom: boolean;
 }
 interface props {
   holidaysList: holidaysList[];
+  locationMode: string | null;
   updateCountryCode: (data: string) => void;
   update: (values: any) => void;
   countryCode: any;
-  availableLocations?: { countryCode: string; countryName: string }[]; // New prop
+  availableLocations?: { countryCode: string; countryName: string }[];
 }
 
 const LocationPage: React.FC<props> = ({
@@ -35,6 +36,7 @@ const LocationPage: React.FC<props> = ({
   update,
   countryCode,
   availableLocations, // New prop
+  locationMode,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -42,7 +44,10 @@ const LocationPage: React.FC<props> = ({
 
   // delete holiday function
   const handleDelete = (key: string) => {
-    const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
+    console.log("key", key);
+    const updatedHolidays = holidaysList.filter(
+      (holiday) => holiday.key !== key
+    );
     update(updatedHolidays);
   };
 
@@ -101,7 +106,9 @@ const LocationPage: React.FC<props> = ({
     date: moment(new Date(each.date)).format("DD MMM YYYY"),
   }));
 
-  dataSource.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  dataSource.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
   const columns = [
     { title: "Name", dataIndex: "name", key: "name" },
@@ -132,18 +139,20 @@ const LocationPage: React.FC<props> = ({
 
   return (
     <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
-      <Col span={4}>
-        <Select
-          showSearch
-          style={{ width: "300px" }}
-          onChange={handleCountryChange}
-          defaultValue={countryCode}
-          options={locationsToUse.map((each: any) => ({
-            label: each.countryName,
-            value: each.countryCode,
-          }))}
-        />
-      </Col>
+      {locationMode === "create" && (
+        <Col span={4}>
+          <Select
+            showSearch
+            style={{ width: "300px" }}
+            onChange={handleCountryChange}
+            defaultValue={locationsToUse[0].countryCode}
+            options={locationsToUse.map((each: any) => ({
+              label: each.countryName,
+              value: each.countryCode,
+            }))}
+          />
+        </Col>
+      )}
       <Col span={24}>
         <Table
           columns={columns}
