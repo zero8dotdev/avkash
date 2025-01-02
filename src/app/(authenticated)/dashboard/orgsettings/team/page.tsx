@@ -1,7 +1,16 @@
 "use client";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import { Card, Col, Flex, List, Row, Segmented } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  List,
+  Row,
+  Segmented,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import TeamTableActive from "./teamTable";
 import SideMenu from "../_components/menu";
@@ -25,8 +34,9 @@ const Team = () => {
     data: orgData,
     error: orgError,
     mutate,
-  } = useSWR(`orgTeams*${orgId}`, fetchteams, {onSuccess: (data) => setTeams(data)});
-
+  } = useSWR(`orgTeams*${orgId}`, fetchteams, {
+    onSuccess: (data) => setTeams(data),
+  });
 
   const activeTeams = teams?.filter((team: any) => team.status === true);
   const inActiveTeams = teams?.filter((team: any) => team.status == false);
@@ -47,7 +57,22 @@ const Team = () => {
         <SideMenu position="team" />
       </Col>
       <Col span={16}>
-        <Card title="Team">
+        <Card
+          title={
+            <Typography.Title level={4} style={{ marginTop: "25px" }}>
+              Teams
+            </Typography.Title>
+          }
+          extra={
+            <Button
+              type="primary"
+              style={{ border: "1px solid blue", marginTop: "12px" }}
+            >
+              Add new team
+            </Button>
+          }
+          styles={{ header: { border: "none" } }}
+        >
           <Segmented
             value={segmentValue}
             onChange={setSegmentValue}
