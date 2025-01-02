@@ -69,7 +69,6 @@ export const updateLeaveTypeBasedOnOrg = async (
 export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   const supabase = createClient();
   const { color } = values;
-  console.log("values", values);
   const leaveTypeValues = { ...values, color: color.slice(1) };
 
   const { data, error } = await supabase
@@ -80,7 +79,6 @@ export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   if (error) {
     throw error;
   }
-  console.log("data", data);
   return data;
 };
 
@@ -220,7 +218,6 @@ export const fetchTeamsData = async (orgId: string) => {
   }
 
   const processedData = data.map((team) => {
-    console.log("team", team);
     const teamId = team.teamId;
     const name = team.name;
     const status = team.isActive;

@@ -40,7 +40,6 @@ const fetcher = async (orgId: string) => {
     try {
       // Use the server action to update the data
       const updatedData = await updataOrgGeneralData(values, orgId);
-      console.log(updatedData);
       // Optimistically update SWR cache
       mutate({ ...orgData, ...updatedData }, false);
     } catch (err) {
