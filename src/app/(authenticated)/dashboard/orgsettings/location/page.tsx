@@ -6,92 +6,115 @@
 //   Button,
 //   Card,
 //   Col,
+//   Empty,
 //   Flex,
 //   List,
+//   Modal,
+//   Popover,
 //   Row,
 //   Space,
+//   Tooltip,
 //   Typography,
 // } from "antd";
 
-// import { useEffect, useState } from "react";
+// import { useState } from "react";
 // import Flag from "react-world-flags";
-// import LocationPage from "@/app/(authenticated)/setup/steps/locationPage";
 // import moment from "moment-timezone";
-// import { createClient } from "@/app/_utils/supabase/client";
 // import SideMenu from "../_components/menu";
-// import { fetchOrg, fetchPublicHolidays, updateHolidaysList } from "../_actions";
+// import {
+//   deleteOrgLocations,
+//   fetchOrg,
+//   fetchOrgHolidays,
+//   fetchPublicHolidays,
+//   updateHolidaysList,
+//   updateOrgLocations,
+// } from "../_actions";
+// import useSWR from "swr";
+// import LocationPage from "../_components/locations";
+// import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 // const Page = () => {
-//   const [location, setLocation] = useState<string>();
+//   const [locations, setLocations] = useState<string[]>([]);
 //   const [holidaysList, setHolidaysList] = useState<any[]>([]);
-//   const [isChangeLocation, setIsChangeLocation] = useState<boolean>(false);
-//   const [countryCode, setCountryCode] = useState<string>();
+//   const [locationMode, setLocationMode] = useState<string | null>(null);
+//   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(
+//     null
+//   );
 //   const [loading, setLoading] = useState<boolean>(false);
-
 //   const { state: appState } = useApplicationContext();
 //   const { orgId } = appState;
 
-//   const fetchLocation = async (orgId: string) => {
-//     const orgData = await fetchOrg(orgId);
-//     console.log("orgData", orgData);
+//   const fetchorg = async (orgId: string) => {
+//     const org = orgId.split("*")[1];
+//     const orgData = await fetchOrg(org);
 //     const { location } = orgData;
-//     setLocation(location[0]);
-//     setCountryCode(location[0]);
+//     setLocations(location);
+
+//     return orgData;
 //   };
 
-//   useEffect(() => {
-//     fetchLocation(orgId);
-//   }, [orgId]);
+//   const {
+//     data: orgData,
+//     error: orgError,
+//     mutate,
+//   } = useSWR(`orgLocations*${orgId}`, fetchorg);
 
-//   const handleChangeLocation = () => {
-//     setIsChangeLocation(true);
+//   const handleAddLocation = () => {
+//     setLocationMode("create");
+//     setSelectedCountryCode(null); // Start dropdown empty
 //   };
 
-//   const fetchHolidays = async (countryCode: any) => {
-//     const holidays = await fetchPublicHolidays(countryCode);
-//     const holidayData = holidays.map((each) => ({
-//       key: each.id,
-//       name: each.name,
-//       date: moment(each.date).toISOString(),
-//       isRecurring: true,
-//       isCustom: false,
-//     }));
-//     setHolidaysList(holidayData);
-//   };
+//   const fetcherPublicHolidays = (countryCode: string) =>
+//     fetchPublicHolidays(countryCode);
 
-  // useEffect(() => {
-  //   fetchHolidays(countryCode);
-  // }, [countryCode]);
+//   const { data, error, isLoading } = useSWR(
+//     selectedCountryCode ? ["fetchHolidays", selectedCountryCode] : null,
+//     ([, countryCode]) => fetcherPublicHolidays(countryCode),
+//     {
+//       onSuccess: (data) => {
+//         const transformedData = data.map((each: any) => ({
+//           key: each.id,
+//           name: each.name,
+//           date: moment(each.date).toISOString(),
+//           isRecurring: true,
+//           isCustom: false,
+//         }));
+//         setHolidaysList(transformedData);
+//       },
+//     }
+//   );
 
 //   const updateHolidays = async () => {
 //     setLoading(true);
 //     try {
-//       const updatedOrgLocation = await updateHolidaysList(
+//       if (!holidaysList.length || !locations || !selectedCountryCode) {
+//         throw new Error(
+//           "Missing required data for updating holidays or locations"
+//         );
+//       }
+
+//       const updatedOrgHolidays = await updateHolidaysList(
 //         holidaysList,
 //         orgId,
-//         countryCode
+//         selectedCountryCode
 //       );
 
-//       const supabase = createClient();
-//       const { data, error } = await supabase
-//         .from("Organisation")
-//         .update({ location: countryCode })
-//         .eq("orgId", orgId)
-//         .select();
-
-//       if (error) {
-//         console.log(error);
+//       if (updatedOrgHolidays) {
+//         await updateOrgLocations(locations, selectedCountryCode, orgId);
 //       }
-//       setLocation(countryCode);
-//       setIsChangeLocation(false);
+
+//       setLocationMode(null);
+//       setSelectedCountryCode(null);
+//       setHolidaysList([]);
 //     } catch (error) {
-//       console.log(error);
+//       console.error("Error in updateHolidays:", error);
 //     } finally {
+//       mutate();
 //       setLoading(false);
 //     }
 //   };
 
-//   const locations = [
+//   const countryList = [
 //     {
 //       countryCode: "IN",
 //       countryName: "India",
@@ -114,92 +137,179 @@
 //     },
 //   ];
 
-//   const code = locations.filter((each) => location === each.countryCode);
+//   const selectedLocations = countryList.filter((each) =>
+//     locations.includes(each.countryCode)
+//   );
 
+//   // Filter out already selected locations
+//   const availableLocations = countryList.filter(
+//     (each) => !locations.includes(each.countryCode)
+//   );
+//   const fetchLocationDetails = async (countryCode: any) => {
+//     try {
+//       const locationDetails = await fetchOrgHolidays(orgId, countryCode); // Assuming `fetchOrgLocations` is the function
+//       const transformedHolidays = locationDetails?.map((holiday) => ({
+//         key: holiday.id,
+//         name: holiday.name,
+//         date: moment(holiday.date).toISOString(),
+//         isRecurring: holiday.isRecurring,
+//         isCustom: holiday.isCustom,
+//       }));
+//       setHolidaysList(transformedHolidays);
+//     } catch (error) {
+//       console.error("Error fetching location details:", error);
+//     }
+//   };
+
+//   const handleEdit = async (countryCode: string) => {
+//     await fetchLocationDetails(countryCode);
+//     setLocationMode("edit");
+//     setSelectedCountryCode(countryCode);
+//   };
+//   const handleDeleteLocation = async (countryCode: string) => {
+//     try {
+//       const updatedLocations = locations.filter(
+//         (location) => location !== countryCode
+//       );
+//       const updatedOrgLocations = await deleteOrgLocations(
+//         updatedLocations,
+//         countryCode,
+//         orgId
+//       );
+//       if (updatedOrgLocations) {
+//         setLocations(updatedLocations);
+//       }
+//     } catch (error) {
+//       console.error("Error in deleteLocation:", error);
+//     } finally {
+//       mutate();
+//     }
+//   };
+// console.log("holidaysljknasfjas>>>>",holidaysList)
 //   return (
 //     <Row style={{ padding: "80px" }}>
 //       <Col span={3}>
 //         <SideMenu position="location" />
 //       </Col>
 //       <Col span={16}>
-//         <Card title="Location Settings">
+//         <Card
+//           title="Location Settings"
+//           extra={
+//             <Tooltip>
+//               <Button
+//                 onClick={handleAddLocation}
+//                 type="primary"
+//                 style={{ marginTop: "15px", marginBottom: "15px" }}
+//                 disabled={availableLocations.length === 0}
+//               >
+//                 Add Location
+//               </Button>
+//             </Tooltip>
+//           }
+//         >
 //           <List
 //             style={{ margin: "12px" }}
 //             bordered
 //             itemLayout="horizontal"
-//             dataSource={code}
-//             renderItem={(item, index) => {
-//               return (
-//                 <List.Item>
-//                   <List.Item.Meta
-//                     avatar={
-//                       <Avatar style={{ background: "none" }}>
-//                         {" "}
-//                         <Flag
-//                           code={item.countryCode}
-//                           style={{ width: "50px", height: "50px" }}
-//                           alt={item.countryName}
-//                         />
-//                       </Avatar>
-//                     }
-//                     title={
-//                       <Typography.Title level={4}>
-//                         {item.countryName}
-//                       </Typography.Title>
-//                     }
+//             dataSource={selectedLocations}
+//             renderItem={(item) => (
+//               <List.Item>
+//                 <List.Item.Meta
+//                   avatar={
+//                     <Avatar style={{ background: "none" }}>
+//                       <Flag
+//                         code={item.countryCode}
+//                         style={{ width: "50px", height: "50px" }}
+//                         alt={item.countryName}
+//                       />
+//                     </Avatar>
+//                   }
+//                   title={
+//                     <Typography.Title level={4}>
+//                       {item.countryName}
+//                     </Typography.Title>
+//                   }
+//                 />
+//                 <Flex gap={10}>
+//                   <Button
+//                     icon={<EditOutlined />}
+//                     onClick={() => {
+//                       handleEdit(item.countryCode);
+//                     }}
 //                   />
-//                 </List.Item>
-//               );
+//                   <Button
+//                     icon={<DeleteOutlined />}
+//                     onClick={() => {
+//                       handleDeleteLocation(item.countryCode);
+//                     }}
+//                   />
+//                 </Flex>
+//               </List.Item>
+//             )}
+//             locale={{
+//               emptyText: (
+//                 <Empty
+//                   description="No locations selected"
+//                   image={Empty.PRESENTED_IMAGE_SIMPLE}
+//                 />
+//               ),
 //             }}
 //           />
 //         </Card>
-//         <Button
-//           onClick={() => handleChangeLocation()}
-//           type="primary"
-//           style={{ marginTop: "15px" }}
-//         >
-//           Change Location
-//         </Button>
-//         {isChangeLocation && (
-//           <>
-//             {countryCode && (
-//               <Flex vertical style={{ width: "100%" }}>
-//                 <Col span={24}>
-//                   <LocationPage
-//                     updateCountryCode={(code: string) => setCountryCode(code)}
-//                     holidaysList={holidaysList}
-//                     update={(values) => setHolidaysList(values)}
-//                     countryCode={countryCode}
-//                   />
-//                 </Col>
 
-//                 <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
-//                   <Space>
-//                     <Button
-//                       style={{ marginRight: "5px" }}
-//                       danger
-//                       onClick={() => setIsChangeLocation(false)}
-//                     >
-//                       Cancel
-//                     </Button>
-//                     <Button
-//                       type="primary"
-//                       onClick={() => updateHolidays()}
-//                       loading={loading}
-//                     >
-//                       save
-//                     </Button>
-//                   </Space>
-//                 </Flex>
-//               </Flex>
-//             )}
-//           </>
-//         )}
+//         <Modal
+//           open={locationMode === "create" || locationMode === "edit"}
+//           footer={null}
+//           onCancel={() => {
+//             setLocationMode(null), setSelectedCountryCode(null);
+//           }}
+//           title={locationMode}
+//           width={1000}
+//         >
+//           <Flex vertical style={{ width: "100%" }}>
+//             <Col span={24} style={{ marginBottom: "15px" }}>
+//               <LocationPage
+//                 locationMode={locationMode}
+//                 updateCountryCode={(code: string) =>
+//                   setSelectedCountryCode(code)
+//                 }
+//                 holidaysList={holidaysList}
+//                 update={(values) => setHolidaysList(values)}
+//                 countryCode={selectedCountryCode}
+//                 availableLocations={availableLocations}
+//               />
+//             </Col>
+//             <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+//               <Space>
+//                 <Button
+//                   style={{ marginRight: "5px" }}
+//                   danger
+//                   onClick={() => {
+//                     setLocationMode(null);
+//                     setSelectedCountryCode(null);
+//                     setHolidaysList([]);
+//                   }}
+//                 >
+//                   Cancel
+//                 </Button>
+//                 <Button
+//                   type="primary"
+//                   onClick={updateHolidays}
+//                   loading={loading}
+//                 >
+//                   Save
+//                 </Button>
+//               </Space>
+//             </Flex>
+//           </Flex>
+//         </Modal>
 //       </Col>
 //     </Row>
 //   );
 // };
+
 // export default Page;
+
 
 "use client";
 
@@ -209,124 +319,146 @@ import {
   Button,
   Card,
   Col,
+  Empty,
   Flex,
   List,
+  Modal,
   Row,
   Space,
+  Tooltip,
   Typography,
 } from "antd";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Flag from "react-world-flags";
-import LocationPage from "@/app/(authenticated)/setup/steps/locationPage";
-import moment from "moment-timezone";
-import { createClient } from "@/app/_utils/supabase/client";
 import SideMenu from "../_components/menu";
-import { fetchOrg, fetchPublicHolidays, updateHolidaysList } from "../_actions";
+import {
+  deleteOrgLocations,
+  fetchOrg,
+  fetchOrgHolidays,
+  updateHolidaysList,
+  updateOrgLocations,
+} from "../_actions";
+import useSWR from "swr";
+import LocationPage from "../_components/locations";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import moment from "moment-timezone";
 
 const Page = () => {
   const [locations, setLocations] = useState<string[]>([]);
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
-  const [isChangeLocation, setIsChangeLocation] = useState<boolean>(false);
-  const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(null);
+  const [locationMode, setLocationMode] = useState<string | null>(null);
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(false);
-
   const { state: appState } = useApplicationContext();
   const { orgId } = appState;
 
-  const fetchLocation = async (orgId: string) => {
-    const orgData = await fetchOrg(orgId);
-    console.log("orgData", orgData);
+  const fetchOrgData = async (orgId: string) => {
+    const org = orgId.split("*")[1];
+    const orgData = await fetchOrg(org);
     const { location } = orgData;
     setLocations(location);
+    return orgData;
   };
 
-  useEffect(() => {
-    fetchLocation(orgId);
-  }, [orgId]);
+  const { data: orgData, error: orgError, mutate } = useSWR(
+    `orgLocations*${orgId}`,
+    fetchOrgData
+  );
 
   const handleAddLocation = () => {
-    setIsChangeLocation(true);
-    setSelectedCountryCode(null); // Start with no selected country
+    setLocationMode("create");
+    setSelectedCountryCode(null); // Start dropdown empty
+    setHolidaysList([]);
   };
-
-  const fetchHolidays = async (countryCode: string) => {
-    const holidays = await fetchPublicHolidays(countryCode);
-    const holidayData = holidays.map((each) => ({
-      key: each.id,
-      name: each.name,
-      date: moment(each.date).toISOString(),
-      isRecurring: true,
-      isCustom: false,
-    }));
-    setHolidaysList(holidayData);
-  };
-
-  useEffect(() => {
-    if (selectedCountryCode) {
-      fetchHolidays(selectedCountryCode);
-    }
-  }, [selectedCountryCode]);
 
   const updateHolidays = async () => {
     setLoading(true);
     try {
-      const updatedOrgLocation = await updateHolidaysList(
+      if (!holidaysList.length || !locations || !selectedCountryCode) {
+        throw new Error(
+          "Missing required data for updating holidays or locations"
+        );
+      }
+      const updatedOrgHolidays = await updateHolidaysList(
         holidaysList,
         orgId,
         selectedCountryCode
       );
 
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("Organisation")
-        .update({ location: locations }) // Save the updated array
-        .eq("orgId", orgId)
-        .select();
-
-      if (error) {
-        console.log(error);
+      if (updatedOrgHolidays) {
+        await updateOrgLocations(locations, selectedCountryCode, orgId);
       }
 
-      setIsChangeLocation(false);
+      setLocationMode(null);
+      setSelectedCountryCode(null);
+      setHolidaysList([]);
     } catch (error) {
-      console.log(error);
+      console.error("Error in updateHolidays:", error);
     } finally {
+      mutate();
       setLoading(false);
     }
   };
 
   const countryList = [
-    {
-      countryCode: "IN",
-      countryName: "India",
-    },
-    {
-      countryCode: "DE",
-      countryName: "Germany",
-    },
-    {
-      countryCode: "GB",
-      countryName: "United Kingdom",
-    },
-    {
-      countryCode: "US",
-      countryName: "United States",
-    },
-    {
-      countryCode: "NL",
-      countryName: "Netherlands",
-    },
+    { countryCode: "IN", countryName: "India" },
+    { countryCode: "DE", countryName: "Germany" },
+    { countryCode: "GB", countryName: "United Kingdom" },
+    { countryCode: "US", countryName: "United States" },
+    { countryCode: "NL", countryName: "Netherlands" },
   ];
 
   const selectedLocations = countryList.filter((each) =>
     locations.includes(each.countryCode)
   );
 
-    // Filter out already selected locations
-    const availableLocations = countryList.filter(
-      (each) => !locations.includes(each.countryCode)
-    );
+  const availableLocations = countryList.filter(
+    (each) => !locations.includes(each.countryCode)
+  );
+
+  const fetchLocationDetails = async (countryCode: string) => {
+    try {
+      const locationDetails = await fetchOrgHolidays(orgId, countryCode);
+      const transformedHolidays = locationDetails?.map((holiday) => ({
+        key: holiday.holidayId,
+        name: holiday.name,
+        date: moment(holiday.date).toISOString(),
+        isRecurring: holiday.isRecurring,
+        isCustom: holiday.isCustom,
+      }));
+      setHolidaysList(transformedHolidays);
+    } catch (error) {
+      console.error("Error fetching location details:", error);
+    }
+  };
+
+  const handleEdit = async (countryCode: string) => {
+    await fetchLocationDetails(countryCode);
+    setLocationMode("edit");
+    setSelectedCountryCode(countryCode);
+  };
+
+  const handleDeleteLocation = async (countryCode: string) => {
+    try {
+      const updatedLocations = locations.filter(
+        (location) => location !== countryCode
+      );
+      const updatedOrgLocations = await deleteOrgLocations(
+        updatedLocations,
+        countryCode,
+        orgId
+      );
+      if (updatedOrgLocations) {
+        setLocations(updatedLocations);
+      }
+    } catch (error) {
+      console.error("Error in deleteLocation:", error);
+    } finally {
+      mutate();
+    }
+  };
 
   return (
     <Row style={{ padding: "80px" }}>
@@ -334,7 +466,21 @@ const Page = () => {
         <SideMenu position="location" />
       </Col>
       <Col span={16}>
-        <Card title="Location Settings">
+        <Card
+          title="Location Settings"
+          extra={
+            <Tooltip>
+              <Button
+                onClick={handleAddLocation}
+                type="primary"
+                style={{ marginTop: "15px", marginBottom: "15px" }}
+                disabled={availableLocations.length === 0}
+              >
+                Add Location
+              </Button>
+            </Tooltip>
+          }
+        >
           <List
             style={{ margin: "12px" }}
             bordered
@@ -358,48 +504,73 @@ const Page = () => {
                     </Typography.Title>
                   }
                 />
+                <Space>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      handleEdit(item.countryCode);
+                    }}
+                  />
+                  <Button
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      handleDeleteLocation(item.countryCode);
+                    }}
+                  />
+                </Space>
               </List.Item>
             )}
+            locale={{
+              emptyText: (
+                <Empty
+                  description="No locations selected"
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+              ),
+            }}
           />
         </Card>
-        <Button
-          onClick={handleAddLocation}
-          type="primary"
-          style={{ marginTop: "15px" }}
+
+        <Modal
+          open={locationMode === "create" || locationMode === "edit"}
+          footer={null}
+          onCancel={() => {
+            setLocationMode(null), setSelectedCountryCode(null);
+          }}
+          title={locationMode === 'create' ? 'Add New Holiday' : 'Edit Holiday'}
+          width={1000}
         >
-          Add Location
-        </Button>
-        {isChangeLocation && (
-          <Flex vertical style={{ width: "100%" }}>
-            <Col span={24} style={{ marginBottom: "15px" }}>
-              <LocationPage
-                updateCountryCode={(code: string) => setSelectedCountryCode(code)}
-                holidaysList={holidaysList}
-                update={(values) => setHolidaysList(values)}
-                countryCode={selectedCountryCode}
-                // availableLocations={availableLocations} // Pass only available locations  //note: we need to filter the available locations in the component
-              />
-            </Col>
-            <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
-              <Space>
-                <Button
-                  style={{ marginRight: "5px" }}
-                  danger
-                  onClick={() => setIsChangeLocation(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={updateHolidays}
-                  loading={loading}
-                >
-                  Save
-                </Button>
-              </Space>
-            </Flex>
+          <LocationPage
+            locationMode={locationMode}
+            updateCountryCode={(code: string) =>
+              setSelectedCountryCode(code)
+            }
+            holidaysList={holidaysList}
+            update={(values) => setHolidaysList(values)}
+            countryCode={selectedCountryCode}
+            availableLocations={availableLocations}
+          />
+                    <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+
+          <Space>
+
+            <Button
+              danger
+              onClick={() => {
+                setLocationMode(null);
+                setSelectedCountryCode(null);
+                setHolidaysList([]);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="primary" onClick={updateHolidays} loading={loading}>
+              Save
+            </Button>
+          </Space>
           </Flex>
-        )}
+
+        </Modal>
       </Col>
     </Row>
   );

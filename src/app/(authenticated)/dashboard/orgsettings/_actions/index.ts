@@ -6,7 +6,6 @@ import { WebClient } from "@slack/web-api";
 
 export const updataOrgGeneralData = async (values: any, orgId: string) => {
   const supabase = createClient();
-
   const { data, error } = await supabase
     .from("Organisation")
     .update({
@@ -69,7 +68,6 @@ export const updateLeaveTypeBasedOnOrg = async (
 export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   const supabase = createClient();
   const { color } = values;
-  console.log("values", values);
   const leaveTypeValues = { ...values, color: color.slice(1) };
 
   const { data, error } = await supabase
@@ -80,11 +78,8 @@ export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   if (error) {
     throw error;
   }
-  console.log("data", data);
   return data;
 };
-
-
 
 export const insertNewLeaveType = async (values: any) => {
   const supabase = createClient();
@@ -149,7 +144,6 @@ export const fetchOrg = async (orgId: string) => {
   }
 };
 
-
 export const fetchPublicHolidays = async (countryCode: any) => {
   const currentYear = new Date().getFullYear();
   const supabase = createClient();
@@ -181,20 +175,190 @@ export const updateHolidaysList = async (
     };
   });
   const supabase = createClient();
-  const { data: deleteData, error: deleteError } = await supabase
+
+  const { error: deleteError } = await supabase
     .from("Holiday")
     .delete()
     .eq("orgId", orgId)
+    .eq("location", countryCode);
+
+  if (deleteError) {
+    console.error("Error deleting existing holidays:", deleteError);
+    throw deleteError;
+  }
+
+  const { data, error } = await supabase
+    .from("Holiday")
+    .insert(holidayData)
+    .select();
+  if (error) {
+    console.log(error);
+  }
+  return data;
+};
+
+export const updateOrgLocations = async (
+  locations: any,
+  selectedCountryCode: any,
+  orgId: string
+) => {
+  const supabase = createClient();
+  const updatedLocations = Array.from(new Set([...locations, selectedCountryCode]));
+
+  const { data, error } = await supabase
+    .from("Organisation")
+    .update({ location: updatedLocations })
+    .eq("orgId", orgId)
     .select();
 
-  if (deleteData) {
-    const { data, error } = await supabase
-      .from("Holiday")
-      .insert(holidayData)
-      .select();
-    if (error) {
-      console.log(error);
-    }
-    return data;
+  if (error) {
+    throw error;
   }
+  return data;
+};
+
+export const deleteOrgLocations = async (
+  locations: any,
+  selectedCountryCode: any,
+  orgId: string
+) => {
+  const supabase = createClient();
+  const { data: orgLocations, error: orgLocationsError } = await supabase
+    .from("Organisation")
+    .update({ location: [...locations] })
+    .eq("orgId", orgId)
+    .select();
+
+  if (orgLocationsError) {
+    throw orgLocationsError;
+  }
+
+  const response = await supabase
+    .from("Holiday")
+    .delete()
+    .eq("orgId", orgId)
+    .eq("location", selectedCountryCode);
+
+  console.log("response", response);
+
+  return orgLocations;
+};
+
+export const fetchTeamsData = async (orgId: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Team")
+    .select(`*, User(*)`)
+    .eq("orgId", orgId);
+
+  if (error) {
+    throw error;
+  }
+
+  const processedData = data.map((team) => {
+    const teamId = team.teamId;
+    const name = team.name;
+    const status = team.isActive;
+    const users = team.User.length;
+
+    // Get the names of all managers
+    const managerIds = team.managers || [];
+    const managers = managerIds
+      .map((managerId: string) => {
+        const manager = team.User.find(
+          (user: any) => user.userId === managerId
+        );
+        return manager ? manager.name : null;
+      })
+      .filter((managerName: string | null) => managerName !== null); // Filter out null values
+
+    return {
+      teamId,
+      name,
+      managers,
+      users,
+      status,
+    };
+  });
+
+  return processedData;
+};
+
+export const updateTeamData = async (isActive: boolean, teamId: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Team")
+    .update({ isActive: isActive })
+    .eq("teamId", teamId)
+    .select();
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
+export const fetchAllUsersFromChatApp = async (orgId: string) => {
+  try {
+    const supabaseAdminClient = createAdminClient();
+
+    const { data: organisation, error } = await supabaseAdminClient
+      .from("Organisation")
+      .select("*, OrgAccessData(slackAccessToken)")
+      .eq("orgId", orgId)
+      .single();
+
+    const slackAccessToken =
+      organisation["OrgAccessData"][0]["slackAccessToken"];
+    const slackClient = new WebClient(slackAccessToken);
+
+    const result = await slackClient.users.list({
+      limit: 1000,
+    });
+
+    if (!result.ok) {
+      throw new Error(`Error fetching users: ${result.error}`);
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    const users = result.members?.filter(
+      ({ is_bot, deleted, is_email_confirmed }) =>
+        !is_bot && !deleted && is_email_confirmed
+    );
+
+    const existedUsers = await supabaseAdminClient
+      .from("User")
+      .select("*")
+      .eq("orgId", orgId);
+    if (existedUsers.error) {
+      throw existedUsers.error;
+    }
+    const existingUserEmails = new Set(
+      existedUsers.data.map((user: any) => user.email)
+    );
+
+    // Filter out non-existing users by email
+    const nonExistingUsers = users?.filter(
+      (user: any) => !existingUserEmails.has(user.profile.email)
+    );
+    return nonExistingUsers;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const fetchOrgHolidays = async (orgId: string, countryCode: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Holiday")
+    .select("*")
+    .eq("orgId", orgId)
+    .eq("location", countryCode);
+
+  if (error) {
+    throw error;
+  }
+  return data;
 };

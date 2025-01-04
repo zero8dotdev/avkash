@@ -47,6 +47,8 @@ interface props {
   update: (values: any) => void;
   countryCode: any;
 }
+
+
 const LocationPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [countryCode, setCountryCode] = useState<string>("IN");

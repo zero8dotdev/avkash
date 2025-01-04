@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
 import { updateInitialsetupState, updateteamsettings } from "../_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
-import TeamSettings from "@/app/_components/team-settings";
 import { useState } from "react";
+import TeamSettings from "../_componenets/team-settings";
 const Setting = () => {
   const router = useRouter();
   const {
@@ -69,7 +69,7 @@ const Setting = () => {
         <List loading={loading}>
           <Form form={form} layout="vertical" onFinish={handlenext}>
             <Card>
-              <TeamSettings form={form} />
+              <TeamSettings form={form} data={""} />
             </Card>
             <Flex justify="space-between" style={{ marginTop: "20px" }}>
               <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
