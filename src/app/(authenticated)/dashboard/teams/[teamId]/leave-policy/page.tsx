@@ -20,6 +20,9 @@ import {
 import React, { useState } from "react";
 import TeamSettingsTabs from "../_components/team-settings-tabs";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+import useSWR from "swr";
+import { useApplicationContext } from "@/app/_context/appContext";
+import { fetchLeavePolicies } from "../_actions";
 
 const Page = () => {
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
@@ -47,6 +50,21 @@ const Page = () => {
       leaves: "20",
     },
   ];
+
+  const { state: appState } = useApplicationContext();
+  const { teamId, orgId } = appState;
+
+    // Fetch team data
+    const fetcher = async (key: string) => {
+      const team = key.split("*")[1];
+      return await fetchLeavePolicies(team);
+    };
+
+    const { data: LeavePolicies, error, mutate, isValidating: leavePoliciesLoading } = useSWR(
+      `teampolicies*${teamId}`,
+      fetcher
+    );
+
   const activeLeaveTypes = leaveTypes.filter(
     (leaveType: any) => leaveType.status === "active"
   );
@@ -55,6 +73,8 @@ const Page = () => {
   );
   const { Item } = Form;
   const [form] = Form.useForm();
+  console.log("LeavePolicies", LeavePolicies);
+
   return (
     <Row>
       <Col span={3}>
@@ -64,6 +84,7 @@ const Page = () => {
         <Card title="Team Leave Policy">
           <Segmented
             value={segmentValue}
+            style={{ marginBottom: "20px" }}
             onChange={setSegmentValue}
             options={[
               {
