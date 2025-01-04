@@ -6,7 +6,6 @@ import { WebClient } from "@slack/web-api";
 
 export const updataOrgGeneralData = async (values: any, orgId: string) => {
   const supabase = createClient();
-
   const { data, error } = await supabase
     .from("Organisation")
     .update({
@@ -177,6 +176,17 @@ export const updateHolidaysList = async (
   });
   const supabase = createClient();
 
+  const { error: deleteError } = await supabase
+    .from("Holiday")
+    .delete()
+    .eq("orgId", orgId)
+    .eq("location", countryCode);
+
+  if (deleteError) {
+    console.error("Error deleting existing holidays:", deleteError);
+    throw deleteError;
+  }
+
   const { data, error } = await supabase
     .from("Holiday")
     .insert(holidayData)
@@ -193,9 +203,11 @@ export const updateOrgLocations = async (
   orgId: string
 ) => {
   const supabase = createClient();
+  const updatedLocations = Array.from(new Set([...locations, selectedCountryCode]));
+
   const { data, error } = await supabase
     .from("Organisation")
-    .update({ location: [...locations, selectedCountryCode] })
+    .update({ location: updatedLocations })
     .eq("orgId", orgId)
     .select();
 
@@ -205,6 +217,32 @@ export const updateOrgLocations = async (
   return data;
 };
 
+export const deleteOrgLocations = async (
+  locations: any,
+  selectedCountryCode: any,
+  orgId: string
+) => {
+  const supabase = createClient();
+  const { data: orgLocations, error: orgLocationsError } = await supabase
+    .from("Organisation")
+    .update({ location: [...locations] })
+    .eq("orgId", orgId)
+    .select();
+
+  if (orgLocationsError) {
+    throw orgLocationsError;
+  }
+
+  const response = await supabase
+    .from("Holiday")
+    .delete()
+    .eq("orgId", orgId)
+    .eq("location", selectedCountryCode);
+
+  console.log("response", response);
+
+  return orgLocations;
+};
 
 export const fetchTeamsData = async (orgId: string) => {
   const supabase = createClient();
@@ -227,10 +265,12 @@ export const fetchTeamsData = async (orgId: string) => {
     const managerIds = team.managers || [];
     const managers = managerIds
       .map((managerId: string) => {
-        const manager = team.User.find((user: any) => user.userId === managerId);
+        const manager = team.User.find(
+          (user: any) => user.userId === managerId
+        );
         return manager ? manager.name : null;
       })
-      .filter((managerName: string | null) => managerName !== null);  // Filter out null values
+      .filter((managerName: string | null) => managerName !== null); // Filter out null values
 
     return {
       teamId,
@@ -243,7 +283,6 @@ export const fetchTeamsData = async (orgId: string) => {
 
   return processedData;
 };
-
 
 export const updateTeamData = async (isActive: boolean, teamId: string) => {
   const supabase = createClient();
@@ -308,4 +347,18 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const fetchOrgHolidays = async (orgId: string, countryCode: string) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("Holiday")
+    .select("*")
+    .eq("orgId", orgId)
+    .eq("location", countryCode);
+
+  if (error) {
+    throw error;
+  }
+  return data;
 };

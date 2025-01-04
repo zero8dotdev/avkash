@@ -1087,87 +1087,6 @@
 			"typeName": "shape"
 		},
 		{
-			"id": "pointer:pointer",
-			"typeName": "pointer",
-			"x": -5358.929474541105,
-			"y": -2064.1493106443313,
-			"lastActivityTimestamp": 1735723923169,
-			"meta": {}
-		},
-		{
-			"followingUserId": null,
-			"opacityForNextShape": 1,
-			"stylesForNextShape": {
-				"tldraw:geo": "rectangle",
-				"tldraw:fill": "semi",
-				"tldraw:dash": "dotted",
-				"tldraw:size": "m"
-			},
-			"brush": null,
-			"scribbles": [],
-			"cursor": {
-				"type": "ns-resize",
-				"rotation": 0
-			},
-			"isFocusMode": false,
-			"exportBackground": true,
-			"isDebugMode": false,
-			"isToolLocked": false,
-			"screenBounds": {
-				"x": 0,
-				"y": 0,
-				"w": 1695,
-				"h": 612
-			},
-			"insets": [
-				false,
-				false,
-				true,
-				false
-			],
-			"zoomBrush": null,
-			"isGridMode": false,
-			"isPenMode": false,
-			"chatMessage": "",
-			"isChatting": false,
-			"highlightedUserIds": [],
-			"isFocused": true,
-			"devicePixelRatio": 1,
-			"isCoarsePointer": false,
-			"isHoveringCanvas": true,
-			"openMenus": [],
-			"isChangingStyle": false,
-			"isReadonly": false,
-			"meta": {},
-			"duplicateProps": null,
-			"id": "instance:instance",
-			"currentPageId": "page:page",
-			"typeName": "instance"
-		},
-		{
-			"editingShapeId": null,
-			"croppingShapeId": null,
-			"selectedShapeIds": [
-				"shape:-eUEKTBNkdNb8rknpelfc"
-			],
-			"hoveredShapeId": "shape:-eUEKTBNkdNb8rknpelfc",
-			"erasingShapeIds": [],
-			"hintingShapeIds": [],
-			"focusedGroupId": null,
-			"meta": {},
-			"id": "instance_page_state:page:page",
-			"pageId": "page:page",
-			"typeName": "instance_page_state"
-		},
-		{
-			"x": 6850.770294184071,
-			"y": 2599.0533580191136,
-			"z": 0.3883362955832308,
-			"meta": {},
-			"id": "camera:page:page",
-			"typeName": "camera"
-		},
-		{
 			"x": -5945.536453700426,
 			"y": -3355.0418198963275,
 			"rotation": 0,
@@ -1864,6 +1783,214 @@
 			},
 			"parentId": "page:page",
 			"index": "b03AbA",
+			"typeName": "shape"
+		},
+		{
+			"id": "pointer:pointer",
+			"typeName": "pointer",
+			"x": -5735.105152133069,
+			"y": -418.6732047420717,
+			"lastActivityTimestamp": 1735961134874,
+			"meta": {}
+		},
+		{
+			"followingUserId": null,
+			"opacityForNextShape": 1,
+			"stylesForNextShape": {
+				"tldraw:geo": "rectangle",
+				"tldraw:size": "xl"
+			},
+			"brush": null,
+			"scribbles": [],
+			"cursor": {
+				"type": "default",
+				"rotation": 0
+			},
+			"isFocusMode": false,
+			"exportBackground": true,
+			"isDebugMode": false,
+			"isToolLocked": false,
+			"screenBounds": {
+				"x": 0,
+				"y": 0,
+				"w": 1520,
+				"h": 592
+			},
+			"insets": [
+				false,
+				false,
+				true,
+				false
+			],
+			"zoomBrush": null,
+			"isGridMode": false,
+			"isPenMode": false,
+			"chatMessage": "",
+			"isChatting": false,
+			"highlightedUserIds": [],
+			"isFocused": true,
+			"devicePixelRatio": 1,
+			"isCoarsePointer": false,
+			"isHoveringCanvas": true,
+			"openMenus": [],
+			"isChangingStyle": false,
+			"isReadonly": false,
+			"meta": {},
+			"duplicateProps": null,
+			"id": "instance:instance",
+			"currentPageId": "page:page",
+			"typeName": "instance"
+		},
+		{
+			"editingShapeId": "shape:qv3R8Xfy36thHrWnYDM9D",
+			"croppingShapeId": null,
+			"selectedShapeIds": [
+				"shape:qv3R8Xfy36thHrWnYDM9D"
+			],
+			"hoveredShapeId": "shape:qv3R8Xfy36thHrWnYDM9D",
+			"erasingShapeIds": [],
+			"hintingShapeIds": [],
+			"focusedGroupId": null,
+			"meta": {},
+			"id": "instance_page_state:page:page",
+			"pageId": "page:page",
+			"typeName": "instance_page_state"
+		},
+		{
+			"x": 7655.35822064093,
+			"y": 1521.401085765133,
+			"z": 0.335616570841252,
+			"meta": {},
+			"id": "camera:page:page",
+			"typeName": "camera"
+		},
+		{
+			"x": 13.167238968964739,
+			"y": 0,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:lT97y60ls7x9aalw-vOva",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "xl",
+				"w": 1102.90625,
+				"text": "when we add leave type - leavetypes(org level)",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "shape:bYQKXmOUASi_rlaT7ZvF2",
+			"index": "a1",
+			"typeName": "shape"
+		},
+		{
+			"x": -7211.748383001472,
+			"y": -1200.3734701443223,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:UB0cvjt-mtPHBmxCSXcXX",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "xl",
+				"w": 398.984375,
+				"text": "leave type - org\nleave policy team",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "b05435",
+			"typeName": "shape"
+		},
+		{
+			"x": 0,
+			"y": 73.78604941665299,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:06qG5mnLRy-hZCXyMmaZq",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "xl",
+				"w": 1122.046875,
+				"text": "dummy leave policy create - pushing to all teams",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "shape:bYQKXmOUASi_rlaT7ZvF2",
+			"index": "a22N8",
+			"typeName": "shape"
+		},
+		{
+			"x": -7232.582239573193,
+			"y": -1041.2509699203388,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:bYQKXmOUASi_rlaT7ZvF2",
+			"type": "group",
+			"parentId": "page:page",
+			"index": "b06AHQ",
+			"props": {},
+			"typeName": "shape"
+		},
+		{
+			"x": -7221.501886804322,
+			"y": -829.7170475839449,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:AO6qtd_9QoqZogxvqrYpD",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "xl",
+				"w": 494.8125,
+				"text": "in active leave policys",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "b076AU",
+			"typeName": "shape"
+		},
+		{
+			"x": -7225.272931234063,
+			"y": -505.40722662613666,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:qv3R8Xfy36thHrWnYDM9D",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "xl",
+				"w": 1894.59375,
+				"text": "1. add new leave type. - along this we need to add leave policy also (dummy basic)\n2. leave type has check of all teams. it is like  [teamIds in leavetypes]",
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1
+			},
+			"parentId": "page:page",
+			"index": "b08BPZ",
 			"typeName": "shape"
 		}
 	]
