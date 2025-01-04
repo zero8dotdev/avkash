@@ -62,6 +62,7 @@ CREATE TABLE
     "updatedOn" TIMESTAMP(6) DEFAULT now()
   );
 
+
 CREATE TABLE
   "Team" (
     "teamId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),

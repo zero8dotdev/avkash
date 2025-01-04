@@ -10,7 +10,15 @@ import { useApplicationContext } from "@/app/_context/appContext";
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
 
-// Fetcher function for SWR
+
+
+const General: React.FC<{}> = () => {
+  const [loader, setLoader] = useState<boolean>(false);
+  const [form] = Form.useForm();
+  const { state: appState } = useApplicationContext();
+  const { orgId } = appState;
+  // Use SWR to fetch organization data
+  // Fetcher function for SWR
 const fetcher = async (orgId: string) => {
   const org = orgId.split("*")[1];
   const data = await fetchOrgGeneralData(org);
@@ -21,12 +29,6 @@ const fetcher = async (orgId: string) => {
   return data;
 };
 
-const General: React.FC<{}> = () => {
-  const [loader, setLoader] = useState<boolean>(false);
-  const [form] = Form.useForm();
-  const { state: appState } = useApplicationContext();
-  const { orgId } = appState;
-  // Use SWR to fetch organization data
   const {
     data: orgData,
     error,
@@ -38,7 +40,6 @@ const General: React.FC<{}> = () => {
     try {
       // Use the server action to update the data
       const updatedData = await updataOrgGeneralData(values, orgId);
-      console.log(updatedData);
       // Optimistically update SWR cache
       mutate({ ...orgData, ...updatedData }, false);
     } catch (err) {

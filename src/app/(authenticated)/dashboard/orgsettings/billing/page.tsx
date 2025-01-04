@@ -13,6 +13,7 @@ import {
   insertData,
 } from "@/app/_components/header/_components/actions";
 import SideMenu from "../_components/menu";
+import useSWR from "swr";
 
 const { Text } = Typography;
 const supabase = createClient();
@@ -35,8 +36,6 @@ const SubscriptionButton: React.FC = () => {
 
   useEffect(() => {
     const fetchSubscriptionId = async () => {
-      const userCount = await getQuantity(appState.orgId);
-      userCount && setUserCount(userCount);
       const { data, error } = await supabase
         .from("Organisation")
         .select("subscriptionId")
@@ -55,6 +54,22 @@ const SubscriptionButton: React.FC = () => {
 
     fetchSubscriptionId();
   }, [appState.orgId]);
+
+  const userCountfetcher = async (orgId: string) => {
+    const org = orgId.split("*")[1];
+    const data = await getQuantity(org);
+    return data;
+  };
+
+    const {
+      data: userCountData,
+      error,
+      mutate,
+    } = useSWR(`orgUserCount*${appState.orgId}`, userCountfetcher,  {
+          onSuccess: (data) => {
+            setUserCount(data ?? 0);
+          },
+        });
 
   const fetchAndSetInvoices = async (subscriptionId: string) => {
     try {
