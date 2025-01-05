@@ -31,6 +31,7 @@ const Page = () => {
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const { teamId } = useParams() as { teamId: string };
   // Fetch team data
+  const { data: teamData, error, isValidating } = useSWR(`teamsettings*${teamId}`);
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
     return await fetchLeavePolicies(team);
@@ -38,7 +39,7 @@ const Page = () => {
 
   const {
     data: leavePolicies = [],
-    error,
+    error: leavePoliciesError,
     mutate,
     isValidating: leavePoliciesLoading,
   } = useSWR(`teampolicies*${teamId}`, fetcher);
@@ -185,7 +186,7 @@ const Page = () => {
                 type="secondary"
                 style={{ fontSize: "20px", marginTop: "0px" }}
               >
-                For Team
+                For {teamData.name} Team
               </Typography.Paragraph>
             </Flex>
           }
