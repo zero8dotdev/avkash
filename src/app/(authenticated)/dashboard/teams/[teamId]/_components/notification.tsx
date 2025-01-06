@@ -9,7 +9,7 @@ const Notification = () => {
       <Flex justify="space-between">
         <Typography.Text>Leave Changed</Typography.Text>
         <Flex gap={15}>
-          <Item name="leaveChanged" valuePropName="checked">
+          <Item name="notificationLeaveChanged" valuePropName="checked">
             <Switch />
           </Item>
           <Typography.Text>
@@ -20,7 +20,7 @@ const Notification = () => {
       <Flex justify="space-between">
         <Typography.Text>Daily Summary</Typography.Text>
         <Flex gap={15}>
-          <Item name="dailySummary" valuePropName="checked">
+          <Item name="notificationDailySummary" valuePropName="checked">
             <Switch />
           </Item>
           <Typography.Text style={{ marginRight: "95px" }}>
@@ -31,7 +31,7 @@ const Notification = () => {
       <Flex justify="space-between">
         <Typography.Text>Weekly Summary</Typography.Text>
         <Flex gap={15}>
-          <Item name="weeklySummary" valuePropName="checked">
+          <Item name="notificationWeeklySummary" valuePropName="checked">
             <Switch />
           </Item>
           <Typography.Text style={{ marginRight: "118px" }}>
@@ -40,7 +40,7 @@ const Notification = () => {
         </Flex>
       </Flex>
 
-      <Item label="Send notifications to" name="sendntw">
+      <Item label="Send notifications to" name="notificationToWhom">
         <Group>
           <Checkbox value="OWNER">Owner</Checkbox>
           <Checkbox value="MANAGER">Managers</Checkbox>

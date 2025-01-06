@@ -6,6 +6,7 @@ import TeamSettings from "@/app/(authenticated)/initialsetup/_componenets/team-s
 import useSWR from "swr";
 import { useApplicationContext } from "@/app/_context/appContext";
 import { fetchTeamGeneralData, updateTeamGeneralData, fetchLocations } from "../_actions";
+import { useParams } from "next/navigation";
 
 // Default locations for name lookup
 const defaultLocations = [
@@ -19,7 +20,8 @@ const defaultLocations = [
 const Page = () => {
   const [form] = Form.useForm();
   const { state: appState } = useApplicationContext();
-  const { teamId, orgId } = appState;
+  const { orgId } = appState;
+  const { teamId } = useParams() as { teamId: string };
 
   // Fetch team data
   const fetcher = async (key: string) => {

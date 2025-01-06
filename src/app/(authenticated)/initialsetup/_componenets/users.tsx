@@ -88,6 +88,7 @@ export const Users = forwardRef(function Users(props, ref) {
               size="small"
               dataSource={users}
               loading={loading}
+              locale={{ emptyText: "All users are already added" }} // Custom empty message
               renderItem={(
                 { id, profile: { image_48, real_name, email } },
                 index

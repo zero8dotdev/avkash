@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Col,
+  DatePicker,
   Divider,
   Flex,
   Form,
@@ -17,63 +18,57 @@ import {
   Switch,
   Typography,
 } from "antd";
+import dayjs from "dayjs";
 import React, { useState } from "react";
 import TeamSettingsTabs from "../_components/team-settings-tabs";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
 import useSWR from "swr";
-import { useApplicationContext } from "@/app/_context/appContext";
-import { fetchLeavePolicies } from "../_actions";
+import { fetchLeavePolicies, updatePolicyData } from "../_actions";
+import { useParams } from "next/navigation";
 
 const Page = () => {
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const leaveTypes = [
-    {
-      id: "1",
-      name: "paid off",
-      color: "#1890ff",
-      status: "active",
-      leaves: "15",
-    },
-    {
-      id: "2",
-      name: "sick",
-      color: "#ff4d4f",
-      status: "active",
-      leaves: "16",
-    },
-    {
-      id: "3",
-      name: "unpaid",
-      color: "#ff4d",
-      status: "inactive",
-      leaves: "20",
-    },
-  ];
+  const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
+  const { teamId } = useParams() as { teamId: string };
+  // Fetch team data
+  const { data: teamData, error, isValidating } = useSWR(`teamsettings*${teamId}`);
+  const fetcher = async (key: string) => {
+    const team = key.split("*")[1];
+    return await fetchLeavePolicies(team);
+  };
 
-  const { state: appState } = useApplicationContext();
-  const { teamId, orgId } = appState;
+  const {
+    data: leavePolicies = [],
+    error: leavePoliciesError,
+    mutate,
+    isValidating: leavePoliciesLoading,
+  } = useSWR(`teampolicies*${teamId}`, fetcher);
 
-    // Fetch team data
-    const fetcher = async (key: string) => {
-      const team = key.split("*")[1];
-      return await fetchLeavePolicies(team);
-    };
+  const activeLeavePolicies =
+    leavePolicies?.filter((leaveType: any) => leaveType.isActive) || [];
+  const inactiveLeavePolicies =
+    leavePolicies?.filter((leaveType: any) => !leaveType.isActive) || [];
 
-    const { data: LeavePolicies, error, mutate, isValidating: leavePoliciesLoading } = useSWR(
-      `teampolicies*${teamId}`,
-      fetcher
-    );
-
-  const activeLeaveTypes = leaveTypes.filter(
-    (leaveType: any) => leaveType.status === "active"
-  );
-  const inactiveLeaveTypes = leaveTypes.filter(
-    (leaveType: any) => leaveType.status === "inactive"
-  );
   const { Item } = Form;
   const [form] = Form.useForm();
-  console.log("LeavePolicies", LeavePolicies);
+
+  const openModal = (policy: any) => {
+    setSelectedPolicy(policy);
+    console.log(policy);
+    form.setFieldsValue({
+      maxLeaves: policy.maxLeaves,
+      unlimited: policy.unlimited,
+      accruals: policy.accruals,
+      accrualFrequency: policy.accrualFrequency,
+      accrueOn: policy.accrueOn,
+      rollOver: policy.rollOver,
+      rollOverLimit: policy.rollOverLimit,
+      rollOverExpiry: policy.rollOverExpiry
+        ? dayjs(policy.rollOverExpiry, "DD/MM") // Convert to Day.js object
+        : null,
+      autoApprove: policy.autoApprove,
+    });
+  };
 
   return (
     <Row>
@@ -103,46 +98,72 @@ const Page = () => {
             {segmentValue === "active" ? (
               <List
                 bordered
-                dataSource={activeLeaveTypes}
-                renderItem={(item, index) => (
+                dataSource={activeLeavePolicies}
+                renderItem={(item) => (
                   <List.Item
                     style={{ cursor: "pointer" }}
-                    onClick={(event: React.MouseEvent<HTMLElement>) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      setSelectedType(item.name);
-                    }}
+                    onClick={() => openModal(item)}
                   >
                     <List.Item.Meta
-                      title={item.name}
+                      title={item?.leaveType?.name}
                       avatar={
-                        <Avatar style={{ backgroundColor: item.color }} />
+                        <Avatar
+                          style={{
+                            backgroundColor: `#${item?.leaveType?.color}`,
+                          }}
+                        />
                       }
-                      description={`${item.leaves} days per year`}
+                      description={`${item?.maxLeaves} days per year`}
                     />
+                    <Button
+                      type="text"
+                      danger
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await updatePolicyData(
+                          teamId,
+                          { isActive: false },
+                          item.leavePolicyId
+                        ); // Update backend data
+                        mutate();
+                      }}
+                    >
+                      Disable
+                    </Button>
                   </List.Item>
                 )}
               />
             ) : (
               <List
                 bordered
-                dataSource={inactiveLeaveTypes}
-                renderItem={(item, index) => (
-                  <List.Item key={index}>
+                dataSource={inactiveLeavePolicies}
+                renderItem={(item) => (
+                  <List.Item
+                    style={{ cursor: "pointer" }}
+                    onClick={() => openModal(item)}
+                  >
                     <List.Item.Meta
-                      title={item.name}
+                      title={item?.leaveType?.name}
                       avatar={
-                        <Avatar style={{ backgroundColor: item.color }} />
+                        <Avatar
+                          style={{
+                            backgroundColor: `#${item?.leaveType?.color}`,
+                          }}
+                        />
                       }
-                      description={`${item.leaves} days per year`}
+                      description={`${item?.maxLeaves} days per year`}
                     />
                     <Button
-                      type="text"
-                      onClick={() =>
-                        console.log(
-                          "bro ekkada click cheste action rayali status should change to active ok"
-                        )
-                      }
+                      type="link"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await updatePolicyData(
+                          teamId,
+                          { isActive: true },
+                          item.leavePolicyId
+                        ); // Update backend data
+                        mutate();
+                      }}
                     >
                       Enable
                     </Button>
@@ -154,24 +175,41 @@ const Page = () => {
         </Card>
         <Modal
           footer={null}
-          open={selectedType !== null}
+          open={selectedPolicy !== null}
           width={700}
           title={
             <Flex vertical>
-              <Typography.Title level={3}>{selectedType}</Typography.Title>
+              <Typography.Title level={3}>
+                {selectedPolicy?.leaveType?.name}
+              </Typography.Title>
               <Typography.Paragraph
                 type="secondary"
                 style={{ fontSize: "20px", marginTop: "0px" }}
               >
-                For Team name
+                For {teamData.name} Team
               </Typography.Paragraph>
             </Flex>
           }
-          onCancel={() => setSelectedType(null)}
+          onCancel={() => setSelectedPolicy(null)}
         >
-          <Form onFinish={(values) => console.log(values)} form={form}>
+          <Form
+            form={form}
+            onFinish={async (values) => {
+              if (values.rollOverExpiry) {
+                values.rollOverExpiry = values.rollOverExpiry.format("DD/MM"); // or use "DD/MM" depending on your requirement
+              }
+              console.log(values); // You can check how the formatted value looks
+              await updatePolicyData(
+                teamId,
+                values,
+                selectedPolicy.leavePolicyId
+              ); // Update backend data
+              mutate();
+              setSelectedPolicy(null);
+            }}
+          >
             <Flex gap={50}>
-              <Item name="maxleaves" style={{ padding: "0px", margin: "0px" }}>
+              <Item name="maxLeaves" style={{ padding: "0px", margin: "0px" }}>
                 <InputNumber />
               </Item>
               <Typography.Text strong>Days per year</Typography.Text>
@@ -205,7 +243,7 @@ const Page = () => {
                     Accrual Frequency
                   </Typography.Text>
                   <Item
-                    name="accrualfrequency"
+                    name="accrualFrequency"
                     style={{ padding: "0px", margin: "0px", width: "100px" }}
                   >
                     <Select
@@ -230,7 +268,7 @@ const Page = () => {
             </Flex>
             <Divider />
             <Flex gap={95}>
-              <Item name="unusedleaves">
+              <Item name="rollOver">
                 <Switch />
               </Item>
               <Space direction="vertical">
@@ -243,9 +281,6 @@ const Page = () => {
               </Space>
             </Flex>
             <Flex gap={95}>
-              <Item name="rolloverlimit">
-                <Switch />
-              </Item>
               <Space direction="vertical">
                 <Typography.Text strong>Limit roll over days</Typography.Text>
                 <Flex gap={8}>
@@ -253,19 +288,31 @@ const Page = () => {
                     Limit roll over days each year to
                   </Typography.Text>
                   <Item
-                    name="limitrolloverdays"
+                    name="rollOverLimit"
+                    rules={[
+                      {
+                        validator: (_, value) => {
+                          const maxLeaves = form.getFieldValue("maxLeaves"); // Get the maxLeaves value
+                          if (value === undefined || value <= maxLeaves) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(
+                            new Error(
+                              `Roll over limit cannot exceed ${maxLeaves} days.`
+                            )
+                          );
+                        },
+                      },
+                    ]}
                     style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
                   >
                     <InputNumber />
                   </Item>
-                  <Typography.Text type="secondary">day</Typography.Text>
+                  <Typography.Text type="secondary">days</Typography.Text>
                 </Flex>
               </Space>
             </Flex>
             <Flex gap={95}>
-              <Item name="rolloverexpiry">
-                <Switch />
-              </Item>
               <Space direction="vertical">
                 <Typography.Text strong>Roll over expiry</Typography.Text>
                 <Space>
@@ -273,19 +320,17 @@ const Page = () => {
                     Roll over days expire each year on
                   </Typography.Text>
                   <Item
-                    name="rolloverdayseachyear"
+                    name="rollOverExpiry"
                     style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
                   >
-                    <Select style={{ width: "90px" }}>
-                      <Select.Option value="dd/mm">dd/mm</Select.Option>
-                    </Select>
+                    <DatePicker format="DD/MM" />
                   </Item>
                 </Space>
               </Space>
             </Flex>
             <Divider />
             <Flex gap={95}>
-              <Item name="autoapprove">
+              <Item name="autoApprove">
                 <Switch />
               </Item>
               <Typography.Text strong>
@@ -293,7 +338,14 @@ const Page = () => {
               </Typography.Text>
             </Flex>
             <Flex justify="space-between">
-              <Button onClick={() => setSelectedType(null)}>Cancel</Button>
+              <Button
+                onClick={() => {
+                  setSelectedPolicy(null);
+                  form.resetFields();
+                }}
+              >
+                Cancel
+              </Button>
               <Item>
                 <Button type="primary" htmlType="submit">
                   Save

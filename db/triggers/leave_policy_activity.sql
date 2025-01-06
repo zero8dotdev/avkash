@@ -33,8 +33,8 @@ BEGIN
         IF OLD."rollOverLimit" IS DISTINCT FROM NEW."rollOverLimit" THEN
             changedColumns := jsonb_set(changedColumns, '{rollOverLimit}', jsonb_build_object('old', OLD."rollOverLimit", 'new', NEW."rollOverLimit"));
         END IF;
-        IF OLD."orgId" IS DISTINCT FROM NEW."orgId" THEN
-            changedColumns := jsonb_set(changedColumns, '{orgId}', jsonb_build_object('old', OLD."orgId", 'new', NEW."orgId"));
+        IF OLD."teamId" IS DISTINCT FROM NEW."teamId" THEN
+            changedColumns := jsonb_set(changedColumns, '{teamId}', jsonb_build_object('old', OLD."teamId", 'new', NEW."teamId"));
         END IF;
         IF OLD."updatedBy" IS DISTINCT FROM NEW."updatedBy" THEN
             changedColumns := jsonb_set(changedColumns, '{updatedBy}', jsonb_build_object('old', OLD."updatedBy", 'new', NEW."updatedBy"));
@@ -45,8 +45,8 @@ BEGIN
 
         -- Insert the log entry only if there are changes
         IF changedColumns <> '{}'::jsonb THEN
-            INSERT INTO public."ActivityLog" ("tableName", "orgId", "changedColumns", "changedBy", keyword)
-            VALUES (tableName, NEW."orgId", changedColumns, NEW."updatedBy", 'change');
+            INSERT INTO public."ActivityLog" ("tableName", "teamId", "changedColumns", "changedBy", keyword)
+            VALUES (tableName, NEW."teamId", changedColumns, NEW."updatedBy", 'change');
         END IF;
     END IF;
 
