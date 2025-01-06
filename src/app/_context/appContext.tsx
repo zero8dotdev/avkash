@@ -16,7 +16,7 @@ interface Team {
 }
 interface ContextState {
   orgId: string;
-  org: { visibility: string } | undefined;
+  org: { visibility: string, createdOn:any } | undefined;
   team: Team | undefined;
   teamId: string;
   userId: string;

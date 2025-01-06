@@ -11,6 +11,7 @@ const UserModal = ({
   selectedUser: any;
   update: Function;
 }) => {
+  console.log(selectedUser)
   return (
     <Modal
       open={selectedUser !== null}
