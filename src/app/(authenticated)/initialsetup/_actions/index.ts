@@ -189,53 +189,64 @@ export const fetchLeavePolicies = async (teamId: string) => {
   return data;
 };
 
-// Update or Insert Users
-export const insertUsers = async (
-  orgId: any,
-  users: any,
-  currentUserId: any,
-  teamId: any,
-  accruedLeave: any,
-  usedLeave: any
-) => {
+// // Update or Insert Users
+// export const insertUsers = async (
+//   orgId: any,
+//   users: any,
+//   currentUserId: any,
+//   teamId: any,
+//   accruedLeave: any,
+//   usedLeave: any
+// ) => {
+//   const supabaseAdminClient = createAdminClient();
+//   console.log("users", users);
+//   const loggedInUser = users.find((user: any) => user.userId === currentUserId);
+
+//   const restUsers = users.filter((user: any) => user.userId !== currentUserId);
+
+//   // Update logged-in user
+//   if (loggedInUser) {
+//     const { error } = await supabaseAdminClient
+//       .from("User")
+//       .update({
+//         slackId: loggedInUser.slackId,
+//         accruedLeave,
+//         usedLeave,
+//       })
+//       .eq("userId", currentUserId)
+//       .select();
+
+//     if (error) throw error;
+//   }
+
+//   // Insert other users
+//   const { data, error } = await supabaseAdminClient
+//     .from("User")
+//     .insert(
+//       restUsers.map((user: any) => ({
+//         ...user,
+//         orgId,
+//         teamId,
+//         accruedLeave,
+//         usedLeave,
+//         createdBy: currentUserId,
+//       }))
+//     )
+//     .select("*");
+
+//   if (error) throw error;
+//   return data;
+// };
+export const insertUsers = async (orgId: any, users: any) => {
   const supabaseAdminClient = createAdminClient();
-  console.log("users", users);
-  // const loggedInUser = users.find((user: any) => user.userId === currentUserId);
 
-  // const restUsers = users.filter((user: any) => user.userId !== currentUserId);
+  const { data, error } = await supabaseAdminClient
+    .from("User")
+    .insert(users)
+    .select("*");
 
-  // // Update logged-in user
-  // if (loggedInUser) {
-  //   const { error } = await supabaseAdminClient
-  //     .from("User")
-  //     .update({
-  //       slackId: loggedInUser.slackId,
-  //       accruedLeave,
-  //       usedLeave,
-  //     })
-  //     .eq("userId", currentUserId)
-  //     .select();
-
-  //   if (error) throw error;
-  // }
-
-  // // Insert other users
-  // const { data, error } = await supabaseAdminClient
-  //   .from("User")
-  //   .insert(
-  //     restUsers.map((user: any) => ({
-  //       ...user,
-  //       orgId,
-  //       teamId,
-  //       accruedLeave,
-  //       usedLeave,
-  //       createdBy: currentUserId,
-  //     }))
-  //   )
-  //   .select("*");
-
-  // if (error) throw error;
-  // return data;
+  if (error) throw error;
+  return data;
 };
 
 // Mark Organisation Setup Complete
@@ -255,54 +266,3 @@ export const updateInitialsetupState = async (
   return data;
 };
 
-// // Complete Setup Orchestrator
-// export const completeSetup = async (orgId: any, setupData: any) => {
-//   try {
-//     const supabaseServerClient = createClient();
-//     const {
-//       data: { user: currentUser },
-//     } = await supabaseServerClient.auth.getUser();
-//     if (!currentUser) throw new Error("User not authenticated");
-
-//     const { leavePolicies, holidaysList, users, teamId, countryCode } =
-//       setupData;
-
-//     // Step 1: Update Organisation
-//     await updateteamsettings(teamId, setupData);
-
-//     // Step 2: Insert Leave Policies
-//     // const leavePoliciesData = await insertLeavePolicies(orgId, leavePolicies);
-
-//     // // Step 3: Insert Holidays
-//     // await insertHolidays(orgId, holidaysList, currentUser.id, countryCode);
-
-//     // const activePolicies = leavePoliciesData.filter(({ isActive }) => isActive);
-//     // const accruedLeave = activePolicies.reduce((acc, policy) => {
-//     //   acc[policy.leaveTypeId] = {
-//     //     balance: policy.unlimited ? "unlimited" : policy.maxLeaves,
-//     //   };
-//     //   return acc;
-//     // }, {});
-//     // const usedLeave = activePolicies.reduce((acc, policy) => {
-//     //   acc[policy.leaveTypeId] = { balance: policy.unlimited ? "unlimited" : 0 };
-//     //   return acc;
-//     // }, {});
-
-//     // await updateOrInsertUsers(
-//     //   orgId,
-//     //   users,
-//     //   currentUser.id,
-//     //   teamId,
-//     //   accruedLeave,
-//     //   usedLeave
-//     // );
-
-//     // Step 6: Mark Setup Complete
-//     // await markSetupComplete(orgId, currentstatus);
-
-//     return true;
-//   } catch (error) {
-//     console.error(error);
-//     throw error;
-//   }
-// };
