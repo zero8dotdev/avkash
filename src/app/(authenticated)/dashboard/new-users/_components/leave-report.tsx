@@ -4,63 +4,27 @@ import { useApplicationContext } from "@/app/_context/appContext";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Row, Flex, Select, Table, Col, Space } from "antd";
 import useSWR from "swr";
-import { getLeaves } from "../_actions";
+import { getLeaveSummaryByUser, getLeaves } from "../_actions";
 
-export default function LeaveReport({ user }: { user: any }) {
+export default function LeaveReport({ user, data }: { user: any, data:any, loading: any }) {
   const d = new Date();
   let year = d.getFullYear();
   let month = d.getMonth();
-  const { state: appState } = useApplicationContext();
-  const { userId } = appState;
+  // const { state: appState } = useApplicationContext();
+  // const { userId } = appState;
 
+  // const fetcher = async (userId: string) => {
+  //   const user = userId.split("*")[1];
+  //   const data = await getLeaveSummaryByUser(user);
+  //   return data;
+  // };
 
-  const fetcher = async (userId: string) => {
-    const user = userId.split("*")[1];
-    const data =  await getLeaves(user);
-  
-    // if (error) {
-    //   throw new Error("Failed to fetch organization data");
-    // }
-    return data;
-  };
-  
-    const {
-      data: dataSource,
-      error,
-      mutate,
-    } = useSWR(`userLeaveReport*${userId}`, fetcher);
-    console.log("dataSource",dataSource)
-  // const dataSource = [
-  //   {
-  //     key: "1",
-  //     leaveType: "paid",
-  //     taken: 5,
-  //     planned: 6,
-  //     total: 14,
-  //     remaining: 3,
-  //     available: 2,
-  //   },
-  //   {
-  //     key: "2",
-  //     leaveType: "sick",
-  //     taken: 5,
-  //     planned: 6,
-  //     total: 14,
-  //     remaining: 3,
-  //     available: 2,
-  //   },
-  //   {
-  //     key: "3",
-  //     leaveType: "unpaid",
-  //     taken: 5,
-  //     planned: 6,
-  //     total: 14,
-  //     remaining: 3,
-  //     available: 2,
-  //   },
-  // ];
+  // const {
+  //   data: datasource,
+  //   error,
+  //   mutate,
+  // } = useSWR(`userLeaveReport*${userId}`, fetcher);
 
-  // TODO: 1. make select full width, make table full width
   return (
     <>
       <Row gutter={[16, 16]}>
@@ -90,7 +54,7 @@ export default function LeaveReport({ user }: { user: any }) {
         <Col span={24}>
           <Table
             bordered
-            dataSource={dataSource}
+            dataSource={data || []}
             pagination={false}
             columns={[
               { title: "LEAVE TYPE", dataIndex: "leaveType", key: "leaveType" },
@@ -131,13 +95,13 @@ export default function LeaveReport({ user }: { user: any }) {
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={5}>
                     {pageData.reduce(
-                      (sum, record) => sum + record.remaining,
+                      (sum, record) => sum + Number(record.remaining),
                       0
                     )}
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={6}>
                     {pageData.reduce(
-                      (sum, record) => sum + record.available,
+                      (sum, record) => sum + Number(record.available),
                       0
                     )}
                   </Table.Summary.Cell>

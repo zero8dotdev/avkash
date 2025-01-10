@@ -1,43 +1,34 @@
 import { CalendarOutlined, FileTextOutlined } from "@ant-design/icons";
 import { Card, List, Space } from "antd";
 import React from "react";
+import { formatLeavesData, getLeaves } from "../_actions";
+import useSWR from "swr";
+import { useApplicationContext } from "@/app/_context/appContext";
 
-const LeaveRequest = ({ user }: { user: any }) => {
-  const data = [
-    {
-      type: "paid of",
-      startDate: "2025-01-01",
-      endDate: "2025-01-05",
-      leaveRequestNote: "tesing 1",
-      status: "pending",
-      color: "blue",
-    },
-    {
-      type: "sick",
-      startDate: "2025-01-06",
-      endDate: "2025-01-10",
-      leaveRequestNote: "tesing 2",
-      status: "pending",
-      color: "red",
-    },
-    {
-      type: "unpaid",
-      startDate: "2025-01-16",
-      endDate: "2025-01-20",
-      leaveRequestNote: "tesing 3",
-      status: "approved",
-      color: "green",
-    },
-  ];
+const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) => {
+  // const { state: appState } = useApplicationContext();
+  // const { userId } = appState;
+
+  // const fetcher = async (userId: string) => {
+  //   const user = userId.split("*")[1];
+  //   const data = await getLeaves(user);
+  //   return data;
+  // };
+
+  // const {
+  //   data,
+  //   error,
+  //   mutate,
+  // } = useSWR(`userLeaveRequests*${userId}`, fetcher);
   return (
     <List
-      dataSource={data}
-      renderItem={(item, i) => (
+      dataSource={data || []}
+      renderItem={(item: any, i) => (
         <Card
           styles={{ body: { padding: "0 20px 0 20px" } }}
           style={{
             marginBottom: "10px",
-            borderLeft: `5px solid ${item.color}`,
+            borderLeft: `5px solid #${item.color}`,
           }}
         >
           <List.Item

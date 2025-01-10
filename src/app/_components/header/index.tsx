@@ -5,7 +5,7 @@ import Title from "antd/es/typography/Title";
 import LogoutButton from "./_components/logout";
 import { Header } from "antd/es/layout/layout";
 import MainMenu from "./_components/main-menu";
-import logo from "../../(public)/avkash-only.png";
+import logo from "../../(public)/avkash-logo-new.png";
 export default function AppHeader() {
   return (
     <Header
