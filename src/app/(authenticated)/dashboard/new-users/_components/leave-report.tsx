@@ -1,42 +1,64 @@
 "use client";
 
+import { useApplicationContext } from "@/app/_context/appContext";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Row, Flex, Select, Table, Col, Space } from "antd";
+import useSWR from "swr";
+import { getLeaves } from "../_actions";
 
 export default function LeaveReport({ user }: { user: any }) {
   const d = new Date();
   let year = d.getFullYear();
   let month = d.getMonth();
+  const { state: appState } = useApplicationContext();
+  const { userId } = appState;
 
-  const dataSource = [
-    {
-      key: "1",
-      leaveType: "paid",
-      taken: 5,
-      planned: 6,
-      total: 14,
-      remaining: 3,
-      available: 2,
-    },
-    {
-      key: "2",
-      leaveType: "sick",
-      taken: 5,
-      planned: 6,
-      total: 14,
-      remaining: 3,
-      available: 2,
-    },
-    {
-      key: "3",
-      leaveType: "unpaid",
-      taken: 5,
-      planned: 6,
-      total: 14,
-      remaining: 3,
-      available: 2,
-    },
-  ];
+
+  const fetcher = async (userId: string) => {
+    const user = userId.split("*")[1];
+    const data =  await getLeaves(user);
+  
+    // if (error) {
+    //   throw new Error("Failed to fetch organization data");
+    // }
+    return data;
+  };
+  
+    const {
+      data: dataSource,
+      error,
+      mutate,
+    } = useSWR(`userLeaveReport*${userId}`, fetcher);
+    console.log("dataSource",dataSource)
+  // const dataSource = [
+  //   {
+  //     key: "1",
+  //     leaveType: "paid",
+  //     taken: 5,
+  //     planned: 6,
+  //     total: 14,
+  //     remaining: 3,
+  //     available: 2,
+  //   },
+  //   {
+  //     key: "2",
+  //     leaveType: "sick",
+  //     taken: 5,
+  //     planned: 6,
+  //     total: 14,
+  //     remaining: 3,
+  //     available: 2,
+  //   },
+  //   {
+  //     key: "3",
+  //     leaveType: "unpaid",
+  //     taken: 5,
+  //     planned: 6,
+  //     total: 14,
+  //     remaining: 3,
+  //     available: 2,
+  //   },
+  // ];
 
   // TODO: 1. make select full width, make table full width
   return (

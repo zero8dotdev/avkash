@@ -36,7 +36,7 @@ const UserModal = ({
           {
             key: "leave-requests",
             label: "leave Request",
-            children: <LeaveRequest />,
+            children: <LeaveRequest user={selectedUser}/>,
           },
           {
             key: "activity",
@@ -51,7 +51,7 @@ const UserModal = ({
           {
             key: "settings",
             label: "Settings",
-            children: <Settings />,
+            children: <Settings user={selectedUser}/>,
           },
         ]}
       />

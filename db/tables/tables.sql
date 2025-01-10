@@ -118,10 +118,28 @@ CREATE TABLE
     CONSTRAINT "fk_user_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
   );
 
+  CREATE TABLE
+  "LeaveType" (
+    "leaveTypeId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    "name" VARCHAR(255) NOT NULL,
+    "color" VARCHAR(6),
+    "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
+    "orgId" UUID NOT NULL,
+    "setSlackStatus" BOOLEAN NOT NULL DEFAULT TRUE,
+    "emoji" VARCHAR,
+    "statusMsg" VARCHAR(255),
+    "createdBy" VARCHAR(255),
+    "createdOn" TIMESTAMP(6) DEFAULT now(),
+    "updatedBy" VARCHAR(255),
+    "updatedOn" TIMESTAMP(6) DEFAULT now(),
+    CONSTRAINT "fk_leavetype_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
+  );
+
+
 CREATE TABLE
   "Leave" (
     "leaveId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-    "leaveType" VARCHAR(255) NOT NULL,
+    "leaveTypeId" UUID NOT NULL,
     "startDate" DATE NOT NULL,
     "endDate" DATE NOT NULL,
     "duration" "LeaveDuration" NOT NULL,
@@ -138,25 +156,10 @@ CREATE TABLE
     "updatedOn" TIMESTAMP(6) DEFAULT now(),
     CONSTRAINT "fk_leave_user" FOREIGN KEY ("userId") REFERENCES "User" ("userId"),
     CONSTRAINT "fk_leave_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId"),
-    CONSTRAINT "fk_leave_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
+    CONSTRAINT "fk_leave_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId"),
+    CONSTRAINT "fk_leave_leavetype" FOREIGN KEY ("leaveTypeId") REFERENCES "LeaveType" ("leaveTypeId")
   );
 
-CREATE TABLE
-  "LeaveType" (
-    "leaveTypeId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-    "name" VARCHAR(255) NOT NULL,
-    "color" VARCHAR(6),
-    "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
-    "orgId" UUID NOT NULL,
-    "setSlackStatus" BOOLEAN NOT NULL DEFAULT TRUE,
-    "emoji" VARCHAR,
-    "statusMsg" VARCHAR(255),
-    "createdBy" VARCHAR(255),
-    "createdOn" TIMESTAMP(6) DEFAULT now(),
-    "updatedBy" VARCHAR(255),
-    "updatedOn" TIMESTAMP(6) DEFAULT now(),
-    CONSTRAINT "fk_leavetype_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId")
-  );
 
 CREATE TABLE
   "LeavePolicy" (

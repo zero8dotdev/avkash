@@ -1,5 +1,7 @@
-drop policy if exists "holiday_delete" on "public"."Holiday";
--- Create a combined policy for user registration and admin adding users
-create policy "holiday_delete" on "public"."Holiday" for delete to public
-with
-  check (true);
+DROP POLICY IF EXISTS "holiday_delete" ON "public"."Holiday";
+
+-- Create a policy for deleting rows in the Holiday table
+CREATE POLICY "holiday_delete" ON "public"."Holiday"
+FOR DELETE
+TO public
+USING (true);
