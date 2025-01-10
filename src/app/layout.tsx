@@ -36,13 +36,10 @@ export default function RootLayout({
           <ConfigProvider
             theme={{
               token: {
-                colorBgBase: "#f1fafb",
-                colorPrimary: "#227b83",
+                colorBgBase: "#EAE7DC",
+                colorPrimary: "#E85A4F",
                 colorText: "#000000",
                 fontFamily: "General Sans, sans-serif",
-              },
-              components: {
-                Card: { colorBgContainer: "#F7FFF7" },
               },
             }}
           >

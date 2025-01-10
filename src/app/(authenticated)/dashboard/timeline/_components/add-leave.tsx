@@ -29,15 +29,15 @@ const AddLeave: React.FC<Props> = ({ team }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
-  const [loginUser,setLoginUser]=useState<any>()
+  const [loginUser, setLoginUser] = useState<any>();
   const {
-    state: { orgId,user},
+    state: { orgId, user },
   } = useApplicationContext();
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>();
   useEffect(() => {
-    if(!user?.role) return 
-    
+    if (!user?.role) return;
+
     (async () => {
       try {
         const leaveTypes = await fetchLeaveTypes(orgId);
@@ -54,13 +54,12 @@ const AddLeave: React.FC<Props> = ({ team }) => {
       } catch (error) {
         console.error(error);
       }
-      if(user?.role==="OWNER"|| user?.role==="MANAGER"){
-         setLoginUser(user.role)
-      
+      if (user?.role === "OWNER" || user?.role === "MANAGER") {
+        setLoginUser(user.role);
       }
     })();
-  }, [orgId, team,user]);
-  
+  }, [orgId, team, user]);
+
   const onFinish = async (values: any) => {
     const { dates, approve, leaveType, leaveRequestNote } = values;
     const start = new Date(dates[0]);
@@ -97,28 +96,27 @@ const AddLeave: React.FC<Props> = ({ team }) => {
     <>
       <Button type="primary" onClick={() => setModalVisible(true)}>
         Add leave
-      </Button>
+      </Button>{" "}
       <Modal
         open={isModalVisible}
         closable={false}
         title="Add Leave"
         onCancel={() => onCancel()}
-        width={500}
+        width={700}
         footer={[
           <>
             <Button type="default" danger onClick={() => onCancel()}>
               Cancel
             </Button>
-            {userId!==undefined&&<Button
-              type="primary"
-              loading={loader}
-              onClick={() => submitForm()}
-            >
-              submit
-            </Button>
-
-            }
-            
+            {userId !== undefined && (
+              <Button
+                type="primary"
+                loading={loader}
+                onClick={() => submitForm()}
+              >
+                submit
+              </Button>
+            )}
           </>,
         ]}
       >
@@ -180,21 +178,22 @@ const AddLeave: React.FC<Props> = ({ team }) => {
               label="Leave request notes:"
               name="leaveRequestNote"
               initialValue=""
-              rules={[{required:true,message:'Enter your leave request reason'}]}
+              rules={[
+                { required: true, message: "Enter your leave request reason" },
+              ]}
             >
               <Input.TextArea rows={2} placeholder="Enter your leave reason" />
             </Form.Item>
-            {loginUser==="OWNER" || loginUser==="MANAGER" ? <Form.Item
-              label="Approve this leave?"
-              name="approve"
-              initialValue={false}
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>:null
-
-            }
-           
+            {loginUser === "OWNER" || loginUser === "MANAGER" ? (
+              <Form.Item
+                label="Approve this leave?"
+                name="approve"
+                initialValue={false}
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
+            ) : null}
           </Form>
         ) : null}
       </Modal>
