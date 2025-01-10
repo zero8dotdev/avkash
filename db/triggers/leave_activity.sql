@@ -9,8 +9,8 @@ BEGIN
     -- Check if the operation is an update
     IF TG_OP = 'UPDATE' THEN
         -- Compare each column and add to changedColumns if different
-        IF OLD."leaveType" IS DISTINCT FROM NEW."leaveType" THEN
-            changedColumns := jsonb_set(changedColumns, '{leaveType}', jsonb_build_object('old', OLD."leaveType", 'new', NEW."leaveType"));
+        IF OLD."leaveTypeId" IS DISTINCT FROM NEW."leaveTypeId" THEN
+            changedColumns := jsonb_set(changedColumns, '{leaveTypeId}', jsonb_build_object('old', OLD."leaveTypeId", 'new', NEW."leaveTypeId"));
         END IF;
         IF OLD."startDate" IS DISTINCT FROM NEW."startDate" THEN
             changedColumns := jsonb_set(changedColumns, '{startDate}', jsonb_build_object('old', OLD."startDate", 'new', NEW."startDate"));
