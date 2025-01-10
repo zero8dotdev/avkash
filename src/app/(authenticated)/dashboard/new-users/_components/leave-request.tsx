@@ -2,7 +2,7 @@ import { CalendarOutlined, FileTextOutlined } from "@ant-design/icons";
 import { Card, List, Space } from "antd";
 import React from "react";
 
-const LeaveRequest = () => {
+const LeaveRequest = ({ user }: { user: any }) => {
   const data = [
     {
       type: "paid of",

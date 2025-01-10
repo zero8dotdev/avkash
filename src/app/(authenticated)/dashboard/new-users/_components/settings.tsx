@@ -3,7 +3,7 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Checkbox, Flex, Select, Typography } from "antd";
 import React from "react";
 
-const Settings = () => {
+const Settings = ({ user }: { user: any }) => {
   return (
     <Flex vertical gap={10}>
       <Typography.Text>Team</Typography.Text>
