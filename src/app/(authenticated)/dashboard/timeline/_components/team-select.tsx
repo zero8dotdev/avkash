@@ -1,6 +1,6 @@
 "use client";
 
-import { Select, type SelectProps } from "antd";
+import { Select, Space, Typography, type SelectProps } from "antd";
 const { Option } = Select;
 
 import { useApplicationContext } from "@/app/_context/appContext";
@@ -24,30 +24,32 @@ export default function TeamSelect({ changeTeam }: { changeTeam: Function }) {
       console.log(error);
     }
   };
- 
+
   return (
-    <Select
-      onChange={onChangeSelect}
-      style={{ minWidth: "100px" }}
-      disabled={
-        (visibility === "TEAM" || visibility === "SELF") &&
-        (role === "MANAGER" || role === "USER")
-          ? true
-          : false
-      }
-      defaultValue={role === "OWNER" ? "all" : teamId}
-      placeholder="Select Team"
-    >
-      <Option value="all">All Teams</Option>
-      {teams.length >0
-        ? teams.map((team) => {
-            return (
-              <Option key={team.teamId} value={team.teamId}>
-                {team.name}
-              </Option>
-            );
-          })
-        : null}
-    </Select>
+    <Space size="middle">
+      <Select
+        onChange={onChangeSelect}
+        style={{ minWidth: "150px" }}
+        disabled={
+          (visibility === "TEAM" || visibility === "SELF") &&
+          (role === "MANAGER" || role === "USER")
+            ? true
+            : false
+        }
+        defaultValue={role === "OWNER" ? "all" : teamId}
+        placeholder="Select Team"
+      >
+        <Option value="all">All Teams</Option>
+        {teams.length > 0
+          ? teams.map((team) => {
+              return (
+                <Option key={team.teamId} value={team.teamId}>
+                  {team.name}
+                </Option>
+              );
+            })
+          : null}
+      </Select>
+    </Space>
   );
 }
