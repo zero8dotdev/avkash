@@ -106,7 +106,14 @@ export const fetchTeamMembers = async (teamId: string) => {
     const supabase = createClient();
     const { data: teamMembers, error } = await supabase
       .from("User")
-      .select()
+      .select(
+        `
+      *,
+      Team (
+        name
+      )
+    `
+      )
       .eq("teamId", teamId);
 
     if (error) {
