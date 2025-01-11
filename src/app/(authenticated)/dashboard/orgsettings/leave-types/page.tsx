@@ -106,7 +106,7 @@ export default function Page() {
   };
 
   const handleIconSelect = (data: Emoji) => {
-    setSelectedEmoji(data.native); // Update emoji state
+    setSelectedEmoji(data.native);
     form.setFieldValue("emoji", data.native); // Update form value
     setEmojiPickerVisible(false); // Hide picker
   };

@@ -18,6 +18,7 @@ export default function TeamSelect({ changeTeam }: { changeTeam: Function }) {
   } = useApplicationContext();
 
   const onChangeSelect: SelectProps["onChange"] = async (value) => {
+    console.log("vlaue", value);
     try {
       changeTeam(value === "all" ? undefined : value);
     } catch (error) {
