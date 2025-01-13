@@ -23,14 +23,16 @@ export default function Page() {
   const [users, setUsers] = useState<any>([]);
 
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       const leaveTypes = await fetchLeaveTypes(orgId);
       if (leaveTypes) {
         setLeaveTypes(leaveTypes);
       }
-    })();
-  }, [orgId]);
-  console.log("users.", users);
+    };
+    fetchData();
+  }, [orgId]); // Make sure orgId is stable
+  
+
   return (
     <Row style={{ padding: "25px" }}>
       <Col span={24}>

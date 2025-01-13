@@ -321,7 +321,6 @@ export const formatLeavesData = (rawData: any[]) => {
 
 export const getLeaves = async (userId: string) => {
   const supabase = createClient();
-  console.log(userId);
   const { data, error } = await supabase
     .from("Leave") // Selecting from the 'Leave' table
     .select(
