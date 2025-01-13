@@ -3,7 +3,6 @@
 import { Col, Flex, Radio, Row, Space } from "antd";
 
 import TeamSelect from "./_components/team-select";
-import Teams from "./_components/teams";
 import LeavePreview from "./_components/leave-preview";
 import LeaveCalendar from "./_components/leave-calendar";
 import { useState } from "react";
@@ -16,20 +15,19 @@ export default function Page() {
   const {
     state: { orgId, userId, teamId },
   } = useApplicationContext();
-  const [changeView, setChangeView] = useState<0 | 1 | 2>(0);
+  const [changeView, setChangeView] = useState<0 | 1 | 2>(1);
   return (
     <Row style={{ padding: "25px" }}>
       <Col span={24}>
         <Flex justify="space-between">
           <AddLeave team={team} />
-
           <TeamSelect changeTeam={(team: string) => setTeam(team)} />
           <Space>
             <Radio.Group defaultValue={changeView}>
-              <Radio.Button value={0} onChange={() => setChangeView(0)}>
+              <Radio.Button value={1} onChange={() => setChangeView(1)}>
                 Week
               </Radio.Button>
-              <Radio.Button value={1} onChange={() => setChangeView(1)}>
+              <Radio.Button value={0} onChange={() => setChangeView(0)}>
                 Month
               </Radio.Button>
             </Radio.Group>
