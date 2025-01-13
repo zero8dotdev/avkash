@@ -1,35 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  DatePicker,
-  Flex,
-  Form,
-  Input,
-  Modal,
-  Radio,
-  Select,
-  Space,
-  Switch,
-  Typography,
-  Calendar,
-  Card,
-} from "antd";
+import { Button, Flex, Modal, Select, Typography, Card } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
-import {
-  fetchAllOrgUsers,
-  fetchLeaveTypes,
-  fetchTeamId,
-  fetchTeamMembers,
-  insertLeaves,
-} from "@/app/_actions";
-import { on } from "events";
+import { fetchAllOrgUsers, fetchTeamMembers } from "@/app/_actions";
+import { getUsersListWithTeam } from "@/app/_components/header/_components/actions";
 interface Props {
-  team: string | undefined;
+  users: any[];
   onSelectedUser: Function;
 }
 
-const AddLeave: React.FC<Props> = ({ team, onSelectedUser }) => {
+const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
@@ -37,42 +17,11 @@ const AddLeave: React.FC<Props> = ({ team, onSelectedUser }) => {
   const {
     state: { orgId, user },
   } = useApplicationContext();
-  // const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>();
-  useEffect(() => {
-    if (!user?.role) return;
-
-    (async () => {
-      try {
-        // const leaveTypes = await fetchLeaveTypes(orgId);
-        // if (leaveTypes) {
-        //   setLeaveTypes(leaveTypes);
-        // }
-        if (team) {
-          const user = await fetchTeamMembers(team);
-          setUsers(user);
-        } else {
-          const users = await fetchAllOrgUsers(orgId, true);
-          setUsers(users);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-      if (user?.role === "OWNER" || user?.role === "MANAGER") {
-        setLoginUser(user.role);
-      }
-    })();
-  }, [orgId, team, user]);
-
   const onCancel = () => {
     setModalVisible(false);
     setUserId(undefined);
     onSelectedUser(null);
   };
-  // const submitForm = () => {
-  //   form.submit();
-  //   setloader(true);
-  // };
   const getuserDetails = (userId: any, type: string) => {
     const user = users?.find((each) => each.userId === userId);
     if (type === "user") {
@@ -95,7 +44,11 @@ const AddLeave: React.FC<Props> = ({ team, onSelectedUser }) => {
       >
         <Flex vertical>
           <Typography.Text>Select user</Typography.Text>
-          <Select style={{ width: "100%" }} onSelect={(v) => setUserId(v)}>
+          <Select
+            style={{ width: "100%" }}
+            value={userId}
+            onSelect={(v) => setUserId(v)}
+          >
             {users?.map((each, index) => (
               <Select.Option key={index} value={each.userId}>
                 {each.name}
