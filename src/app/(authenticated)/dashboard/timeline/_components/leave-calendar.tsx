@@ -11,11 +11,11 @@ import { useApplicationContext } from "@/app/_context/appContext";
 import { fetchAllOrgUsers } from "@/app/_actions";
 
 export default function LeaveCalendar({
-  team,
+  users,
   changeView,
   onChangeUser,
 }: {
-  team: string | undefined;
+  users: any[];
   changeView: 0 | 1 | 2;
   onChangeUser: Function;
 }) {
@@ -24,7 +24,7 @@ export default function LeaveCalendar({
     startDate: new Date(),
     endDate: new Date(),
   });
-  const [usersList, setUsersList] = useState<any>([]);
+
   const values = {
     peopleCount: 15,
     projectsPerYear: 5,
@@ -41,20 +41,8 @@ export default function LeaveCalendar({
   const handleRangeChange = useCallback((range: any) => {
     setRange(range);
   }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      if (team) {
-        const res = await getUsersListWithTeam(team);
-        setUsersList(res);
-      } else {
-        const res = await fetchAllOrgUsers(orgId, true);
-        setUsersList(res);
-      }
-    };
-    fetchData();
-  }, [team, orgId]);
 
-  const Data = usersList.map((e: any) => {
+  const Data = users.map((e: any) => {
     return {
       id: e.userId,
       label: {
@@ -65,10 +53,11 @@ export default function LeaveCalendar({
       data: [
         {
           id: e.userId,
-          startDate: "2024-12-19",
-          endDate: "2024-12-30",
+          startDate: new Date("2024-12-19"),
+          endDate: new Date("2024-12-30"),
           occupancy: 20535,
           bgColor: "rgb(249, 169, 115)",
+          title: "Leave",
         },
       ],
     };
@@ -85,7 +74,7 @@ export default function LeaveCalendar({
     >
       <Scheduler
         onItemClick={(data: any) =>
-          onChangeUser(usersList.find((e: any) => e.userId === data.id))
+          onChangeUser(users.find((e: any) => e.userId === data.id))
         }
         key={changeView}
         startDate={

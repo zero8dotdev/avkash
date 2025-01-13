@@ -1,20 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Drawer,
-  Flex,
-  Form,
-  List,
-  Radio,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Col, Flex, Radio, Row, Space } from "antd";
 
 import TeamSelect from "./_components/team-select";
 import LeavePreview from "./_components/leave-preview";
@@ -23,8 +9,6 @@ import { useEffect, useState } from "react";
 import AddLeave from "./_components/add-leave";
 import ShowCalendarURL from "./_components/calenderfeed";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { CalendarOutlined, CloseOutlined } from "@ant-design/icons";
-import TextArea from "antd/es/input/TextArea";
 import { fetchLeaveTypes } from "@/app/_actions";
 import UserDrawer from "./_components/user-drawer";
 
@@ -36,6 +20,7 @@ export default function Page() {
   const [changeView, setChangeView] = useState<0 | 1 | 2>(0);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [leaveTypes, setLeaveTypes] = useState<any>([]);
+  const [users, setUsers] = useState<any>([]);
 
   useEffect(() => {
     (async () => {
@@ -45,16 +30,17 @@ export default function Page() {
       }
     })();
   }, [orgId]);
+  console.log("users.", users);
   return (
     <Row style={{ padding: "25px" }}>
       <Col span={24}>
         <Flex justify="space-between">
           <AddLeave
-            team={team}
+            users={users}
             onSelectedUser={(v: any) => setSelectedUser(v)}
           />
 
-          <TeamSelect changeTeam={(team: string) => setTeam(team)} />
+          <TeamSelect onChangeTeamUsers={(users: any) => setUsers(users)} />
           <Space>
             <Radio.Group defaultValue={changeView}>
               <Radio.Button value={0} onChange={() => setChangeView(0)}>
@@ -67,7 +53,7 @@ export default function Page() {
           </Space>
         </Flex>
         <LeaveCalendar
-          team={team}
+          users={users}
           changeView={changeView}
           onChangeUser={(v: any) => setSelectedUser(v)}
         />

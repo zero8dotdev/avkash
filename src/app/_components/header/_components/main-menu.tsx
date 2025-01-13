@@ -19,7 +19,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "Settings",
-    key: "settings",
+    key: "orgsettings/general",
     icon: <SettingOutlined />,
   },
   {
