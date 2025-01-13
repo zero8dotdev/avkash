@@ -2,7 +2,6 @@
 
 // import { Scheduler } from "@aldabil/react-scheduler";
 import { useCallback, useEffect, useState } from "react";
-import { Scheduler } from "@bitnoi.se/react-scheduler";
 import { getUsersList } from "@/app/_components/header/_components/actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import {
@@ -21,7 +20,7 @@ import {
 import { CalendarOutlined, CloseOutlined } from "@ant-design/icons";
 import { fetchLeaveTypes } from "@/app/_actions";
 import TextArea from "antd/es/input/TextArea";
-
+import { Scheduler } from "@elonsteve/calendar";
 export default function LeaveCalendar({
   team,
   changeView,
@@ -120,6 +119,7 @@ export default function LeaveCalendar({
           maxRecordsPerPage: 10,
           showThemeToggle: false,
           defaultTheme: "light",
+          showTooltip: false,
         }}
       />
       <Drawer
