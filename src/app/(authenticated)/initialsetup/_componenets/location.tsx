@@ -212,7 +212,6 @@ const Location = () => {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-
   const columns = [
     {
       title: "Name",
