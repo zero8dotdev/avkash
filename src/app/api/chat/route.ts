@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       throw new Error('Unsupported content type');
     }
     const userName = body.user.displayName
-    
+
     let responseCard;
 
     if (body.type === "MESSAGE") {
