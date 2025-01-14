@@ -17,7 +17,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         },
       }}
     >
-      <Row>
+      <Row style={{ paddingLeft:"100px" }}>
         <Col span={24} style={{ justifyContent: "center", padding: "80px"}}>
           {children}
         </Col>

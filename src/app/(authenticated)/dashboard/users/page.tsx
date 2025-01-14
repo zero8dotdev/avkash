@@ -28,6 +28,7 @@ interface User {
   name: string;
   role: string;
   teamName: string;
+  picture?: string; // Add the picture property
 }
 
 const Page = () => {
@@ -137,7 +138,7 @@ const Page = () => {
                     <List.Item.Meta
                       avatar={
                         <Avatar
-                          src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
+                          src={`${user?.picture}`}
                         />
                       }
                       title={

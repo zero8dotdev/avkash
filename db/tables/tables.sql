@@ -346,3 +346,17 @@ CREATE INDEX idx_holiday_recurring ON "Holiday" ("isRecurring");
 
 -- OrgAccessData Table
 CREATE INDEX idx_orgaccessdata_org_id ON "OrgAccessData" ("orgId");
+
+
+DROP VIEW IF EXISTS public.leave_summary;
+
+CREATE OR REPLACE VIEW leave_summary AS
+SELECT
+  "userId",
+  "leaveTypeId",
+  "isApproved",
+  COUNT(*) AS count
+FROM
+  "Leave"
+GROUP BY
+  "userId", "leaveTypeId", "isApproved";
