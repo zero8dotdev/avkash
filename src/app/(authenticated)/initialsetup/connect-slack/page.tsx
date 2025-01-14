@@ -58,7 +58,7 @@ export default function AddToSlack() {
           {/* <Button danger icon={<LeftOutlined />}>
             Previous
           </Button> */}
-          <Button type="primary" onClick={handlenext}>
+          <Button disabled type="primary" onClick={handlenext}>
             Next
           </Button>
           {/* <Button type="primary">Done</Button> */}

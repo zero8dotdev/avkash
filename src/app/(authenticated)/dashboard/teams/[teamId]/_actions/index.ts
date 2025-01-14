@@ -20,7 +20,6 @@ export const fetchTeamGeneralData = async (teamId: string) => {
 
 export const updateTeamGeneralData = async (teamId: string, values: any) => {
   const supabase = createClient();
-  console.log("update-values", teamId, values);
   const { data, error } = await supabase
     .from("Team")
     .update({name: values.teamName, startOfWorkWeek: values.startOfWorkWeek, workweek: values.workweek, location: values.location, timeZone: values.timeZone})

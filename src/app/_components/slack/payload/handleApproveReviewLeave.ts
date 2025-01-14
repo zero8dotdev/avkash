@@ -4,12 +4,10 @@ import { getLeaveDetails, updateLeaveStatus } from "../../header/_components/act
 import { sendPostMessages } from "../sendMessages";
 
 export async function handleApproveReviewLeave(avkashUserInfo:avkashUserInfoProps,action_id: any, view: any) {
-  console.log("hi");
-  console.log('approve',action_id);
     const leaveId = action_id.split('approve_leave_')[1];
     const startDate = view?.state?.values?.start_date_block?.start_date?.selected_date;
     const endDate = view?.state?.values?.end_date_block?.end_date?.selected_date;
-    const duration_temp = view?.state?.values?.day_type_block?.day_type?.selected_option?.value;  
+    const duration_temp = view?.state?.values?.day_type_block?.day_type?.selected_option?.value;
   
     let duration = '';
     if (duration_temp == 'full_day') {
