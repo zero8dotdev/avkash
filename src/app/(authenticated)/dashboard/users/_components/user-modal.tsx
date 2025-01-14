@@ -17,6 +17,8 @@ const UserModal = ({
   selectedUser: any;
   update: Function;
 }) => {
+
+  console.log("user",selectedUser)
   const [activeTab, setActiveTab] = useState("leave-report");
 
   // SWR hooks for data fetching
@@ -27,7 +29,7 @@ const UserModal = ({
       : null,
     ([_, userId]) => leaveSummaryFetcher(userId)
   );
-
+console.log("leaveReportData",leaveReportData)
   const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
     activeTab === "leave-requests" && selectedUser?.userId
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]

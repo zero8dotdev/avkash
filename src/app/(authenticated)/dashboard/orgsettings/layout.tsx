@@ -16,7 +16,7 @@ export default async function SettingsLayout({
         },
       }}
     >
-      <Row>
+      <Row style={{ paddingLeft:"100px" }}>
         <Col span={24} style={{ justifyContent: "center" }}>
           {children}
         </Col>
