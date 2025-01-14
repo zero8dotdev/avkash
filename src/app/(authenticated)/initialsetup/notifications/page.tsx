@@ -7,6 +7,9 @@ const NotificationsPage = async () => {
   const headersList = await headers();
   const referer = headersList.get("referer");
   // If there is a referer, it means the user was redirected
+
+
+
   if (!referer) {
     redirect("/initialsetup/settings");
   }

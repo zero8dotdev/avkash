@@ -27,11 +27,14 @@ import { Card } from "antd";
 import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
 import {
+  fetchHolidaysData,
+  fetchTeamGeneralData,
   insertHolidays,
   updateInitialsetupState,
   updateLocation,
 } from "../_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
+import useSWR from "swr";
 
 export interface holidaysList {
   key: string;
@@ -51,7 +54,7 @@ interface props {
 
 const Location = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [countryCode, setCountryCode] = useState<string>("IN");
+  const [countryCode, setCountryCode] = useState<string>();
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const moment = require("moment");
@@ -59,6 +62,59 @@ const Location = () => {
   const {
     state: { orgId, userId, teamId },
   } = useApplicationContext();
+
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      try {
+        const holidays = await fetchPublicHolidays(countryCode);
+        const holidayData = holidays.map((each: any) => ({
+          key: each.id,
+          name: each.name,
+          date: moment(each.date).format("DD MMM YYYY"),
+          isRecurring: true,
+          isCustom: false,
+        }));
+        setHolidaysList(holidayData);
+      } catch (error) {
+        console.error("Failed to fetch holidays", error);
+      }
+    };
+
+    fetchHolidays();
+  }, [countryCode, moment]);
+
+    const fetcherTeam = async (teamId: string) => {
+      const team = teamId.split("*")[1];
+      const data = await fetchTeamGeneralData(team);
+      return data;
+    };
+
+    const { data: teamData, error: teamError, mutate: teamMutate } = useSWR(
+      `teamGeneral*${teamId}`,
+      fetcherTeam,{onSuccess:()=>{
+        setCountryCode(teamData.location)
+      }}
+    );
+
+    // Fetch holidays data based on country code from team data
+    const fetcherHolidays = async (teamId: string) => {
+      const countryCode = teamId.split("*")[1];
+      const org = teamId.split("*")[2];
+      const data = await fetchHolidaysData(org,countryCode);
+      return data;
+    };
+
+    const {
+      data: holidaysData,
+      error: holidaysError,
+      mutate: holidaysMutate,
+    } = useSWR(
+      teamData ? `holidays*${teamData.location}*${orgId}` : null,
+      fetcherHolidays, {onSuccess: (data)=>{
+        setHolidaysList(data);
+      }}
+    );
+
 
   const handleDelete = (key: string) => {
     const updatedHolidays = holidaysList.filter(
@@ -114,16 +170,12 @@ const Location = () => {
     );
   };
   const handleIsRecurringChange = (isChecked: boolean, rowData: any) => {
-    const updatedHolidays: holidaysList[] = [];
-    for (const holiday of holidaysList) {
-      if (holiday.key === rowData.key) {
-        updatedHolidays.push({ ...holiday, isRecurring: isChecked });
-      } else {
-        updatedHolidays.push(holiday);
-      }
-    }
+    const updatedHolidays = holidaysList.map((holiday) =>
+      holiday.key === rowData.key ? { ...holiday, isRecurring: isChecked } : holiday
+    );
     setHolidaysList(updatedHolidays);
   };
+  
 
   const [form] = Form.useForm();
 
@@ -160,25 +212,6 @@ const Location = () => {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  useEffect(() => {
-    const fetchHolidays = async () => {
-      try {
-        const holidays = await fetchPublicHolidays(countryCode);
-        const holidayData = holidays.map((each: any) => ({
-          key: each.id,
-          name: each.name,
-          date: moment(each.date).format("DD MMM YYYY"),
-          isRecurring: true,
-          isCustom: false,
-        }));
-        setHolidaysList(holidayData);
-      } catch (error) {
-        console.error("Failed to fetch holidays", error);
-      }
-    };
-
-    fetchHolidays();
-  }, [countryCode, moment]);
 
   const columns = [
     {
@@ -239,8 +272,7 @@ const Location = () => {
                   showSearch
                   style={{ width: "300px" }}
                   onChange={(code) => setCountryCode(code)}
-                  defaultValue={countryCode}
-                  // defaultValue={countryCode}
+                  value={countryCode || ""} // Default to "IN" if countryCode is undefined
                   options={locations.map((each: any) => ({
                     label: each.countryName,
                     value: each.countryCode,

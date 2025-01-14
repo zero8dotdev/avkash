@@ -44,71 +44,96 @@ export const insertLeavePolicies = async (
 ) => {
   const supabaseAdminClient = createAdminClient();
 
-  // Fetch leave types for the given orgId
-  const { data: leaveTypesData, error: leaveTypeError } =
-    await supabaseAdminClient.from("LeaveType").select("*").eq("orgId", orgId);
+  // Delete all existing leave types and leave policies for the given orgId
+  const deleteLeaveTypes = await supabaseAdminClient
+    .from("LeaveType")
+    .delete()
+    .eq("orgId", orgId);
 
-  if (leaveTypeError) throw leaveTypeError;
+  if (deleteLeaveTypes.error) {
+    throw new Error(`Error deleting leave types: ${deleteLeaveTypes.error.message}`);
+  }
 
-  // Map leavePolicies with corresponding leaveTypeId
+  const deleteLeavePolicies = await supabaseAdminClient
+    .from("LeavePolicy")
+    .delete()
+    .eq("teamId", teamId);
+
+  if (deleteLeavePolicies.error) {
+    throw new Error(`Error deleting leave policies: ${deleteLeavePolicies.error.message}`);
+  }
+
+  // Default leave types
+  const defaultLeaveTypes = [
+    { name: "Paid Time Off", isActive: true, color: "85a7de" },
+    { name: "Sick", isActive: true, color: "d7a4ed" },
+    { name: "Unpaid", isActive: false, color: "dbd1ce" },
+  ];
+
+  // Create default leave types
+  const transformedLeaveTypes = defaultLeaveTypes.map((leaveType) => ({
+    ...leaveType,
+    orgId,
+    createdBy: userId,
+  }));
+
+  const { data: leaveTypes, error: leaveTypesError } = await supabaseAdminClient
+    .from("LeaveType")
+    .insert(transformedLeaveTypes)
+    .select("*");
+
+  if (leaveTypesError) throw new Error(`Error inserting leave types: ${leaveTypesError.message}`);
+
+  // Fetch newly created leave types for the given orgId
+  const { data: leaveTypesData, error: leaveTypeError } = await supabaseAdminClient
+    .from("LeaveType")
+    .select("*")
+    .eq("orgId", orgId);
+
+  if (leaveTypeError) throw new Error(`Error fetching leave types: ${leaveTypeError.message}`);
+
+  // Enrich leave policies with leaveTypeId
   const enrichedLeavePolicies = Object.entries(leavePolicies)
     .map(([leaveName, policy]) => {
-      // Ensure policy is an object before spreading
-      if (typeof policy !== "object" || policy === null) {
-        console.warn(`Skipping invalid policy for leave name: ${leaveName}`);
-        return null; // Skip this policy
-      }
+      if (typeof policy !== "object" || policy === null) return null;
 
-      // Find the leaveType by matching the name
-      const matchedLeaveType = leaveTypesData.find(
-        (leaveType: any) => leaveType.name === leaveName
-      );
+      const matchedLeaveType = leaveTypesData.find((lt: any) => lt.name === leaveName);
+      if (!matchedLeaveType) return null;
 
-      if (!matchedLeaveType) {
-        console.warn(`No leave type found for leave name: ${leaveName}`);
-        return null; // Skip this policy as leave type is missing
-      }
+      const rollOverExpiry = policy.rollOverExpiry
+        ? new Date(policy.rollOverExpiry).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
+        : undefined;
 
-      let rollOverExpiry = policy.rollOverExpiry;
-      if (rollOverExpiry) {
-        const date = new Date(rollOverExpiry); // Convert to Date object
-        rollOverExpiry = `${date.getMonth() + 1}/${date.getDate()}`; // Format as MM/DD
-      }
-
-      // Ensure maxLeaves is a number
       const maxLeaves = Number(policy.maxLeaves);
-      if (isNaN(maxLeaves)) {
-        console.warn(`Invalid maxLeaves value for ${leaveName}`);
-        return null; // Skip this policy if maxLeaves is invalid
-      }
+      if (isNaN(maxLeaves)) return null;
 
-      // Return the policy with added leaveTypeId
       return {
         ...policy,
         teamId,
         leaveTypeId: matchedLeaveType.leaveTypeId,
         createdBy: userId,
         createdOn: new Date().toISOString(),
-        rollOverExpiry, // Use the formatted rollOverExpiry
+        rollOverExpiry,
       };
     })
-    .filter((policy) => policy !== null);
+    .filter(Boolean);
 
   if (enrichedLeavePolicies.length === 0) {
     console.log("No valid leave policies to insert");
-    return []; // Return empty if no valid policies
+    return [];
   }
 
-  // Insert into LeavePolicy table
-  const { data: leavePoliciesData, error: leavePoliciesError } =
-    await supabaseAdminClient
-      .from("LeavePolicy")
-      .insert(enrichedLeavePolicies)
-      .select("*");
+  // Insert enriched leave policies
+  const { data: leavePoliciesData, error: leavePoliciesError } = await supabaseAdminClient
+    .from("LeavePolicy")
+    .insert(enrichedLeavePolicies)
+    .select("*");
 
-  if (leavePoliciesError) throw leavePoliciesError;
+  if (leavePoliciesError) throw new Error(`Error inserting leave policies: ${leavePoliciesError.message}`);
+
   return leavePoliciesData;
 };
+
 
 export const updateLocation = async (
   id: any,
@@ -129,7 +154,6 @@ export const updateLocation = async (
   return data;
 };
 
-// Insert Holidays
 export const insertHolidays = async (
   orgId: any,
   holidaysList: any,
@@ -138,6 +162,18 @@ export const insertHolidays = async (
 ) => {
   const supabaseAdminClient = createAdminClient();
 
+  // Delete all existing holidays for the given orgId and countryCode (location)
+  const { error: deleteError } = await supabaseAdminClient
+    .from("Holiday")
+    .delete()
+    .eq("orgId", orgId)
+    .eq("location", countryCode);
+
+  if (deleteError) {
+    throw new Error(`Failed to delete existing holidays: ${deleteError.message}`);
+  }
+
+  // Insert new holidays
   const { data, error } = await supabaseAdminClient
     .from("Holiday")
     .insert(
@@ -156,6 +192,7 @@ export const insertHolidays = async (
   if (error) throw error;
   return data;
 };
+
 
 export const updateTeamNotificationsSettings = async (
   teamId: any,
@@ -273,11 +310,10 @@ export const updateUser = async (
 
 export const fetchTeamGeneralData = async (teamId: any) => {
   const supabaseClient = createClient();
-
   const { data, error } = await supabaseClient
     .from("Team")
     .select('*')
-    .eq("teamId", teamId);
+    .eq("teamId", teamId).single();
 
   if (error) throw error;
   return data;
@@ -292,6 +328,18 @@ export const fetchOrgLeavePolicyData = async (orgId: any) => {
     .eq("orgId", orgId);
 
   if (error) throw error;
-  console.log("data", data)
+  return data;
+};
+
+
+export const fetchHolidaysData = async (orgId: any, countryCode: any) => {
+  const supabaseClient = createClient();
+
+  const { data, error } = await supabaseClient
+    .from("Holiday")
+    .select()
+    .eq("orgId", orgId)
+    .eq('location', countryCode);
+  if (error) throw error;
   return data;
 };
