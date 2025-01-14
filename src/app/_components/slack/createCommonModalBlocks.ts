@@ -194,7 +194,6 @@ export async function createCommonModalBlocks({ avkashUserInfo, checkLeaveType, 
     leaveType = values.type_block.leave_type.selected_option.value;
     userDetails = await getUserDataBasedOnUUID(selectedUserId);
     const [res,count,isLeaveInAccured]:[string,number,boolean] = await calculateWorkingDays(avkashUserInfo.orgId, startDate, endDate, leaveType, workWeekData, userDetails.accruedLeave, userDetails.usedLeave);
-    console.log(count);
     blocks.splice(4, 0, {
       "type": "context",
       "elements": [

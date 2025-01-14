@@ -1,104 +1,6 @@
-// "use client";
-
-// // import { Scheduler } from "@aldabil/react-scheduler";
-// import { useCallback, useEffect, useState } from "react";
-// import { Scheduler } from "@elonsteve/calendar";
-// import { useApplicationContext } from "@/app/_context/appContext";
-
-// export default function LeaveCalendar({
-//   users,
-//   changeView,
-//   onChangeUser,
-// }: {
-//   users: any[];
-//   changeView: 0 | 1 | 2;
-//   onChangeUser: Function;
-// }) {
-//   ``;
-//   const [range, setRange] = useState({
-//     startDate: new Date(),
-//     endDate: new Date(),
-//   });
-
-//   const values = {
-//     peopleCount: 15,
-//     projectsPerYear: 5,
-//     yearsCovered: 0,
-//     startDate: undefined,
-//     maxRecordsPerPage: 50,
-//     isFullscreen: true,
-//   };
-
-//   const {
-//     state: { orgId, userId, teamId },
-//   } = useApplicationContext();
-
-//   const handleRangeChange = useCallback((range: any) => {
-//     setRange(range);
-//   }, []);
-
-//   useEffect(() => {
-//     if (users.length === 0) return;
-//     const Data = users.map((e: any) => {
-//       return {
-//         id: e.userId,
-//         label: {
-//           icon: "https://picsum.photos/24",
-//           title: e.name,
-//           subtitle: e.Team.name,
-//         },
-//         data: [
-//           {
-//             id: e.userId,
-//             startDate: new Date("2024-12-19"),
-//             endDate: new Date("2024-12-30"),
-//             occupancy: 20535,
-//             bgColor: "rgb(249, 169, 115)",
-//             title: "Leave",
-//           },
-//         ],
-//       };
-//     });
-//   }, [users]); // Only rerun if users change
-
-//   return (
-//     <div
-//       style={{
-//         margin: "20px 0px 20px 0px",
-//         position: "relative",
-//         width: "100%",
-//         height: "500px",
-//       }}
-//     >
-//       <Scheduler
-//         onItemClick={(data: any) =>
-//           onChangeUser(users.find((e: any) => e.userId === data.id))
-//         }
-//         key={changeView}
-//         startDate={
-//           values.startDate
-//             ? new Date(values.startDate).toISOString()
-//             : undefined
-//         }
-//         onRangeChange={handleRangeChange}
-//         data={Data}
-//         isLoading={false}
-//         config={{
-//           zoom: changeView,
-//           filterButtonState: -1,
-//           maxRecordsPerPage: 10,
-//           showThemeToggle: false,
-//           defaultTheme: "light",
-//           showTooltip: false,
-//         }}
-//       />
-//     </div>
-//   );
-// }
-
-
 "use client";
 
+// import { Scheduler } from "@aldabil/react-scheduler";
 import { useCallback, useEffect, useState } from "react";
 import { Scheduler } from "@elonsteve/calendar";
 import { useApplicationContext } from "@/app/_context/appContext";
@@ -117,8 +19,6 @@ export default function LeaveCalendar({
     endDate: new Date(),
   });
 
-  const [data, setData] = useState<any[]>([]); // Store the Data in state
-
   const values = {
     peopleCount: 15,
     projectsPerYear: 5,
@@ -135,31 +35,22 @@ export default function LeaveCalendar({
   const handleRangeChange = useCallback((range: any) => {
     setRange(range);
   }, []);
-
-  useEffect(() => {
-    if (users.length === 0) return;
-    
-    const newData = users.map((e: any) => ({
+  const Data = users.map((e: any) => {
+    return {
       id: e.userId,
       label: {
-        icon: "https://picsum.photos/24",
+        icon: e.picture || `https://avatar.iran.liara.run/username?username=${e.name.split(" ").join("+")}` ,
         title: e.name,
         subtitle: e.Team.name,
       },
-      data: [
-        {
-          id: e.userId,
-          startDate: new Date("2024-12-19"),
-          endDate: new Date("2024-12-30"),
-          occupancy: 20535,
-          bgColor: "rgb(249, 169, 115)",
-          title: "Leave",
-        },
-      ],
-    }));
-
-    setData(newData); // Update state with the new data
-  }, [users]); // Only rerun if users change
+      data: e.Leave.map((leave: any) => ({
+        id: leave.leaveId,
+        startDate: new Date(leave.startDate),
+        endDate: new Date(leave.endDate),
+        bgColor: `#${leave.LeaveType.color}`, // Apply the color from the LeaveType
+      })),
+    };
+  });
 
   return (
     <div
@@ -174,9 +65,14 @@ export default function LeaveCalendar({
         onItemClick={(data: any) =>
           onChangeUser(users.find((e: any) => e.userId === data.id))
         }
-        startDate={values.startDate ? new Date(values.startDate).toISOString() : undefined}
+        key={changeView}
+        startDate={
+          values.startDate
+            ? new Date(values.startDate).toISOString()
+            : undefined
+        }
         onRangeChange={handleRangeChange}
-        data={data} // Use the state data here
+        data={Data}
         isLoading={false}
         config={{
           zoom: changeView,

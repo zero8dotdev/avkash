@@ -23,7 +23,6 @@ const Page = () => {
     isValidating: managersLoading,
   } = useSWR(`teamUsers*${teamId}`, fetcher);
 
-  console.log(users);
 
   return (
     <Row>

@@ -187,7 +187,7 @@ export const fetchTeamsData = async (orgId: string) => {
     const status = team.isActive;
     const users = team.User.length;
     const manager =
-      team.User.find((user: any) => user.role === "MANAGER")?.name ||
+      team.User.find((user: any) => user?.role === "MANAGER")?.name ||
       "No manager assigned";
 
     return {
@@ -386,8 +386,8 @@ export const signUpAction = async (values: any) => {
         userId: authUser.id,
         name: name,
         email: email,
+        picture: authUser?.user_metadata.picture,
         teamId: team.teamId,
-        role: "OWNER",
         slackId: slackUserId,
         accruedLeave: {},
         usedLeave: {},
@@ -452,24 +452,7 @@ export const getLeaves = async (idColumn: any, id: any) => {
   return leaves;
 };
 
-export const getUserRole = async (userId: any) => {
-  const supabase = createAdminClient();
 
-  try {
-    const { data: role, error: roleError } = await supabase
-      .from("User")
-      .select("role")
-      .eq("userId", userId)
-      .single();
-
-    if (roleError) {
-      throw roleError;
-    }
-    return role.role;
-  } catch (error) {
-    throw error;
-  }
-};
 
 export const getUserVisibility = async (orgId: any) => {
   const supabase = createAdminClient();

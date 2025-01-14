@@ -91,7 +91,6 @@ export default function Page() {
         createdBy: userId,
       };
 
-      console.log(newValues);
       const data = await insertNewLeaveType(newValues);
       if (data) {
         form.resetFields();
