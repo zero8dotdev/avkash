@@ -50,7 +50,6 @@ const Leavepolicy = () => {
   const fetcher = async (orgId: string) => {
     const org = orgId.split("*")[1];
     const data = await fetchOrgLeavePolicyData(org);
-  console.log(data)
     // if (error) {
     //   throw new Error("Failed to fetch organization data");
     // }
@@ -62,8 +61,7 @@ const Leavepolicy = () => {
       error,
       mutate,
     } = useSWR(`OrgLeavetypes*${orgId}`, fetcher, {onSuccess: (data)=>{
-      console.log(data)
-      form.setFieldsValue(data)
+      // form.setFieldsValue(data)
     }});
 
 

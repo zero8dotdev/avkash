@@ -42,7 +42,6 @@ const Inviteusers = () => {
       const updatedUsers = await Promise.all(users.map(async (user) => {
         const prorateFactor = user.isProrate;
         const today = new Date();
-        // console.log(today)
 
         const janFirstThisYear = new Date(today.getFullYear(), 0, 1);
         const orgCreatedOn = org?.createdOn

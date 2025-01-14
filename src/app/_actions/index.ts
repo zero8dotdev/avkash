@@ -401,35 +401,6 @@ export const signUpAction = async (values: any) => {
       throw userError;
     }
 
-    // create a leaveType for ORG
-    const defaultLeaveTypes = [
-      { name: "Paid Time Off", isActive: true, color: "85a7de" },
-      { name: "Sick", isActive: true, color: "d7a4ed" },
-      { name: "Unpaid", isActive: false, color: "dbd1ce" },
-    ];
-
-    defaultLeaveTypes.map((leaveType: any) => ({
-      ...leaveType,
-      orgId: org.orgId,
-      createdBy: authUser.id,
-    }));
-
-    const { data: leaveTypes, error: leaveTypesError } =
-      await supabaseAdminClient
-        .from("LeaveType")
-        .insert(
-          defaultLeaveTypes.map((leaveType: any) => ({
-            ...leaveType,
-            orgId: org.orgId,
-            createdBy: authUser.id,
-          }))
-        )
-        .select("*");
-
-    if (leaveTypesError) {
-      throw leaveTypesError;
-    }
-
     return {
       org,
       team,

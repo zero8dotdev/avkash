@@ -239,7 +239,6 @@ export const deleteOrgLocations = async (
     .eq("orgId", orgId)
     .eq("location", selectedCountryCode);
 
-  console.log("response", response);
 
   return orgLocations;
 };

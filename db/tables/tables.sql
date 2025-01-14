@@ -158,7 +158,7 @@ CREATE TABLE
     CONSTRAINT "fk_leave_user" FOREIGN KEY ("userId") REFERENCES "User" ("userId"),
     CONSTRAINT "fk_leave_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId"),
     CONSTRAINT "fk_leave_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId"),
-    CONSTRAINT "fk_leave_leavetype" FOREIGN KEY ("leaveTypeId") REFERENCES "LeaveType" ("leaveTypeId")
+    CONSTRAINT "fk_leave_leavetype" FOREIGN KEY ("leaveTypeId") REFERENCES "LeaveType" ("leaveTypeId") on delete cascade
   );
 
 

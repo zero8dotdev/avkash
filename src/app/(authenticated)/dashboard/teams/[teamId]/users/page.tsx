@@ -6,7 +6,6 @@ import TeamSettingsTabs from "../_components/team-settings-tabs";
 import { useParams } from "next/navigation";
 import { fetchTeamUsersData } from "../_actions";
 import useSWR from "swr";
-import { clear } from "console";
 
 const Page = () => {
   const { teamId } = useParams() as { teamId: string };
