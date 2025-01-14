@@ -8,10 +8,10 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await fetchUser();
-  const org = await fetchOrg(user.orgId);
-  const team = await fetchTeam(user.teamId);
+  const org = await fetchOrg(user?.orgId);
+  const team = await fetchTeam(user?.teamId);
   // TODO: find better way to make orgId, teamId of current logged in user
-  const teams = (await fetchAllTeams(user.orgId)) as Array<object>;
+  const teams = (await fetchAllTeams(user?.orgId)) as Array<object>;
 
   return (
     <>

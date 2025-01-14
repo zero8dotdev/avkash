@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
     if (userError) {
       throw userError;
     }
-
     if (user.length === 0) {
       redirectPath = "/signup";
       return;

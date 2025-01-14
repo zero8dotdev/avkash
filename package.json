@@ -18,11 +18,9 @@
     "setup": "npm run tables; npm run seeds; npm run functions;npm run triggers; npm run policies;"
   },
   "dependencies": {
-    "@aldabil/react-scheduler": "^2.9.3",
     "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/icons": "^5.3.6",
     "@ant-design/nextjs-registry": "^1.0.0",
-    "@bitnoi.se/react-scheduler": "^0.3.0",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@faker-js/faker": "^7.6.0",

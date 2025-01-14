@@ -9,7 +9,7 @@ BEGIN
     IF TG_OP = 'INSERT' THEN
         -- Log all new columns and their values as changed columns
         changedColumns := jsonb_build_object(
-            'leaveType', jsonb_build_object('new', NEW."leaveType"),
+            'leaveTypeId', jsonb_build_object('new', NEW."leaveTypeId"),
             'startDate', jsonb_build_object('new', NEW."startDate"),
             'endDate', jsonb_build_object('new', NEW."endDate"),
             'duration', jsonb_build_object('new', NEW."duration"),
