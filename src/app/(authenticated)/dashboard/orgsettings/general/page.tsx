@@ -50,7 +50,7 @@ const fetcher = async (orgId: string) => {
   };
 
   return (
-    <Row style={{ padding: "80px" }}>
+    <Row  style={{ padding: "80px" }}>
       <Col span={3}>
         <SideMenu position="general" />
       </Col>

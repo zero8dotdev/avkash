@@ -37,14 +37,7 @@ const Page = () => {
               <List.Item style={{ cursor: "pointer" }}>
                 <List.Item.Meta
                   avatar={
-                    <Avatar style={{ backgroundColor: "#227b83" }}>
-                      {" "}
-                      {item.name
-                        .split(" ")
-                        .map((word: any) => word[0])
-                        .join("")
-                        .toUpperCase()}{" "}
-                    </Avatar>
+                    <Avatar src={item?.picture}/>
                   }
                   title={item?.name}
                   description={item?.email}
