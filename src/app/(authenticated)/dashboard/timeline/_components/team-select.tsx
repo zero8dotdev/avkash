@@ -22,6 +22,7 @@ export default function TeamSelect({
       userId
     },
   } = useApplicationContext();
+
   const onChangeSelect: SelectProps["onChange"] = async (value) => {
     try {
       const fetchedUsers = await getUsersListWithTeam(value);
@@ -47,6 +48,7 @@ export default function TeamSelect({
       }
     })();
   }, [teamId, role, userId, visibility]);
+
   return (
     <Space size="middle">
       {!teamId || teams.length === 0 ? (

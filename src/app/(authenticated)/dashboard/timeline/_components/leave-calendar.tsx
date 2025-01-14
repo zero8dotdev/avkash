@@ -39,7 +39,7 @@ export default function LeaveCalendar({
     return {
       id: e.userId,
       label: {
-        icon: e.picture || `https://avatar.iran.liara.run/username?username=${e.name.split(" ").join("+")}` ,
+        icon: e.picture,
         title: e.name,
         subtitle: e.Team.name,
       },

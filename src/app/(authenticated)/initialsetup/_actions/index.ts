@@ -189,54 +189,6 @@ export const fetchLeavePolicies = async (teamId: string) => {
   return data;
 };
 
-// // Update or Insert Users
-// export const insertUsers = async (
-//   orgId: any,
-//   users: any,
-//   currentUserId: any,
-//   teamId: any,
-//   accruedLeave: any,
-//   usedLeave: any
-// ) => {
-//   const supabaseAdminClient = createAdminClient();
-//   console.log("users", users);
-//   const loggedInUser = users.find((user: any) => user.userId === currentUserId);
-
-//   const restUsers = users.filter((user: any) => user.userId !== currentUserId);
-
-//   // Update logged-in user
-//   if (loggedInUser) {
-//     const { error } = await supabaseAdminClient
-//       .from("User")
-//       .update({
-//         slackId: loggedInUser.slackId,
-//         accruedLeave,
-//         usedLeave,
-//       })
-//       .eq("userId", currentUserId)
-//       .select();
-
-//     if (error) throw error;
-//   }
-
-//   // Insert other users
-//   const { data, error } = await supabaseAdminClient
-//     .from("User")
-//     .insert(
-//       restUsers.map((user: any) => ({
-//         ...user,
-//         orgId,
-//         teamId,
-//         accruedLeave,
-//         usedLeave,
-//         createdBy: currentUserId,
-//       }))
-//     )
-//     .select("*");
-
-//   if (error) throw error;
-//   return data;
-// };
 export const insertUsers = async (orgId: any, users: any) => {
   const supabaseAdminClient = createAdminClient();
 
@@ -266,3 +218,80 @@ export const updateInitialsetupState = async (
   return data;
 };
 
+
+
+export const getAvatarBackground = (userId: any) => {
+  const colors = [
+    "FFF5F5", // Light Misty Rose
+    "F8FFF8", // Light Honeydew
+    "F7F7FF", // Light Lavender
+    "FFFAE5", // Light Lemon Chiffon
+    "EDF7F3", // Light Pastel Mint
+    "FFD8D5", // Light Coral
+    "CAB7D4", // Light Amethyst
+    "FFE4E8", // Light Rose Quartz
+    "CBE9C8", // Light Greenery
+    "DDEBF5", // Light Serenity Blue
+    "FBFBFB", // Light White Smoke
+    "E8E8E8", // Light Light Gray
+    "E6E6E6", // Light Silver
+    "BFBFBF", // Light Gray
+    "A3A3A3", // Light Dark Slate Gray
+    "C29A80", // Light Sienna
+    "B98F7C", // Light Saddle Brown
+    "F0DCC4", // Light Burly Wood
+    "D9C2C2", // Light Rosy Brown
+    "F7CFA9", // Light Sandy Brown
+  ];
+  
+
+  const index = userId.charCodeAt(0) % colors.length;
+  return `https://avatar.iran.liara.run/username?username=${userId
+    .split(" ")
+    .join("+")}&background=${colors[index]}`;
+};
+
+
+export const updateUser = async (
+  userId: any,
+  accruedLeave: any,
+  usedLeave:any,
+) => {
+  const supabaseAdminClient = createAdminClient();
+
+  const { data, error } = await supabaseAdminClient
+    .from("User")
+    .update({accruedLeave: accruedLeave, usedLeave: usedLeave })
+    .eq("userId", userId)
+    .select("*");
+
+  if (error) throw error;
+  return data;
+};
+
+
+
+export const fetchTeamGeneralData = async (teamId: any) => {
+  const supabaseClient = createClient();
+
+  const { data, error } = await supabaseClient
+    .from("Team")
+    .select('*')
+    .eq("teamId", teamId);
+
+  if (error) throw error;
+  return data;
+};
+
+export const fetchOrgLeavePolicyData = async (orgId: any) => {
+  const supabaseClient = createClient();
+
+  const { data, error } = await supabaseClient
+    .from("LeaveType")
+    .select(`*,LeavePolicy(*)`)
+    .eq("orgId", orgId);
+
+  if (error) throw error;
+  console.log("data", data)
+  return data;
+};

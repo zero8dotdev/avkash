@@ -5,7 +5,7 @@ import { WebClient } from "@slack/web-api";
 import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 
 export const getUserRole = async (
-  userId: string,
+  userId: any,
 ): Promise<string> => {
   try {
     const supabase = createClient();
@@ -48,29 +48,6 @@ export const getUserRole = async (
   }
 };
 
-
-
-// export async function getUsersListWithTeam(teamId: string) {
-//   const supabaseAdmin = createAdminClient();
-//   const { data: usersData, error: usersError } = await supabaseAdmin
-//     .from("User")
-//     .select("*, Team(name) Leave(*)")
-//     .eq("teamId", teamId);
-
-//   return usersData;
-// }
-
-// export async function getUser(teamId: string, userId: string) {
-//   const supabaseAdmin = createAdminClient();
-//   const { data: usersData, error: usersError } = await supabaseAdmin
-//     .from("User")
-//     .select("*, Team(name) Leave(*)")
-//     .eq("teamId", teamId)
-//     .eq("userId", userId)
-
-
-//   return usersData;
-// }
 
 
 export async function getUsersListWithTeam(teamId: string) {
