@@ -54,7 +54,6 @@ const Page = () => {
 
   const openModal = (policy: any) => {
     setSelectedPolicy(policy);
-    console.log(policy);
     form.setFieldsValue({
       maxLeaves: policy.maxLeaves,
       unlimited: policy.unlimited,
@@ -198,7 +197,6 @@ const Page = () => {
               if (values.rollOverExpiry) {
                 values.rollOverExpiry = values.rollOverExpiry.format("DD/MM"); // or use "DD/MM" depending on your requirement
               }
-              console.log(values); // You can check how the formatted value looks
               await updatePolicyData(
                 teamId,
                 values,

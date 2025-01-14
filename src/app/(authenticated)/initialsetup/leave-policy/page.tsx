@@ -186,8 +186,6 @@ const Page = () => {
                           <Form.Item
                             style={{ margin: "0px 0px 0px 0px" }}
                             shouldUpdate={(prevValues, currentValues) => {
-                              // console.log("Previous Values:", prevValues);
-                              // console.log("Current Values:", currentValues);
                               return (
                                 prevValues[e.name].unlimited !==
                                 currentValues[e.name].unlimited

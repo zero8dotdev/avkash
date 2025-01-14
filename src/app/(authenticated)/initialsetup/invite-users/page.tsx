@@ -74,7 +74,6 @@ const Page = () => {
                   orgCreatedOn < janFirstThisYear
                     ? janFirstThisYear
                     : orgCreatedOn;
-                console.log(prorateStartDate);
                 // Calculate the number of months for prorating
                 const monthsForProrate =
                   (today.getFullYear() - prorateStartDate.getFullYear()) * 12 +
