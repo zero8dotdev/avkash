@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Avatar, Card, Col, List, Row } from "antd";
 import React from "react";
@@ -28,21 +28,13 @@ const Page = () => {
       </Col>
       <Col span={16}>
         <Card title="Team Managers">
-        <List
+          <List
             bordered
             dataSource={managers}
             renderItem={(item) => (
               <List.Item style={{ cursor: "pointer" }}>
                 <List.Item.Meta
-                  avatar={
-                    <Avatar style={{ backgroundColor: "#227b83" }}>
-                      {item.name
-                        .split(" ")
-                        .map((word: any) => word[0])
-                        .join("")
-                        .toUpperCase()}{" "}
-                    </Avatar>
-                  }
+                  avatar={<Avatar src={item?.picture} />}
                   title={item?.name}
                   description={item?.email}
                 />

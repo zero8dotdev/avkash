@@ -185,7 +185,7 @@ const Page = () => {
                 type="secondary"
                 style={{ fontSize: "20px", marginTop: "0px" }}
               >
-                For {teamData.name} Team
+                For {teamData?.name} Team
               </Typography.Paragraph>
             </Flex>
           }
