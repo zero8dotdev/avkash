@@ -28,7 +28,7 @@ interface User {
   name: string;
   role: string;
   teamName: string;
-  picture?: string; // Add the picture property
+  picture?: string;
 }
 
 const Page = () => {
@@ -136,11 +136,7 @@ const Page = () => {
                     ]}
                   >
                     <List.Item.Meta
-                      avatar={
-                        <Avatar
-                          src={`${user?.picture}`}
-                        />
-                      }
+                      avatar={<Avatar src={`${user?.picture}`} />}
                       title={
                         <p style={{ margin: 0, padding: 0 }}>
                           {user?.name}

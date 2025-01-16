@@ -49,10 +49,11 @@ const Page = () => {
     return orgData;
   };
 
-  const { data: orgData, error: orgError, mutate } = useSWR(
-    `orgLocations*${orgId}`,
-    fetchOrgData
-  );
+  const {
+    data: orgData,
+    error: orgError,
+    mutate,
+  } = useSWR(`orgLocations*${orgId}`, fetchOrgData);
 
   const handleAddLocation = () => {
     setLocationMode("create");
@@ -148,7 +149,7 @@ const Page = () => {
   };
 
   return (
-    <Row style={{ padding: "80px" }}>
+    <Row style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="location" />
       </Col>
@@ -224,39 +225,34 @@ const Page = () => {
           onCancel={() => {
             setLocationMode(null), setSelectedCountryCode(null);
           }}
-          title={locationMode === 'create' ? 'Add New Holiday' : 'Edit Holiday'}
+          title={locationMode === "create" ? "Add New Holiday" : "Edit Holiday"}
           width={1000}
         >
           <LocationPage
             locationMode={locationMode}
-            updateCountryCode={(code: string) =>
-              setSelectedCountryCode(code)
-            }
+            updateCountryCode={(code: string) => setSelectedCountryCode(code)}
             holidaysList={holidaysList}
             update={(values) => setHolidaysList(values)}
             countryCode={selectedCountryCode}
             availableLocations={availableLocations}
           />
-                    <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
-
-          <Space>
-
-            <Button
-              danger
-              onClick={() => {
-                setLocationMode(null);
-                setSelectedCountryCode(null);
-                setHolidaysList([]);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button type="primary" onClick={updateHolidays} loading={loading}>
-              Save
-            </Button>
-          </Space>
+          <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+            <Space>
+              <Button
+                danger
+                onClick={() => {
+                  setLocationMode(null);
+                  setSelectedCountryCode(null);
+                  setHolidaysList([]);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="primary" onClick={updateHolidays} loading={loading}>
+                Save
+              </Button>
+            </Space>
           </Flex>
-
         </Modal>
       </Col>
     </Row>

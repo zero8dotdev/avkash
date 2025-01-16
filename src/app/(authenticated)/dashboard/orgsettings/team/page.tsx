@@ -54,7 +54,7 @@ const Team = () => {
   };
 
   return (
-    <Row gutter={8} style={{ padding: "80px" }}>
+    <Row gutter={8} style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="team" />
       </Col>

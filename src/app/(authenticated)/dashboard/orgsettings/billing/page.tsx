@@ -61,15 +61,15 @@ const SubscriptionButton: React.FC = () => {
     return data;
   };
 
-    const {
-      data: userCountData,
-      error,
-      mutate,
-    } = useSWR(`orgUserCount*${appState.orgId}`, userCountfetcher,  {
-          onSuccess: (data) => {
-            setUserCount(data ?? 0);
-          },
-        });
+  const {
+    data: userCountData,
+    error,
+    mutate,
+  } = useSWR(`orgUserCount*${appState.orgId}`, userCountfetcher, {
+    onSuccess: (data) => {
+      setUserCount(data ?? 0);
+    },
+  });
 
   const fetchAndSetInvoices = async (subscriptionId: string) => {
     try {
@@ -171,7 +171,7 @@ const SubscriptionButton: React.FC = () => {
   };
 
   return (
-    <Row style={{ padding: "80px" }}>
+    <Row style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="billing" />
       </Col>
