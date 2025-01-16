@@ -111,7 +111,7 @@ export default function Page() {
   };
 
   return (
-    <Row gutter={24} style={{ padding: "80px" }}>
+    <Row gutter={24} style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="leave-types" />
       </Col>
