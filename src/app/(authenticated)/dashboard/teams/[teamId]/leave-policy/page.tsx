@@ -37,6 +37,7 @@ const Page = () => {
     error,
     isValidating,
   } = useSWR(`teamsettings*${teamId}`);
+
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
     return await fetchLeavePolicies(team);

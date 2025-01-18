@@ -61,6 +61,7 @@ const Leavepolicy = () => {
     error,
     isValidating,
   } = useSWR(`teamsettings*${teamId}`);
+
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
     return await fetchLeavePolicies(team);
@@ -197,7 +198,19 @@ const Leavepolicy = () => {
               Previous
             </Button>
             <Form.Item>
-              <Button type="primary" htmlType="submit" size="middle">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="middle"
+                onClick={() =>
+                  router.push(
+                    new URL(
+                      "/initialsetup/locations",
+                      window?.location.origin
+                    ).toString()
+                  )
+                }
+              >
                 Next
               </Button>
             </Form.Item>
