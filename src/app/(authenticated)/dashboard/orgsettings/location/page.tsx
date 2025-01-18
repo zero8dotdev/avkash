@@ -127,27 +127,6 @@ const Page = () => {
     setLocationMode("edit");
     setSelectedCountryCode(countryCode);
   };
-
-  const handleDeleteLocation = async (countryCode: string) => {
-    try {
-      const updatedLocations = locations.filter(
-        (location) => location !== countryCode
-      );
-      const updatedOrgLocations = await deleteOrgLocations(
-        updatedLocations,
-        countryCode,
-        orgId
-      );
-      if (updatedOrgLocations) {
-        setLocations(updatedLocations);
-      }
-    } catch (error) {
-      console.error("Error in deleteLocation:", error);
-    } finally {
-      mutate();
-    }
-  };
-
   return (
     <Row style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
@@ -192,20 +171,12 @@ const Page = () => {
                     </Typography.Title>
                   }
                 />
-                <Space>
-                  <Button
-                    icon={<EditOutlined />}
-                    onClick={() => {
-                      handleEdit(item.countryCode);
-                    }}
-                  />
-                  <Button
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                      handleDeleteLocation(item.countryCode);
-                    }}
-                  />
-                </Space>
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    handleEdit(item.countryCode);
+                  }}
+                />
               </List.Item>
             )}
             locale={{
