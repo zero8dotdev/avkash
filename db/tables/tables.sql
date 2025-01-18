@@ -27,11 +27,8 @@ CREATE TYPE "DaysOfWeek" AS ENUM(
 );
 
 CREATE TYPE "AccuralFrequencyOptions" AS ENUM(
-  'BIWEEKLY',
-  'WEEKLY',
   'MONTHLY',
-  'QUARTERLY',
-  'HALF_YEARLY'
+  'QUARTERLY'
 );
 
 CREATE TYPE "AccrueOnOptions" AS ENUM('BEGINNING', 'END');

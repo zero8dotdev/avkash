@@ -21,7 +21,7 @@
     "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/icons": "^5.3.6",
     "@ant-design/nextjs-registry": "^1.0.0",
-    "@elonsteve/calendar": "^0.0.3",
+    "@elonsteve/calendar": "^0.0.5",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@faker-js/faker": "^7.6.0",

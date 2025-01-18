@@ -1,5 +1,5 @@
 -- Function to log changes to the Team table
-CREATE OR REPLACE FUNCTION log_team_activity_changes() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION team_activity_audit() RETURNS TRIGGER AS
 $$
 
 DECLARE
@@ -74,7 +74,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the Team table
-CREATE OR REPLACE TRIGGER log_team_activity_changes_trigger
+CREATE OR REPLACE TRIGGER team_activity_audit_trigger
 AFTER UPDATE ON "Team"
 FOR EACH ROW
-EXECUTE FUNCTION log_team_activity_changes();
+EXECUTE FUNCTION team_activity_audit();
