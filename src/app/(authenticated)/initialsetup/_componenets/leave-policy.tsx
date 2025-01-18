@@ -18,6 +18,7 @@ import {
   Checkbox,
   Steps,
   List,
+  Spin,
 } from "antd";
 import {
   LeftOutlined,
@@ -122,6 +123,8 @@ const Leavepolicy = () => {
       new URL("/initialsetup/settings", window?.location.origin).toString()
     );
   };
+
+
   const handleLeaveTypes = (type: string) => {
     setLeaveTypes((prevLeaveTypes) =>
       prevLeaveTypes.map((leaveType) =>
@@ -149,12 +152,9 @@ const Leavepolicy = () => {
     });
   };
 
-  //   (async () => {
-  //     const data = await fetchLeavePolicies(teamId);
-  //     setIsDataAvailable(data);
-  //   })();
-  // }, [teamId]);
-  return (
+  return leavePoliciesLoading ? (
+    <Spin />
+  ) : (
     <Row
       style={{
         padding: "50px 50px 180px 20px",
@@ -165,7 +165,7 @@ const Leavepolicy = () => {
       {leavePolicies.length > 1 ? (
         <Col span={16} push={4}>
           <Card
-            style={{ minHeight: "500px" }}
+            style={{ minHeight: "300px" }}
             title={`${teamData?.name} Leave Policies`}
           >
             <List
@@ -190,13 +190,23 @@ const Leavepolicy = () => {
                 </List.Item>
               )}
             />
-            <LeavePolicyModal
+            {/* <LeavePolicyModal
               selectedPolicy={selectedPolicy}
               teamData={teamData}
               update={() => setSelectedPolicy(null)}
               teamId={teamId}
               callMutate={() => mutate()}
               form={form}
+            /> */}
+                        <LeavePolicyModal
+              selectedPolicy={selectedPolicy}
+              teamData={teamData}
+              update={() => setSelectedPolicy(null)}
+              teamId={teamId}
+              callMutate={() => mutate()}
+              form={form}
+              onChangeLeaveType={() => {}}
+              selctedLeaveType={null}
             />
           </Card>
           <Flex justify="space-between" style={{ marginTop: "20px" }}>
@@ -586,7 +596,7 @@ const Leavepolicy = () => {
                 </Button>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" size="middle">
-                    Next
+                    Nextttt
                   </Button>
                 </Form.Item>
                 {/* <Button type="primary">Done</Button> */}

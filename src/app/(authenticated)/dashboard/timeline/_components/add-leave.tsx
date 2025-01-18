@@ -13,7 +13,6 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
-  const [loginUser, setLoginUser] = useState<any>();
   const {
     state,
   } = useApplicationContext();
@@ -29,7 +28,7 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
       return user?.name;
     } else {
       return user?.Team.name;
-    } 
+    }
   };
   let filteredusers;
   if (state.role === "OWNER" || state.role === "MANAGER") {
