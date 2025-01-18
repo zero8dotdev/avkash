@@ -31,12 +31,14 @@ const Page = () => {
   const [segmentValue, setSegmentValue] = useState<string | number>("active");
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const { teamId } = useParams() as { teamId: string };
+  const [selectedLeaveType, setSelectedLeaveType] = useState<any>(null);
   // Fetch team data
   const {
     data: teamData,
     error,
     isValidating,
   } = useSWR(`teamsettings*${teamId}`);
+
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
     return await fetchLeavePolicies(team);
@@ -80,7 +82,14 @@ const Page = () => {
         <TeamSettingsTabs position="leave-policy" />
       </Col>
       <Col span={16}>
-        <Card title="Team Leave Policy">
+        <Card
+          title="Team Leave Policy"
+          extra={
+            <Button type="primary" onClick={() => setSelectedPolicy("create")}>
+              Add New Policy
+            </Button>
+          }
+        >
           <Segmented
             value={segmentValue}
             style={{ marginBottom: "20px" }}
@@ -184,6 +193,8 @@ const Page = () => {
           teamId={teamId}
           callMutate={() => mutate()}
           form={form}
+          onChangeLeaveType={(v: any) => setSelectedLeaveType(v)}
+          selctedLeaveType={selectedLeaveType}
         />
       </Col>
     </Row>
