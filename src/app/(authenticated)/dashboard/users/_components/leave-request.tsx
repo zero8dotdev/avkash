@@ -6,20 +6,6 @@ import useSWR from "swr";
 import { useApplicationContext } from "@/app/_context/appContext";
 
 const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) => {
-  // const { state: appState } = useApplicationContext();
-  // const { userId } = appState;
-
-  // const fetcher = async (userId: string) => {
-  //   const user = userId.split("*")[1];
-  //   const data = await getLeaves(user);
-  //   return data;
-  // };
-
-  // const {
-  //   data,
-  //   error,
-  //   mutate,
-  // } = useSWR(`userLeaveRequests*${userId}`, fetcher);
   return (
     <List
       dataSource={data || []}
@@ -52,7 +38,7 @@ const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) =>
               }
               description={
                 <p>
-                  {item.startDate} - {item.endDate} (5 working days)
+                  {item.startDate} - {item.endDate}
                 </p>
               }
             />
