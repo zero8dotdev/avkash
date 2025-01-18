@@ -2,29 +2,21 @@
 
 import { useApplicationContext } from "@/app/_context/appContext";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Row, Flex, Select, Table, Col, Space } from "antd";
+import { Row, Flex, Select, Table, Col, Space, Typography } from "antd";
 import useSWR from "swr";
 import { getLeaveSummaryByUser, getLeaves } from "../_actions";
 
-export default function LeaveReport({ user, data }: { user: any, data:any, loading: any }) {
+export default function LeaveReport({
+  user,
+  data,
+}: {
+  user: any;
+  data: any;
+  loading: any;
+}) {
   const d = new Date();
   let year = d.getFullYear();
   let month = d.getMonth();
-  // const { state: appState } = useApplicationContext();
-  // const { userId } = appState;
-
-  // const fetcher = async (userId: string) => {
-  //   const user = userId.split("*")[1];
-  //   const data = await getLeaveSummaryByUser(user);
-  //   return data;
-  // };
-
-  // const {
-  //   data: datasource,
-  //   error,
-  //   mutate,
-  // } = useSWR(`userLeaveReport*${userId}`, fetcher);
-
   return (
     <>
       <Row gutter={[16, 16]}>
@@ -83,27 +75,44 @@ export default function LeaveReport({ user, data }: { user: any, data:any, loadi
             summary={(pageData) => {
               return (
                 <Table.Summary.Row>
-                  <Table.Summary.Cell index={1}>sum</Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      Sum
+                    </Typography.Text>
+                  </Table.Summary.Cell>
                   <Table.Summary.Cell index={2}>
-                    {pageData.reduce((sum, record) => sum + record.taken, 0)}
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce((sum, record) => sum + record.taken, 0)}
+                    </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={3}>
-                    {pageData.reduce((sum, record) => sum + record.planned, 0)}
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + record.planned,
+                        0
+                      )}
+                    </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={4}>
-                    {pageData.reduce((sum, record) => sum + record.total, 0)}
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce((sum, record) => sum + record.total, 0)}
+                    </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={5}>
-                    {pageData.reduce(
-                      (sum, record) => sum + Number(record.remaining),
-                      0
-                    )}
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + Number(record.remaining),
+                        0
+                      )}
+                    </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={6}>
-                    {pageData.reduce(
-                      (sum, record) => sum + Number(record.available),
-                      0
-                    )}
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + Number(record.available),
+                        0
+                      )}
+                    </Typography.Text>
                   </Table.Summary.Cell>
                 </Table.Summary.Row>
               );

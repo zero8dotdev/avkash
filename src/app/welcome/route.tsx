@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId);
-    if (!isInitialSetupavailable?.initialSetup) {
+    if (!isInitialSetupavailable?.isSetupCompleted) {
       redirectPath = "/setup";
     } else {
       redirectPath = "/dashboard";

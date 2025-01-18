@@ -13,15 +13,15 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
   const [loader, setloader] = useState(false);
-  const [loginUser, setLoginUser] = useState<any>();
   const {
-    state: { orgId, user },
+    state,
   } = useApplicationContext();
   const onCancel = () => {
     setModalVisible(false);
     setUserId(undefined);
     onSelectedUser(null);
   };
+
   const getuserDetails = (userId: any, type: string) => {
     const user = users?.find((each) => each.userId === userId);
     if (type === "user") {
@@ -30,6 +30,13 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
       return user?.Team.name;
     }
   };
+  let filteredusers;
+  if (state.role === "OWNER" || state.role === "MANAGER") {
+    filteredusers = users;
+  } else {
+    filteredusers = users.filter((user) => user.userId === state.userId);
+  }
+
   return (
     <>
       <Button type="primary" onClick={() => setModalVisible(true)}>
@@ -49,7 +56,7 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
             value={userId}
             onSelect={(v) => setUserId(v)}
           >
-            {users?.map((each, index) => (
+            {filteredusers?.map((each, index) => (
               <Select.Option key={index} value={each.userId}>
                 {each.name}
               </Select.Option>

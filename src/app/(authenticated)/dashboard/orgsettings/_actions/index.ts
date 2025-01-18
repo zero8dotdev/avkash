@@ -200,7 +200,8 @@ export const updateHolidaysList = async (
 export const updateOrgLocations = async (
   locations: any,
   selectedCountryCode: any,
-  orgId: string
+  orgId: string,
+  teamId?: string,
 ) => {
   const supabase = createClient();
   const updatedLocations = Array.from(new Set([...locations, selectedCountryCode]));
@@ -214,6 +215,13 @@ export const updateOrgLocations = async (
   if (error) {
     throw error;
   }
+
+  const { data: team, error: teamerror } = await supabase
+  .from("Team")
+  .update({ location: selectedCountryCode })
+  .eq("teamId", teamId)
+  .select();
+
   return data;
 };
 

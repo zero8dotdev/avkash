@@ -125,7 +125,6 @@ export const getLeaveSummaryByUser = async (userId: string) => {
   return result;
 };
 
-
 export const getLeaveSummaryByUserByPeriod = async (
   userId: string,
   year?: number,
@@ -235,7 +234,6 @@ export const formatLeavesData = (rawData: any[]) => {
   }));
 };
 
-
 export const getLeaves = async (userId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -256,6 +254,45 @@ export const getLeaves = async (userId: string) => {
   if (error) {
     throw error; // Handling any error that may occur
   }
- const formattedLeaves =  formatLeavesData(data)
+  const formattedLeaves = formatLeavesData(data);
   return formattedLeaves; // Returning the fetched data
+};
+
+export const getActivity = async (userId: string) => {
+  const supabase = createClient();
+
+  try {
+    // Step 1: Fetch the user's teamId and orgId from the User table
+    const { data: userData, error: userError } = await supabase
+      .from("User")
+      .select("teamId, orgId")
+      .eq("userId", userId)
+      .single();
+
+    if (userError) {
+      throw new Error(`Error fetching user data: ${userError.message}`);
+    }
+
+    if (!userData) {
+      throw new Error("User not found");
+    }
+
+    const { teamId, orgId } = userData;
+
+    // Step 2: Fetch activity logs for the user's teamId and orgId
+    const { data: activityLogs, error: activityError } = await supabase
+      .from("ActivityLog")
+      .select("*")
+      .or(`teamId.eq.${teamId},orgId.eq.${orgId}, userId.eq.${userId}`)
+      .order("changedOn", { ascending: true }); // Order by "changedOn" ascending
+
+    if (activityError) {
+      throw new Error(`Error fetching activity logs: ${activityError.message}`);
+    }
+
+    return activityLogs;
+  } catch (error) {
+    console.error("Error in getActivity:", error);
+    throw error;
+  }
 };

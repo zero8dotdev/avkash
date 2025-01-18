@@ -781,7 +781,7 @@ export const isInitialSetupDone = async (orgId: string) => {
   const supabase = createAdminClient();
   const res = await supabase
     .from("Organisation")
-    .select("initialSetup")
+    .select("isSetupCompleted")
     .eq("orgId", orgId)
     .single();
 
@@ -823,6 +823,8 @@ export const addUsersToNewTeam = async (values: any, userId: any) => {
   }
   return data;
 };
+
+
 export const fetchUsers = async (teamId: any, orgId: any) => {
   try {
     const supabase = createClient();

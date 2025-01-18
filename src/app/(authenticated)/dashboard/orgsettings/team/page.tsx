@@ -54,26 +54,26 @@ const Team = () => {
   };
 
   return (
-    <Row gutter={8} style={{ padding: "80px" }}>
+    <Row gutter={8} style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="team" />
       </Col>
       <Col span={16}>
         <Card
-          title={
-            <Typography.Title level={4} style={{ marginTop: "25px" }}>
-              Teams
-            </Typography.Title>
-          }
+          title='Teams'
+          // {
+          //   <Typography.Title level={4} style={{ marginTop: "25px" }}>
+          //     Teams
+          //   </Typography.Title>
+          // }
           extra={
             <Button
               type="primary"
-              style={{ border: "1px solid blue", marginTop: "12px" }}
+              style={{ marginTop: "12px" }}
             >
               Add new team
             </Button>
           }
-          styles={{ header: { border: "none" } }}
         >
           <Segmented
             value={segmentValue}
