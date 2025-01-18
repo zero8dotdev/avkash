@@ -12,6 +12,7 @@ import {
   insertUsers,
   updateInitialsetupState,
   updateUser,
+  updateInitialsetupstatus,
 } from "../_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 
@@ -138,9 +139,12 @@ const Inviteusers = () => {
       const loginUserData = await updatedUser();
 
       // Proceed with other logic if necessary
-      const status = await updateInitialsetupState(orgId, "6");
-      if (status) {
-        router.push("/dashboard/timeline");
+      const initialsetupstate = await updateInitialsetupState(orgId, "6");
+      if(initialsetupstate){
+        const status = await updateInitialsetupstatus(orgId, true);
+        if (status) {
+          router.push("/dashboard/timeline");
+        }
       }
     } catch (error) {
       console.error("Error in handleNext:", error);

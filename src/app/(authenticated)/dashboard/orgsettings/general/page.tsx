@@ -10,8 +10,6 @@ import { useApplicationContext } from "@/app/_context/appContext";
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
 
-
-
 const General: React.FC<{}> = () => {
   const [loader, setLoader] = useState<boolean>(false);
   const [form] = Form.useForm();
@@ -19,22 +17,22 @@ const General: React.FC<{}> = () => {
   const { orgId } = appState;
   // Use SWR to fetch organization data
   // Fetcher function for SWR
-const fetcher = async (orgId: string) => {
-  const org = orgId.split("*")[1];
-  const data = await fetchOrgGeneralData(org);
+  const fetcher = async (orgId: string) => {
+    const org = orgId.split("*")[1];
+    const data = await fetchOrgGeneralData(org);
 
-  // if (error) {
-  //   throw new Error("Failed to fetch organization data");
-  // }
-  return data;
-};
+    // if (error) {
+    //   throw new Error("Failed to fetch organization data");
+    // }
+    return data;
+  };
 
   const {
     data: orgData,
     error,
     mutate,
   } = useSWR(`orgGeneral*${orgId}`, fetcher);
-  
+
   const onFinish = async (values: any) => {
     setLoader(true);
     try {
@@ -50,7 +48,7 @@ const fetcher = async (orgId: string) => {
   };
 
   return (
-    <Row  style={{ padding: "80px" }}>
+    <Row style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
         <SideMenu position="general" />
       </Col>

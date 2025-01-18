@@ -1,5 +1,5 @@
 -- Function to log changes to the LeavePolicy table
-CREATE OR REPLACE FUNCTION log_leavepolicy_activity_changes() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION leavepolicy_activity_audit() RETURNS TRIGGER AS
 $$
 
 DECLARE
@@ -56,7 +56,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the LeavePolicy table
-CREATE OR REPLACE TRIGGER log_leavepolicy_activity_changes_trigger
+CREATE OR REPLACE TRIGGER leavepolicy_activity_audit_trigger
 AFTER UPDATE ON "LeavePolicy"
 FOR EACH ROW
-EXECUTE FUNCTION log_leavepolicy_activity_changes();
+EXECUTE FUNCTION leavepolicy_activity_audit();

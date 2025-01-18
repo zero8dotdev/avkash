@@ -9,7 +9,6 @@ export const getUserRole = async (
 ): Promise<string> => {
   try {
     const supabase = createClient();
-
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
       .from("User")
