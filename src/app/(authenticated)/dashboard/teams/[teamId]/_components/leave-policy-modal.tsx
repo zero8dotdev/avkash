@@ -31,7 +31,7 @@ const LeavePolicyModal = ({
   callMutate: () => void;
   form: FormInstance;
 }) => {
-  console.log(teamId, teamData, selectedPolicy, update, callMutate, form);
+
   const { Item } = Form;
   return (
     <Modal

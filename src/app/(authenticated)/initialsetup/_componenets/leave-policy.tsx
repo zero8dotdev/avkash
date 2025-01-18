@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
 import {
   fetchOrgLeavePolicyData,
+  fetchTeamGeneralData,
   insertLeavePolicies,
   updateInitialsetupState,
 } from "../_actions";
@@ -56,11 +57,22 @@ const Leavepolicy = () => {
     dispatch,
   } = useApplicationContext();
 
+  const fetcherteam = async (teamId: string) => {
+    const team = teamId.split("*")[1];
+    const data = await fetchTeamGeneralData(team);
+  
+    // if (error) {
+    //   throw new Error("Failed to fetch organization data");
+    // }
+    return data;
+  };
+
   const {
     data: teamData,
     error,
     isValidating,
-  } = useSWR(`teamsettings*${teamId}`);
+  } = useSWR(`teamsettings*${teamId}`,fetcherteam);
+
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
     return await fetchLeavePolicies(team);
