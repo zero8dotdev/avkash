@@ -4,11 +4,12 @@ import useSWR from "swr";
 import LeaveReport from "./leave-report";
 import Settings from "./settings";
 import LeaveRequest from "./leave-request";
-import { getLeaves, getLeaveSummaryByUser } from "../_actions";
-
+import { getActivity, getLeaves, getLeaveSummaryByUser } from "../_actions";
+import Activities from "./activities";
 // Define fetcher functions for SWR
 const leaveSummaryFetcher = (userId: string) => getLeaveSummaryByUser(userId);
 const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
+const activityFetcher = (userId: string) => getActivity(userId);
 
 const UserModal = ({
   selectedUser,
@@ -34,6 +35,13 @@ const UserModal = ({
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]
       : null,
     ([_, userId]) => leaveRequestsFetcher(userId)
+  );
+
+  const { data: activityData , isLoading: isactivityLoading } = useSWR(
+    activeTab === "activity" && selectedUser?.userId
+      ? [`activity-report-${selectedUser.userId}`, selectedUser.userId]
+      : null,
+    ([_, userId]) => activityFetcher(userId)
   );
 
   // Handle tab change
@@ -77,6 +85,9 @@ const UserModal = ({
         </Tabs.TabPane>
         <Tabs.TabPane key="settings" tab="Settings">
           <Settings user={selectedUser} />
+        </Tabs.TabPane>
+        <Tabs.TabPane key="activity" tab="Activities">
+          <Activities activity={activityData} user={selectedUser} />
         </Tabs.TabPane>
       </Tabs>
     </Modal>

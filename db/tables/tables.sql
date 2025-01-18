@@ -53,6 +53,7 @@ CREATE TABLE
     "ownerId" UUID,
     "halfDayLeave" BOOLEAN NOT NULL DEFAULT FALSE,
     "initialSetup" VARCHAR(1) DEFAULT 0,
+    "isSetupCompleted" BOOLEAN DEFAULT FALSE,
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
@@ -232,7 +233,6 @@ CREATE TABLE
     CONSTRAINT "fk_activity_org" FOREIGN KEY ("orgId") REFERENCES "Organisation" ("orgId"),
     CONSTRAINT "fk_activity_team" FOREIGN KEY ("teamId") REFERENCES "Team" ("teamId"),
     CONSTRAINT "fk_activity_user" FOREIGN KEY ("userId") REFERENCES "User" ("userId")
-
   );
 
 CREATE TABLE

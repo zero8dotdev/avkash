@@ -160,9 +160,7 @@ const Leavepolicy = () => {
       }}
     >
       <TopSteps position={2} />
-     { leavePoliciesLoading ? (
-    <Spin />
-  ) : leavePolicies.length > 1 ? (
+      {leavePolicies.length > 1 ? (
         <Col span={16} push={4}>
           <Card
             style={{ minHeight: "300px" }}
