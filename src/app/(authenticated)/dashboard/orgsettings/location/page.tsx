@@ -99,11 +99,11 @@ const Page = () => {
   ];
 
   const selectedLocations = countryList.filter((each) =>
-    locations.includes(each.countryCode)
+    locations?.includes(each.countryCode)
   );
 
   const availableLocations = countryList.filter(
-    (each) => !locations.includes(each.countryCode)
+    (each) => !locations?.includes(each.countryCode)
   );
 
   const fetchLocationDetails = async (countryCode: string) => {
@@ -141,7 +141,7 @@ const Page = () => {
                 onClick={handleAddLocation}
                 type="primary"
                 style={{ marginTop: "15px", marginBottom: "15px" }}
-                disabled={availableLocations.length === 0}
+                disabled={availableLocations?.length === 0}
               >
                 Add Location
               </Button>

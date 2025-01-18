@@ -28,7 +28,7 @@ BEGIN
 
         -- Log the entire new row
         INSERT INTO public."ActivityLog" ("tableName", "userId", "teamId", "changedColumns", "changedBy", "keyword")
-        VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave request');
+        VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave_request');
     END IF;
 
     RETURN NEW;

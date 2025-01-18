@@ -28,7 +28,7 @@ import {
   SolutionOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { fetchPublicHolidays } from "@/app/_actions";
+import { fetchOrg, fetchPublicHolidays } from "@/app/_actions";
 import { Card } from "antd";
 import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
@@ -64,9 +64,25 @@ const Location = () => {
   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(
     null
   );
+  const [loading, setLoading] = useState(false);
   const [locations, setLocations] = useState<string[]>([]);
   const { state: appState } = useApplicationContext();
   const { orgId, userId, teamId } = appState;
+  const router = useRouter();
+
+  const fetchOrgData = async (orgId: string) => {
+    const org = orgId.split("*")[1];
+    const orgData = await fetchOrg(org);
+    const { location } = orgData;
+    setLocations(location || []);
+    return orgData;
+  };
+
+  const {
+    data: orgData,
+    error: orgError,
+    mutate: orgMutate,
+  } = useSWR(`orgLocations*${orgId}`, fetchOrgData);
 
   const handleAddLocation = () => {
     setLocationMode("create");
@@ -81,7 +97,7 @@ const Location = () => {
     { countryCode: "NL", countryName: "Netherlands" },
   ];
   const selectedLocations = countryList.filter((each) =>
-    locations.includes(each.countryCode)
+    locations?.includes(each.countryCode)
   );
 
   const fetchLocationDetails = async (countryCode: string) => {
@@ -100,13 +116,15 @@ const Location = () => {
     }
   };
   const availableLocations = countryList.filter(
-    (each) => !locations.includes(each.countryCode)
+    (each) => !locations?.includes(each.countryCode)
   );
+
   const handleEdit = async (countryCode: string) => {
     await fetchLocationDetails(countryCode);
     setLocationMode("edit");
     setSelectedCountryCode(countryCode);
   };
+
   const updateHolidays = async () => {
     try {
       if (!holidaysList.length || !locations || !selectedCountryCode) {
@@ -119,18 +137,48 @@ const Location = () => {
         orgId,
         selectedCountryCode
       );
-
       if (updatedOrgHolidays) {
-        await updateOrgLocations(locations, selectedCountryCode, orgId);
+        await updateOrgLocations(locations, selectedCountryCode, orgId, teamId);
       }
 
       setLocationMode(null);
       setSelectedCountryCode(null);
       setHolidaysList([]);
+      orgMutate();
     } catch (error) {
       console.error("Error in updateHolidays:", error);
     }
   };
+
+  const handlenext = async () => {
+    try {
+      setLoading(true);
+      const status = await updateInitialsetupState(orgId, "4");
+      if (status) {
+        router.push(
+          new URL(
+            "/initialsetup/notifications ",
+            window?.location.origin
+          ).toString()
+        );
+      } else {
+        throw new Error("Failed to update initial setup state");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 10000);
+    }
+  };
+
+  const handlePrevious = () => {
+    router.push(
+      new URL("/initialsetup/leave-policy", window?.location.origin).toString()
+    );
+  };
+
   return (
     <Row
       style={{
@@ -141,20 +189,28 @@ const Location = () => {
       <TopSteps position={3} />
       <Col span={16} push={4}>
         <Card
-          title="Location Settings"
+          title="Locations"
           extra={
-            <Tooltip>
-              <Button
-                onClick={handleAddLocation}
-                type="primary"
-                style={{ marginTop: "15px", marginBottom: "15px" }}
-              >
-                Add Location
-              </Button>
-            </Tooltip>
+            orgData?.location?.length === 0 || orgData?.location === null  ? ( // Check if the org has no locations
+              <Tooltip title="Add Location">
+                <Button
+                  onClick={handleAddLocation}
+                  type="primary"
+                  style={{ marginTop: "15px", marginBottom: "15px" }}
+                >
+                  Add Location
+                </Button>
+              </Tooltip>
+            ) : null // Hide the button if at least one location exists
           }
+          style={{
+            margin: "25px 0px 25px 0px",
+            minHeight: "300px",
+            overflow: "auto",
+          }}
         >
           <List
+            loading={loading}
             style={{ margin: "12px" }}
             bordered
             itemLayout="horizontal"
@@ -195,6 +251,14 @@ const Location = () => {
             }}
           />
         </Card>
+        <Flex justify="space-between">
+          <Button danger icon={<LeftOutlined />} onClick={handlePrevious}>
+            Previous
+          </Button>
+          <Button type="primary" onClick={handlenext}>
+            Next
+          </Button>
+        </Flex>
       </Col>
       <Modal
         open={locationMode === "create" || locationMode === "edit"}
