@@ -115,9 +115,19 @@ export default function Page() {
       <Col span={3}>
         <SideMenu position="leave-types" />
       </Col>
-
       <Col span={16}>
-        <Card title="Leave Types">
+        <Card
+          title="Leave Types"
+          extra={
+            <Button
+              onClick={() => setModalVisible(true)}
+              type="primary"
+              style={{ marginTop: "8px" }}
+            >
+              Add Leave Type
+            </Button>
+          }
+        >
           <Segmented
             value={segmentValue}
             onChange={setSegmentValue}
@@ -211,13 +221,6 @@ export default function Page() {
             update={mutate}
           />
         </Card>
-        <Button
-          onClick={() => setModalVisible(true)}
-          type="primary"
-          style={{ marginTop: "8px" }}
-        >
-          Add Leave Type
-        </Button>
       </Col>
 
       <Modal
