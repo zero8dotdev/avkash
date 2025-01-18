@@ -188,7 +188,7 @@ const Location = () => {
             locale={{
               emptyText: (
                 <Empty
-                  description="No locations selected"
+                  description="No location added yet"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                 />
               ),
