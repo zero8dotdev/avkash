@@ -20,7 +20,6 @@ export default function Page() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [leaveTypes, setLeaveTypes] = useState<any>([]);
   const [users, setUsers] = useState<any>([]);
-  const [selectedUserRole, setselectedUserRole] = useState<any>(null);
 
   useEffect(() => {
     (async () => {

@@ -152,9 +152,7 @@ const Leavepolicy = () => {
     });
   };
 
-  return leavePoliciesLoading ? (
-    <Spin />
-  ) : (
+  return (
     <Row
       style={{
         padding: "50px 50px 180px 20px",
@@ -162,7 +160,9 @@ const Leavepolicy = () => {
       }}
     >
       <TopSteps position={2} />
-      {leavePolicies.length > 1 ? (
+     { leavePoliciesLoading ? (
+    <Spin />
+  ) : leavePolicies.length > 1 ? (
         <Col span={16} push={4}>
           <Card
             style={{ minHeight: "300px" }}

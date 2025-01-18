@@ -1,5 +1,5 @@
 -- Function to log changes to the Leave table for leave requests
-CREATE OR REPLACE FUNCTION leave_request_log_fun() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION leave_request_activity_audit() RETURNS TRIGGER AS
 $$
 DECLARE
     tableName TEXT := TG_TABLE_NAME;
@@ -37,7 +37,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an insert on the Leave table
-CREATE OR REPLACE TRIGGER leave_request_log_trigger
+CREATE OR REPLACE TRIGGER leave_request_activity_audit_trigger
 AFTER INSERT ON "Leave"
 FOR EACH ROW
-EXECUTE FUNCTION leave_request_log_fun();
+EXECUTE FUNCTION leave_request_activity_audit();
