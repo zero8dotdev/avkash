@@ -4,19 +4,19 @@ import { createClient } from "@/app/_utils/supabase/server";
 import { WebClient } from "@slack/web-api";
 import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 
-export const getUserRole = async (
-  userId: any,
-): Promise<string> => {
+export const getUserRole = async (userId: any): Promise<string> => {
   try {
     const supabase = createClient();
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
       .from("User")
-      .select(`
+      .select(
+        `
         userId,
         Organisation(*),
         Team(*)
-      `)
+      `
+      )
       .eq("userId", userId)
       .single();
 
@@ -24,7 +24,6 @@ export const getUserRole = async (
       console.error("Error fetching user role:", error);
       return "Error";
     }
-
 
     // Get the single Organisation and Team data
     const organisation = data.Organisation as any; // Organisation should now be a single object
@@ -47,13 +46,13 @@ export const getUserRole = async (
   }
 };
 
-
-
 export async function getUsersListWithTeam(teamId: string) {
   const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
-    .select("*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))")
+    .select(
+      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))"
+    )
     .eq("teamId", teamId);
 
   if (usersError) {
@@ -64,12 +63,13 @@ export async function getUsersListWithTeam(teamId: string) {
   return usersData;
 }
 
-
 export async function getUser(teamId: string, userId: string) {
   const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
-    .select("*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))")
+    .select(
+      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))"
+    )
     .eq("teamId", teamId)
     .eq("userId", userId);
 
@@ -80,3 +80,62 @@ export async function getUser(teamId: string, userId: string) {
 
   return usersData;
 }
+
+// export const insertLeave = async (values: any, orgId: any, teamId: any, userId: any) => {
+//   const supabase = createClient();
+
+//   // Prepare the data for insertion
+//   const { data, error } = await supabase
+//     .from('Leave')
+//     .insert({
+//       leaveTypeId: values?.type,
+//       startDate: values?.startDate,
+//       endDate: values?.endDate,
+//       duration: values.duration,
+//       shift: values.shift,
+//       isApproved: values.isApproved || 'PENDING',  // Use value from form or default to 'PENDING'
+//       userId: userId,
+//       teamId: teamId,
+//       orgId: orgId,
+//       reason: values.reason,
+//       managerComment: values.managerComment,
+//     })
+//     .single();
+
+//   if (error) {
+//     console.log(error);
+//     throw new Error("Failed to insert leave.");
+//   }
+
+//   return data;
+// };
+
+export const insertLeave = async (values: any, orgId: any, teamId: any, userId: any) => {
+  const supabase = createClient();
+
+  // Prepare the data for insertion, now including shift and duration
+  const { data, error } = await supabase
+    .from('Leave')
+    .insert({
+      leaveTypeId: values.type,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      duration: values.duration || 'FULL_DAY',  // 'FULL_DAY' or 'HALF_DAY'
+      shift: values.shift || 'NONE',        // 'MORNING', 'AFTERNOON', or 'NONE'
+      isApproved: values.isApproved || 'PENDING',  // Default to 'PENDING'
+      userId: userId,
+      teamId: teamId,
+      orgId: orgId,
+      reason: values.reason,
+      managerComment: values.managerComment,
+    })
+    .single();
+
+  if (error) {
+    console.log(error);
+    throw new Error("Failed to insert leave.");
+  }
+
+  return data;
+};
+

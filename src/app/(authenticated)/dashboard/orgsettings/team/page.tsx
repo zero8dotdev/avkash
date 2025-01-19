@@ -22,7 +22,7 @@ const Team = () => {
   const [teams, setTeams] = useState<any>();
 
   const { state: appState } = useApplicationContext();
-  const { orgId } = appState;
+  const { orgId, role } = appState;
 
   const fetchteams = async (orgId: string) => {
     const org = orgId.split("*")[1];
@@ -67,12 +67,13 @@ const Team = () => {
           //   </Typography.Title>
           // }
           extra={
+            role === "OWNER"? (
             <Button
               type="primary"
               style={{ marginTop: "12px" }}
             >
               Add new team
-            </Button>
+            </Button>) : null
           }
         >
           <Segmented
