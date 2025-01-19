@@ -48,6 +48,7 @@ export default function LeaveCalendar({
         startDate: new Date(leave.startDate),
         endDate: new Date(leave.endDate),
         bgColor: `#${leave.LeaveType.color}`, // Apply the color from the LeaveType
+        status: leave.isApproved
       })),
     };
   });
