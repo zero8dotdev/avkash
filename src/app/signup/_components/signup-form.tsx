@@ -52,18 +52,18 @@ export default function SignUpForm({ user }: { user: any }) {
           </Form.Item>
           <Form.Item
             label="Company Name"
-            name="company_name"
+            name="team_name"
             initialValue={userCompany}
           >
             <Input type="text" placeholder="Company name"></Input>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="Team Name"
             name="team_name"
             initialValue={"Default"}
           >
             <Input type="text" placeholder="Default team name"></Input>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="Work Email" name="email" initialValue={userEmail}>
             <Input type="text" placeholder="yourname@yourcompany.com"></Input>
           </Form.Item>
