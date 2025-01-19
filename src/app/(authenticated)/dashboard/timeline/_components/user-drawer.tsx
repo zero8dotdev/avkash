@@ -98,7 +98,7 @@ const UserDrawer = ({
     setShowAddLeaveForm(false);
   };
 
-  const isManagerOrOwner = role === "manager" || role === "owner";
+  const isManagerOrOwner = role === "MANAGER" || role === "OWNER";
 
   return (
     <>
