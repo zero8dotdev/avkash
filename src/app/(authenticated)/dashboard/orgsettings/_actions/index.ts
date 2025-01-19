@@ -144,6 +144,28 @@ export const fetchOrg = async (orgId: string) => {
   }
 };
 
+export const fetchTeam = async (teamId: string) => {
+  try {
+    const supabase = createClient();
+
+    const { data: team, error } = await supabase
+      .from("Team")
+      .select()
+      .eq("teamId", teamId)
+      .single()
+
+
+    if (error || !team) {
+      throw error;
+    }
+
+    return team;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 export const fetchPublicHolidays = async (countryCode: any) => {
   const currentYear = new Date().getFullYear();
   const supabase = createClient();

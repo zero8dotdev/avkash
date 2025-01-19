@@ -38,7 +38,7 @@ export default function Page() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loader, setLoader] = useState<boolean>(false);
   const { state: appState } = useApplicationContext();
-  const { orgId, userId } = appState;
+  const { orgId, userId, role } = appState;
 
   // Fetcher function for SWR
   const orgleaves = async (orgId: string) => {
@@ -119,13 +119,15 @@ export default function Page() {
         <Card
           title="Leave Types"
           extra={
-            <Button
-              onClick={() => setModalVisible(true)}
-              type="primary"
-              style={{ marginTop: "8px" }}
-            >
-              Add Leave Type
-            </Button>
+            role === "OWNER" ? (
+              <Button
+                onClick={() => setModalVisible(true)}
+                type="primary"
+                style={{ marginTop: "8px" }}
+              >
+                Add Leave Type
+              </Button>
+            ) : null
           }
         >
           <Segmented

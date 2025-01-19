@@ -61,10 +61,6 @@ const Leavepolicy = () => {
   const fetcherteam = async (teamId: string) => {
     const team = teamId.split("*")[1];
     const data = await fetchTeamGeneralData(team);
-  
-    // if (error) {
-    //   throw new Error("Failed to fetch organization data");
-    // }
     return data;
   };
 
@@ -72,7 +68,7 @@ const Leavepolicy = () => {
     data: teamData,
     error,
     isValidating,
-  } = useSWR(`teamsettings*${teamId}`,fetcherteam);
+  } = useSWR(`teamsettings*${teamId}`, fetcherteam);
 
   const fetcher = async (key: string) => {
     const team = key.split("*")[1];
@@ -80,7 +76,7 @@ const Leavepolicy = () => {
   };
 
   const {
-    data: leavePolicies = [],
+    data: leavePolicies,
     error: leavePoliciesError,
     mutate,
     isValidating: leavePoliciesLoading,
@@ -124,7 +120,6 @@ const Leavepolicy = () => {
     );
   };
 
-
   const handleLeaveTypes = (type: string) => {
     setLeaveTypes((prevLeaveTypes) =>
       prevLeaveTypes.map((leaveType) =>
@@ -146,7 +141,7 @@ const Leavepolicy = () => {
       rollOver: policy.rollOver,
       rollOverLimit: policy.rollOverLimit,
       rollOverExpiry: policy.rollOverExpiry
-        ? dayjs(policy.rollOverExpiry, "DD/MM") // Convert to Day.js object
+        ? dayjs(policy.rollOverExpiry, "DD/MM")
         : null,
       autoApprove: policy.autoApprove,
     });
@@ -160,7 +155,7 @@ const Leavepolicy = () => {
       }}
     >
       <TopSteps position={2} />
-      {leavePolicies.length > 1 ? (
+      {leavePolicies && leavePolicies?.length >= 1 ? (
         <Col span={16} push={4}>
           <Card
             style={{ minHeight: "300px" }}
@@ -188,15 +183,8 @@ const Leavepolicy = () => {
                 </List.Item>
               )}
             />
-            {/* <LeavePolicyModal
-              selectedPolicy={selectedPolicy}
-              teamData={teamData}
-              update={() => setSelectedPolicy(null)}
-              teamId={teamId}
-              callMutate={() => mutate()}
-              form={form}
-            /> */}
-                        <LeavePolicyModal
+
+            <LeavePolicyModal
               selectedPolicy={selectedPolicy}
               teamData={teamData}
               update={() => setSelectedPolicy(null)}
@@ -315,6 +303,13 @@ const Leavepolicy = () => {
                                   name={[e.name, "unlimited"]}
                                   style={{ margin: "0px 0px 10px 0px" }}
                                   initialValue={false}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "Please specify if unlimited leave is allowed.",
+                                    },
+                                  ]}
                                 >
                                   <Switch />
                                 </Form.Item>
@@ -336,20 +331,37 @@ const Leavepolicy = () => {
                                       <Typography.Text>
                                         Maximum leaves
                                       </Typography.Text>
-                                      <Popover content="maximum 100 leave days per year">
+                                      <Popover content="maximum 365 leave days per year">
                                         <Form.Item
                                           name={[e.name, "maxLeaves"]}
                                           style={{ margin: "0px 0px 10px 0px" }}
                                           initialValue={14}
+                                          rules={[
+                                            {
+                                              required: true,
+                                              message:
+                                                "Please specify the maximum number of leaves.",
+                                            },
+                                            {
+                                              type: "number",
+                                              min: 1,
+                                              max: 365,
+                                              message:
+                                                "The number of leaves must be between 1 and 365.",
+                                            },
+                                          ]}
+                                          getValueFromEvent={(e) => {
+                                            const value = e.target.value;
+                                            return value
+                                              ? Number(value)
+                                              : undefined; // Convert string to number
+                                          }}
                                         >
-                                          <Input
-                                            type="number"
-                                            max={100}
-                                            min={1}
-                                          />
+                                          <Input type="number" />
                                         </Form.Item>
                                       </Popover>
                                     </Flex>
+
                                     <Flex gap={12} justify="space-between">
                                       <Typography.Text>
                                         Accruals leaves
@@ -392,22 +404,16 @@ const Leavepolicy = () => {
                                                     "accrualFrequency",
                                                   ]}
                                                   style={{ margin: "0px" }}
-                                                  // help={
-                                                  //   <Typography.Text type="warning">
-                                                  //     You can set accrual frequency only once.
-                                                  //   </Typography.Text>
-                                                  // }
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message:
+                                                        "Please select an accrual frequency.",
+                                                    },
+                                                  ]}
                                                 >
                                                   <Select
                                                     options={[
-                                                      {
-                                                        value: "BIWEEKLY",
-                                                        label: "Biweekly",
-                                                      },
-                                                      {
-                                                        value: "WEEKLY",
-                                                        label: "Weekly",
-                                                      },
                                                       {
                                                         value: "MONTHLY",
                                                         label: "Monthly",
@@ -415,10 +421,6 @@ const Leavepolicy = () => {
                                                       {
                                                         value: "QUARTERLY",
                                                         label: "Quarterly",
-                                                      },
-                                                      {
-                                                        value: "HALF_YEARLY",
-                                                        label: "Half Yearly",
                                                       },
                                                     ]}
                                                   />
@@ -481,10 +483,83 @@ const Leavepolicy = () => {
                                                 next year
                                               </Typography.Text>
                                               <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days.">
+                                                {/* <Form.Item
+                                                  name={[
+                                                    e.name,
+                                                    "rollOverLimit",
+                                                  ]}
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message: "Please specify a roll-over limit.",
+                                                    },
+                                                    ({ getFieldValue }) => ({
+                                                      validator(_, value) {
+                                                        const maxLeaves = getFieldValue([e.name, "maxLeaves"]);
+                                                        if (!value || (value >= 1 && value <= maxLeaves)) {
+                                                          return Promise.resolve();
+                                                        }
+                                                        return Promise.reject(
+                                                          new Error(`Roll-over limit must be between 1 and ${maxLeaves} days.`)
+                                                        );
+                                                      },
+                                                    }),
+                                                  ]}
+                                                >
+                                                  <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={form.getFieldValue([
+                                                      e.name,
+                                                      "maxLeaves",
+                                                    ])}
+                                                    suffix={
+                                                      <span
+                                                        style={{
+                                                          marginRight: "15px",
+                                                        }}
+                                                      >
+                                                        days
+                                                      </span>
+                                                    }
+                                                  />
+                                                </Form.Item> */}
                                                 <Form.Item
                                                   name={[
                                                     e.name,
                                                     "rollOverLimit",
+                                                  ]}
+                                                  dependencies={[
+                                                    [e.name, "maxLeaves"],
+                                                  ]}
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message:
+                                                        "Please specify a roll-over limit.",
+                                                    },
+                                                    ({ getFieldValue }) => ({
+                                                      validator(_, value) {
+                                                        const maxLeaves =
+                                                          getFieldValue([
+                                                            e.name,
+                                                            "maxLeaves",
+                                                          ]);
+                                                        if (
+                                                          value === undefined ||
+                                                          value === null ||
+                                                          (value >= 1 &&
+                                                            value <= maxLeaves)
+                                                        ) {
+                                                          return Promise.resolve();
+                                                        }
+                                                        return Promise.reject(
+                                                          new Error(
+                                                            `Roll-over limit must be between 1 and ${maxLeaves} days.`
+                                                          )
+                                                        );
+                                                      },
+                                                    }),
                                                   ]}
                                                 >
                                                   <Input
@@ -517,10 +592,24 @@ const Leavepolicy = () => {
                                                     e.name,
                                                     "rollOverExpiry",
                                                   ]}
-
-                                                  // help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message:
+                                                        "Please select a roll-over expiry date.",
+                                                    },
+                                                  ]}
                                                 >
-                                                  <DatePicker format="DD/MM" />
+                                                  <DatePicker
+                                                    format=""
+                                                    onChange={(date) => {
+                                                      form.setFieldsValue({
+                                                        rollOverExpiry: date
+                                                          ? date.format("DD/MM")
+                                                          : null,
+                                                      });
+                                                    }}
+                                                  />
                                                 </Form.Item>
                                               </Popover>
                                             </Flex>
@@ -550,7 +639,6 @@ const Leavepolicy = () => {
                           <Card
                             title={
                               <>
-                                {" "}
                                 <Avatar
                                   size={15}
                                   style={{
@@ -594,7 +682,7 @@ const Leavepolicy = () => {
                 </Button>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" size="middle">
-                    Nextttt
+                    Next
                   </Button>
                 </Form.Item>
                 {/* <Button type="primary">Done</Button> */}
