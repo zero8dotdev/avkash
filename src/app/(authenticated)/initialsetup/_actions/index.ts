@@ -44,6 +44,16 @@ export const insertLeavePolicies = async (
 ) => {
   const supabaseAdminClient = createAdminClient();
 
+
+  const deleteLeavePolicies = await supabaseAdminClient
+    .from("LeavePolicy")
+    .delete()
+    .eq("teamId", teamId);
+
+  if (deleteLeavePolicies.error) {
+    throw new Error(`Error deleting leave policies: ${deleteLeavePolicies.error.message}`);
+  }
+
   // Delete all existing leave types and leave policies for the given orgId
   const deleteLeaveTypes = await supabaseAdminClient
     .from("LeaveType")
@@ -54,14 +64,6 @@ export const insertLeavePolicies = async (
     throw new Error(`Error deleting leave types: ${deleteLeaveTypes.error.message}`);
   }
 
-  const deleteLeavePolicies = await supabaseAdminClient
-    .from("LeavePolicy")
-    .delete()
-    .eq("teamId", teamId);
-
-  if (deleteLeavePolicies.error) {
-    throw new Error(`Error deleting leave policies: ${deleteLeavePolicies.error.message}`);
-  }
 
   // Default leave types
   const defaultLeaveTypes = [
@@ -92,6 +94,7 @@ export const insertLeavePolicies = async (
 
   if (leaveTypeError) throw new Error(`Error fetching leave types: ${leaveTypeError.message}`);
 
+
   // Enrich leave policies with leaveTypeId
   const enrichedLeavePolicies = Object.entries(leavePolicies)
     .map(([leaveName, policy]) => {
@@ -104,8 +107,8 @@ export const insertLeavePolicies = async (
         ? new Date(policy.rollOverExpiry).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
         : undefined;
 
-      const maxLeaves = Number(policy.maxLeaves);
-      if (isNaN(maxLeaves)) return null;
+      // const maxLeaves = Number(policy?.maxLeaves);
+      // // if (isNaN(maxLeaves)) return null;
 
       return {
         ...policy,
@@ -117,6 +120,7 @@ export const insertLeavePolicies = async (
       };
     })
     .filter(Boolean);
+
 
   if (enrichedLeavePolicies.length === 0) {
     console.log("No valid leave policies to insert");

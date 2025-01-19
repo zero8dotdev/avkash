@@ -22,6 +22,7 @@ import {
   deleteOrgLocations,
   fetchOrg,
   fetchOrgHolidays,
+  fetchTeam,
   updateHolidaysList,
   updateOrgLocations,
 } from "../_actions";
@@ -39,21 +40,32 @@ const Page = () => {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const { state: appState } = useApplicationContext();
-  const { orgId } = appState;
+  const { orgId, role, teamId } = appState;
 
-  const fetchOrgData = async (orgId: string) => {
-    const org = orgId.split("*")[1];
-    const orgData = await fetchOrg(org);
-    const { location } = orgData;
-    setLocations(location);
-    return orgData;
+  const fetchOrgData = async (orgId: string, role: any) => {
+    const [, org, team] = orgId.split("*");
+    let data: any;
+    if (role === "MANAGER") {
+      const teamData = await fetchTeam(team);
+      const { location } = teamData;
+      setLocations(location);
+      data= teamData
+    } else {
+      const orgData = await fetchOrg(org);
+      const { location } = orgData;
+      setLocations(location);
+      data = orgData
+    }
+    return data;
   };
 
+  const fetcher = (key: string) => fetchOrgData(key, role);
+
   const {
-    data: orgData,
+    data,
     error: orgError,
     mutate,
-  } = useSWR(`orgLocations*${orgId}`, fetchOrgData);
+  } = useSWR(role ? `orgLocations*${orgId}*${teamId}` : null, fetcher);
 
   const handleAddLocation = () => {
     setLocationMode("create");
@@ -127,6 +139,7 @@ const Page = () => {
     setLocationMode("edit");
     setSelectedCountryCode(countryCode);
   };
+
   return (
     <Row style={{ padding: "80px", overflow: "hidden" }}>
       <Col span={3}>
@@ -136,16 +149,18 @@ const Page = () => {
         <Card
           title="Location Settings"
           extra={
-            <Tooltip>
-              <Button
-                onClick={handleAddLocation}
-                type="primary"
-                style={{ marginTop: "15px", marginBottom: "15px" }}
-                disabled={availableLocations?.length === 0}
-              >
-                Add Location
-              </Button>
-            </Tooltip>
+            role === "OWNER" ? (
+              <Tooltip title="Add Location">
+                <Button
+                  onClick={handleAddLocation}
+                  type="primary"
+                  style={{ marginTop: "15px", marginBottom: "15px" }}
+                  disabled={availableLocations?.length === 0}
+                >
+                  Add Location
+                </Button>
+              </Tooltip>
+            ) : null
           }
         >
           <List
