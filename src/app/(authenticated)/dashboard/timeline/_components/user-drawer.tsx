@@ -27,17 +27,18 @@ import { getLeaves } from "../../users/_actions";
 import { insertLeave } from "../_actions";
 import { format } from "date-fns";
 import { mutate } from "swr";
+import { get } from "http";
 
 const UserDrawer = ({
   selectedUser,
   onSelectUserChange,
   leaveTypes,
-  triggerMutate
+  triggerMutate,
 }: {
   selectedUser: any;
   onSelectUserChange: any;
   leaveTypes: any;
-  triggerMutate: Function
+  triggerMutate: Function;
 }) => {
   const [form] = Form.useForm();
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -70,19 +71,24 @@ const UserDrawer = ({
   const handleAddLeave = async (values: any) => {
     try {
       // Ensure `isApproved` is set to 'PENDING' by default, and 'APPROVED' if the switch is on
-      values.isApproved = values.isApproved || 'PENDING';
-  
+      values.isApproved = values.isApproved ? "APPROVED" : "PENDING";
+      console.log("values", values);
       // Format the dates to ensure correct insertion into the database
-      const formattedStartDate = format(new Date(values.Date[0]), 'yyyy-MM-dd');
-      const formattedEndDate = format(new Date(values.Date[1]), 'yyyy-MM-dd');
-  
+      const formattedStartDate = format(new Date(values.Date[0]), "yyyy-MM-dd");
+      const formattedEndDate = format(new Date(values.Date[1]), "yyyy-MM-dd");
+
       // Adjust to UTC or handle timezone issues if necessary
       values.startDate = formattedStartDate;
       values.endDate = formattedEndDate;
-      
-      const data = await insertLeave(values, selectedUser?.orgId, selectedUser?.teamId, selectedUser?.userId);
+
+      const data = await insertLeave(
+        values,
+        selectedUser?.orgId,
+        selectedUser?.teamId,
+        selectedUser?.userId
+      );
       setShowAddLeaveForm(false); // Close the form on success
-  
+      form.resetFields();
       message.success("Leave request submitted successfully!");
     } catch (error) {
       console.error("Failed to submit leave:", error);
@@ -90,12 +96,12 @@ const UserDrawer = ({
     }
   };
 
-
   const handleDrawerClose = () => {
     // Close the drawer
     onSelectUserChange();
-    triggerMutate()
+    triggerMutate();
     setShowAddLeaveForm(false);
+    form.resetFields();
   };
 
   const isManagerOrOwner = role === "MANAGER" || role === "OWNER";
@@ -129,11 +135,8 @@ const UserDrawer = ({
         }
         closable={false}
         autoFocus={false}
-        extra={
-          <CloseOutlined
-            onClick={handleDrawerClose}
-          />
-        }
+        onClose={() => console.log("closed")}
+        extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
         {((role === "MANAGER" && teamId === selectedUser?.teamId) ||
           role === "OWNER" ||
@@ -160,7 +163,7 @@ const UserDrawer = ({
             }}
           >
             <Form
-             layout="vertical"
+              layout="vertical"
               form={form}
               onFinish={handleAddLeave}
               initialValues={{ type: leaveTypes[0]?.value }}
@@ -211,14 +214,7 @@ const UserDrawer = ({
                   name="isApproved"
                   valuePropName="checked"
                 >
-                  <Switch
-                    defaultChecked={false}
-                    onChange={(checked) =>
-                      form.setFieldsValue({
-                        isApproved: checked ? "APPROVED" : "PENDING",
-                      })
-                    }
-                  />
+                  <Switch defaultValue={false} />
                 </Form.Item>
               )}
 
@@ -275,7 +271,6 @@ const UserDrawer = ({
                     bordered={false}
                     styles={{ body: { padding: "10px" } }}
                     style={{
-                      width: "75%",
                       boxShadow: "none",
                       borderLeft: `2px solid ${item.color}`,
                       borderRadius: "0px",
