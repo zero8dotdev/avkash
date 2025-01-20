@@ -24,7 +24,7 @@ export const updateteamsettings = async (teamId: any, setupData: any) => {
 export interface LeavePolicy {
   maxLeaves: number; // Maximum number of leaves allowed
   accruals?: boolean; // Whether leaves are accrued
-  rollover?: boolean; // Whether unused leaves are rolled over
+  rollOver?: boolean; // Whether unused leaves are rolled over
   autoApprove?: boolean; // Whether leave requests are auto-approved
   accrualFrequency?: "MONTHLY" | "YEARLY"; // Frequency of accruals
   accrueOn?: "START" | "END"; // When accruals happen in the period
@@ -103,13 +103,14 @@ export const insertLeavePolicies = async (
       const matchedLeaveType = leaveTypesData.find((lt: any) => lt.name === leaveName);
       if (!matchedLeaveType) return null;
 
-      const rollOverExpiry = policy.rollOverExpiry
+      const rollOverExpiry = policy?.rollOverExpiry
         ? new Date(policy.rollOverExpiry).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
         : undefined;
 
       // const maxLeaves = Number(policy?.maxLeaves);
       // // if (isNaN(maxLeaves)) return null;
-
+      const accruals = policy?.accruals || false
+      const rollOver = policy?.rollOver || false
       return {
         ...policy,
         teamId,
@@ -117,6 +118,8 @@ export const insertLeavePolicies = async (
         createdBy: userId,
         createdOn: new Date().toISOString(),
         rollOverExpiry,
+        accruals,
+        rollOver,
       };
     })
     .filter(Boolean);
