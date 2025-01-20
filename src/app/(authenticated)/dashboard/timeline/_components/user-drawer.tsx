@@ -246,7 +246,8 @@ const UserDrawer = ({
                   extra={
                     <span
                       style={{
-                        color: item.color,
+                        color:
+                          item.status === "approved" ? "#339900" : "#ffcc00",
                         width: "100px",
                         textAlign: "right",
                       }}
