@@ -18,7 +18,6 @@ const UserModal = ({
   selectedUser: any;
   update: Function;
 }) => {
-
   const [activeTab, setActiveTab] = useState("leave-report");
 
   // SWR hooks for data fetching
@@ -37,7 +36,7 @@ const UserModal = ({
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
 
-  const { data: activityData , isLoading: isactivityLoading } = useSWR(
+  const { data: activityData, isLoading: isactivityLoading } = useSWR(
     activeTab === "activity" && selectedUser?.userId
       ? [`activity-report-${selectedUser.userId}`, selectedUser.userId]
       : null,
@@ -60,15 +59,24 @@ const UserModal = ({
         <Typography.Title level={4}>{selectedUser?.name}</Typography.Title>
       }
       width={2000}
-      style={{ top: "65px" }}
+      style={{ top: "0px" }}
       onCancel={() => {
-        setActiveTab("leave-report")
+        setActiveTab("leave-report");
         update();
       }}
       footer={null}
       styles={{ body: { height: 800 } }}
     >
-      <Tabs activeKey={activeTab} onChange={handleTabChange}>
+      <Tabs
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        style={{
+          height: 800,
+          overflow: "auto",
+          scrollbarWidth: "none",
+          padding: "0px 20px 0px 20px",
+        }}
+      >
         <Tabs.TabPane key="leave-report" tab="Leave Report">
           <LeaveReport
             user={selectedUser}
@@ -83,9 +91,9 @@ const UserModal = ({
             loading={isLoading}
           />
         </Tabs.TabPane>
-        <Tabs.TabPane key="settings" tab="Settings">
+        {/* <Tabs.TabPane key="settings" tab="Settings">
           <Settings user={selectedUser} />
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
         <Tabs.TabPane key="activity" tab="Activities">
           <Activities activity={activityData} user={selectedUser} />
         </Tabs.TabPane>
