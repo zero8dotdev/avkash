@@ -1,9 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Flex, Modal, Select, Typography, Card } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
-import { fetchAllOrgUsers, fetchTeamMembers } from "@/app/_actions";
-import { getUsersListWithTeam } from "@/app/_components/header/_components/actions";
 interface Props {
   users: any[];
   onSelectedUser: Function;
@@ -12,10 +10,7 @@ interface Props {
 const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
-  const [loader, setloader] = useState(false);
-  const {
-    state,
-  } = useApplicationContext();
+  const { state } = useApplicationContext();
   const onCancel = () => {
     setModalVisible(false);
     setUserId(undefined);

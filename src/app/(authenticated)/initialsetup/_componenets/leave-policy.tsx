@@ -357,7 +357,11 @@ const Leavepolicy = () => {
                                               : undefined; // Convert string to number
                                           }}
                                         >
-                                          <Input type="number" />
+                                          <Input
+                                            type="number"
+                                            min={1}
+                                            max={365}
+                                          />
                                         </Form.Item>
                                       </Popover>
                                     </Flex>

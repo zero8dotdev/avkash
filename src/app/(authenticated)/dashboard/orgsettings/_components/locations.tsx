@@ -206,7 +206,28 @@ const LocationPage: React.FC<props> = ({
           <Form.Item
             name="date"
             label="Holiday Date"
-            rules={[{ required: true, message: "Please select a date!" }]}
+            rules={[
+              { required: true, message: "Please select a date!" },
+              {
+                validator: (_, value) => {
+                  const date = moment(new Date(value)).format("DD MMM YYYY");
+                  if (!value) {
+                    return Promise.reject(new Error("Please select a date!"));
+                  }
+                  const isDateTaken = holidaysList.some((holiday) =>
+                    moment(holiday.date).isSame(date, "day")
+                  );
+
+                  if (isDateTaken) {
+                    return Promise.reject(
+                      new Error("This holiday date already exists.")
+                    );
+                  }
+
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
