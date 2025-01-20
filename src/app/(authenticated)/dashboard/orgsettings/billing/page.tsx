@@ -177,7 +177,26 @@ const SubscriptionButton: React.FC = () => {
       </Col>
 
       <Col span={16}>
-        <Card style={{ marginTop: 16 }} title="Billing">
+        <Card
+          style={{ marginTop: 16 }}
+          title="Billing"
+          extra={
+            <Button
+              type="primary"
+              danger={subscriptionId ? true : false}
+              loading={loading && !subscriptionId}
+              onClick={
+                subscriptionId ? handleCancelSubscription : handlePurchase
+              }
+              disabled={
+                subscriptionDetails &&
+                subscriptionDetails.status === "cancelled"
+              }
+            >
+              {subscriptionId ? "Cancel Subscription" : "Buy Subscription"}
+            </Button>
+          }
+        >
           <Text style={{ display: "block", marginBottom: 24 }}>
             You currently have {userCount} users.
           </Text>
@@ -236,19 +255,7 @@ const SubscriptionButton: React.FC = () => {
                   </Button>
                 </>
               )}
-              <Button
-                danger={subscriptionId ? true : false}
-                loading={loading && !subscriptionId}
-                onClick={
-                  subscriptionId ? handleCancelSubscription : handlePurchase
-                }
-                disabled={
-                  subscriptionDetails &&
-                  subscriptionDetails.status === "cancelled"
-                }
-              >
-                {subscriptionId ? "Cancel Subscription" : "Buy Subscription"}
-              </Button>
+
               {showSubscriptionDetails && subscriptionDetails && (
                 <Card
                   title="Subscription Details"
