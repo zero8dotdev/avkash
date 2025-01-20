@@ -31,7 +31,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
 import {
-  fetchOrgLeavePolicyData,
   fetchTeamGeneralData,
   insertLeavePolicies,
   updateInitialsetupState,
@@ -45,8 +44,8 @@ import LeavePolicyModal from "../../dashboard/teams/[teamId]/_components/leave-p
 
 const Leavepolicy = () => {
   const [leaveTypes, setLeaveTypes] = React.useState<any[]>([
-    { name: "Paid Time Off", color: "#85a7de", active: true },
-    { name: "Sick", color: "#d7a4ed", active: true },
+    { name: "Paid Time Off", color: "#5df3fd", active: true },
+    { name: "Sick", color: "#f5b680", active: true },
     { name: "Unpaid", color: "#dbd1ce", active: false },
   ]);
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);

@@ -47,8 +47,9 @@ export default function LeaveCalendar({
         id: leave.leaveId,
         startDate: new Date(leave.startDate),
         endDate: new Date(leave.endDate),
-        bgColor: `#${leave.LeaveType.color}`, // Apply the color from the LeaveType
-        status: leave.isApproved
+        bgColor: `#${leave.LeaveType.color}`,
+        status: leave.isApproved,
+        userId: e.userId,
       })),
     };
   });
@@ -65,6 +66,9 @@ export default function LeaveCalendar({
       <Scheduler
         onItemClick={(data: any) =>
           onChangeUser(users.find((e: any) => e.userId === data.id))
+        }
+        onTileClick={(data: any) =>
+          onChangeUser(users.find((e: any) => e.userId === data.userId))
         }
         key={changeView}
         startDate={
