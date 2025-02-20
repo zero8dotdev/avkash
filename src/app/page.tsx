@@ -10,7 +10,7 @@ import FourthSection from "./(public)/_homeComponent/fourth-section";
 
 export default function HomePage() {
   return (
-    <div className="w-full bg-white min-h-screen">
+    <div className="w-full " style={{ backgroundColor: "##EAE7DC" }}>
       <HeroSection />
       <div className="w-full flex bg-[#2563ea]">
         <SecondSection />

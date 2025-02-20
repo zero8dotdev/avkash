@@ -1,5 +1,5 @@
 -- Function to log changes to the Team table
-CREATE OR REPLACE FUNCTION log_team_activity_changes() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION team_activity_audit() RETURNS TRIGGER AS
 $$
 
 DECLARE
@@ -18,8 +18,8 @@ BEGIN
         IF OLD."isActive" IS DISTINCT FROM NEW."isActive" THEN
             changedColumns := jsonb_set(changedColumns, '{isActive}', jsonb_build_object('old', OLD."isActive", 'new', NEW."isActive"));
         END IF;
-        IF OLD."manager" IS DISTINCT FROM NEW."manager" THEN
-            changedColumns := jsonb_set(changedColumns, '{manager}', jsonb_build_object('old', OLD."manager", 'new', NEW."manager"));
+        IF OLD."managers" IS DISTINCT FROM NEW."managers" THEN
+            changedColumns := jsonb_set(changedColumns, '{managers}', jsonb_build_object('old', OLD."managers", 'new', NEW."managers"));
         END IF;
         IF OLD."location" IS DISTINCT FROM NEW."location" THEN
             changedColumns := jsonb_set(changedColumns, '{location}', jsonb_build_object('old', OLD."location", 'new', NEW."location"));
@@ -74,7 +74,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the Team table
-CREATE OR REPLACE TRIGGER log_team_activity_changes_trigger
+CREATE OR REPLACE TRIGGER team_activity_audit_trigger
 AFTER UPDATE ON "Team"
 FOR EACH ROW
-EXECUTE FUNCTION log_team_activity_changes();
+EXECUTE FUNCTION team_activity_audit();

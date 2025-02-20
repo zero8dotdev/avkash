@@ -1,5 +1,5 @@
 -- Function to log changes to the Leave table for leave approval
-CREATE OR REPLACE FUNCTION leave_approved_log_fun() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION leave_approved_activity_audit() RETURNS TRIGGER AS
 $$
 DECLARE
     changedColumns JSONB := '{}'::jsonb;
@@ -15,7 +15,7 @@ BEGIN
         -- Insert the log entry only if there are changes
         IF changedColumns <> '{}'::jsonb THEN
             INSERT INTO public."ActivityLog" ("tableName", "userId", "teamId", "changedColumns", "changedBy", keyword)
-            VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave approve');
+            VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave_status');
         END IF;
     END IF;
 
@@ -25,7 +25,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the Leave table
-CREATE OR REPLACE TRIGGER leave_approved_log_trigger
+CREATE OR REPLACE TRIGGER leave_approved_activity_audit_trigger
 AFTER UPDATE ON "Leave"
 FOR EACH ROW
-EXECUTE FUNCTION leave_approved_log_fun();
+EXECUTE FUNCTION leave_approved_activity_audit();
