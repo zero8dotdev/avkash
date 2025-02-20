@@ -17,9 +17,9 @@ const HeroSection = () => {
         Elevate&nbsp;
       </h1> */}
       <p className="slide-up mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
-        <span className="text-blue-600">Avkash,&nbsp;</span>a leave management
-        HR automation tool, integrates seamlessly with Slack and Google
-        Workspace to streamline your leave management process.
+        <span style={{ color: "#E85A4F" }}>Avkash,&nbsp;</span>a leave
+        management HR automation tool, integrates seamlessly with Slack and
+        Google Workspace to streamline your leave management process.
       </p>
       <div className="slide-up mt-10 flex flex-col gap-y-4 lg:flex-row lg:gap-y-0 justify-center gap-x-6">
         <Link
@@ -28,7 +28,16 @@ const HeroSection = () => {
         >
           Add to Slack
         </Link>
-        <a href="https://www.producthunt.com/posts/avkash-io?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-avkash&#0045;io" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=476219&theme=light" alt="avkash&#0046;io - Streamlines&#0032;Leave&#0032;Management&#0032;for&#0032;Modern&#0032;Remote&#0032;Teams | Product Hunt" className="lg:w-60 h-12 " /></a>
+        <a
+          href="https://www.producthunt.com/posts/avkash-io?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-avkash&#0045;io"
+          target="_blank"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=476219&theme=light"
+            alt="avkash&#0046;io - Streamlines&#0032;Leave&#0032;Management&#0032;for&#0032;Modern&#0032;Remote&#0032;Teams | Product Hunt"
+            className="lg:w-60 h-12 "
+          />
+        </a>
       </div>
     </div>
   );

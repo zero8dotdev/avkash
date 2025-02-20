@@ -1,5 +1,5 @@
 -- Function to log changes to the User table
-CREATE OR REPLACE FUNCTION log_user_activity_changes() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION user_activity_audit() RETURNS TRIGGER AS
 $$
 
 DECLARE
@@ -15,11 +15,11 @@ BEGIN
         IF OLD."email" IS DISTINCT FROM NEW."email" THEN
             changedColumns := jsonb_set(changedColumns, '{"email"}', jsonb_build_object('old', OLD."email", 'new', NEW."email"));
         END IF;
+        IF OLD."picture" IS DISTINCT FROM NEW."picture" THEN
+            changedColumns := jsonb_set(changedColumns, '{"picture"}', jsonb_build_object('old', OLD."picture", 'new', NEW."picture"));
+        END IF;
         IF OLD."teamId" IS DISTINCT FROM NEW."teamId" THEN
             changedColumns := jsonb_set(changedColumns, '{"teamId"}', jsonb_build_object('old', OLD."teamId", 'new', NEW."teamId"));
-        END IF;
-        IF OLD."role" IS DISTINCT FROM NEW."role" THEN
-            changedColumns := jsonb_set(changedColumns, '{"role"}', jsonb_build_object('old', OLD."role", 'new', NEW."role"));
         END IF;
         IF OLD."updatedBy" IS DISTINCT FROM NEW."updatedBy" THEN
             changedColumns := jsonb_set(changedColumns, '{"updatedBy"}', jsonb_build_object('old', OLD."updatedBy", 'new', NEW."updatedBy"));
@@ -59,7 +59,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the User table
-CREATE OR REPLACE TRIGGER log_user_activity_changes_trigger
+CREATE OR REPLACE TRIGGER user_activity_audit_trigger
 AFTER UPDATE ON "User"
 FOR EACH ROW
-EXECUTE FUNCTION log_user_activity_changes();
+EXECUTE FUNCTION user_activity_audit();

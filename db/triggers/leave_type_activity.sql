@@ -1,5 +1,5 @@
 -- Function to log changes to the LeaveType table
-CREATE OR REPLACE FUNCTION log_leavetype_activity_changes() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION leavetype_activity_audit() RETURNS TRIGGER AS
 $$
 
 DECLARE
@@ -50,7 +50,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an update on the LeaveType table
-CREATE OR REPLACE TRIGGER log_leavetype_activity_changes_trigger
+CREATE OR REPLACE TRIGGER leavetype_activity_audit_trigger
 AFTER UPDATE ON "LeaveType"
 FOR EACH ROW
-EXECUTE FUNCTION log_leavetype_activity_changes();
+EXECUTE FUNCTION leavetype_activity_audit();

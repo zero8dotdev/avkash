@@ -1,98 +1,37 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  DatePicker,
-  Flex,
-  Form,
-  Input,
-  Modal,
-  Radio,
-  Select,
-  Space,
-  Switch,
-  Typography,
-} from "antd";
+import React, { useState } from "react";
+import { Button, Flex, Modal, Select, Typography, Card } from "antd";
 import { useApplicationContext } from "@/app/_context/appContext";
-import {
-  fetchAllOrgUsers,
-  fetchLeaveTypes,
-  fetchTeamId,
-  fetchTeamMembers,
-  insertLeaves,
-} from "@/app/_actions";
 interface Props {
-  team: string | undefined;
+  users: any[];
+  onSelectedUser: Function;
 }
 
-const AddLeave: React.FC<Props> = ({ team }) => {
+const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState();
-  const [loader, setloader] = useState(false);
-  const [loginUser,setLoginUser]=useState<any>()
-  const {
-    state: { orgId,user},
-  } = useApplicationContext();
-  const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>();
-  useEffect(() => {
-    if(!user?.role) return 
-    
-    (async () => {
-      try {
-        const leaveTypes = await fetchLeaveTypes(orgId);
-        if (leaveTypes) {
-          setLeaveTypes(leaveTypes);
-        }
-        if (team) {
-          const user = await fetchTeamMembers(team);
-          setUsers(user);
-        } else {
-          const users = await fetchAllOrgUsers(orgId, true);
-          setUsers(users);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-      if(user?.role==="OWNER"|| user?.role==="MANAGER"){
-         setLoginUser(user.role)
-      
-      }
-    })();
-  }, [orgId, team,user]);
-  
-  const onFinish = async (values: any) => {
-    const { dates, approve, leaveType, leaveRequestNote } = values;
-    const start = new Date(dates[0]);
-    const end = new Date(dates[1]);
-    const teamid = await fetchTeamId(userId);
-    const data = {
-      reason: leaveRequestNote,
-      startDate: start,
-      endDate: end,
-      isApproved: approve === true ? "APPROVED" : "PENDING",
-      leaveType: leaveType,
-      userId: userId,
-      teamId: teamid && teamid[0].teamId,
-      orgId: orgId,
-      duration: "FULL_DAY",
-      shift: "MORNING",
-    };
-    const insertedLeaves = await insertLeaves(data);
-    setloader(false);
-    setModalVisible(false);
-  };
-
+  const { state } = useApplicationContext();
   const onCancel = () => {
     setModalVisible(false);
     setUserId(undefined);
-    form.resetFields();
+    onSelectedUser(null);
   };
-  const submitForm = () => {
-    form.submit();
-    setloader(true);
+
+  const getuserDetails = (userId: any, type: string) => {
+    const user = users?.find((each) => each.userId === userId);
+    if (type === "user") {
+      return user?.name;
+    } else {
+      return user?.Team.name;
+    }
   };
-  const [form] = Form.useForm();
+  let filteredusers;
+  if (state.role === "OWNER" || state.role === "MANAGER") {
+    filteredusers = users;
+  } else {
+    filteredusers = users.filter((user) => user.userId === state.userId);
+  }
+
   return (
     <>
       <Button type="primary" onClick={() => setModalVisible(true)}>
@@ -100,32 +39,19 @@ const AddLeave: React.FC<Props> = ({ team }) => {
       </Button>
       <Modal
         open={isModalVisible}
-        closable={false}
+        onCancel={onCancel}
         title="Add Leave"
-        onCancel={() => onCancel()}
-        width={500}
-        footer={[
-          <>
-            <Button type="default" danger onClick={() => onCancel()}>
-              Cancel
-            </Button>
-            {userId!==undefined&&<Button
-              type="primary"
-              loading={loader}
-              onClick={() => submitForm()}
-            >
-              submit
-            </Button>
-
-            }
-            
-          </>,
-        ]}
+        width={700}
+        footer={null}
       >
         <Flex vertical>
           <Typography.Text>Select user</Typography.Text>
-          <Select style={{ width: "100%" }} onSelect={(v) => setUserId(v)}>
-            {users?.map((each, index) => (
+          <Select
+            style={{ width: "100%" }}
+            value={userId}
+            onSelect={(v) => setUserId(v)}
+          >
+            {filteredusers?.map((each, index) => (
               <Select.Option key={index} value={each.userId}>
                 {each.name}
               </Select.Option>
@@ -133,69 +59,28 @@ const AddLeave: React.FC<Props> = ({ team }) => {
           </Select>
         </Flex>
         {userId ? (
-          <Form
-            layout="vertical"
-            style={{ width: "100%", marginTop: "20px" }}
-            onFinish={onFinish}
-            form={form}
-          >
-            <Form.Item
-              label="Leave type:"
-              name="leaveType"
-              initialValue="paid of leave"
-              rules={[{ required: true, message: "Choose your leave type?" }]}
-            >
-              <Radio.Group>
-                <Space direction="vertical">
-                  {leaveTypes.length > 0 ? (
-                    leaveTypes.map((each) => (
-                      <Radio key={each.leavetypeid} value={each.name}>
-                        {each.name}
-                      </Radio>
-                    ))
-                  ) : (
-                    <Typography.Paragraph>
-                      No leave types available for this organization.
-                    </Typography.Paragraph>
-                  )}
-                </Space>
-              </Radio.Group>
-            </Form.Item>
-            <Form.Item
-              label="Dates:"
-              name="dates"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select start and end dates",
-                },
-              ]}
-            >
-              <DatePicker.RangePicker
-                style={{ width: "100%" }}
-                format="DD MMM YYYY"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Leave request notes:"
-              name="leaveRequestNote"
-              initialValue=""
-              rules={[{required:true,message:'Enter your leave request reason'}]}
-            >
-              <Input.TextArea rows={2} placeholder="Enter your leave reason" />
-            </Form.Item>
-            {loginUser==="OWNER" || loginUser==="MANAGER" ? <Form.Item
-              label="Approve this leave?"
-              name="approve"
-              initialValue={false}
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>:null
-
-            }
-           
-          </Form>
+          <Card style={{ marginTop: "20px" }}>
+            <Flex justify="space-between">
+              <Typography.Text strong>
+                {getuserDetails(userId, "user")}
+                <Typography.Text
+                  type="secondary"
+                  style={{ marginLeft: "10px" }}
+                >
+                  ({getuserDetails(userId, "team")})
+                </Typography.Text>
+              </Typography.Text>
+              <Button
+                type="primary"
+                onClick={() => {
+                  onSelectedUser(users?.find((each) => each.userId === userId));
+                  setModalVisible(false);
+                }}
+              >
+                Add Leave
+              </Button>
+            </Flex>
+          </Card>
         ) : null}
       </Modal>
     </>

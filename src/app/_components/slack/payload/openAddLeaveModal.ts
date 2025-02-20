@@ -3,7 +3,6 @@ import { getTeamsList, getUsersList } from "../../header/_components/actions";
 import { createCommonModalBlocks } from "../createCommonModalBlocks";
 import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";
-import UserList from "@/app/(authenticated)/dashboard/users/_components/user-list";
 
 interface openAddLeaveProps {
   userId?: any,
