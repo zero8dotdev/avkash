@@ -1,5 +1,5 @@
 -- Function to log changes to the Leave table for leave requests
-CREATE OR REPLACE FUNCTION leave_request_log_fun() RETURNS TRIGGER AS
+CREATE OR REPLACE FUNCTION leave_request_activity_audit() RETURNS TRIGGER AS
 $$
 DECLARE
     tableName TEXT := TG_TABLE_NAME;
@@ -9,7 +9,7 @@ BEGIN
     IF TG_OP = 'INSERT' THEN
         -- Log all new columns and their values as changed columns
         changedColumns := jsonb_build_object(
-            'leaveType', jsonb_build_object('new', NEW."leaveType"),
+            'leaveTypeId', jsonb_build_object('new', NEW."leaveTypeId"),
             'startDate', jsonb_build_object('new', NEW."startDate"),
             'endDate', jsonb_build_object('new', NEW."endDate"),
             'duration', jsonb_build_object('new', NEW."duration"),
@@ -28,7 +28,7 @@ BEGIN
 
         -- Log the entire new row
         INSERT INTO public."ActivityLog" ("tableName", "userId", "teamId", "changedColumns", "changedBy", "keyword")
-        VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave request');
+        VALUES (tableName, NEW."userId", NEW."teamId", changedColumns, NEW."updatedBy", 'leave_request');
     END IF;
 
     RETURN NEW;
@@ -37,7 +37,7 @@ $$
 LANGUAGE plpgsql;
 
 -- Trigger to call the function after an insert on the Leave table
-CREATE OR REPLACE TRIGGER leave_request_log_trigger
+CREATE OR REPLACE TRIGGER leave_request_activity_audit_trigger
 AFTER INSERT ON "Leave"
 FOR EACH ROW
-EXECUTE FUNCTION leave_request_log_fun();
+EXECUTE FUNCTION leave_request_activity_audit();

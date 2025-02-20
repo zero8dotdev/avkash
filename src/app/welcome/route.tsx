@@ -34,14 +34,13 @@ export async function GET(request: NextRequest) {
     if (userError) {
       throw userError;
     }
-
     if (user.length === 0) {
       redirectPath = "/signup";
       return;
     }
 
     let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId);
-    if (!isInitialSetupavailable?.initialSetup) {
+    if (!isInitialSetupavailable?.isSetupCompleted) {
       redirectPath = "/setup";
     } else {
       redirectPath = "/dashboard";

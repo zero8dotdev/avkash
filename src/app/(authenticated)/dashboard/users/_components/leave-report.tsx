@@ -1,47 +1,29 @@
 "use client";
 
-import { Row, Flex, Select, Table, Col } from "antd";
+import { useApplicationContext } from "@/app/_context/appContext";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Row, Flex, Select, Table, Col, Space, Typography } from "antd";
+import useSWR from "swr";
+import { getLeaveSummaryByUser, getLeaves } from "../_actions";
 
-export default function LeaveReport({ user }: { user: any }) {
-  const { accruedLeave, usedLeave } = user;
-
-  const usedLeaveMap = Object.keys(usedLeave).reduce(
-    (acc: { [key: string]: any }, key) => {
-      const newKey = usedLeave[key]["name"];
-      const value = usedLeave[key]["balance"];
-
-      acc[newKey] = value;
-      return acc;
-    },
-    {}
-  );
-
-  const final = Object.keys(accruedLeave)
-    .map((key) => {
-      return {
-        leaveType: accruedLeave[key]["name"],
-        remaining: accruedLeave[key]["balance"],
-      };
-    })
-    .map((x) => {
-      return {
-        ...x,
-        taken: usedLeaveMap[x.leaveType],
-      };
-    });
-
+export default function LeaveReport({
+  user,
+  data,
+}: {
+  user: any;
+  data: any;
+  loading: any;
+}) {
   const d = new Date();
   let year = d.getFullYear();
   let month = d.getMonth();
-  
-  // TODO: 1. make select full width, make table full width
   return (
     <>
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Flex gap={8}>
-            <Select style={{ width: 200 }} defaultValue={year} >
-              <Select.Option value={2024} >2024</Select.Option>
+            <Select style={{ width: 200 }} defaultValue={year}>
+              <Select.Option value={year}>{year}</Select.Option>
             </Select>
             <Select style={{ width: 200 }} defaultValue={month}>
               <Select.Option value={0}>All</Select.Option>
@@ -64,13 +46,77 @@ export default function LeaveReport({ user }: { user: any }) {
         <Col span={24}>
           <Table
             bordered
+            dataSource={data || []}
             pagination={false}
             columns={[
-              { title: "Leave Type", dataIndex: "leaveType", key: "title" },
-              { title: "Taken", dataIndex: "taken", key: "taken" },
-              { title: "Remaining", dataIndex: "remaining", key: "remaining" },
+              { title: "LEAVE TYPE", dataIndex: "leaveType", key: "leaveType" },
+              { title: "TAKEN", dataIndex: "taken", key: "taken" },
+              { title: "PLANNED", dataIndex: "planned", key: "planned" },
+              { title: "TOTAL", dataIndex: "total", key: "total" },
+              {
+                title: (
+                  <Space>
+                    REMAINING <QuestionCircleOutlined />
+                  </Space>
+                ),
+                dataIndex: "remaining",
+                key: "remaining",
+              },
+              {
+                title: (
+                  <Space>
+                    AVAILABLE <QuestionCircleOutlined />
+                  </Space>
+                ),
+                dataIndex: "available",
+                key: "available",
+              },
             ]}
-            dataSource={final}
+            summary={(pageData) => {
+              return (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={1}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      Sum
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={2}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce((sum, record) => sum + record.taken, 0)}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + record.planned,
+                        0
+                      )}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={4}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce((sum, record) => sum + record.total, 0)}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={5}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + Number(record.remaining),
+                        0
+                      )}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={6}>
+                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                      {pageData.reduce(
+                        (sum, record) => sum + Number(record.available),
+                        0
+                      )}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              );
+            }}
           />
         </Col>
       </Row>

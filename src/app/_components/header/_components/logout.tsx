@@ -7,6 +7,7 @@ import { useApplicationContext } from "@/app/_context/appContext";
 import { logoutAction } from "./actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getUserRole } from "@/app/(authenticated)/dashboard/timeline/_actions";
 
 export default function LogoutButton() {
   const supabase = createClient();
@@ -16,9 +17,14 @@ export default function LogoutButton() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
+      let role = null;
+      if (data?.user?.id) {
+        role = await getUserRole(data.user.id);
+      }
       if (data?.user) {
         dispatch({ type: "setUser", payload: data.user.user_metadata });
         dispatch({ type: "setUserId", payload: data.user.id });
+        dispatch({type:"setRole", payload:role })
       }
     })();
   }, []);

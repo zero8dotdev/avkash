@@ -37,7 +37,7 @@ export default function LeavePreview() {
   const [activeTab, setActiveTab] = useState<TabsProps["activeKey"]>("today");
 
   return (
-    <Flex style={{ minHeight: "100px", width: "100%" }}>
+    <Flex style={{ minHeight: "100px" }}>
       <Tabs
         size="small"
         type="card"
