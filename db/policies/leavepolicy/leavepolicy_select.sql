@@ -10,7 +10,7 @@ CREATE POLICY "leavepolicy_select" ON "public"."LeavePolicy" FOR SELECT
                 -- Allow access if the user is a manager or user to see their org only
                 (
                 public.fetch_user_role(auth.uid()) IN ('MANAGER', 'USER','OWNER')
-                AND "orgId" = public.fetch_user_orgid(auth.uid())
+                AND "teamId" = public.fetch_user_teamid(auth.uid())
                 )
             )
         )

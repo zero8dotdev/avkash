@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
         }
   
       if (status === 201 && statusText === "Created") {
-        redirectPath = "/setup";
+        redirectPath = "/initialsetup/settings";
       } else {
         redirectPath = "/error";
       }

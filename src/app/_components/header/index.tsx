@@ -5,7 +5,7 @@ import Title from "antd/es/typography/Title";
 import LogoutButton from "./_components/logout";
 import { Header } from "antd/es/layout/layout";
 import MainMenu from "./_components/main-menu";
-import logo from "../../(public)/avkash-only.png";
+import logo from "../../(public)/avkash-logo-new.png";
 export default function AppHeader() {
   return (
     <Header
@@ -13,13 +13,13 @@ export default function AppHeader() {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: "#fff",
+        backgroundColor: "#EAE7DC",
         borderBottom: "1px solid rgba(0, 0, 100, 0.17)",
         padding: "0px 24px",
       }}
     >
       <Link href="/" className="flex justify-center align-center">
-        <Image src={logo} alt="avkash" height={48} width={48} />
+        <Image src={logo} alt="avkash" height={45} width={45} />
         <Title
           className="hidden sm:block m-0 mt-2 leading-none"
           style={{
