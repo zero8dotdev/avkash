@@ -20,25 +20,12 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  LeftOutlined,
-  SmileOutlined,
-  SolutionOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { fetchOrg, fetchPublicHolidays } from "@/app/_actions";
+import { EditOutlined, LeftOutlined } from "@ant-design/icons";
+import { fetchOrg } from "@/app/_actions";
 import { Card } from "antd";
 import { useRouter } from "next/navigation";
 import TopSteps from "../_componenets/steps";
-import {
-  fetchHolidaysData,
-  fetchTeamGeneralData,
-  insertHolidays,
-  updateInitialsetupState,
-  updateLocation,
-} from "../_actions";
+import { updateInitialsetupState } from "../_actions";
 import { useApplicationContext } from "@/app/_context/appContext";
 import useSWR from "swr";
 import Flag from "react-world-flags";
@@ -191,7 +178,7 @@ const Location = () => {
         <Card
           title="Locations"
           extra={
-            orgData?.location?.length === 0 || orgData?.location === null  ? ( // Check if the org has no locations
+            orgData?.location?.length === 0 || orgData?.location === null ? ( // Check if the org has no locations
               <Tooltip title="Add Location">
                 <Button
                   onClick={handleAddLocation}
