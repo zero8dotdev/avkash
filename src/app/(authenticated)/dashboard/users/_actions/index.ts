@@ -1,11 +1,9 @@
 "use server";
 
-import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 import { createClient } from "@/app/_utils/supabase/server";
-import { WebClient } from "@slack/web-api";
 
 export const fetchOrgTeamsData = async (orgId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("Team")
     .select("*")
@@ -18,7 +16,7 @@ export const fetchOrgTeamsData = async (orgId: string) => {
 };
 
 export const fetchTeamUsersData = async (teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select("*")
@@ -31,7 +29,7 @@ export const fetchTeamUsersData = async (teamId: string) => {
 };
 
 export const fetchOrgUsersData = async (orgId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select("*")
@@ -44,7 +42,7 @@ export const fetchOrgUsersData = async (orgId: string) => {
 };
 
 export const getLeaveSummaryByUser = async (userId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Step 1: Get the user's organization ID and active leave types
   const { data: userOrgData, error: userOrgError } = await supabase
@@ -62,7 +60,7 @@ export const getLeaveSummaryByUser = async (userId: string) => {
   const { data: leaveTypes, error: leaveTypeError } = await supabase
     .from("LeaveType")
     .select(
-      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)"
+      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)",
     )
     .eq("orgId", orgId)
     .eq("isActive", true);
@@ -89,7 +87,7 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "APPROVED"
+          leave.isApproved === "APPROVED",
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -97,7 +95,7 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "PENDING"
+          leave.isApproved === "PENDING",
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -111,14 +109,12 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       taken: takenCount || 0,
       planned: plannedCount || 0,
       total: totalLeaves,
-      remaining:
-        totalLeaves === Infinity
-          ? "Unlimited"
-          : Math.max(totalLeaves - takenCount, 0),
-      available:
-        totalLeaves === Infinity
-          ? "Unlimited"
-          : Math.max(totalLeaves - takenCount - plannedCount, 0),
+      remaining: totalLeaves === Infinity
+        ? "Unlimited"
+        : Math.max(totalLeaves - takenCount, 0),
+      available: totalLeaves === Infinity
+        ? "Unlimited"
+        : Math.max(totalLeaves - takenCount - plannedCount, 0),
     };
   });
 
@@ -128,9 +124,9 @@ export const getLeaveSummaryByUser = async (userId: string) => {
 export const getLeaveSummaryByUserByPeriod = async (
   userId: string,
   year?: number,
-  month?: number
+  month?: number,
 ) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Step 1: Get the user's organization ID and active leave types
   const { data: userOrgData, error: userOrgError } = await supabase
@@ -149,7 +145,7 @@ export const getLeaveSummaryByUserByPeriod = async (
   const { data: leaveTypes, error: leaveTypeError } = await supabase
     .from("LeaveType")
     .select(
-      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)"
+      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)",
     )
     .eq("orgId", orgId)
     .eq("isActive", true);
@@ -187,7 +183,7 @@ export const getLeaveSummaryByUserByPeriod = async (
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "APPROVED"
+          leave.isApproved === "APPROVED",
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -195,7 +191,7 @@ export const getLeaveSummaryByUserByPeriod = async (
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "PENDING"
+          leave.isApproved === "PENDING",
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -209,21 +205,19 @@ export const getLeaveSummaryByUserByPeriod = async (
       taken: takenCount || 0,
       planned: plannedCount || 0,
       total: totalLeaves,
-      remaining:
-        totalLeaves === Infinity
-          ? "Unlimited"
-          : Math.max(totalLeaves - takenCount, 0),
-      available:
-        totalLeaves === Infinity
-          ? "Unlimited"
-          : Math.max(totalLeaves - takenCount - plannedCount, 0),
+      remaining: totalLeaves === Infinity
+        ? "Unlimited"
+        : Math.max(totalLeaves - takenCount, 0),
+      available: totalLeaves === Infinity
+        ? "Unlimited"
+        : Math.max(totalLeaves - takenCount - plannedCount, 0),
     };
   });
 
   return result;
 };
 
-export const formatLeavesData = (rawData: any[]) => {
+export const formatLeavesData = async (rawData: any[]) => {
   return rawData.map((leave) => ({
     type: leave.LeaveType.name,
     startDate: leave.startDate,
@@ -235,7 +229,7 @@ export const formatLeavesData = (rawData: any[]) => {
 };
 
 export const getLeaves = async (userId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("Leave") // Selecting from the 'Leave' table
     .select(
@@ -247,7 +241,7 @@ export const getLeaves = async (userId: string) => {
         isActive,
         color
       )
-    `
+    `,
     ) // Nested select to include the related LeaveType data
     .eq("userId", userId); // Filtering based on the userId
 
@@ -259,7 +253,7 @@ export const getLeaves = async (userId: string) => {
 };
 
 export const getActivity = async (userId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // Step 1: Fetch the user's teamId and orgId from the User table
