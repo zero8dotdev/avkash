@@ -1,3 +1,71 @@
 {
-  "extends": "next/core-web-vitals"
+  "env": {
+    "node": true,
+    "es2021": true,
+    "browser": true
+  },
+  "globals": {
+    "react": true
+  },
+  "extends": [
+    "airbnb",
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "no-use-before-define": "off",
+    "react/no-unstable-nested-components": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "no-param-reassign": 0,
+    "react/no-array-index-key": "off",
+    "no-nested-ternary": "off",
+    "curly": "off",
+    "react/jsx-props-no-spreading": "off",
+    "no-console": "off",
+    "no-shadow": "off",
+    "arrow-body-style": "off",
+    "import/extensions": "off",
+    "react/button-has-type": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-filename-extension": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": false,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "semi": 0, // let it handle by prettier
+    "react/function-component-definition": "off",
+    "indent": "off", // let it handle by prettier
+    "max-len": "off", // let it handle by prettier
+    "comma-dangle": "off", // let it handle by prettier
+    "no-redeclare": "off", // let it handle by TypeScript
+    "react/jsx-indent": "off", // let it handle by prettier
+    "no-unused-vars": "off", // let it handle by TypeScript
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "operator-linebreak": "off", // let it handle by prettier
+    "object-curly-newline": "off", // let it handle by prettier
+    "function-paren-newline": "off", // let it handle by prettier
+    "implicit-arrow-linebreak": "off", // let it handle by prettier
+    "react/require-default-props": "off", // let it handle by TypeScript
+    "nonblock-statement-body-position": "off", // let it handle by prettier
+    "react/jsx-one-expression-per-line": "off" // let it handle by prettier
+  }
 }
