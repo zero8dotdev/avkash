@@ -9,7 +9,7 @@ import { WebClient } from "@slack/web-api";
 */
 export const fetchUser = async () => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     // TODO: figure out if we can skip this step.
     const {
       data: { user },
@@ -39,7 +39,7 @@ export const fetchUser = async () => {
 */
 export const fetchOrg = async (orgId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: organisation, error } = await supabase
       .from("Organisation")
@@ -62,7 +62,7 @@ export const fetchOrg = async (orgId: string) => {
 */
 export const fetchTeam = async (teamId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: team, error } = await supabase
       .from("Team")
@@ -84,7 +84,7 @@ export const fetchTeam = async (teamId: string) => {
 */
 export const fetchAllTeams = async (orgId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: teams, error } = await supabase
       .from("Team")
@@ -103,7 +103,7 @@ export const fetchAllTeams = async (orgId: string) => {
 
 export const fetchTeamMembers = async (teamId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: teamMembers, error } = await supabase
       .from("User")
       .select(
@@ -112,7 +112,7 @@ export const fetchTeamMembers = async (teamId: string) => {
       Team (
         name
       )
-    `
+    `,
       )
       .eq("teamId", teamId);
 
@@ -127,7 +127,7 @@ export const fetchTeamMembers = async (teamId: string) => {
 };
 
 // export const updataOrgData = async (values: any, orgId: string) => {
-//   const supabase = createClient();
+//   const supabase = await createClient();
 
 //   const { data, error } = await supabase
 //     .from("Organisation")
@@ -143,7 +143,7 @@ export const fetchTeamMembers = async (teamId: string) => {
 // };
 
 // export const fetchleaveTypes = async (orgId: string) => {
-//   const supabase = createClient();
+//   const supabase = await createClient();
 //   const { data, error } = await supabase
 //     .from("LeaveType")
 //     .select("name,leaveTypeId,color,isActive")
@@ -156,7 +156,7 @@ export const fetchTeamMembers = async (teamId: string) => {
 // };
 
 export const updateLeaveType = async (values: any, leaveTypeId: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { color } = values;
 
   const leaveTypeValues = { ...values, color: color.slice(1) };
@@ -172,7 +172,7 @@ export const updateLeaveType = async (values: any, leaveTypeId: any) => {
   return data;
 };
 export const fetchTeamsData = async (orgId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("Team")
     .select(`*, User(*)`)
@@ -187,8 +187,9 @@ export const fetchTeamsData = async (orgId: string) => {
     const name = team.name;
     const status = team.isActive;
     const users = team.User.length;
-    const manager =
-      team.User.find((user: any) => user?.role === "MANAGER")?.name ||
+    const manager = team.User.find((user: any) =>
+      user?.role === "MANAGER"
+    )?.name ||
       "No manager assigned";
 
     return {
@@ -204,7 +205,7 @@ export const fetchTeamsData = async (orgId: string) => {
 };
 export const fetchPublicHolidays = async (countryCode: any) => {
   const currentYear = new Date().getFullYear();
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: holidaysdata, error } = await supabase
     .from("PublicHolidays")
     .select("*")
@@ -220,9 +221,9 @@ export const fetchPublicHolidays = async (countryCode: any) => {
 export const updateLeaveTypeBasedOnOrg = async (
   isActive: boolean,
   orgId: string,
-  leaveTypeId: any
+  leaveTypeId: any,
 ) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("LeaveType")
     .update({ isActive: isActive })
@@ -236,7 +237,7 @@ export const updateLeaveTypeBasedOnOrg = async (
 };
 
 export const updateTeamData = async (isActive: boolean, teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("Team")
     .update({ isActive: isActive })
@@ -249,7 +250,7 @@ export const updateTeamData = async (isActive: boolean, teamId: string) => {
 };
 
 export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select(`${withTeam ? "*, Team(*)" : "*"}`)
@@ -261,7 +262,7 @@ export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
 };
 
 export const insertNewLeaveType = async (values: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("LeaveType")
     .insert(values)
@@ -275,9 +276,9 @@ export const insertNewLeaveType = async (values: any) => {
 export const updateLeavePolicies = async (
   values: any,
   leaveTypeId: string,
-  orgId: string
+  orgId: string,
 ) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: isDataAvailable, error } = await supabase
     .from("LeavePolicy")
@@ -305,7 +306,6 @@ export const updateLeavePolicies = async (
       .update(values)
       .eq("leaveTypeId", leaveTypeId)
       .eq("orgId", orgId)
-
       .select("*");
     if (error) {
       console.log(error);
@@ -318,7 +318,7 @@ export const updateLeavePolicies = async (
 export const fetchLeaveTypes = async (
   teamId: string,
   userId: string,
-  orgId: string
+  orgId: string,
 ) => {
   try {
     const supabaseAdminClient = createAdminClient();
@@ -332,7 +332,7 @@ export const fetchLeaveTypes = async (
       throw error;
     }
     const activeLeavePolicies = data.filter(
-      (policy) => policy.isActive && policy.LeaveType.isActive
+      (policy) => policy.isActive && policy.LeaveType.isActive,
     );
 
     return activeLeavePolicies;
@@ -433,7 +433,7 @@ export const getLeaves = async (idColumn: any, id: any) => {
 
 export const getUserRole = async (userId: any): Promise<string> => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
@@ -443,7 +443,7 @@ export const getUserRole = async (userId: any): Promise<string> => {
         userId,
         Organisation(*),
         Team(*)
-      `
+      `,
       )
       .eq("userId", userId)
       .single();
@@ -521,7 +521,7 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
 
     const users = result.members?.filter(
       ({ is_bot, deleted, is_email_confirmed }) =>
-        !is_bot && !deleted && is_email_confirmed
+        !is_bot && !deleted && is_email_confirmed,
     );
 
     const existedUsers = await supabaseAdminClient
@@ -532,12 +532,12 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
       throw existedUsers.error;
     }
     const existingUserEmails = new Set(
-      existedUsers.data.map((user: any) => user.email)
+      existedUsers.data.map((user: any) => user.email),
     );
 
     // Filter out non-existing users by email
     const nonExistingUsers = users?.filter(
-      (user: any) => !existingUserEmails.has(user.profile.email)
+      (user: any) => !existingUserEmails.has(user.profile.email),
     );
     return nonExistingUsers;
   } catch (error) {
@@ -611,7 +611,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
             date,
             createdBy: currentUser?.id,
             location: countryCode,
-          }))
+          })),
         )
         .select();
 
@@ -662,7 +662,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
         }
         return acc;
       },
-      acc
+      acc,
     );
 
     const { data: userData, error: userError } = await supabaseAdminClient
@@ -707,7 +707,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
 export const updateHolidaysList = async (
   holidaysList: any,
   orgId: string,
-  countryCode: any
+  countryCode: any,
 ) => {
   const holidayData = holidaysList.map((e: any) => {
     return {
@@ -719,7 +719,7 @@ export const updateHolidaysList = async (
       orgId: orgId,
     };
   });
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: deleteData, error: deleteError } = await supabase
     .from("Holiday")
     .delete()
@@ -739,7 +739,7 @@ export const updateHolidaysList = async (
 };
 
 export const fetchTeamUsers = async (teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select("name")
@@ -753,9 +753,9 @@ export const fetchTeamUsers = async (teamId: string) => {
 export const fetchAllActivities = async (
   userId: string,
   teamId: string,
-  orgId: string
+  orgId: string,
 ) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("ActivityLog")
     .select("*")
@@ -796,7 +796,7 @@ export const isInitialSetupDone = async (orgId: string) => {
 };
 
 export const fetchUserDetails = async (userId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select("*")
@@ -809,7 +809,7 @@ export const fetchUserDetails = async (userId: string) => {
 };
 
 export const createNewTeam = async (values: any, orgId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: teamData, error } = await supabase
     .from("Team")
     .insert({ ...values })
@@ -820,7 +820,7 @@ export const createNewTeam = async (values: any, orgId: string) => {
   return teamData;
 };
 export const addUsersToNewTeam = async (values: any, userId: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .update({ teamId: values })
@@ -833,7 +833,7 @@ export const addUsersToNewTeam = async (values: any, userId: any) => {
 
 export const fetchUsers = async (teamId: any, orgId: any) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     if (teamId) {
       const { data: teamMembers, error } = await supabase
         .from("User")
@@ -859,7 +859,7 @@ export const fetchUsers = async (teamId: any, orgId: any) => {
 };
 
 export const insertLeaves = async (values: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("Leave")
     .insert({ ...values })
@@ -870,7 +870,7 @@ export const insertLeaves = async (values: any) => {
   return data;
 };
 export const fetchTeamId = async (userId: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("User")
     .select("teamId")

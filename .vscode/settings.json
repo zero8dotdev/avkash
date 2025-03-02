@@ -2,7 +2,9 @@
   "[typescript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
   },
-  "deno.enablePaths": ["supabase/functions"],
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
   "deno.lint": true,
   "deno.unstable": [
     "bare-node-builtins",
@@ -22,5 +24,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
-  "eslint.validate": ["javascript"]
+  "eslint.validate": [
+    "javascript"
+  ]
 }

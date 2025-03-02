@@ -1,12 +1,9 @@
 "use server";
 
 import { createAdminClient } from "@/app/_utils/supabase/adminClient";
-import { createClient } from "@/app/_utils/supabase/server";
-import { FileTextFilled } from "@ant-design/icons";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { log } from "node:console";
 
 interface LeaveHistoryParams {
   userId?: string;
@@ -59,7 +56,7 @@ export async function getSlackAccessToken(slackId: string) {
 export async function getNotifiedUser(
   toWhom: string,
   teamId: string,
-  orgId: string
+  orgId: string,
 ) {
   // const { data: notifyData, error: notifyError } = await supabaseAdmin
   //   .from('Organisation')
@@ -115,7 +112,7 @@ export async function applyLeave(
   userId: string,
   teamId: string,
   reason: string,
-  orgId: string
+  orgId: string,
 ) {
   const supabaseAdmin = createAdminClient();
   const { data, error } = await supabaseAdmin
@@ -145,7 +142,7 @@ export async function updateLeaveStatus(
   allFields: any = {},
   newAccruedBalance: any,
   newUsedBalance: any,
-  userId: string
+  userId: string,
 ) {
   let updateValue: any = allFields;
   const { data, error } = await supabaseAdmin
@@ -206,7 +203,7 @@ export async function getLeavesHistory({
 
   const addLeaveTypeName = filteredLeaves.map((leave) => {
     const cLeaveType = leaveTypesData?.find(
-      (leaveType) => leave.leaveType === leaveType.leaveTypeId
+      (leaveType) => leave.leaveType === leaveType.leaveTypeId,
     );
     return {
       ...leave,
@@ -215,7 +212,7 @@ export async function getLeavesHistory({
   });
 
   const pendingLeaves = addLeaveTypeName.filter(
-    (leave) => leave.isApproved === "PENDING"
+    (leave) => leave.isApproved === "PENDING",
   );
   return { leaves: addLeaveTypeName, pending: pendingLeaves };
 }
@@ -311,7 +308,7 @@ export async function fetchOrgWorkWeek(orgId: string) {
 export async function fetchHolidays(
   startDate: string,
   endDate: string,
-  location: string
+  location: string,
 ) {
   try {
     const start = new Date(startDate).toISOString().slice(0, 10);
@@ -334,7 +331,7 @@ export async function fetchHolidays(
 
 export const addSubscriptionToOrg = async (
   orgId: string,
-  subscriptionId: string
+  subscriptionId: string,
 ) => {
   try {
     const { data, error } = await supabaseAdmin
@@ -344,7 +341,7 @@ export const addSubscriptionToOrg = async (
 
     if (error) {
       throw new Error(
-        `Failed to add subscription ID to organisation: ${error.message}`
+        `Failed to add subscription ID to organisation: ${error.message}`,
       );
     }
     return data;
@@ -367,13 +364,13 @@ export const fetchInvoices = async (subscriptionId: any) => {
         headers: {
           Authorization: `Basic ${credentials}`,
         },
-      }
+      },
     );
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
         { error: errorData },
-        { status: response.status }
+        { status: response.status },
       );
     }
     const data = await response.json();
@@ -400,13 +397,13 @@ export const cancelSubscription = async (subscriptionId: any) => {
         body: JSON.stringify({
           cancel_at_cycle_end: 0,
         }),
-      }
+      },
     );
     if (!response.ok) {
       const errorData = await response.json();
       return NextResponse.json(
         { error: errorData },
-        { status: response.status }
+        { status: response.status },
       );
     }
     const data = await response.json();
@@ -447,7 +444,6 @@ export const insertData = async (res: any) => {
 
 export const getSubDetails = async (subscriptionId: string) => {
   const { data, error } = await supabaseAdmin
-
     .from("Subscription")
     .select("*")
     .eq("id", subscriptionId)

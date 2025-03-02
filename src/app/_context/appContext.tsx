@@ -78,7 +78,7 @@ function applicationReducer(state: ContextState, action: Action) {
     case "setRole":
       return {
         ...state,
-        role: action.payload
+        role: action.payload,
       };
 
     case "setTeamId":
