@@ -1,19 +1,19 @@
-const { Client } = require("pg");
-const fs = require("fs");
-const path = require("path");
+const { Client } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 // Create a PostgreSQL client
 const connectionString = process.env.SUPABASE_DIRECT_URL;
 (async function () {
   if (!connectionString) {
     throw new Error(
-      "Supabase connection URL is not specified. Please check your `.env.local file.`"
+      'Supabase connection URL is not specified. Please check your `.env.local file.`'
     );
     process.exit(0);
   }
 
   const client = new Client({
-    connectionString: connectionString,
+    connectionString,
   });
   client.connect();
 
@@ -23,7 +23,7 @@ const connectionString = process.env.SUPABASE_DIRECT_URL;
     const sqlFiles = fs.readdirSync(dirPath, { recursive: true });
 
     let sqlFilesCount = sqlFiles.filter((fileName) =>
-      fileName.includes(".sql")
+      fileName.includes('.sql')
     ).length;
 
     let queryCount = 0;
@@ -36,7 +36,7 @@ const connectionString = process.env.SUPABASE_DIRECT_URL;
       try {
         const fileContent = fs.readFileSync(
           path.join(dirPath, fileName),
-          "utf8"
+          'utf8'
         );
 
         // run sql query
@@ -62,7 +62,7 @@ const connectionString = process.env.SUPABASE_DIRECT_URL;
 
           if (queryCount === sqlFilesCount) {
             client.end();
-            console.log("Your Functions are up and ready!");
+            console.log('Your Functions are up and ready!');
             process.exit(1);
           }
         });

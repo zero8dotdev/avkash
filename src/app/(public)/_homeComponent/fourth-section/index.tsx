@@ -1,43 +1,43 @@
 export default function FourthSection() {
   const table = [
     {
-      aspect: "Efficiency",
-      withAvkash: "High efficiency with automated processes",
-      withoutAvkash: "Low efficiency due to manual tracking and processing",
+      aspect: 'Efficiency',
+      withAvkash: 'High efficiency with automated processes',
+      withoutAvkash: 'Low efficiency due to manual tracking and processing',
     },
     {
-      aspect: "Leave Requests",
-      withAvkash: "Quick and seamless via Slack/Google Workspace",
+      aspect: 'Leave Requests',
+      withAvkash: 'Quick and seamless via Slack/Google Workspace',
       withoutAvkash:
-        "Time-consuming and error-prone with emails or spreadsheets",
+        'Time-consuming and error-prone with emails or spreadsheets',
     },
     {
-      aspect: "Approval Process",
-      withAvkash: "Streamlined with instant notifications and approvals",
-      withoutAvkash: "Delayed due to back-and-forth communication",
+      aspect: 'Approval Process',
+      withAvkash: 'Streamlined with instant notifications and approvals',
+      withoutAvkash: 'Delayed due to back-and-forth communication',
     },
     {
-      aspect: "Transparency",
+      aspect: 'Transparency',
       withAvkash:
-        "High transparency with real-time updates accessible to all team members",
+        'High transparency with real-time updates accessible to all team members',
       withoutAvkash:
         "Low transparency; team members often unaware of others' leaves",
     },
     {
-      aspect: "Record-Keeping",
-      withAvkash: "Accurate and up-to-date records automatically maintained",
-      withoutAvkash: "Prone to errors and inconsistencies",
+      aspect: 'Record-Keeping',
+      withAvkash: 'Accurate and up-to-date records automatically maintained',
+      withoutAvkash: 'Prone to errors and inconsistencies',
     },
     {
-      aspect: "Work-Life Balance",
-      withAvkash: "Promotes better work-life balance by encouraging time off",
+      aspect: 'Work-Life Balance',
+      withAvkash: 'Promotes better work-life balance by encouraging time off',
       withoutAvkash:
-        "Employees may hesitate to take leave due to complex processes",
+        'Employees may hesitate to take leave due to complex processes',
     },
     {
-      aspect: "Resource Planning",
-      withAvkash: "Improved with comprehensive reporting and insights",
-      withoutAvkash: "Challenging due to lack of real-time data and insights",
+      aspect: 'Resource Planning',
+      withAvkash: 'Improved with comprehensive reporting and insights',
+      withoutAvkash: 'Challenging due to lack of real-time data and insights',
     },
   ];
 
@@ -59,7 +59,7 @@ export default function FourthSection() {
               <th
                 scope="col"
                 className="px-3 py-3 sticky left-0"
-                style={{ backgroundColor: "#1E40AF", width: "100px" }}
+                style={{ backgroundColor: '#1E40AF', width: '100px' }}
               >
                 Aspect
               </th>
@@ -73,18 +73,18 @@ export default function FourthSection() {
           </thead>
           <tbody>
             {table.map((row, index) => {
-              const rowStyle = index % 2 === 0 ? "#3B82F6" : "#2563EB";
+              const rowStyle = index % 2 === 0 ? '#3B82F6' : '#2563EB';
               return (
                 <tr
                   key={index}
-                  className={`border-b border-blue-500`}
+                  className="border-b border-blue-500"
                   style={{ backgroundColor: rowStyle }}
                 >
                   <th
                     scope="row"
                     className="px-3 py-4 font-medium text-blue-50 whitespace-nowrap sticky left-0"
                     style={{
-                      width: "100px",
+                      width: '100px',
                       backgroundColor: rowStyle,
                     }}
                   >

@@ -1,15 +1,15 @@
-"use server";
+'use server';
 
-import { createAdminClient } from "@/app/_utils/supabase/adminClient";
-import { createClient } from "@/app/_utils/supabase/server";
-import { WebClient } from "@slack/web-api";
+import { createAdminClient } from '@/app/_utils/supabase/adminClient';
+import { createClient } from '@/app/_utils/supabase/server';
+import { WebClient } from '@slack/web-api';
 
 export const fetchOrgTeamsData = async (orgId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("Team")
-    .select("*")
-    .eq("orgId", orgId)
+    .from('Team')
+    .select('*')
+    .eq('orgId', orgId)
     .select();
   if (error) {
     throw error;
@@ -20,9 +20,9 @@ export const fetchOrgTeamsData = async (orgId: string) => {
 export const fetchTeamUsersData = async (teamId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("User")
-    .select("*")
-    .eq("teamId", teamId)
+    .from('User')
+    .select('*')
+    .eq('teamId', teamId)
     .select();
   if (error) {
     throw error;
@@ -33,9 +33,9 @@ export const fetchTeamUsersData = async (teamId: string) => {
 export const fetchOrgUsersData = async (orgId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("User")
-    .select("*")
-    .eq("orgId", orgId)
+    .from('User')
+    .select('*')
+    .eq('orgId', orgId)
     .select();
   if (error) {
     throw error;
@@ -48,38 +48,38 @@ export const getLeaveSummaryByUser = async (userId: string) => {
 
   // Step 1: Get the user's organization ID and active leave types
   const { data: userOrgData, error: userOrgError } = await supabase
-    .from("User")
-    .select("orgId")
-    .eq("userId", userId)
+    .from('User')
+    .select('orgId')
+    .eq('userId', userId)
     .single();
   if (userOrgError || !userOrgData?.orgId) {
-    console.error("Error fetching user organization:", userOrgError);
+    console.error('Error fetching user organization:', userOrgError);
     return null;
   }
 
   const { orgId } = userOrgData;
 
   const { data: leaveTypes, error: leaveTypeError } = await supabase
-    .from("LeaveType")
+    .from('LeaveType')
     .select(
-      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)"
+      'leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)'
     )
-    .eq("orgId", orgId)
-    .eq("isActive", true);
+    .eq('orgId', orgId)
+    .eq('isActive', true);
 
   if (leaveTypeError) {
-    console.error("Error fetching active leave types:", leaveTypeError);
+    console.error('Error fetching active leave types:', leaveTypeError);
     return null;
   }
 
   // Step 2: Query the leave_summary view for the specific user
   const { data: leaveData, error: leaveError } = await supabase
-    .from("leave_summary")
-    .select("*")
-    .eq("userId", userId);
+    .from('leave_summary')
+    .select('*')
+    .eq('userId', userId);
 
   if (leaveError) {
-    console.error("Error fetching leave summary:", leaveError);
+    console.error('Error fetching leave summary:', leaveError);
     return null;
   }
 
@@ -89,7 +89,7 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "APPROVED"
+          leave.isApproved === 'APPROVED'
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -97,7 +97,7 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "PENDING"
+          leave.isApproved === 'PENDING'
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -113,11 +113,11 @@ export const getLeaveSummaryByUser = async (userId: string) => {
       total: totalLeaves,
       remaining:
         totalLeaves === Infinity
-          ? "Unlimited"
+          ? 'Unlimited'
           : Math.max(totalLeaves - takenCount, 0),
       available:
         totalLeaves === Infinity
-          ? "Unlimited"
+          ? 'Unlimited'
           : Math.max(totalLeaves - takenCount - plannedCount, 0),
     };
   });
@@ -134,50 +134,50 @@ export const getLeaveSummaryByUserByPeriod = async (
 
   // Step 1: Get the user's organization ID and active leave types
   const { data: userOrgData, error: userOrgError } = await supabase
-    .from("User")
-    .select("orgId")
-    .eq("userId", userId)
+    .from('User')
+    .select('orgId')
+    .eq('userId', userId)
     .single();
 
   if (userOrgError || !userOrgData?.orgId) {
-    console.error("Error fetching user organization:", userOrgError);
+    console.error('Error fetching user organization:', userOrgError);
     return null;
   }
 
   const { orgId } = userOrgData;
 
   const { data: leaveTypes, error: leaveTypeError } = await supabase
-    .from("LeaveType")
+    .from('LeaveType')
     .select(
-      "leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)"
+      'leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)'
     )
-    .eq("orgId", orgId)
-    .eq("isActive", true);
+    .eq('orgId', orgId)
+    .eq('isActive', true);
 
   if (leaveTypeError) {
-    console.error("Error fetching active leave types:", leaveTypeError);
+    console.error('Error fetching active leave types:', leaveTypeError);
     return null;
   }
 
   // Step 2: Build filters for year and month
-  let query = supabase.from("leave_summary").select("*").eq("userId", userId);
+  let query = supabase.from('leave_summary').select('*').eq('userId', userId);
 
   if (year) {
     query = query
-      .gte("createdAt", `${year}-01-01`)
-      .lte("createdAt", `${year}-12-31`);
+      .gte('createdAt', `${year}-01-01`)
+      .lte('createdAt', `${year}-12-31`);
   }
 
   if (month) {
-    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-    const endDate = new Date(year!, month!, 0).toISOString().split("T")[0];
-    query = query.gte("createdAt", startDate).lte("createdAt", endDate);
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const endDate = new Date(year!, month!, 0).toISOString().split('T')[0];
+    query = query.gte('createdAt', startDate).lte('createdAt', endDate);
   }
 
   const { data: leaveData, error: leaveError } = await query;
 
   if (leaveError) {
-    console.error("Error fetching leave summary:", leaveError);
+    console.error('Error fetching leave summary:', leaveError);
     return null;
   }
 
@@ -187,7 +187,7 @@ export const getLeaveSummaryByUserByPeriod = async (
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "APPROVED"
+          leave.isApproved === 'APPROVED'
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -195,7 +195,7 @@ export const getLeaveSummaryByUserByPeriod = async (
       .filter(
         (leave) =>
           leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === "PENDING"
+          leave.isApproved === 'PENDING'
       )
       .reduce((sum, leave) => sum + leave.count, 0);
 
@@ -211,11 +211,11 @@ export const getLeaveSummaryByUserByPeriod = async (
       total: totalLeaves,
       remaining:
         totalLeaves === Infinity
-          ? "Unlimited"
+          ? 'Unlimited'
           : Math.max(totalLeaves - takenCount, 0),
       available:
         totalLeaves === Infinity
-          ? "Unlimited"
+          ? 'Unlimited'
           : Math.max(totalLeaves - takenCount - plannedCount, 0),
     };
   });
@@ -228,7 +228,7 @@ export const formatLeavesData = (rawData: any[]) => {
     type: leave.LeaveType.name,
     startDate: leave.startDate,
     endDate: leave.endDate,
-    leaveRequestNote: leave.reason || "",
+    leaveRequestNote: leave.reason || '',
     status: leave.isApproved.toLowerCase(),
     color: leave.LeaveType.color,
   }));
@@ -237,7 +237,7 @@ export const formatLeavesData = (rawData: any[]) => {
 export const getLeaves = async (userId: string) => {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("Leave") // Selecting from the 'Leave' table
+    .from('Leave') // Selecting from the 'Leave' table
     .select(
       `
       *,
@@ -249,7 +249,7 @@ export const getLeaves = async (userId: string) => {
       )
     `
     ) // Nested select to include the related LeaveType data
-    .eq("userId", userId); // Filtering based on the userId
+    .eq('userId', userId); // Filtering based on the userId
 
   if (error) {
     throw error; // Handling any error that may occur
@@ -264,9 +264,9 @@ export const getActivity = async (userId: string) => {
   try {
     // Step 1: Fetch the user's teamId and orgId from the User table
     const { data: userData, error: userError } = await supabase
-      .from("User")
-      .select("teamId, orgId")
-      .eq("userId", userId)
+      .from('User')
+      .select('teamId, orgId')
+      .eq('userId', userId)
       .single();
 
     if (userError) {
@@ -274,17 +274,17 @@ export const getActivity = async (userId: string) => {
     }
 
     if (!userData) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     const { teamId, orgId } = userData;
 
     // Step 2: Fetch activity logs for the user's teamId and orgId
     const { data: activityLogs, error: activityError } = await supabase
-      .from("ActivityLog")
-      .select("*")
+      .from('ActivityLog')
+      .select('*')
       .or(`teamId.eq.${teamId},orgId.eq.${orgId}, userId.eq.${userId}`)
-      .order("changedOn", { ascending: true }); // Order by "changedOn" ascending
+      .order('changedOn', { ascending: true }); // Order by "changedOn" ascending
 
     if (activityError) {
       throw new Error(`Error fetching activity logs: ${activityError.message}`);
@@ -292,7 +292,7 @@ export const getActivity = async (userId: string) => {
 
     return activityLogs;
   } catch (error) {
-    console.error("Error in getActivity:", error);
+    console.error('Error in getActivity:', error);
     throw error;
   }
 };

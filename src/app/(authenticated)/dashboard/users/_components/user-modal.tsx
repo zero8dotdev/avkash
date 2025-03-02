@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Modal, Tabs, Typography } from "antd";
-import useSWR from "swr";
-import LeaveReport from "./leave-report";
-import Settings from "./settings";
-import LeaveRequest from "./leave-request";
-import { getActivity, getLeaves, getLeaveSummaryByUser } from "../_actions";
-import Activities from "./activities";
+import React, { useState } from 'react';
+import { Modal, Tabs, Typography } from 'antd';
+import useSWR from 'swr';
+import LeaveReport from './leave-report';
+import Settings from './settings';
+import LeaveRequest from './leave-request';
+import { getActivity, getLeaves, getLeaveSummaryByUser } from '../_actions';
+import Activities from './activities';
 // Define fetcher functions for SWR
 const leaveSummaryFetcher = (userId: string) => getLeaveSummaryByUser(userId);
 const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
@@ -18,26 +18,26 @@ const UserModal = ({
   selectedUser: any;
   update: Function;
 }) => {
-  const [activeTab, setActiveTab] = useState("leave-report");
+  const [activeTab, setActiveTab] = useState('leave-report');
 
   // SWR hooks for data fetching
   const { data: leaveReportData, isLoading: isLeaveReportLoading } = useSWR(
     // Only fetch when tab is active and we have a userId
-    activeTab === "leave-report" && selectedUser?.userId
+    activeTab === 'leave-report' && selectedUser?.userId
       ? [`leave-summary-${selectedUser.userId}`, selectedUser.userId]
       : null,
     ([_, userId]) => leaveSummaryFetcher(userId)
   );
 
   const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
-    activeTab === "leave-requests" && selectedUser?.userId
+    activeTab === 'leave-requests' && selectedUser?.userId
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]
       : null,
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
 
   const { data: activityData, isLoading: isactivityLoading } = useSWR(
-    activeTab === "activity" && selectedUser?.userId
+    activeTab === 'activity' && selectedUser?.userId
       ? [`activity-report-${selectedUser.userId}`, selectedUser.userId]
       : null,
     ([_, userId]) => activityFetcher(userId)
@@ -50,7 +50,7 @@ const UserModal = ({
 
   // Determine loading state based on active tab
   const isLoading =
-    activeTab === "leave-report" ? isLeaveReportLoading : isLeaveRequestLoading;
+    activeTab === 'leave-report' ? isLeaveReportLoading : isLeaveRequestLoading;
 
   return (
     <Modal
@@ -59,9 +59,9 @@ const UserModal = ({
         <Typography.Title level={4}>{selectedUser?.name}</Typography.Title>
       }
       width={2000}
-      style={{ top: "0px" }}
+      style={{ top: '0px' }}
       onCancel={() => {
-        setActiveTab("leave-report");
+        setActiveTab('leave-report');
         update();
       }}
       footer={null}
@@ -72,9 +72,9 @@ const UserModal = ({
         onChange={handleTabChange}
         style={{
           height: 800,
-          overflow: "auto",
-          scrollbarWidth: "none",
-          padding: "0px 20px 0px 20px",
+          overflow: 'auto',
+          scrollbarWidth: 'none',
+          padding: '0px 20px 0px 20px',
         }}
       >
         <Tabs.TabPane key="leave-report" tab="Leave Report">

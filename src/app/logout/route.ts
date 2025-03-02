@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/app/_utils/supabase/server";
+import { redirect } from 'next/navigation';
+import { createClient } from '@/app/_utils/supabase/server';
 
 export async function GET(request: Request, response: Response) {
   const supabase = createClient();
@@ -7,4 +7,4 @@ export async function GET(request: Request, response: Response) {
   await supabase.auth.signOut();
 
   return redirect('/');
-};
+}

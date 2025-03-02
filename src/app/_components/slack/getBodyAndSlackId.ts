@@ -1,7 +1,9 @@
-import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default async function getBodyAndSlackId(request: NextRequest): Promise<any> {
+export default async function getBodyAndSlackId(
+  request: NextRequest
+): Promise<any> {
   const headersList = headers();
   const contentType = headersList.get('content-type');
   let body: any = {};
@@ -11,22 +13,24 @@ export default async function getBodyAndSlackId(request: NextRequest): Promise<a
     if (contentType === 'application/json') {
       body = await request.text();
       body = JSON.parse(body);
-      appId = body.api_app_id
+      appId = body.api_app_id;
       if (body.type === 'url_verification') {
-        const res = JSON.stringify({ challenge: body.challenge })
-        return NextResponse.json({ challenge: body.challenge }, {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        const res = JSON.stringify({ challenge: body.challenge });
+        return NextResponse.json(
+          { challenge: body.challenge },
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }
       currentUserSlackId = body.event.user;
     } else if (contentType === 'application/x-www-form-urlencoded') {
       const params = new URLSearchParams(await request.text());
       body = Object.fromEntries(params.entries());
-      appId = JSON.parse(body.payload).api_app_id
+      appId = JSON.parse(body.payload).api_app_id;
       currentUserSlackId = JSON.parse(body.payload).user.id;
     }
-
 
     return [body, currentUserSlackId, appId];
   } catch (error) {
