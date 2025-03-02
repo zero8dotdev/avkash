@@ -1,31 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchOrgWorkWeek, getSlackAccessToken, getUserData } from '@/app/_components/header/_components/actions';
-import getBodyAndSlackId from '../../_components/slack/getBodyAndSlackId';
-import handleAppHomeOpened from '../../_components/slack/handleAppHomeOpened';
+import {
+  fetchOrgWorkWeek,
+  getSlackAccessToken,
+  getUserData,
+} from '@/app/_components/header/_components/actions';
 import handlePayload from '@/app/_components/slack/payload/handlePayload';
 import handleSlashCommand from '@/app/_components/slack/handleSlashCommand';
 import handleBotIgnoreMessages from '@/app/_components/slack/handleBotIgnoreMessages';
+import handleAppHomeOpened from '../../_components/slack/handleAppHomeOpened';
+import getBodyAndSlackId from '../../_components/slack/getBodyAndSlackId';
 
 export interface avkashUserInfoProps {
-  userId: string,
-  name: string,
-  teamId: string,
-  role: string
-  accruedLeave: { 'Paid time off': string, sick: string },
-  usedLeave: { 'Paid time off': string, sick: string },
-  slackId: string,
-  orgId: string,
-  Team: any,
-  Organisation: any,
-  isOwner?: boolean,
-  isManager?: boolean,
-  accessToken?: string,
+  userId: string;
+  name: string;
+  teamId: string;
+  role: string;
+  accruedLeave: { 'Paid time off': string; sick: string };
+  usedLeave: { 'Paid time off': string; sick: string };
+  slackId: string;
+  orgId: string;
+  Team: any;
+  Organisation: any;
+  isOwner?: boolean;
+  isManager?: boolean;
+  accessToken?: string;
 }
 let avkashUserInfo: avkashUserInfoProps;
 let accessToken: any;
 
 export async function POST(request: NextRequest) {
-  const [body,currentUserSlackId,appId] = await getBodyAndSlackId(request);  
+  const [body, currentUserSlackId, appId] = await getBodyAndSlackId(request);
   const [accessTokenData, userInfo] = await Promise.all([
     getSlackAccessToken(currentUserSlackId),
     getUserData({ id: currentUserSlackId, slackId: 'slackId' }),
@@ -36,13 +40,13 @@ export async function POST(request: NextRequest) {
   } else {
     const slackAccessToken = accessTokenData[0]?.slackAccessToken;
     if (appId === 'A07FMLF1CBH') {
-      avkashUserInfo['accessToken'] = process.env.DEV_SLACK_BOT_ID;
+      avkashUserInfo.accessToken = process.env.DEV_SLACK_BOT_ID;
     } else {
-      avkashUserInfo['accessToken'] = slackAccessToken;
+      avkashUserInfo.accessToken = slackAccessToken;
     }
   }
-  avkashUserInfo['isOwner'] = avkashUserInfo.role === 'OWNER' ? true : false;  
-  avkashUserInfo['isManager'] = avkashUserInfo.role === 'MANAGER' ? true : false;
+  avkashUserInfo.isOwner = avkashUserInfo.role === 'OWNER';
+  avkashUserInfo.isManager = avkashUserInfo.role === 'MANAGER';
 
   try {
     if (body.event?.type == 'message') {
@@ -50,11 +54,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.event?.type === 'app_home_opened') {
-
-      return await handleAppHomeOpened({ avkashUserInfo, yourDashboard: false });
+      return await handleAppHomeOpened({
+        avkashUserInfo,
+        yourDashboard: false,
+      });
     }
     if (body.payload) {
-      const payload = JSON.parse(body.payload);    
+      const payload = JSON.parse(body.payload);
       return await handlePayload(avkashUserInfo, payload);
     }
 
@@ -63,6 +69,9 @@ export async function POST(request: NextRequest) {
     }
     return new NextResponse('Unrecognized request', { status: 400 });
   } catch (error) {
-    return new NextResponse('An error occurred while processing your request.', { status: 500 });
+    return new NextResponse(
+      'An error occurred while processing your request.',
+      { status: 500 }
+    );
   }
 }

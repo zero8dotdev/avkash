@@ -1,5 +1,6 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   Button,
@@ -19,7 +20,8 @@ import {
   Table,
   Tooltip,
   Typography,
-} from "antd";
+  Card,
+} from 'antd';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -27,28 +29,27 @@ import {
   SmileOutlined,
   SolutionOutlined,
   UserOutlined,
-} from "@ant-design/icons";
-import { fetchOrg, fetchPublicHolidays } from "@/app/_actions";
-import { Card } from "antd";
-import { useRouter } from "next/navigation";
-import TopSteps from "../_componenets/steps";
+} from '@ant-design/icons';
+import { fetchOrg, fetchPublicHolidays } from '@/app/_actions';
+import { useRouter } from 'next/navigation';
+import { useApplicationContext } from '@/app/_context/appContext';
+import useSWR from 'swr';
+import Flag from 'react-world-flags';
+import moment from 'moment-timezone';
+import {
+  fetchOrgHolidays,
+  updateHolidaysList,
+  updateOrgLocations,
+} from '../../dashboard/orgsettings/_actions';
 import {
   fetchHolidaysData,
   fetchTeamGeneralData,
   insertHolidays,
   updateInitialsetupState,
   updateLocation,
-} from "../_actions";
-import { useApplicationContext } from "@/app/_context/appContext";
-import useSWR from "swr";
-import Flag from "react-world-flags";
-import {
-  fetchOrgHolidays,
-  updateHolidaysList,
-  updateOrgLocations,
-} from "../../dashboard/orgsettings/_actions";
-import moment from "moment-timezone";
-import LocationPage from "../../dashboard/orgsettings/_components/locations";
+} from '../_actions';
+import TopSteps from './steps';
+import LocationPage from '../../dashboard/orgsettings/_components/locations';
 
 export interface holidaysList {
   key: string;
@@ -71,7 +72,7 @@ const Location = () => {
   const router = useRouter();
 
   const fetchOrgData = async (orgId: string) => {
-    const org = orgId.split("*")[1];
+    const org = orgId.split('*')[1];
     const orgData = await fetchOrg(org);
     const { location } = orgData;
     setLocations(location || []);
@@ -85,16 +86,16 @@ const Location = () => {
   } = useSWR(`orgLocations*${orgId}`, fetchOrgData);
 
   const handleAddLocation = () => {
-    setLocationMode("create");
+    setLocationMode('create');
     setSelectedCountryCode(null); // Start dropdown empty
     setHolidaysList([]);
   };
   const countryList = [
-    { countryCode: "IN", countryName: "India" },
-    { countryCode: "DE", countryName: "Germany" },
-    { countryCode: "GB", countryName: "United Kingdom" },
-    { countryCode: "US", countryName: "United States" },
-    { countryCode: "NL", countryName: "Netherlands" },
+    { countryCode: 'IN', countryName: 'India' },
+    { countryCode: 'DE', countryName: 'Germany' },
+    { countryCode: 'GB', countryName: 'United Kingdom' },
+    { countryCode: 'US', countryName: 'United States' },
+    { countryCode: 'NL', countryName: 'Netherlands' },
   ];
   const selectedLocations = countryList.filter((each) =>
     locations?.includes(each.countryCode)
@@ -112,7 +113,7 @@ const Location = () => {
       }));
       setHolidaysList(transformedHolidays);
     } catch (error) {
-      console.error("Error fetching location details:", error);
+      console.error('Error fetching location details:', error);
     }
   };
   const availableLocations = countryList.filter(
@@ -121,7 +122,7 @@ const Location = () => {
 
   const handleEdit = async (countryCode: string) => {
     await fetchLocationDetails(countryCode);
-    setLocationMode("edit");
+    setLocationMode('edit');
     setSelectedCountryCode(countryCode);
   };
 
@@ -129,7 +130,7 @@ const Location = () => {
     try {
       if (!holidaysList.length || !locations || !selectedCountryCode) {
         throw new Error(
-          "Missing required data for updating holidays or locations"
+          'Missing required data for updating holidays or locations'
         );
       }
       const updatedOrgHolidays = await updateHolidaysList(
@@ -146,23 +147,23 @@ const Location = () => {
       setHolidaysList([]);
       orgMutate();
     } catch (error) {
-      console.error("Error in updateHolidays:", error);
+      console.error('Error in updateHolidays:', error);
     }
   };
 
   const handlenext = async () => {
     try {
       setLoading(true);
-      const status = await updateInitialsetupState(orgId, "4");
+      const status = await updateInitialsetupState(orgId, '4');
       if (status) {
         router.push(
           new URL(
-            "/initialsetup/notifications ",
+            '/initialsetup/notifications ',
             window?.location.origin
           ).toString()
         );
       } else {
-        throw new Error("Failed to update initial setup state");
+        throw new Error('Failed to update initial setup state');
       }
     } catch (error) {
       console.error(error);
@@ -175,15 +176,15 @@ const Location = () => {
 
   const handlePrevious = () => {
     router.push(
-      new URL("/initialsetup/leave-policy", window?.location.origin).toString()
+      new URL('/initialsetup/leave-policy', window?.location.origin).toString()
     );
   };
 
   return (
     <Row
       style={{
-        padding: "50px 50px 180px 20px",
-        height: "100%",
+        padding: '50px 50px 180px 20px',
+        height: '100%',
       }}
     >
       <TopSteps position={3} />
@@ -191,12 +192,12 @@ const Location = () => {
         <Card
           title="Locations"
           extra={
-            orgData?.location?.length === 0 || orgData?.location === null  ? ( // Check if the org has no locations
+            orgData?.location?.length === 0 || orgData?.location === null ? ( // Check if the org has no locations
               <Tooltip title="Add Location">
                 <Button
                   onClick={handleAddLocation}
                   type="primary"
-                  style={{ marginTop: "15px", marginBottom: "15px" }}
+                  style={{ marginTop: '15px', marginBottom: '15px' }}
                 >
                   Add Location
                 </Button>
@@ -204,14 +205,14 @@ const Location = () => {
             ) : null // Hide the button if at least one location exists
           }
           style={{
-            margin: "25px 0px 25px 0px",
-            minHeight: "300px",
-            overflow: "auto",
+            margin: '25px 0px 25px 0px',
+            minHeight: '300px',
+            overflow: 'auto',
           }}
         >
           <List
             loading={loading}
-            style={{ margin: "12px" }}
+            style={{ margin: '12px' }}
             bordered
             itemLayout="horizontal"
             dataSource={selectedLocations}
@@ -219,10 +220,10 @@ const Location = () => {
               <List.Item>
                 <List.Item.Meta
                   avatar={
-                    <Avatar style={{ background: "none" }}>
+                    <Avatar style={{ background: 'none' }}>
                       <Flag
                         code={item.countryCode}
-                        style={{ width: "50px", height: "50px" }}
+                        style={{ width: '50px', height: '50px' }}
                         alt={item.countryName}
                       />
                     </Avatar>
@@ -261,12 +262,12 @@ const Location = () => {
         </Flex>
       </Col>
       <Modal
-        open={locationMode === "create" || locationMode === "edit"}
+        open={locationMode === 'create' || locationMode === 'edit'}
         footer={null}
         onCancel={() => {
           setLocationMode(null), setSelectedCountryCode(null);
         }}
-        title={locationMode === "create" ? "Add New Holiday" : "Edit Holiday"}
+        title={locationMode === 'create' ? 'Add New Holiday' : 'Edit Holiday'}
         width={1000}
       >
         <LocationPage
@@ -277,7 +278,7 @@ const Location = () => {
           countryCode={selectedCountryCode}
           availableLocations={availableLocations}
         />
-        <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+        <Flex gap={8} justify="flex-end" style={{ width: '100%' }}>
           <Space>
             <Button
               danger

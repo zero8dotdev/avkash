@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import {
   Avatar,
   Button,
@@ -11,18 +12,19 @@ import {
   Select,
   Space,
   Typography,
-} from "antd";
-import React, { useState } from "react";
-import { CaretRightOutlined } from "@ant-design/icons";
-import UserModal from "./_components/user-modal";
-import useSWR from "swr";
-import { useApplicationContext } from "@/app/_context/appContext";
+} from 'antd';
+import React, { useState } from 'react';
+import { CaretRightOutlined } from '@ant-design/icons';
+import useSWR from 'swr';
+import { useApplicationContext } from '@/app/_context/appContext';
+import UserModal from './_components/user-modal';
 import {
   fetchOrgTeamsData,
   fetchOrgUsersData,
   fetchTeamUsersData,
-} from "./_actions";
-const capitalize = require("capitalize");
+} from './_actions';
+
+const capitalize = require('capitalize');
 
 interface User {
   name: string;
@@ -36,14 +38,14 @@ const Page = () => {
   const [teams, setTeams] = useState<any[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { state: appState } = useApplicationContext();
   const { orgId, role, teamId: userTeamId } = appState; // Assuming `role` and `teamId` are in appState
 
   // Fetch Teams
   const Teamsfetcher = async (orgId: string) => {
-    const org = orgId.split("*")[1];
+    const org = orgId.split('*')[1];
     const data = await fetchOrgTeamsData(org);
     return data;
   };
@@ -52,16 +54,16 @@ const Page = () => {
     onSuccess: (data) => {
       // Filter teams if the user is not an OWNER (non-owners should not see "All Teams")
       const filteredTeams =
-        role === "OWNER"
+        role === 'OWNER'
           ? data
           : data.filter((team: any) => team.teamId === userTeamId);
 
       setTeams(filteredTeams ?? []);
 
       // Set default selected team for non-owners or "All Teams" for owners
-      if (role === "OWNER") {
-        setSelectedTeam("All Teams"); // Set "All Teams" by default for owners
-      } else if (role !== "OWNER" && filteredTeams.length > 0) {
+      if (role === 'OWNER') {
+        setSelectedTeam('All Teams'); // Set "All Teams" by default for owners
+      } else if (role !== 'OWNER' && filteredTeams.length > 0) {
         setSelectedTeam(filteredTeams[0].teamId); // Default to user's team for non-owners
       }
     },
@@ -69,8 +71,8 @@ const Page = () => {
 
   // Fetch Users
   const Usersfetcher = async (key: string) => {
-    const [, orgId, teamId] = key.split("*");
-    if (teamId === "All Teams") {
+    const [, orgId, teamId] = key.split('*');
+    if (teamId === 'All Teams') {
       return await fetchOrgUsersData(orgId);
     }
     return await fetchTeamUsersData(teamId);
@@ -99,19 +101,19 @@ const Page = () => {
 
   return (
     <Row>
-      <Col span={16} push={3} style={{ marginTop: "80px" }}>
+      <Col span={16} push={3} style={{ marginTop: '80px' }}>
         <Card title="Users">
-          <Flex gap={15} justify="space-between" style={{ width: "100%" }}>
+          <Flex gap={15} justify="space-between" style={{ width: '100%' }}>
             <Space size={15}>
               <Select
                 placeholder="Select team"
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 onChange={handleTeamChange}
                 value={selectedTeam}
-                disabled={role !== "OWNER"} // Disable select for non-owners
+                disabled={role !== 'OWNER'} // Disable select for non-owners
               >
                 {/* Show "All Teams" only for owners */}
-                {role === "OWNER" && (
+                {role === 'OWNER' && (
                   <Select.Option key="All Teams" value="All Teams">
                     All Teams
                   </Select.Option>
@@ -124,7 +126,7 @@ const Page = () => {
               </Select>
               <Input.Search
                 placeholder="Search users"
-                style={{ width: "100%" }}
+                style={{ width: '100%' }}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
               />
@@ -136,12 +138,12 @@ const Page = () => {
           </Flex>
           <List
             dataSource={filteredUsers}
-            style={{ marginTop: "15px" }}
+            style={{ marginTop: '15px' }}
             renderItem={(user, index) => {
               return (
                 <Card
-                  style={{ marginBottom: "10px" }}
-                  bodyStyle={{ padding: "0px 15px" }}
+                  style={{ marginBottom: '10px' }}
+                  bodyStyle={{ padding: '0px 15px' }}
                 >
                   <List.Item
                     actions={[
@@ -161,9 +163,9 @@ const Page = () => {
                           {user?.name}
                           <span
                             style={{
-                              paddingLeft: "5px",
-                              color: "#ccc",
-                              fontWeight: "normal",
+                              paddingLeft: '5px',
+                              color: '#ccc',
+                              fontWeight: 'normal',
                             }}
                           >
                             ({capitalize(user?.role)})

@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import {
   Avatar,
   Button,
@@ -17,18 +18,18 @@ import {
   Space,
   Switch,
   Typography,
-} from "antd";
-import dayjs from "dayjs";
-import React, { useState } from "react";
-import TeamSettingsTabs from "../_components/team-settings-tabs";
-import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
-import useSWR from "swr";
-import { fetchLeavePolicies, updatePolicyData } from "../_actions";
-import { useParams } from "next/navigation";
-import LeavePolicyModal from "../_components/leave-policy-modal";
+} from 'antd';
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
+import useSWR from 'swr';
+import { useParams } from 'next/navigation';
+import { fetchLeavePolicies, updatePolicyData } from '../_actions';
+import TeamSettingsTabs from '../_components/team-settings-tabs';
+import LeavePolicyModal from '../_components/leave-policy-modal';
 
 const Page = () => {
-  const [segmentValue, setSegmentValue] = useState<string | number>("active");
+  const [segmentValue, setSegmentValue] = useState<string | number>('active');
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const { teamId } = useParams() as { teamId: string };
   const [selectedLeaveType, setSelectedLeaveType] = useState<any>(null);
@@ -40,7 +41,7 @@ const Page = () => {
   } = useSWR(`teamsettings*${teamId}`);
 
   const fetcher = async (key: string) => {
-    const team = key.split("*")[1];
+    const team = key.split('*')[1];
     return await fetchLeavePolicies(team);
   };
 
@@ -70,7 +71,7 @@ const Page = () => {
       rollOver: policy.rollOver,
       rollOverLimit: policy.rollOverLimit,
       rollOverExpiry: policy.rollOverExpiry
-        ? dayjs(policy.rollOverExpiry, "DD/MM") // Convert to Day.js object
+        ? dayjs(policy.rollOverExpiry, 'DD/MM') // Convert to Day.js object
         : null,
       autoApprove: policy.autoApprove,
     });
@@ -85,36 +86,36 @@ const Page = () => {
         <Card
           title="Team Leave Policy"
           extra={
-            <Button type="primary" onClick={() => setSelectedPolicy("create")}>
+            <Button type="primary" onClick={() => setSelectedPolicy('create')}>
               Add New Policy
             </Button>
           }
         >
           <Segmented
             value={segmentValue}
-            style={{ marginBottom: "20px" }}
+            style={{ marginBottom: '20px' }}
             onChange={setSegmentValue}
             options={[
               {
-                label: "active",
-                value: "active",
+                label: 'active',
+                value: 'active',
                 icon: <CheckCircleTwoTone />,
               },
               {
-                label: "inactive",
-                value: "inactive",
+                label: 'inactive',
+                value: 'inactive',
                 icon: <CloseCircleTwoTone />,
               },
             ]}
           />
           <Flex vertical>
-            {segmentValue === "active" ? (
+            {segmentValue === 'active' ? (
               <List
                 bordered
                 dataSource={activeLeavePolicies}
                 renderItem={(item) => (
                   <List.Item
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: 'pointer' }}
                     onClick={() => openModal(item)}
                   >
                     <List.Item.Meta
@@ -152,7 +153,7 @@ const Page = () => {
                 dataSource={inactiveLeavePolicies}
                 renderItem={(item) => (
                   <List.Item
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: 'pointer' }}
                     onClick={() => openModal(item)}
                   >
                     <List.Item.Meta

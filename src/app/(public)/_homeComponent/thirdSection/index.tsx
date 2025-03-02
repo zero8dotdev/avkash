@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import React, { useRef, useState, useEffect } from "react";
+import Image from 'next/image';
+import React, { useRef, useState, useEffect } from 'react';
 
 const tabData = [
   {
-    title: "",
-    description: "Customizable Settings",
+    title: '',
+    description: 'Customizable Settings',
     detail:
-      "Avkash allows you to fit your company’s unique leave policies be it casual leaves, location status, half day - anything and everything, ensuring a seamless fit with your organisational needs.",
-    imgSrc: "/feature-2.jpg",
+      'Avkash allows you to fit your company’s unique leave policies be it casual leaves, location status, half day - anything and everything, ensuring a seamless fit with your organisational needs.',
+    imgSrc: '/feature-2.jpg',
   },
   {
-    title: "",
-    description: "User-Friendly Interface",
+    title: '',
+    description: 'User-Friendly Interface',
     detail:
-      "Say goodbye to separate apps for applying leave, Avkash integrates easily with your company’s choice of channel be it Google Workspace or Slack, allowing for a smooth and efficient leave management experience for team members and the founder",
-    imgSrc: "/feature-1.jpg",
+      'Say goodbye to separate apps for applying leave, Avkash integrates easily with your company’s choice of channel be it Google Workspace or Slack, allowing for a smooth and efficient leave management experience for team members and the founder',
+    imgSrc: '/feature-1.jpg',
   },
   {
-    title: "",
-    description: "Automated Tracking and Reporting",
+    title: '',
+    description: 'Automated Tracking and Reporting',
     detail:
-      "Avkash tracks leave balances and keeps your records accurate and up-to-date. This feature helps founders with or without HR support, to maintain compliance and avoid manual errors. You get to focus on what matters.",
-    imgSrc: "/feature-3.jpg",
+      'Avkash tracks leave balances and keeps your records accurate and up-to-date. This feature helps founders with or without HR support, to maintain compliance and avoid manual errors. You get to focus on what matters.',
+    imgSrc: '/feature-3.jpg',
   },
 ];
 
@@ -39,11 +39,11 @@ export const ThirdSection = () => {
 
   const scrollToTab = () => {
     if (containerRef.current && screenRefs[activeTab].current) {
-      const offsetLeft = screenRefs[activeTab].current.offsetLeft;
+      const { offsetLeft } = screenRefs[activeTab].current;
       const childWidth = screenRefs[activeTab].current.offsetWidth;
       containerRef.current.scrollTo({
         left: offsetLeft - childWidth / 2,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }
   };
@@ -65,8 +65,8 @@ export const ThirdSection = () => {
               onClick={() => handleTabClick(index)}
               className={`cursor-pointer flex flex-col justify-center items-start gap-4 tracking-wide ${
                 index === activeTab
-                  ? "sm:border sm:border-slate-100 sm:p-2 sm:shadow-lg sm:ring-1 sm:ring-slate-100 sm:rounded-xl"
-                  : "sm:p-2 sm:border sm:border-transparent"
+                  ? 'sm:border sm:border-slate-100 sm:p-2 sm:shadow-lg sm:ring-1 sm:ring-slate-100 sm:rounded-xl'
+                  : 'sm:p-2 sm:border sm:border-transparent'
               }`}
             >
               <p className="text-blue-500">{tab.title}</p>

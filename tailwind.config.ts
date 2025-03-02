@@ -1,21 +1,19 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
-
-const { fontFamily } = require('tailwindcss/defaultTheme')
+const { fontFamily } = require('tailwindcss/defaultTheme');
 
 const config: Config = {
-
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     screens: {
-      'sm': '576px',
-      'md': '768px',
-      'lg': '1024px',
-      'xl': '1440px',
+      sm: '576px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1440px',
     },
     extend: {
       fontFamily: {
@@ -25,15 +23,15 @@ const config: Config = {
       //   firaSans: ['var(--font-fira-sans)', 'sans-serif'],
       // },
       colors: {
-        'light-gray': "rgba(255, 255, 255, 0.5)"
+        'light-gray': 'rgba(255, 255, 255, 0.5)',
       },
       height: {
-        "full-h-minus-header": "calc(100lvh - 64px)"
+        'full-h-minus-header': 'calc(100lvh - 64px)',
       },
       backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic':
+          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
   },

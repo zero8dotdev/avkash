@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/app/_utils/supabase/client";
-import { Session } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { createClient } from '@/app/_utils/supabase/client';
+import { Session } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 export default function useAuthState() {
   const supabase = createClient();
@@ -12,18 +12,17 @@ export default function useAuthState() {
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-
-      if (event === "INITIAL_SESSION") {
+      if (event === 'INITIAL_SESSION') {
         // handle initial session
-      } else if (event === "SIGNED_IN") {
+      } else if (event === 'SIGNED_IN') {
         // handle sign in event
-      } else if (event === "SIGNED_OUT") {
+      } else if (event === 'SIGNED_OUT') {
         // handle sign out event
-      } else if (event === "PASSWORD_RECOVERY") {
+      } else if (event === 'PASSWORD_RECOVERY') {
         // handle password recovery event
-      } else if (event === "TOKEN_REFRESHED") {
+      } else if (event === 'TOKEN_REFRESHED') {
         // handle token refreshed event
-      } else if (event === "USER_UPDATED") {
+      } else if (event === 'USER_UPDATED') {
         // handle user updated event
       }
     });

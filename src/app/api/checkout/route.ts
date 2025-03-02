@@ -1,13 +1,13 @@
-import {createAdminClient} from '@/app/_utils/supabase/adminClient';
+import { createAdminClient } from '@/app/_utils/supabase/adminClient';
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 
-const supabaseAdmin = createAdminClient()
+const supabaseAdmin = createAdminClient();
 export const POST = async (req: NextRequest) => {
   try {
     const { plan_id, org_id } = await req.json();
     if (!plan_id || !org_id) {
-      throw new Error("Missing plan_id or org_id in the request body");
+      throw new Error('Missing plan_id or org_id in the request body');
     }
 
     const razorpay = new Razorpay({
@@ -23,19 +23,23 @@ export const POST = async (req: NextRequest) => {
       total_count: 12,
       quantity,
     });
-    return NextResponse.json({ subscription, key_id: process.env.RAZORPAY_KEY_ID! });
+    return NextResponse.json({
+      subscription,
+      key_id: process.env.RAZORPAY_KEY_ID!,
+    });
   } catch (error: any) {
-    console.error("Subscription creation error:", error);
+    console.error('Subscription creation error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 };
 
 async function getQuantity(org_id: string): Promise<any> {
-  const {data,error} = await supabaseAdmin.from("User").select("userId",{count: 'exact'}).eq("orgId",org_id)
+  const { data, error } = await supabaseAdmin
+    .from('User')
+    .select('userId', { count: 'exact' })
+    .eq('orgId', org_id);
   if (error) {
-      console.log(error)
+    console.log(error);
   }
-  return data?.length
+  return data?.length;
 }
-
-

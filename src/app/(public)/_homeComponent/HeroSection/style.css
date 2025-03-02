@@ -1,69 +1,72 @@
 .fade-in {
-    opacity: 0;
-    animation: fadeIn 4s forwards;
-  }
-  
-  .slide-up {
-    transform: translateY(50px);
-    opacity: 0;
-    animation: slideUp 1.5s forwards;
-  }
-  
-  @keyframes fadeIn {
-    to {
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideUp {
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  .custom-ping{
-    animation: ping 3s cubic-bezier(0, 0, 0.2,0) infinite;
-  }
+  opacity: 0;
+  animation: fadeIn 4s forwards;
+}
 
-  @keyframes ping {
-    /* 0%, 25%{
+.slide-up {
+  transform: translateY(50px);
+  opacity: 0;
+  animation: slideUp 1.5s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.custom-ping {
+  animation: ping 3s cubic-bezier(0, 0, 0.2, 0) infinite;
+}
+
+@keyframes ping {
+  /* 0%, 25%{
       transform: scale(0.4);
       opacity: 0;
     } */
-    50%{
-      transform: scale(0.5);
-      opacity: 0;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
+  50% {
+    transform: scale(0.5);
+    opacity: 0;
   }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
-  .color-shift{
-    animation: colorChange 6s linear infinite;
-  }
-  .color-shift:nth-child(1) {
-    animation-delay: 0s; 
-  }
-  
-  .color-shift:nth-child(2) {
-    animation-delay: 2s; 
-  }
-  
-  .color-shift:nth-child(3) {
-    animation-delay: 4s; 
-  }
+.color-shift {
+  animation: colorChange 6s linear infinite;
+}
+.color-shift:nth-child(1) {
+  animation-delay: 0s;
+}
 
-  @keyframes colorChange {
-    0%, 33.33% {
-      color: #0f172a;
-    }
-    33.33%, 66.66% {
-      color: #E85A4F;
-    }
-    66.66%, 100% {
-      color: #0f172a;
-    }
+.color-shift:nth-child(2) {
+  animation-delay: 2s;
+}
+
+.color-shift:nth-child(3) {
+  animation-delay: 4s;
+}
+
+@keyframes colorChange {
+  0%,
+  33.33% {
+    color: #0f172a;
   }
+  33.33%,
+  66.66% {
+    color: #e85a4f;
+  }
+  66.66%,
+  100% {
+    color: #0f172a;
+  }
+}

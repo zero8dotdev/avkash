@@ -72,15 +72,18 @@
 //   );
 // }
 
-
 'use client';
 
-import { Col, ConfigProvider, Row } from "antd";
-import { useRouter, usePathname } from "next/navigation";
-import { useApplicationContext } from "@/app/_context/appContext";
-import { useEffect } from "react";
+import { Col, ConfigProvider, Row } from 'antd';
+import { useRouter, usePathname } from 'next/navigation';
+import { useApplicationContext } from '@/app/_context/appContext';
+import { useEffect } from 'react';
 
-const PROTECTED_ROUTES = ["/dashboard/orgsettings/leave-types", "/dashboard/orgsettings/general", "/dashboard/orgsettings/billing"];
+const PROTECTED_ROUTES = [
+  '/dashboard/orgsettings/leave-types',
+  '/dashboard/orgsettings/general',
+  '/dashboard/orgsettings/billing',
+];
 
 export default function SettingsLayout({
   children,
@@ -91,13 +94,13 @@ export default function SettingsLayout({
 
   useEffect(() => {
     // Check if the current route is protected and the user is not authorized
-    if (PROTECTED_ROUTES.includes(pathname) && state.role !== "OWNER") {
-      router.push("/unauthorized"); // Redirect to unauthorized page
+    if (PROTECTED_ROUTES.includes(pathname) && state.role !== 'OWNER') {
+      router.push('/unauthorized'); // Redirect to unauthorized page
     }
   }, [state.role, router, pathname]);
 
   // Render nothing or a spinner until role validation is complete
-  if (PROTECTED_ROUTES.includes(pathname) && state.role !== "OWNER") {
+  if (PROTECTED_ROUTES.includes(pathname) && state.role !== 'OWNER') {
     return null; // Replace with a loading spinner if needed
   }
 
@@ -106,16 +109,16 @@ export default function SettingsLayout({
       theme={{
         components: {
           Tabs: {
-            colorBorder: "transparent",
-            inkBarColor: "transparent",
-            cardBg: "transparent",
+            colorBorder: 'transparent',
+            inkBarColor: 'transparent',
+            cardBg: 'transparent',
             fontSize: 15,
           },
         },
       }}
     >
-      <Row style={{ paddingLeft: "100px" }}>
-        <Col span={24} style={{ justifyContent: "center" }}>
+      <Row style={{ paddingLeft: '100px' }}>
+        <Col span={24} style={{ justifyContent: 'center' }}>
           {children}
         </Col>
       </Row>

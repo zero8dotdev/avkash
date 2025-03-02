@@ -1,4 +1,4 @@
-import { hostname } from "os";
+import { hostname } from 'os';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -6,19 +6,19 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,
   },
   images: {
-    domains: ["encrypted-tbn0.gstatic.com"],
+    domains: ['encrypted-tbn0.gstatic.com'],
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "lh3.google.com",
+        protocol: 'https',
+        hostname: 'lh3.google.com',
       },
     ],
   },
   async redirects() {
     return [
       {
-        source: "/dashboard",
-        destination: "/dashboard/timeline",
+        source: '/dashboard',
+        destination: '/dashboard/timeline',
         permanent: true,
       },
     ];

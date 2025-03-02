@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer } from 'react';
 
 interface User {
   full_name: string;
@@ -26,15 +26,15 @@ interface ContextState {
 }
 
 type ActionTypes =
-  | "setUserId"
-  | "setOrgId"
-  | "setTeamId"
-  | "setUser"
-  | "setRole"
-  | "setOrg"
-  | "setTeam"
-  | "setTeams"
-  | "logout";
+  | 'setUserId'
+  | 'setOrgId'
+  | 'setTeamId'
+  | 'setUser'
+  | 'setRole'
+  | 'setOrg'
+  | 'setTeam'
+  | 'setTeams'
+  | 'logout';
 
 interface Action {
   type: ActionTypes;
@@ -42,10 +42,10 @@ interface Action {
 }
 
 const INITIAL_STATE: ContextState = {
-  orgId: "",
-  teamId: "",
-  userId: "",
-  role: "",
+  orgId: '',
+  teamId: '',
+  userId: '',
+  role: '',
   team: undefined,
   org: undefined,
   user: undefined,
@@ -63,55 +63,55 @@ const ApplicationContext = createContext<ApplicationContextType | undefined>(
 
 function applicationReducer(state: ContextState, action: Action) {
   switch (action.type) {
-    case "setOrgId":
+    case 'setOrgId':
       return {
         ...state,
         orgId: action.payload,
       };
 
-    case "setOrg":
+    case 'setOrg':
       return {
         ...state,
         orgId: action?.payload?.orgId,
         org: action.payload,
       };
-    case "setRole":
+    case 'setRole':
       return {
         ...state,
-        role: action.payload
+        role: action.payload,
       };
 
-    case "setTeamId":
+    case 'setTeamId':
       return {
         ...state,
         teamId: action.payload,
       };
 
-    case "setTeam":
+    case 'setTeam':
       return {
         ...state,
         teamId: action?.payload?.teamId,
         team: action.payload,
       };
 
-    case "setTeams":
+    case 'setTeams':
       return {
         ...state,
         teams: action.payload,
       };
 
-    case "setUserId":
+    case 'setUserId':
       return {
         ...state,
         userId: action.payload,
       };
-    case "setUser":
+    case 'setUser':
       return {
         ...state,
         userId: action?.payload?.userId,
         user: action.payload,
       };
-    case "logout":
+    case 'logout':
       return {
         ...state,
         ...INITIAL_STATE,
@@ -139,7 +139,7 @@ function useApplicationContext(): ApplicationContextType {
 
   if (context === undefined) {
     throw new Error(
-      "useApplicationContext must be used within a ApplicationProvider"
+      'useApplicationContext must be used within a ApplicationProvider'
     );
   }
 

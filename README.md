@@ -2,15 +2,17 @@
 
 1. clone project `git clone git@github.com:zero8dotdev/avkash.git`
 2. run `npm install`
-   
+
 ## Supabase Setup Guide
 
 ### Step 1: Create a New Supabase Project
 
 1. **Sign Up/Log In to Supabase**:
+
    - Go to [Supabase](https://supabase.io) and sign up for a new account or log in if you already have one.
 
 2. **Create a New Project**:
+
    - After logging in, click on the "New Project" button on your dashboard.
    - Fill in the required details:
      - **Project Name**: Give your project a unique name.
@@ -61,18 +63,18 @@ Replace `<Your Project URL>`, `<Your Anon Key>`,`<Your Direct URL>` and `<Your D
    npm run setup
    ```
 
-
 Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it with your authtoken, and deploy your app online with a static domain.
-
 
 ## Ngrok Setup Guide
 
 ### Step 1: Install Ngrok via Apt
 
 1. **Open a Terminal**:
+
    - Open a terminal on your Linux machine.
 
 2. **Run Installation Command**:
+
    - Execute the following command to install Ngrok. This command adds Ngrok's signing key and repository to your system and installs Ngrok.
 
    ```bash
@@ -87,9 +89,11 @@ Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it wi
 ### Step 2: Add Your Authtoken
 
 1. **Obtain Your Authtoken**:
+
    - Log in to your Ngrok account at [Ngrok](https://ngrok.com) and navigate to the "Auth" tab to find your authtoken.
 
 2. **Add Authtoken to Ngrok Configuration**:
+
    - Run the following command to add your authtoken to Ngrok’s default configuration file. Replace `YOUR_AUTHTOKEN` with the authtoken you obtained from Ngrok.
 
    ```bash
@@ -97,6 +101,7 @@ Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it wi
    ```
 
    Example:
+
    ```bash
    ngrok config add-authtoken 2diao5l4EQ74eGlCFjemsHc5OMX_2zFxgonSAGe5CLSyLsAQr
    ```
@@ -104,9 +109,11 @@ Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it wi
 ### Step 3: Deploy Your App Online with a Static Domain
 
 1. **Start Your Local Server**:
+
    - Make sure your local server is running. For example, if you are running a web server on port 80, ensure it is active.
 
 2. **Run Ngrok with Static Domain**:
+
    - Use the following command to start Ngrok with your static domain. Replace `your-static-domain.ngrok-free.app` with your reserved static domain.
 
    ```bash
@@ -114,6 +121,7 @@ Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it wi
    ```
 
    Example:
+
    ```bash
    ngrok http --domain=roaring-lions-group.ngrok-free.app 80
    ```
@@ -123,7 +131,6 @@ Great! Here’s a step-by-step guide to install Ngrok using Apt, configure it wi
 1. **Access the Public URL**:
    - Open a web browser and navigate to `http://your-static-domain.ngrok-free.app`.
    - Your local server should be accessible through this public URL.
-
 
 ## Slack - Authentication Setup Guide
 
@@ -137,12 +144,15 @@ Sure, here's a detailed guide for setting up Slack authentication in Supabase an
 ### Step 1: Enable Slack Provider in Supabase
 
 1. **Access Supabase Dashboard**:
+
    - Go to your Supabase project dashboard.
 
 2. **Navigate to Authentication Settings**:
+
    - In the sidebar, click on **Authentication**.
 
 3. **Enable Slack Provider**:
+
    - Under the **Providers** section, find and enable the **Slack** provider.
 
 4. **Add Client ID and Client Secret**:
@@ -151,18 +161,20 @@ Sure, here's a detailed guide for setting up Slack authentication in Supabase an
 ### Step 2: Create a Slack App
 
 1. **Create a Slack App**:
+
    - Go to the [Slack API](https://api.slack.com/) and create a new app.
 
 2. **Set Up OAuth & Permissions**:
+
    - In your Slack app settings, navigate to **OAuth & Permissions**.
    - Under **Redirect URLs**, add the callback URL provided by Supabase. This URL will be displayed in the Slack provider settings in your Supabase dashboard. It typically looks like: `https://your-supabase-project.supabase.co/auth/v1/callback`.
 
 3. **Add Ngrok URL**:
+
    - Also, add your Ngrok URL to the redirect URLs in your Slack app settings. For example: `http://your-static-domain.ngrok-free.app/login`.
 
 4. **Save Changes**:
    - Save the changes to your Slack app settings.
-
 
 ## Final Setup Guide for Running the Project
 
@@ -175,9 +187,11 @@ Sure, here's a detailed guide for setting up Slack authentication in Supabase an
 ### Step 1: Start Ngrok with Your Static Domain
 
 1. **Open Terminal**:
+
    - Open a terminal window.
 
 2. **Run Ngrok**:
+
    - Start Ngrok with your reserved static domain, pointing it to port 3000 (assuming your local server runs on port 3000).
 
    ```bash
@@ -189,6 +203,7 @@ Sure, here's a detailed guide for setting up Slack authentication in Supabase an
 ### Step 2: Start Your Project
 
 1. **Start Your Development Server**:
+
    - Start your project’s development server using:
 
    ```bash
@@ -200,9 +215,11 @@ Sure, here's a detailed guide for setting up Slack authentication in Supabase an
 ### Step 3: Verify Slack Authentication
 
 1. **Open Web Browser**:
+
    - Open a web browser.
 
 2. **Navigate to Your Ngrok URL**:
+
    - Go to `http://your-static-domain.ngrok-free.app/login` in your browser.
 
 3. **Login via Slack**:
