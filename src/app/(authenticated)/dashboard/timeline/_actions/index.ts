@@ -1,12 +1,11 @@
 "use server";
 
 import { createClient } from "@/app/_utils/supabase/server";
-import { WebClient } from "@slack/web-api";
 import { createAdminClient } from "@/app/_utils/supabase/adminClient";
 
 export const getUserRole = async (userId: any): Promise<string> => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
       .from("User")
@@ -15,7 +14,7 @@ export const getUserRole = async (userId: any): Promise<string> => {
         userId,
         Organisation(*),
         Team(*)
-      `
+      `,
       )
       .eq("userId", userId)
       .single();
@@ -51,7 +50,7 @@ export async function getUsersListWithTeam(teamId: string) {
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
     .select(
-      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))"
+      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))",
     )
     .eq("teamId", teamId);
 
@@ -68,7 +67,7 @@ export async function getUser(teamId: string, userId: string) {
   const { data: usersData, error: usersError } = await supabaseAdmin
     .from("User")
     .select(
-      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))"
+      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))",
     )
     .eq("teamId", teamId)
     .eq("userId", userId);
@@ -110,19 +109,24 @@ export async function getUser(teamId: string, userId: string) {
 //   return data;
 // };
 
-export const insertLeave = async (values: any, orgId: any, teamId: any, userId: any) => {
-  const supabase = createClient();
+export const insertLeave = async (
+  values: any,
+  orgId: any,
+  teamId: any,
+  userId: any,
+) => {
+  const supabase = await createClient();
 
   // Prepare the data for insertion, now including shift and duration
   const { data, error } = await supabase
-    .from('Leave')
+    .from("Leave")
     .insert({
       leaveTypeId: values.type,
       startDate: values.startDate,
       endDate: values.endDate,
-      duration: values.duration || 'FULL_DAY',  // 'FULL_DAY' or 'HALF_DAY'
-      shift: values.shift || 'NONE',        // 'MORNING', 'AFTERNOON', or 'NONE'
-      isApproved: values.isApproved || 'PENDING',  // Default to 'PENDING'
+      duration: values.duration || "FULL_DAY", // 'FULL_DAY' or 'HALF_DAY'
+      shift: values.shift || "NONE", // 'MORNING', 'AFTERNOON', or 'NONE'
+      isApproved: values.isApproved || "PENDING", // Default to 'PENDING'
       userId: userId,
       teamId: teamId,
       orgId: orgId,
@@ -138,4 +142,3 @@ export const insertLeave = async (values: any, orgId: any, teamId: any, userId: 
 
   return data;
 };
-

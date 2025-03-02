@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     return;
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   try {
     const { data: authUserSession, error: authError } =
       await supabase.auth.exchangeCodeForSession(code);
