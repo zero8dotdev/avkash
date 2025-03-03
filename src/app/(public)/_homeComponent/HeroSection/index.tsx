@@ -1,6 +1,7 @@
-import Link from "next/link";
-import React from "react";
-import "../HeroSection/style.css";
+import Link from 'next/link';
+import React from 'react';
+import './style.css';
+
 const HeroSection = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 pb-16 text-center h-screen flex flex-col justify-center items-center">
@@ -17,7 +18,7 @@ const HeroSection = () => {
         Elevate&nbsp;
       </h1> */}
       <p className="slide-up mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
-        <span style={{ color: "#E85A4F" }}>Avkash,&nbsp;</span>a leave
+        <span style={{ color: '#E85A4F' }}>Avkash,&nbsp;</span>a leave
         management HR automation tool, integrates seamlessly with Slack and
         Google Workspace to streamline your leave management process.
       </p>

@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 import {
   getSlackAccessToken,
   getUserData,
-} from "@/app/_components/header/_components/actions";
+} from '@/app/_components/header/_components/actions';
 
-import getBodyAndSlackId from "./_slack/getBodyAndSlackId";
-import handleAppHomeOpened from "./_slack/handleAppHomeOpened";
-import handlePayload from "./_slack/payload/handlePayload";
-import handleSlashCommand from "./_slack/handleSlashCommand";
-import handleBotIgnoreMessages from "./_slack/handleBotIgnoreMessages";
+import getBodyAndSlackId from './_slack/getBodyAndSlackId';
+import handleAppHomeOpened from './_slack/handleAppHomeOpened';
+import handlePayload from './_slack/payload/handlePayload';
+import handleSlashCommand from './_slack/handleSlashCommand';
+import handleBotIgnoreMessages from './_slack/handleBotIgnoreMessages';
 
 export interface avkashUserInfoProps {
   userId: string;
   name: string;
   teamId: string;
   role: string;
-  accruedLeave: { "Paid time off": string; sick: string };
-  usedLeave: { "Paid time off": string; sick: string };
+  accruedLeave: { 'Paid time off': string; sick: string };
+  usedLeave: { 'Paid time off': string; sick: string };
   slackId: string;
   orgId: string;
   Team: any;
@@ -33,30 +33,28 @@ export async function POST(request: NextRequest) {
   const [body, currentUserSlackId, appId] = await getBodyAndSlackId(request);
   const [accessTokenData, userInfo] = await Promise.all([
     getSlackAccessToken(currentUserSlackId),
-    getUserData({ id: currentUserSlackId, slackId: "slackId" }),
+    getUserData({ id: currentUserSlackId, slackId: 'slackId' }),
   ]);
 
   avkashUserInfo = userInfo;
   if (!accessTokenData || accessTokenData.length === 0) {
   } else {
     const slackAccessToken = accessTokenData[0]?.slackAccessToken;
-    if (appId === "A07FMLF1CBH") {
-      avkashUserInfo["accessToken"] = process.env.DEV_SLACK_BOT_ID;
+    if (appId === 'A07FMLF1CBH') {
+      avkashUserInfo.accessToken = process.env.DEV_SLACK_BOT_ID;
     } else {
-      avkashUserInfo["accessToken"] = slackAccessToken;
+      avkashUserInfo.accessToken = slackAccessToken;
     }
   }
-  avkashUserInfo["isOwner"] = avkashUserInfo.role === "OWNER" ? true : false;
-  avkashUserInfo["isManager"] = avkashUserInfo.role === "MANAGER"
-    ? true
-    : false;
+  avkashUserInfo.isOwner = avkashUserInfo.role === 'OWNER';
+  avkashUserInfo.isManager = avkashUserInfo.role === 'MANAGER';
 
   try {
-    if (body.event?.type == "message") {
+    if (body.event?.type == 'message') {
       return await handleBotIgnoreMessages(avkashUserInfo, body.event);
     }
 
-    if (body.event?.type === "app_home_opened") {
+    if (body.event?.type === 'app_home_opened') {
       return await handleAppHomeOpened({
         avkashUserInfo,
         yourDashboard: false,
@@ -70,11 +68,11 @@ export async function POST(request: NextRequest) {
     if (body.command) {
       return handleSlashCommand(body.command);
     }
-    return new NextResponse("Unrecognized request", { status: 400 });
+    return new NextResponse('Unrecognized request', { status: 400 });
   } catch (error) {
     return new NextResponse(
-      "An error occurred while processing your request.",
-      { status: 500 },
+      'An error occurred while processing your request.',
+      { status: 500 }
     );
   }
 }

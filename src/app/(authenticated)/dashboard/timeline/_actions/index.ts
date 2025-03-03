@@ -1,27 +1,27 @@
-"use server";
+'use server';
 
-import { createClient } from "@/app/_utils/supabase/server";
-import { createAdminClient } from "@/app/_utils/supabase/adminClient";
+import { createClient } from '@/app/_utils/supabase/server';
+import { createAdminClient } from '@/app/_utils/supabase/adminClient';
 
 export const getUserRole = async (userId: any): Promise<string> => {
   try {
     const supabase = await createClient();
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
-      .from("User")
+      .from('User')
       .select(
         `
         userId,
         Organisation(*),
         Team(*)
-      `,
+      `
       )
-      .eq("userId", userId)
+      .eq('userId', userId)
       .single();
 
     if (error) {
-      console.error("Error fetching user role:", error);
-      return "Error";
+      console.error('Error fetching user role:', error);
+      return 'Error';
     }
 
     // Get the single Organisation and Team data
@@ -29,30 +29,30 @@ export const getUserRole = async (userId: any): Promise<string> => {
     const team = data.Team as any; // Team should now be a single object
     // Check if the Organisation exists and if user is the Owner
     if (organisation?.ownerId === userId) {
-      return "OWNER";
+      return 'OWNER';
     }
 
     // Check if the Team exists and if user is a Manager for the specific team
     if (team?.managers?.includes(userId)) {
-      return "MANAGER";
+      return 'MANAGER';
     }
 
     // Default to "User" if no higher roles match
-    return "USER";
+    return 'USER';
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return "Error";
+    console.error('Unexpected error:', error);
+    return 'Error';
   }
 };
 
 export async function getUsersListWithTeam(teamId: string) {
   const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
-    .from("User")
+    .from('User')
     .select(
-      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))",
+      '*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))'
     )
-    .eq("teamId", teamId);
+    .eq('teamId', teamId);
 
   if (usersError) {
     console.error(usersError);
@@ -65,12 +65,12 @@ export async function getUsersListWithTeam(teamId: string) {
 export async function getUser(teamId: string, userId: string) {
   const supabaseAdmin = createAdminClient();
   const { data: usersData, error: usersError } = await supabaseAdmin
-    .from("User")
+    .from('User')
     .select(
-      "*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))",
+      '*, Team(name), Leave(leaveId, leaveTypeId, startDate, endDate, duration, shift, isApproved, reason, managerComment, LeaveType(color))'
     )
-    .eq("teamId", teamId)
-    .eq("userId", userId);
+    .eq('teamId', teamId)
+    .eq('userId', userId);
 
   if (usersError) {
     console.error(usersError);
@@ -113,23 +113,23 @@ export const insertLeave = async (
   values: any,
   orgId: any,
   teamId: any,
-  userId: any,
+  userId: any
 ) => {
   const supabase = await createClient();
 
   // Prepare the data for insertion, now including shift and duration
   const { data, error } = await supabase
-    .from("Leave")
+    .from('Leave')
     .insert({
       leaveTypeId: values.type,
       startDate: values.startDate,
       endDate: values.endDate,
-      duration: values.duration || "FULL_DAY", // 'FULL_DAY' or 'HALF_DAY'
-      shift: values.shift || "NONE", // 'MORNING', 'AFTERNOON', or 'NONE'
-      isApproved: values.isApproved || "PENDING", // Default to 'PENDING'
-      userId: userId,
-      teamId: teamId,
-      orgId: orgId,
+      duration: values.duration || 'FULL_DAY', // 'FULL_DAY' or 'HALF_DAY'
+      shift: values.shift || 'NONE', // 'MORNING', 'AFTERNOON', or 'NONE'
+      isApproved: values.isApproved || 'PENDING', // Default to 'PENDING'
+      userId,
+      teamId,
+      orgId,
       reason: values.reason,
       managerComment: values.managerComment,
     })
@@ -137,7 +137,7 @@ export const insertLeave = async (
 
   if (error) {
     console.log(error);
-    throw new Error("Failed to insert leave.");
+    throw new Error('Failed to insert leave.');
   }
 
   return data;

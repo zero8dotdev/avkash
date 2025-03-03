@@ -1,7 +1,7 @@
-import { type CookieOptions, createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { Database } from "../../../../database.types";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { type CookieOptions, createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../../../../database.types';
 
 let _supabase: SupabaseClient | null = null;
 
@@ -12,7 +12,7 @@ export async function createClient() {
     return _supabase;
   }
 
-  _supabase = createServerClient<Database>(
+  _supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -31,7 +31,7 @@ export async function createClient() {
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: "", ...options });
+            cookieStore.set({ name, value: '', ...options });
           } catch (error) {
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -39,7 +39,7 @@ export async function createClient() {
           }
         },
       },
-    },
+    }
   );
 
   _supabase.auth.getUser().then(({ data, error }) => {

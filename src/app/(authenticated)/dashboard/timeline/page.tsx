@@ -77,20 +77,19 @@
 //   );
 // }
 
+'use client';
 
-"use client";
+import { Col, Flex, Radio, Row, Space } from 'antd';
 
-import { Col, Flex, Radio, Row, Space } from "antd";
-
-import TeamSelect from "./_components/team-select";
-import LeavePreview from "./_components/leave-preview";
-import LeaveCalendar from "./_components/leave-calendar";
-import { useEffect, useState, useRef } from "react";
-import AddLeave from "./_components/add-leave";
-import ShowCalendarURL from "./_components/calenderfeed";
-import { useApplicationContext } from "@/app/_context/appContext";
-import { fetchLeaveTypes } from "@/app/_actions";
-import UserDrawer from "./_components/user-drawer";
+import { useEffect, useState, useRef } from 'react';
+import { useApplicationContext } from '@/app/_context/appContext';
+import { fetchLeaveTypes } from '@/app/_actions';
+import TeamSelect from './_components/team-select';
+import LeavePreview from './_components/leave-preview';
+import LeaveCalendar from './_components/leave-calendar';
+import AddLeave from './_components/add-leave';
+import ShowCalendarURL from './_components/calenderfeed';
+import UserDrawer from './_components/user-drawer';
 
 export default function Page() {
   const {
@@ -123,7 +122,7 @@ export default function Page() {
   };
 
   return (
-    <Row style={{ padding: "25px" }}>
+    <Row style={{ padding: '25px' }}>
       <Col span={24}>
         <Flex justify="space-between">
           <AddLeave
