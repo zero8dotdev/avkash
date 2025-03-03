@@ -1,5 +1,6 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+
+import React, { useState } from 'react';
 import {
   Avatar,
   Button,
@@ -15,19 +16,18 @@ import {
   Switch,
   Typography,
   message,
-} from "antd";
-import type { DatePickerProps } from "antd";
-import type { Dayjs } from "dayjs";
-import TextArea from "antd/es/input/TextArea";
-import { CalendarOutlined, CloseOutlined } from "@ant-design/icons";
-import UserModal from "../../users/_components/user-modal";
-import { useApplicationContext } from "@/app/_context/appContext";
-import useSWR from "swr";
-import { getLeaves } from "../../users/_actions";
-import { insertLeave } from "../_actions";
-import { format } from "date-fns";
-import { mutate } from "swr";
-import { get } from "http";
+} from 'antd';
+import type { DatePickerProps } from 'antd';
+import type { Dayjs } from 'dayjs';
+import TextArea from 'antd/es/input/TextArea';
+import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
+import { useApplicationContext } from '@/app/_context/appContext';
+import useSWR, { mutate } from 'swr';
+import { format } from 'date-fns';
+import { get } from 'http';
+import { getLeaves } from '../../users/_actions';
+import { insertLeave } from '../_actions';
+import UserModal from '../../users/_components/user-modal';
 
 const UserDrawer = ({
   selectedUser,
@@ -57,12 +57,12 @@ const UserDrawer = ({
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
 
-  const cellRender: DatePickerProps<Dayjs>["cellRender"] = (current, info) => {
-    const style = { backgroundColor: "#E85A4F" }; // Define the style variable
-    if (info.type !== "date") {
+  const cellRender: DatePickerProps<Dayjs>['cellRender'] = (current, info) => {
+    const style = { backgroundColor: '#E85A4F' }; // Define the style variable
+    if (info.type !== 'date') {
       return info.originNode;
     }
-    if (typeof current === "number" || typeof current === "string") {
+    if (typeof current === 'number' || typeof current === 'string') {
       return <div className="ant-picker-cell-inner">{current}</div>;
     }
     return <div className="ant-picker-cell-inner">{current.date()}</div>;
@@ -71,11 +71,11 @@ const UserDrawer = ({
   const handleAddLeave = async (values: any) => {
     try {
       // Ensure `isApproved` is set to 'PENDING' by default, and 'APPROVED' if the switch is on
-      values.isApproved = values.isApproved ? "APPROVED" : "PENDING";
-      console.log("values", values);
+      values.isApproved = values.isApproved ? 'APPROVED' : 'PENDING';
+      console.log('values', values);
       // Format the dates to ensure correct insertion into the database
-      const formattedStartDate = format(new Date(values.Date[0]), "yyyy-MM-dd");
-      const formattedEndDate = format(new Date(values.Date[1]), "yyyy-MM-dd");
+      const formattedStartDate = format(new Date(values.Date[0]), 'yyyy-MM-dd');
+      const formattedEndDate = format(new Date(values.Date[1]), 'yyyy-MM-dd');
 
       // Adjust to UTC or handle timezone issues if necessary
       values.startDate = formattedStartDate;
@@ -89,10 +89,10 @@ const UserDrawer = ({
       );
       setShowAddLeaveForm(false); // Close the form on success
       form.resetFields();
-      message.success("Leave request submitted successfully!");
+      message.success('Leave request submitted successfully!');
     } catch (error) {
-      console.error("Failed to submit leave:", error);
-      message.error("Failed to submit leave request.");
+      console.error('Failed to submit leave:', error);
+      message.error('Failed to submit leave request.');
     }
   };
 
@@ -104,7 +104,7 @@ const UserDrawer = ({
     form.resetFields();
   };
 
-  const isManagerOrOwner = role === "MANAGER" || role === "OWNER";
+  const isManagerOrOwner = role === 'MANAGER' || role === 'OWNER';
 
   return (
     <>
@@ -115,15 +115,15 @@ const UserDrawer = ({
             <Avatar size={34} src={selectedUser?.picture} />
 
             <Flex vertical>
-              <Typography.Text strong style={{ margin: "0px", padding: "0px" }}>
+              <Typography.Text strong style={{ margin: '0px', padding: '0px' }}>
                 {selectedUser?.name}
               </Typography.Text>
-              {role === "USER" && selectedUser?.userId !== userId ? null : (
+              {role === 'USER' && selectedUser?.userId !== userId ? null : (
                 <a
                   style={{
-                    fontSize: "12px",
-                    textDecoration: "underline",
-                    color: "#E85A4F",
+                    fontSize: '12px',
+                    textDecoration: 'underline',
+                    color: '#E85A4F',
                   }}
                   onClick={() => setUserProfile(selectedUser)}
                 >
@@ -135,17 +135,17 @@ const UserDrawer = ({
         }
         closable={false}
         autoFocus={false}
-        onClose={() => console.log("closed")}
+        onClose={() => console.log('closed')}
         extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
-        {((role === "MANAGER" && teamId === selectedUser?.teamId) ||
-          role === "OWNER" ||
+        {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
+          role === 'OWNER' ||
           selectedUser?.userId === userId) &&
           !showAddLeaveForm && (
             <Button
               type="primary"
               onClick={() => setShowAddLeaveForm(true)}
-              style={{ marginBottom: "20px" }}
+              style={{ marginBottom: '20px' }}
             >
               Add leave
             </Button>
@@ -154,11 +154,11 @@ const UserDrawer = ({
         {/* Add Leave Form */}
         {showAddLeaveForm && (
           <Card
-            style={{ marginBottom: "20px" }}
+            style={{ marginBottom: '20px' }}
             title="   "
             styles={{
               header: {
-                backgroundColor: "#E85A4F",
+                backgroundColor: '#E85A4F',
               },
             }}
           >
@@ -172,7 +172,7 @@ const UserDrawer = ({
                 label="Leave Type"
                 name="type"
                 rules={[
-                  { required: true, message: "Please select a leave type" },
+                  { required: true, message: 'Please select a leave type' },
                 ]}
               >
                 <Radio.Group>
@@ -193,12 +193,12 @@ const UserDrawer = ({
                 rules={[
                   {
                     required: true,
-                    message: "Please select a start date and end date",
+                    message: 'Please select a start date and end date',
                   },
                 ]}
               >
                 <DatePicker.RangePicker
-                  placement={"bottomLeft"}
+                  placement="bottomLeft"
                   cellRender={cellRender}
                 />
               </Form.Item>
@@ -236,9 +236,9 @@ const UserDrawer = ({
             dataSource={leaveRequestData || []}
             renderItem={(item: any, i) => (
               <Card
-                styles={{ body: { padding: "0 20px 0 20px" } }}
+                styles={{ body: { padding: '0 20px 0 20px' } }}
                 style={{
-                  marginBottom: "10px",
+                  marginBottom: '10px',
                   borderLeft: `5px solid #${item.color}`,
                 }}
               >
@@ -247,9 +247,9 @@ const UserDrawer = ({
                     <span
                       style={{
                         color:
-                          item.status === "approved" ? "#339900" : "#ffcc00",
-                        width: "100px",
-                        textAlign: "right",
+                          item.status === 'approved' ? '#339900' : '#ffcc00',
+                        width: '100px',
+                        textAlign: 'right',
                       }}
                     >
                       {item.status}
@@ -270,11 +270,11 @@ const UserDrawer = ({
                   />
                   <Card
                     bordered={false}
-                    styles={{ body: { padding: "10px" } }}
+                    styles={{ body: { padding: '10px' } }}
                     style={{
-                      boxShadow: "none",
+                      boxShadow: 'none',
                       borderLeft: `2px solid ${item.color}`,
-                      borderRadius: "0px",
+                      borderRadius: '0px',
                     }}
                   >
                     {item.leaveRequestNote}
@@ -286,9 +286,9 @@ const UserDrawer = ({
               emptyText: (
                 <div
                   style={{
-                    textAlign: "center",
-                    color: "#999",
-                    margin: "20px 0",
+                    textAlign: 'center',
+                    color: '#999',
+                    margin: '20px 0',
                   }}
                 >
                   No leave requests available.

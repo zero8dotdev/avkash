@@ -1,19 +1,26 @@
-import { CalendarOutlined, FileTextOutlined } from "@ant-design/icons";
-import { Card, List, Space } from "antd";
-import React from "react";
-import { formatLeavesData, getLeaves } from "../_actions";
-import useSWR from "swr";
-import { useApplicationContext } from "@/app/_context/appContext";
+import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Card, List, Space } from 'antd';
+import React from 'react';
+import useSWR from 'swr';
+import { useApplicationContext } from '@/app/_context/appContext';
+import { formatLeavesData, getLeaves } from '../_actions';
 
-const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) => {
+const LeaveRequest = ({
+  user,
+  data,
+}: {
+  user: any;
+  data: any;
+  loading: any;
+}) => {
   return (
     <List
       dataSource={data || []}
       renderItem={(item: any, i) => (
         <Card
-          styles={{ body: { padding: "0 20px 0 20px" } }}
+          styles={{ body: { padding: '0 20px 0 20px' } }}
           style={{
-            marginBottom: "10px",
+            marginBottom: '10px',
             borderLeft: `5px solid #${item.color}`,
           }}
         >
@@ -22,8 +29,8 @@ const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) =>
               <span
                 style={{
                   color: item.color,
-                  width: "100px",
-                  textAlign: "right",
+                  width: '100px',
+                  textAlign: 'right',
                 }}
               >
                 {item.status}
@@ -44,12 +51,12 @@ const LeaveRequest = ({ user, data }: { user: any , data: any, loading: any}) =>
             />
             <Card
               bordered={false}
-              styles={{ body: { padding: "10px" } }}
+              styles={{ body: { padding: '10px' } }}
               style={{
-                width: "75%",
-                boxShadow: "none",
+                width: '75%',
+                boxShadow: 'none',
                 borderLeft: `2px solid ${item.color}`,
-                borderRadius: "0px",
+                borderRadius: '0px',
               }}
             >
               {item.leaveRequestNote}

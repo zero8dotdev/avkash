@@ -1,16 +1,16 @@
-import HeroSection from "./(public)/_homeComponent/HeroSection";
-import SecondSection from "./(public)/_homeComponent/secondSection";
-import Faq from "./(public)/_homeComponent/faq";
-import FooterSection from "./(public)/_homeComponent/footer";
-import { ThirdSection } from "./(public)/_homeComponent/thirdSection";
-import Pricing from "./(public)/pricing/page";
+import HeroSection from './(public)/_homeComponent/HeroSection';
+import SecondSection from './(public)/_homeComponent/secondSection';
+import Faq from './(public)/_homeComponent/faq';
+import FooterSection from './(public)/_homeComponent/footer';
+import { ThirdSection } from './(public)/_homeComponent/thirdSection';
+import Pricing from './(public)/pricing/page';
 
-import "./input.css";
-import FourthSection from "./(public)/_homeComponent/fourth-section";
+import './input.css';
+import FourthSection from './(public)/_homeComponent/fourth-section';
 
 export default function HomePage() {
   return (
-    <div className="w-full " style={{ backgroundColor: "##EAE7DC" }}>
+    <div className="w-full " style={{ backgroundColor: '##EAE7DC' }}>
       <HeroSection />
       <div className="w-full flex bg-[#2563ea]">
         <SecondSection />
