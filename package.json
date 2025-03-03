@@ -6,7 +6,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --experimental-https",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,7 +15,11 @@
     "triggers": "dotenv -e .env.local node db/setup.js db/triggers",
     "policies": "dotenv -e .env.local node db/setup.js db/policies",
     "seeds": "dotenv -e .env.local node db/setup.js db/seed",
-    "setup": "npm run tables; npm run seeds; npm run functions;npm run triggers; npm run policies;"
+    "setup": "npm run tables; npm run seeds; npm run functions;npm run triggers; npm run policies;",
+    "lint-fix": "next lint --fix",
+    "format": "prettier --check --ignore-path .gitignore .",
+    "format:fix": "prettier --write --ignore-path .gitignore .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
@@ -44,12 +48,12 @@
     "google-auth-library": "^9.11.0",
     "googleapis": "^140.0.1",
     "moment-timezone": "^0.5.45",
-    "next": "^14.2.5",
+    "next": "15.2.0",
     "nodemailer": "^6.7.2",
     "razorpay": "^2.9.4",
-    "react": "^18",
+    "react": "19.0.0",
     "react-datepicker": "^6.6.0",
-    "react-dom": "^18",
+    "react-dom": "19.0.0",
     "react-google-recaptcha": "^3.1.0",
     "react-google-recaptcha-v3": "^1.10.1",
     "react-scroll": "^1.9.0",
@@ -65,9 +69,9 @@
     "@emotion/styled": "^11.11.5",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.15",
-    "@types/react": "^18",
+    "@types/react": "19.0.10",
     "@types/react-datepicker": "^6.2.0",
-    "@types/react-dom": "^18",
+    "@types/react-dom": "19.0.4",
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/react-scroll": "^1.8.10",
     "@types/react-select-country-list": "^2.2.3",
@@ -75,11 +79,25 @@
     "@types/uuid4": "^2.0.3",
     "autoprefixer": "^10.4.19",
     "dotenv-cli": "^7.4.4",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.4",
+    "eslint-config-next": "15.2.0",
     "pg": "^8.12.0",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
-    "typescript": "^5"
+    "typescript": "^5",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@commitlint/types": "^19.5.0",
+    "@next/eslint-plugin-next": "^15.0.1",
+    "conventional-changelog-atom": "^5.0.0"
+  },
+  "overrides": {
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4"
   }
 }

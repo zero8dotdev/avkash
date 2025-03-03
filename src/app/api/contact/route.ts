@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { email, subject, message } = await request.json();
 
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', 
+      host: 'smtp.gmail.com',
       port: 587,
-      secure: true, 
+      secure: true,
       auth: {
         user: '',
         pass: '',
@@ -26,6 +25,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('Error sending email:', error);
-    return NextResponse.json({ success: false, error: 'Failed to send email' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to send email' },
+      { status: 500 }
+    );
   }
 }

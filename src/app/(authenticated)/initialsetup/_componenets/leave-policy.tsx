@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import {
   Avatar,
   Card,
@@ -19,34 +20,34 @@ import {
   Steps,
   List,
   Spin,
-} from "antd";
+} from 'antd';
 import {
   LeftOutlined,
   LoadingOutlined,
   SmileOutlined,
   SolutionOutlined,
   UserOutlined,
-} from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import TopSteps from "../_componenets/steps";
+} from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useApplicationContext } from '@/app/_context/appContext';
+import useSWR from 'swr';
+import dayjs from 'dayjs';
+import TopSteps from './steps';
 import {
   fetchTeamGeneralData,
   insertLeavePolicies,
   updateInitialsetupState,
-} from "../_actions";
-import { useApplicationContext } from "@/app/_context/appContext";
-import useSWR from "swr";
-import { fetchLeavePolicies } from "../../dashboard/teams/[teamId]/_actions";
-import RenderLeavePolicy from "../../dashboard/teams/[teamId]/leave-policy/page";
-import dayjs from "dayjs";
-import LeavePolicyModal from "../../dashboard/teams/[teamId]/_components/leave-policy-modal";
+} from '../_actions';
+import { fetchLeavePolicies } from '../../dashboard/teams/[teamId]/_actions';
+import RenderLeavePolicy from '../../dashboard/teams/[teamId]/leave-policy/page';
+import LeavePolicyModal from '../../dashboard/teams/[teamId]/_components/leave-policy-modal';
 
 const Leavepolicy = () => {
   const [leaveTypes, setLeaveTypes] = React.useState<any[]>([
-    { name: "Paid Time Off", color: "#85a7de", active: true },
-    { name: "Sick", color: "#d7a4ed", active: true },
-    { name: "Unpaid", color: "#dbd1ce", active: false },
+    { name: 'Paid Time Off', color: '#85a7de', active: true },
+    { name: 'Sick', color: '#d7a4ed', active: true },
+    { name: 'Unpaid', color: '#dbd1ce', active: false },
   ]);
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const router = useRouter();
@@ -58,7 +59,7 @@ const Leavepolicy = () => {
   } = useApplicationContext();
 
   const fetcherteam = async (teamId: string) => {
-    const team = teamId.split("*")[1];
+    const team = teamId.split('*')[1];
     const data = await fetchTeamGeneralData(team);
     return data;
   };
@@ -70,7 +71,7 @@ const Leavepolicy = () => {
   } = useSWR(`teamsettings*${teamId}`, fetcherteam);
 
   const fetcher = async (key: string) => {
-    const team = key.split("*")[1];
+    const team = key.split('*')[1];
     return await fetchLeavePolicies(team);
   };
 
@@ -90,19 +91,19 @@ const Leavepolicy = () => {
       });
       if (!data) {
         // Handle failure to update team settings
-        throw new Error("Failed to update team leave policies");
+        throw new Error('Failed to update team leave policies');
       }
 
       // Update initial setup state
-      const status = await updateInitialsetupState(orgId, "3");
+      const status = await updateInitialsetupState(orgId, '3');
       if (status) {
         // Navigate to the next page if update is successful
         router.push(
-          new URL("/initialsetup/locations", window?.location.origin).toString()
+          new URL('/initialsetup/locations', window?.location.origin).toString()
         );
       } else {
         // Handle failure to update initial setup state
-        throw new Error("Failed to update initial setup state");
+        throw new Error('Failed to update initial setup state');
       }
     } catch (error) {
       console.error(error);
@@ -115,7 +116,7 @@ const Leavepolicy = () => {
 
   const handlePrevious = () => {
     router.push(
-      new URL("/initialsetup/settings", window?.location.origin).toString()
+      new URL('/initialsetup/settings', window?.location.origin).toString()
     );
   };
 
@@ -140,7 +141,7 @@ const Leavepolicy = () => {
       rollOver: policy.rollOver,
       rollOverLimit: policy.rollOverLimit,
       rollOverExpiry: policy.rollOverExpiry
-        ? dayjs(policy.rollOverExpiry, "DD/MM")
+        ? dayjs(policy.rollOverExpiry, 'DD/MM')
         : null,
       autoApprove: policy.autoApprove,
     });
@@ -149,15 +150,15 @@ const Leavepolicy = () => {
   return (
     <Row
       style={{
-        padding: "50px 50px 180px 20px",
-        height: "100%",
+        padding: '50px 50px 180px 20px',
+        height: '100%',
       }}
     >
       <TopSteps position={2} />
       {leavePolicies && leavePolicies?.length >= 1 ? (
         <Col span={16} push={4}>
           <Card
-            style={{ minHeight: "300px" }}
+            style={{ minHeight: '300px' }}
             title={`${teamData?.name} Leave Policies`}
           >
             <List
@@ -165,7 +166,7 @@ const Leavepolicy = () => {
               dataSource={leavePolicies}
               renderItem={(item) => (
                 <List.Item
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => openModal(item)}
                 >
                   <List.Item.Meta
@@ -194,7 +195,7 @@ const Leavepolicy = () => {
               selctedLeaveType={null}
             />
           </Card>
-          <Flex justify="space-between" style={{ marginTop: "20px" }}>
+          <Flex justify="space-between" style={{ marginTop: '20px' }}>
             <Button
               danger
               icon={<LeftOutlined />}
@@ -211,7 +212,7 @@ const Leavepolicy = () => {
                 onClick={() =>
                   router.push(
                     new URL(
-                      "/initialsetup/locations",
+                      '/initialsetup/locations',
                       window?.location.origin
                     ).toString()
                   )
@@ -229,14 +230,14 @@ const Leavepolicy = () => {
             <Form
               size="small"
               form={form}
-              style={{ width: "90%" }}
+              style={{ width: '90%' }}
               onFinish={handlenext}
             >
               <Card
                 style={{
-                  margin: "25px 0px 25px 0px",
-                  minHeight: "300px",
-                  overflow: "auto",
+                  margin: '25px 0px 25px 0px',
+                  minHeight: '300px',
+                  overflow: 'auto',
                 }}
               >
                 <>
@@ -251,19 +252,19 @@ const Leavepolicy = () => {
                         key={i}
                         // span={activeLeaveTypesCount === 1 ? 24 : 12}
                         span={24}
-                        style={{ marginBottom: "8px" }}
+                        style={{ marginBottom: '8px' }}
                       >
                         {e.active ? (
                           <Card
                             styles={{
                               header: {
-                                border: "none",
-                                padding: "0px 12px 0px 20px",
+                                border: 'none',
+                                padding: '0px 12px 0px 20px',
                               },
-                              body: { padding: "0px 20px 0px 20px" },
+                              body: { padding: '0px 20px 0px 20px' },
                             }}
                             style={{
-                              width: "100%",
+                              width: '100%',
                             }}
                             title={
                               <>
@@ -272,7 +273,7 @@ const Leavepolicy = () => {
                                   style={{ backgroundColor: e.color }}
                                 />
                                 <Typography.Text
-                                  style={{ marginLeft: "8px", padding: "0px" }}
+                                  style={{ marginLeft: '8px', padding: '0px' }}
                                 >
                                   {e.name}
                                 </Typography.Text>
@@ -293,20 +294,20 @@ const Leavepolicy = () => {
                               </Typography.Text>
                               <Popover
                                 content={
-                                  form.getFieldValue([e.name, "unlimited"])
-                                    ? "Unlimited days per year"
-                                    : "Allow unlimited leaves days"
+                                  form.getFieldValue([e.name, 'unlimited'])
+                                    ? 'Unlimited days per year'
+                                    : 'Allow unlimited leaves days'
                                 }
                               >
                                 <Form.Item
-                                  name={[e.name, "unlimited"]}
-                                  style={{ margin: "0px 0px 10px 0px" }}
+                                  name={[e.name, 'unlimited']}
+                                  style={{ margin: '0px 0px 10px 0px' }}
                                   initialValue={false}
                                   rules={[
                                     {
                                       required: true,
                                       message:
-                                        "Please specify if unlimited leave is allowed.",
+                                        'Please specify if unlimited leave is allowed.',
                                     },
                                   ]}
                                 >
@@ -315,7 +316,7 @@ const Leavepolicy = () => {
                               </Popover>
                             </Flex>
                             <Form.Item
-                              style={{ margin: "0px 0px 0px 0px" }}
+                              style={{ margin: '0px 0px 0px 0px' }}
                               shouldUpdate={(prevValues, currentValues) => {
                                 return (
                                   prevValues[e.name].unlimited !==
@@ -324,7 +325,7 @@ const Leavepolicy = () => {
                               }}
                             >
                               {({ getFieldValue }) => {
-                                return !getFieldValue([e.name, "unlimited"]) ? (
+                                return !getFieldValue([e.name, 'unlimited']) ? (
                                   <>
                                     <Flex gap={12} vertical>
                                       <Typography.Text>
@@ -332,21 +333,21 @@ const Leavepolicy = () => {
                                       </Typography.Text>
                                       <Popover content="maximum 365 leave days per year">
                                         <Form.Item
-                                          name={[e.name, "maxLeaves"]}
-                                          style={{ margin: "0px 0px 10px 0px" }}
+                                          name={[e.name, 'maxLeaves']}
+                                          style={{ margin: '0px 0px 10px 0px' }}
                                           initialValue={14}
                                           rules={[
                                             {
                                               required: true,
                                               message:
-                                                "Please specify the maximum number of leaves.",
+                                                'Please specify the maximum number of leaves.',
                                             },
                                             {
-                                              type: "number",
+                                              type: 'number',
                                               min: 1,
                                               max: 365,
                                               message:
-                                                "The number of leaves must be between 1 and 365.",
+                                                'The number of leaves must be between 1 and 365.',
                                             },
                                           ]}
                                           getValueFromEvent={(e) => {
@@ -371,8 +372,8 @@ const Leavepolicy = () => {
                                       </Typography.Text>
                                       <Popover content="If you enable accruals, leave will be earned continuously over the year">
                                         <Form.Item
-                                          name={[e.name, "accruals"]}
-                                          style={{ margin: "0px 0px 10px 0px" }}
+                                          name={[e.name, 'accruals']}
+                                          style={{ margin: '0px 0px 10px 0px' }}
                                           initialValue={false}
                                         >
                                           <Switch />
@@ -381,7 +382,7 @@ const Leavepolicy = () => {
                                     </Flex>
 
                                     <Form.Item
-                                      style={{ margin: "0px" }}
+                                      style={{ margin: '0px' }}
                                       shouldUpdate={(
                                         prevValues,
                                         currentValues
@@ -393,7 +394,7 @@ const Leavepolicy = () => {
                                       {({ getFieldValue }) => {
                                         return getFieldValue([
                                           e.name,
-                                          "accruals",
+                                          'accruals',
                                         ]) ? (
                                           <Flex justify="space-between">
                                             <Flex vertical gap={5}>
@@ -404,26 +405,26 @@ const Leavepolicy = () => {
                                                 <Form.Item
                                                   name={[
                                                     e.name,
-                                                    "accrualFrequency",
+                                                    'accrualFrequency',
                                                   ]}
-                                                  style={{ margin: "0px" }}
+                                                  style={{ margin: '0px' }}
                                                   rules={[
                                                     {
                                                       required: true,
                                                       message:
-                                                        "Please select an accrual frequency.",
+                                                        'Please select an accrual frequency.',
                                                     },
                                                   ]}
                                                 >
                                                   <Select
                                                     options={[
                                                       {
-                                                        value: "MONTHLY",
-                                                        label: "Monthly",
+                                                        value: 'MONTHLY',
+                                                        label: 'Monthly',
                                                       },
                                                       {
-                                                        value: "QUARTERLY",
-                                                        label: "Quarterly",
+                                                        value: 'QUARTERLY',
+                                                        label: 'Quarterly',
                                                       },
                                                     ]}
                                                   />
@@ -436,13 +437,13 @@ const Leavepolicy = () => {
                                               </Typography.Text>
                                               <Form.Item
                                                 style={{
-                                                  margin: "0px 0px 0px 0px",
+                                                  margin: '0px 0px 0px 0px',
                                                 }}
-                                                name={[e.name, "accrueOn"]}
+                                                name={[e.name, 'accrueOn']}
                                                 initialValue="BEGINNING"
                                               >
                                                 <Segmented
-                                                  options={["BEGINNING", "END"]}
+                                                  options={['BEGINNING', 'END']}
                                                 />
                                               </Form.Item>
                                             </Flex>
@@ -456,8 +457,8 @@ const Leavepolicy = () => {
                                       </Typography.Text>
                                       <Popover content="Roll over unused leave to next year">
                                         <Form.Item
-                                          name={[e.name, "rollOver"]}
-                                          style={{ margin: "0px 0px 10px 0px" }}
+                                          name={[e.name, 'rollOver']}
+                                          style={{ margin: '0px 0px 10px 0px' }}
                                           initialValue={false}
                                         >
                                           <Switch />
@@ -465,7 +466,7 @@ const Leavepolicy = () => {
                                       </Popover>
                                     </Flex>
                                     <Form.Item
-                                      style={{ margin: "0px" }}
+                                      style={{ margin: '0px' }}
                                       shouldUpdate={(
                                         prevValues,
                                         currentValues
@@ -477,7 +478,7 @@ const Leavepolicy = () => {
                                       {({ getFieldValue }) => {
                                         return getFieldValue([
                                           e.name,
-                                          "rollOver",
+                                          'rollOver',
                                         ]) ? (
                                           <Flex justify="space-between">
                                             <Flex vertical gap={5}>
@@ -530,23 +531,23 @@ const Leavepolicy = () => {
                                                 <Form.Item
                                                   name={[
                                                     e.name,
-                                                    "rollOverLimit",
+                                                    'rollOverLimit',
                                                   ]}
                                                   dependencies={[
-                                                    [e.name, "maxLeaves"],
+                                                    [e.name, 'maxLeaves'],
                                                   ]}
                                                   rules={[
                                                     {
                                                       required: true,
                                                       message:
-                                                        "Please specify a roll-over limit.",
+                                                        'Please specify a roll-over limit.',
                                                     },
                                                     ({ getFieldValue }) => ({
                                                       validator(_, value) {
                                                         const maxLeaves =
                                                           getFieldValue([
                                                             e.name,
-                                                            "maxLeaves",
+                                                            'maxLeaves',
                                                           ]);
                                                         if (
                                                           value === undefined ||
@@ -570,12 +571,12 @@ const Leavepolicy = () => {
                                                     min={1}
                                                     max={form.getFieldValue([
                                                       e.name,
-                                                      "maxLeaves",
+                                                      'maxLeaves',
                                                     ])}
                                                     suffix={
                                                       <span
                                                         style={{
-                                                          marginRight: "15px",
+                                                          marginRight: '15px',
                                                         }}
                                                       >
                                                         days
@@ -593,13 +594,13 @@ const Leavepolicy = () => {
                                                 <Form.Item
                                                   name={[
                                                     e.name,
-                                                    "rollOverExpiry",
+                                                    'rollOverExpiry',
                                                   ]}
                                                   rules={[
                                                     {
                                                       required: true,
                                                       message:
-                                                        "Please select a roll-over expiry date.",
+                                                        'Please select a roll-over expiry date.',
                                                     },
                                                   ]}
                                                 >
@@ -608,7 +609,7 @@ const Leavepolicy = () => {
                                                     onChange={(date) => {
                                                       form.setFieldsValue({
                                                         rollOverExpiry: date
-                                                          ? date.format("DD/MM")
+                                                          ? date.format('DD/MM')
                                                           : null,
                                                       });
                                                     }}
@@ -629,8 +630,8 @@ const Leavepolicy = () => {
                               <Typography.Text>Auto approve</Typography.Text>
                               <Popover content="Auto approve each leave request">
                                 <Form.Item
-                                  name={[e.name, "autoApprove"]}
-                                  style={{ margin: "0px 0px 10px 0px" }}
+                                  name={[e.name, 'autoApprove']}
+                                  style={{ margin: '0px 0px 10px 0px' }}
                                   initialValue={false}
                                 >
                                   <Switch />
@@ -646,18 +647,18 @@ const Leavepolicy = () => {
                                   size={15}
                                   style={{
                                     backgroundColor: e.color,
-                                    marginRight: "10px",
+                                    marginRight: '10px',
                                   }}
                                 />
                                 {e.name}
                               </>
                             }
                             style={{
-                              width: "100%",
+                              width: '100%',
                             }}
                             styles={{
-                              header: { border: "none", padding: "8px" },
-                              body: { padding: "0px" },
+                              header: { border: 'none', padding: '8px' },
+                              body: { padding: '0px' },
                             }}
                             extra={
                               <Tag

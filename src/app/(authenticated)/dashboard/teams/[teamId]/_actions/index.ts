@@ -1,16 +1,14 @@
-"use server";
+'use server';
 
-import { createAdminClient } from "@/app/_utils/supabase/adminClient";
-import { createClient } from "@/app/_utils/supabase/server";
-import { WebClient } from "@slack/web-api";
+import { createClient } from '@/app/_utils/supabase/server';
 
 export const fetchTeamGeneralData = async (teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("Team")
-    .select("*")
-    .eq("teamId", teamId)
+    .from('Team')
+    .select('*')
+    .eq('teamId', teamId)
     .single();
   if (error) {
     throw error;
@@ -19,11 +17,17 @@ export const fetchTeamGeneralData = async (teamId: string) => {
 };
 
 export const updateTeamGeneralData = async (teamId: string, values: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Team")
-    .update({name: values.teamName, startOfWorkWeek: values.startOfWorkWeek, workweek: values.workweek, location: values.location, timeZone: values.timeZone})
-    .eq("teamId", teamId)
+    .from('Team')
+    .update({
+      name: values.teamName,
+      startOfWorkWeek: values.startOfWorkWeek,
+      workweek: values.workweek,
+      location: values.location,
+      timeZone: values.timeZone,
+    })
+    .eq('teamId', teamId)
     .single();
   if (error) {
     throw error;
@@ -32,11 +36,11 @@ export const updateTeamGeneralData = async (teamId: string, values: any) => {
 };
 
 export const fetchLocations = async (orgId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Organisation")
-    .select("location")
-    .eq("orgId", orgId)
+    .from('Organisation')
+    .select('location')
+    .eq('orgId', orgId)
     .single();
 
   if (error) {
@@ -46,24 +50,28 @@ export const fetchLocations = async (orgId: string) => {
 };
 
 export const fetchLeavePolicies = async (teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("LeavePolicy")
+    .from('LeavePolicy')
     .select(`*, leaveType:LeaveType(*)`)
-    .eq("teamId", teamId);
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
   return data;
 };
 
-export const updatePolicyData = async (teamId: string, values: any, leavePolicyId: any) => {
-  const supabase = createClient();
+export const updatePolicyData = async (
+  teamId: string,
+  values: any,
+  leavePolicyId: any
+) => {
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("LeavePolicy")
-    .update({...values})
-    .eq("teamId", teamId)
-    .eq("leavePolicyId", leavePolicyId)
+    .from('LeavePolicy')
+    .update({ ...values })
+    .eq('teamId', teamId)
+    .eq('leavePolicyId', leavePolicyId);
   if (error) {
     throw error;
   }
@@ -71,40 +79,37 @@ export const updatePolicyData = async (teamId: string, values: any, leavePolicyI
 };
 
 export const updateTeamNotifications = async (teamId: string, values: any) => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Team")
-    .update({...values})
-    .eq("teamId", teamId)
+    .from('Team')
+    .update({ ...values })
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
   return data;
 };
 
-
-export const fetchTeamUsersData
-= async (teamId: string) => {
-  const supabase = createClient();
+export const fetchTeamUsersData = async (teamId: string) => {
+  const supabase = await createClient();
   const { data, error } = await supabase
-    .from("User")
+    .from('User')
     .select('*')
-    .eq("teamId", teamId);
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
   return data;
 };
-
 
 export const fetchTeamManagersData = async (teamId: string) => {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch team data to get the managers array
   const { data: teamData, error: teamError } = await supabase
-    .from("Team")  // Assuming the team table is named "Team"
-    .select("managers")  // Fetch only the "managers" field
-    .eq("teamId", teamId)
+    .from('Team') // Assuming the team table is named "Team"
+    .select('managers') // Fetch only the "managers" field
+    .eq('teamId', teamId)
     .single(); // Assuming teamId is unique, using `.single()` to fetch one record
 
   if (teamError) {
@@ -119,13 +124,13 @@ export const fetchTeamManagersData = async (teamId: string) => {
 
   // Fetch users that match the UUIDs in the managers array
   const { data: users, error: userError } = await supabase
-    .from("User")  // Assuming the users table is named "User"
-    .select("*")
-    .in("userId", managerIds);  // Fetch users whose "id" matches any UUID in the managers array
+    .from('User') // Assuming the users table is named "User"
+    .select('*')
+    .in('userId', managerIds); // Fetch users whose "id" matches any UUID in the managers array
 
   if (userError) {
     throw userError; // Handle errors while fetching user data
   }
 
-  return users;  // Return the list of matching users
+  return users; // Return the list of matching users
 };

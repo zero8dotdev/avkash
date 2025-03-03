@@ -1,7 +1,9 @@
-"use client";
-import React, { useState } from "react";
-import { Button, Flex, Modal, Select, Typography, Card } from "antd";
-import { useApplicationContext } from "@/app/_context/appContext";
+'use client';
+
+import React, { useState } from 'react';
+import { Button, Flex, Modal, Select, Typography, Card } from 'antd';
+import { useApplicationContext } from '@/app/_context/appContext';
+
 interface Props {
   users: any[];
   onSelectedUser: Function;
@@ -19,14 +21,14 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
 
   const getuserDetails = (userId: any, type: string) => {
     const user = users?.find((each) => each.userId === userId);
-    if (type === "user") {
+    if (type === 'user') {
       return user?.name;
     } else {
       return user?.Team.name;
     }
   };
   let filteredusers;
-  if (state.role === "OWNER" || state.role === "MANAGER") {
+  if (state.role === 'OWNER' || state.role === 'MANAGER') {
     filteredusers = users;
   } else {
     filteredusers = users.filter((user) => user.userId === state.userId);
@@ -47,7 +49,7 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
         <Flex vertical>
           <Typography.Text>Select user</Typography.Text>
           <Select
-            style={{ width: "100%" }}
+            style={{ width: '100%' }}
             value={userId}
             onSelect={(v) => setUserId(v)}
           >
@@ -59,15 +61,15 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
           </Select>
         </Flex>
         {userId ? (
-          <Card style={{ marginTop: "20px" }}>
+          <Card style={{ marginTop: '20px' }}>
             <Flex justify="space-between">
               <Typography.Text strong>
-                {getuserDetails(userId, "user")}
+                {getuserDetails(userId, 'user')}
                 <Typography.Text
                   type="secondary"
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: '10px' }}
                 >
-                  ({getuserDetails(userId, "team")})
+                  ({getuserDetails(userId, 'team')})
                 </Typography.Text>
               </Typography.Text>
               <Button

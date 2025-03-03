@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { Avatar, Button, Card, Col, List, Row } from "antd";
-import React from "react";
-import TeamSettingsTabs from "../_components/team-settings-tabs";
-import { useParams } from "next/navigation";
-import { fetchTeamUsersData } from "../_actions";
-import useSWR from "swr";
+import { Avatar, Button, Card, Col, List, Row } from 'antd';
+import React from 'react';
+import { useParams } from 'next/navigation';
+import useSWR from 'swr';
+import TeamSettingsTabs from '../_components/team-settings-tabs';
+import { fetchTeamUsersData } from '../_actions';
 
 const Page = () => {
   const { teamId } = useParams() as { teamId: string };
   // Fetch team data
   const fetcher = async (key: string) => {
-    const team = key.split("*")[1];
+    const team = key.split('*')[1];
     return await fetchTeamUsersData(team);
   };
 
@@ -21,7 +21,6 @@ const Page = () => {
     mutate,
     isValidating: managersLoading,
   } = useSWR(`teamUsers*${teamId}`, fetcher);
-
 
   return (
     <Row>
@@ -34,11 +33,9 @@ const Page = () => {
             bordered
             dataSource={users}
             renderItem={(item) => (
-              <List.Item style={{ cursor: "pointer" }}>
+              <List.Item style={{ cursor: 'pointer' }}>
                 <List.Item.Meta
-                  avatar={
-                    <Avatar src={item?.picture}/>
-                  }
+                  avatar={<Avatar src={item?.picture} />}
                   title={item?.name}
                   description={item?.email}
                 />

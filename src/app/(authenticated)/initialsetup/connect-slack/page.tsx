@@ -1,20 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
-"use client";
+
+'use client';
 
 import {
   SmileOutlined,
   SolutionOutlined,
   UserOutlined,
-} from "@ant-design/icons";
-import { Flex, Button, Row, Col, Steps, Card } from "antd";
-import { useRouter } from "next/navigation";
-import TopSteps from "../_componenets/steps";
+} from '@ant-design/icons';
+import { Flex, Button, Row, Col, Steps, Card } from 'antd';
+import { useRouter } from 'next/navigation';
+import TopSteps from '../_componenets/steps';
 
 export default function AddToSlack() {
   const router = useRouter();
 
   const redirectToNext = new URL(
-    "/initialsetup/settings",
+    '/initialsetup/settings',
     window?.location.origin
   ).toString();
 
@@ -25,8 +26,8 @@ export default function AddToSlack() {
   return (
     <Row
       style={{
-        padding: "50px 50px 180px 20px",
-        height: "100%",
+        padding: '50px 50px 180px 20px',
+        height: '100%',
       }}
     >
       <TopSteps position={0} />
@@ -34,12 +35,12 @@ export default function AddToSlack() {
       <Col span={16} push={4}>
         <Card
           style={{
-            margin: "25px 0px 25px 0px",
-            minHeight: "300px",
-            overflow: "auto",
-            display: "flex",
-            justifyContent: "center", // Horizontal alignment
-            alignItems: "center", // Vertical alignment
+            margin: '25px 0px 25px 0px',
+            minHeight: '300px',
+            overflow: 'auto',
+            display: 'flex',
+            justifyContent: 'center', // Horizontal alignment
+            alignItems: 'center', // Vertical alignment
           }}
         >
           <a
