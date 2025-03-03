@@ -1,30 +1,32 @@
-"use client";
-import { Card, Checkbox, Form, Select } from "antd";
-import React, { useEffect, useState } from "react";
-import moment from "moment-timezone";
+'use client';
+
+import { Card, Checkbox, Form, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import moment from 'moment-timezone';
+
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
 const { Group: CheckboxGroup } = Checkbox;
 
 const weekDays = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
 ];
 
 const TeamSettings = ({ form }: { form: any }) => {
   const [timezones, setTimezones] = useState<any[]>([]);
 
   const [startOfWorkWeek, setStartOfWeek] = useState<string[]>([
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
   ]);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const TeamSettings = ({ form }: { form: any }) => {
       (a: any, b: any) => weekDays.indexOf(a) - weekDays.indexOf(b)
     );
     setStartOfWeek(data);
-    form.setFieldValue("startOfWorkWeek", data[0]);
+    form.setFieldValue('startOfWorkWeek', data[0]);
   };
 
   return (
@@ -47,7 +49,7 @@ const TeamSettings = ({ form }: { form: any }) => {
         rules={[
           {
             required: true,
-            message: "Please select start of work week.",
+            message: 'Please select start of work week.',
           },
         ]}
       >
@@ -65,7 +67,7 @@ const TeamSettings = ({ form }: { form: any }) => {
         rules={[
           {
             required: true,
-            message: "Please select atleast one working day",
+            message: 'Please select atleast one working day',
           },
         ]}
         initialValue={startOfWorkWeek}
@@ -81,21 +83,21 @@ const TeamSettings = ({ form }: { form: any }) => {
       <FormItem
         label="Time Zone"
         name="timeZone"
-        rules={[{ required: true, message: "Please select your timezone." }]}
+        rules={[{ required: true, message: 'Please select your timezone.' }]}
       >
         <Select
           showSearch
           placeholder="Timezone"
           optionFilterProp="children"
           filterOption={(input, option) =>
-            ((option?.label ?? "") as string)
+            ((option?.label ?? '') as string)
               .toLowerCase()
               .includes(input.toLowerCase())
           }
           filterSort={(optionA, optionB) =>
-            ((optionA?.label ?? "") as string)
+            ((optionA?.label ?? '') as string)
               .toLowerCase()
-              .localeCompare(((optionB?.label ?? "") as string).toLowerCase())
+              .localeCompare(((optionB?.label ?? '') as string).toLowerCase())
           }
           options={timezones.map((timezone: string) => ({
             value: timezone,

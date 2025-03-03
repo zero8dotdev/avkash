@@ -1,5 +1,6 @@
-"use client";
-import { Card, Checkbox, Divider, Form, Switch } from "antd";
+'use client';
+
+import { Card, Checkbox, Divider, Form, Switch } from 'antd';
 
 const NotificationPage = () => {
   return (
@@ -37,7 +38,7 @@ const NotificationPage = () => {
         <Form.Item
           label="Send notications to"
           name="sendNtf"
-          initialValue={["Owners"]}
+          initialValue={['Owners']}
         >
           <Checkbox.Group className="ml-6">
             <Checkbox value="OWNER" defaultChecked>

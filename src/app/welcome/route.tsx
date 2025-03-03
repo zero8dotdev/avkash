@@ -1,15 +1,15 @@
-import { redirect } from "next/navigation";
-import { createClient } from "../_utils/supabase/server";
-import { type NextRequest } from "next/server";
-import { isInitialSetupDone } from "../_actions";
+import { redirect } from 'next/navigation';
+import { type NextRequest } from 'next/server';
+import { createClient } from '../_utils/supabase/server';
+import { isInitialSetupDone } from '../_actions';
 
 export async function GET(request: NextRequest) {
   let redirectPath: string | null = null;
   const searchParams = request.nextUrl.searchParams;
-  const code = searchParams.get("code");
+  const code = searchParams.get('code');
 
   if (!code) {
-    redirectPath = "/login";
+    redirectPath = '/login';
     return;
   }
 
@@ -27,27 +27,27 @@ export async function GET(request: NextRequest) {
       error: userError,
       count,
     } = await supabase
-      .from("User")
-      .select("*")
-      .eq("userId", authUserSession.user.id);
+      .from('User')
+      .select('*')
+      .eq('userId', authUserSession.user.id);
 
     if (userError) {
       throw userError;
     }
     if (user.length === 0) {
-      redirectPath = "/signup";
+      redirectPath = '/signup';
       return;
     }
 
     let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId);
     if (!isInitialSetupavailable?.isSetupCompleted) {
-      redirectPath = "/setup";
+      redirectPath = '/setup';
     } else {
-      redirectPath = "/dashboard";
+      redirectPath = '/dashboard';
     }
   } catch (error) {
-    redirectPath = "/error";
+    redirectPath = '/error';
   } finally {
-    redirect(redirectPath || "/");
+    redirect(redirectPath || '/');
   }
 }

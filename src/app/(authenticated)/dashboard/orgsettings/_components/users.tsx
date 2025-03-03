@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useApplicationContext } from "@/app/_context/appContext";
-import { DeleteOutlined } from "@ant-design/icons";
+import { useApplicationContext } from '@/app/_context/appContext';
+import { DeleteOutlined } from '@ant-design/icons';
 import {
   Row,
   Col,
@@ -12,11 +12,11 @@ import {
   Avatar,
   Form,
   Tooltip,
-} from "antd";
-import Item, { Meta } from "antd/es/list/Item";
-import Search from "antd/es/transfer/search";
-import { forwardRef, useImperativeHandle, useState } from "react";
-import { fetchAllUsersFromChatApp } from "../_actions";
+} from 'antd';
+import Item, { Meta } from 'antd/es/list/Item';
+import Search from 'antd/es/transfer/search';
+import { forwardRef, useImperativeHandle, useState } from 'react';
+import { fetchAllUsersFromChatApp } from '../_actions';
 
 export const Users = forwardRef(function Users(props, ref) {
   const [users, setUsers] = useState<any[]>();
@@ -97,8 +97,8 @@ export const Users = forwardRef(function Users(props, ref) {
                             style={{
                               margin: 0,
                               padding: 0,
-                              display: "flex",
-                              gap: "8px",
+                              display: 'flex',
+                              gap: '8px',
                             }}
                             key="prorate"
                             name={`user[${id}]`}
@@ -124,11 +124,11 @@ export const Users = forwardRef(function Users(props, ref) {
                       title={real_name}
                       avatar={<Avatar src={image_48} />}
                       description={email}
-                    ></Meta>
+                    />
                   </Item>
                 );
               }}
-            ></List>
+            />
           </Form>
         </Col>
       </Row>

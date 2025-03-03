@@ -1,6 +1,6 @@
-import { type CookieOptions, createServerClient } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
-import { Database } from "../../../../database.types";
+import { type CookieOptions, createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
+import { Database } from '../../../../database.types';
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -37,7 +37,7 @@ export async function updateSession(request: NextRequest) {
         remove(name: string, options: CookieOptions) {
           request.cookies.set({
             name,
-            value: "",
+            value: '',
             ...options,
           });
           response = NextResponse.next({
@@ -47,25 +47,23 @@ export async function updateSession(request: NextRequest) {
           });
           response.cookies.set({
             name,
-            value: "",
+            value: '',
             ...options,
           });
         },
       },
-    },
+    }
   );
 
   const user = await supabase.auth.getUser();
 
   // protected routes are handled here
   if (
-    (
-      request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/signup")
-    ) &&
+    (request.nextUrl.pathname.startsWith('/dashboard') ||
+      request.nextUrl.pathname.startsWith('/signup')) &&
     user.error
   ) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return response;
