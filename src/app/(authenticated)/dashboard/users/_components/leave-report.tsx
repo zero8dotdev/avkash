@@ -72,7 +72,15 @@ export default function LeaveReport({
                 key: 'available',
               },
             ]}
-            summary={(pageData) => {
+            summary={(
+              pageData: readonly {
+                taken: number;
+                planned: number;
+                total: number;
+                remaining: number;
+                available: number;
+              }[]
+            ) => {
               return (
                 <Table.Summary.Row>
                   <Table.Summary.Cell index={1}>
@@ -82,13 +90,13 @@ export default function LeaveReport({
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={2}>
                     <Typography.Text strong style={{ color: '#E85A4F' }}>
-                      {pageData.reduce((sum, record) => sum + record.taken, 0)}
+                      {pageData.reduce((sum, record) => sum + record?.taken, 0)}
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={3}>
                     <Typography.Text strong style={{ color: '#E85A4F' }}>
                       {pageData.reduce(
-                        (sum, record) => sum + record.planned,
+                        (sum, record) => sum + record?.planned,
                         0
                       )}
                     </Typography.Text>
