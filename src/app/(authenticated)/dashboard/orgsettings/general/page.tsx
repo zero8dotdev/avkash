@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import useSWR from "swr";
-import { useState } from "react";
-import { Form, Select, Switch, Button, Card, Row, Col } from "antd";
-import SideMenu from "../_components/menu";
-import { fetchOrgGeneralData, updataOrgGeneralData } from "../_actions";
-import { useApplicationContext } from "@/app/_context/appContext";
+import useSWR from 'swr';
+import { useState } from 'react';
+import { Form, Select, Switch, Button, Card, Row, Col } from 'antd';
+import { useApplicationContext } from '@/app/_context/appContext';
+import SideMenu from '../_components/menu';
+import { fetchOrgGeneralData, updataOrgGeneralData } from '../_actions';
 
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
@@ -18,7 +18,7 @@ const General: React.FC<{}> = () => {
   // Use SWR to fetch organization data
   // Fetcher function for SWR
   const fetcher = async (orgId: string) => {
-    const org = orgId.split("*")[1];
+    const org = orgId.split('*')[1];
     const data = await fetchOrgGeneralData(org);
 
     // if (error) {
@@ -41,21 +41,21 @@ const General: React.FC<{}> = () => {
       // Optimistically update SWR cache
       mutate({ ...orgData, ...updatedData }, false);
     } catch (err) {
-      console.error("Failed to update data:", err);
+      console.error('Failed to update data:', err);
     } finally {
       setLoader(false);
     }
   };
 
   return (
-    <Row style={{ padding: "80px", overflow: "hidden" }}>
+    <Row style={{ padding: '80px', overflow: 'hidden' }}>
       <Col span={3}>
         <SideMenu position="general" />
       </Col>
       <Col span={16}>
         <Card title="General Settings">
           {error ? (
-            <div style={{ color: "red" }}>Error loading organization data.</div>
+            <div style={{ color: 'red' }}>Error loading organization data.</div>
           ) : !orgData ? (
             <div>Loading...</div>
           ) : (

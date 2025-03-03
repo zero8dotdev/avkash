@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { createClient } from "@/app/_utils/supabase/server";
+import { createClient } from '@/app/_utils/supabase/server';
 
 export const fetchTeamGeneralData = async (teamId: string) => {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("Team")
-    .select("*")
-    .eq("teamId", teamId)
+    .from('Team')
+    .select('*')
+    .eq('teamId', teamId)
     .single();
   if (error) {
     throw error;
@@ -19,7 +19,7 @@ export const fetchTeamGeneralData = async (teamId: string) => {
 export const updateTeamGeneralData = async (teamId: string, values: any) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Team")
+    .from('Team')
     .update({
       name: values.teamName,
       startOfWorkWeek: values.startOfWorkWeek,
@@ -27,7 +27,7 @@ export const updateTeamGeneralData = async (teamId: string, values: any) => {
       location: values.location,
       timeZone: values.timeZone,
     })
-    .eq("teamId", teamId)
+    .eq('teamId', teamId)
     .single();
   if (error) {
     throw error;
@@ -38,9 +38,9 @@ export const updateTeamGeneralData = async (teamId: string, values: any) => {
 export const fetchLocations = async (orgId: string) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Organisation")
-    .select("location")
-    .eq("orgId", orgId)
+    .from('Organisation')
+    .select('location')
+    .eq('orgId', orgId)
     .single();
 
   if (error) {
@@ -52,9 +52,9 @@ export const fetchLocations = async (orgId: string) => {
 export const fetchLeavePolicies = async (teamId: string) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("LeavePolicy")
+    .from('LeavePolicy')
     .select(`*, leaveType:LeaveType(*)`)
-    .eq("teamId", teamId);
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
@@ -64,14 +64,14 @@ export const fetchLeavePolicies = async (teamId: string) => {
 export const updatePolicyData = async (
   teamId: string,
   values: any,
-  leavePolicyId: any,
+  leavePolicyId: any
 ) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("LeavePolicy")
+    .from('LeavePolicy')
     .update({ ...values })
-    .eq("teamId", teamId)
-    .eq("leavePolicyId", leavePolicyId);
+    .eq('teamId', teamId)
+    .eq('leavePolicyId', leavePolicyId);
   if (error) {
     throw error;
   }
@@ -81,9 +81,9 @@ export const updatePolicyData = async (
 export const updateTeamNotifications = async (teamId: string, values: any) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("Team")
+    .from('Team')
     .update({ ...values })
-    .eq("teamId", teamId);
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
@@ -93,9 +93,9 @@ export const updateTeamNotifications = async (teamId: string, values: any) => {
 export const fetchTeamUsersData = async (teamId: string) => {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("User")
-    .select("*")
-    .eq("teamId", teamId);
+    .from('User')
+    .select('*')
+    .eq('teamId', teamId);
   if (error) {
     throw error;
   }
@@ -107,9 +107,9 @@ export const fetchTeamManagersData = async (teamId: string) => {
 
   // Fetch team data to get the managers array
   const { data: teamData, error: teamError } = await supabase
-    .from("Team") // Assuming the team table is named "Team"
-    .select("managers") // Fetch only the "managers" field
-    .eq("teamId", teamId)
+    .from('Team') // Assuming the team table is named "Team"
+    .select('managers') // Fetch only the "managers" field
+    .eq('teamId', teamId)
     .single(); // Assuming teamId is unique, using `.single()` to fetch one record
 
   if (teamError) {
@@ -124,9 +124,9 @@ export const fetchTeamManagersData = async (teamId: string) => {
 
   // Fetch users that match the UUIDs in the managers array
   const { data: users, error: userError } = await supabase
-    .from("User") // Assuming the users table is named "User"
-    .select("*")
-    .in("userId", managerIds); // Fetch users whose "id" matches any UUID in the managers array
+    .from('User') // Assuming the users table is named "User"
+    .select('*')
+    .in('userId', managerIds); // Fetch users whose "id" matches any UUID in the managers array
 
   if (userError) {
     throw userError; // Handle errors while fetching user data

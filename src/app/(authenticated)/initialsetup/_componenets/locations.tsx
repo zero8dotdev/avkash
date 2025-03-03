@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -11,15 +11,15 @@ import {
   Row,
   Select,
   Table,
-} from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+} from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 
 export interface holidaysList {
-  key: string,
-  name: string,
-  date: string,
-  isRecurring: boolean,
-  isCustom: boolean,
+  key: string;
+  name: string;
+  date: string;
+  isRecurring: boolean;
+  isCustom: boolean;
 }
 interface props {
   holidaysList: holidaysList[];
@@ -38,11 +38,14 @@ const LocationPage: React.FC<props> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const moment = require("moment");
+  // eslint-disable-next-line import/no-unresolved
+  const moment = require('moment');
 
   // delete holiday function
   const handleDelete = (key: string) => {
-    const updatedHolidays = holidaysList.filter((holiday) => holiday.key !== key);
+    const updatedHolidays = holidaysList.filter(
+      (holiday) => holiday.key !== key
+    );
     update(updatedHolidays);
   };
 
@@ -71,9 +74,9 @@ const LocationPage: React.FC<props> = ({
     const { name, date, isRecurring } = values;
     const newHoliday = {
       key: values.date,
-      name: name,
-      date: moment(date).format("DD MMM YYYY"),
-      isRecurring: isRecurring,
+      name,
+      date: moment(date).format('DD MMM YYYY'),
+      isRecurring,
       isCustom: true,
     };
 
@@ -86,11 +89,11 @@ const LocationPage: React.FC<props> = ({
 
   // locations list
   const defaultLocations = [
-    { countryCode: "IN", countryName: "India" },
-    { countryCode: "DE", countryName: "Germany" },
-    { countryCode: "GB", countryName: "United Kingdom" },
-    { countryCode: "US", countryName: "United States" },
-    { countryCode: "NL", countryName: "Netherlands" },
+    { countryCode: 'IN', countryName: 'India' },
+    { countryCode: 'DE', countryName: 'Germany' },
+    { countryCode: 'GB', countryName: 'United Kingdom' },
+    { countryCode: 'US', countryName: 'United States' },
+    { countryCode: 'NL', countryName: 'Netherlands' },
   ];
 
   const locationsToUse = availableLocations || defaultLocations;
@@ -98,18 +101,20 @@ const LocationPage: React.FC<props> = ({
   // holidays sorting based on date
   const dataSource = holidaysList.map((each) => ({
     ...each,
-    date: moment(new Date(each.date)).format("DD MMM YYYY"),
+    date: moment(new Date(each.date)).format('DD MMM YYYY'),
   }));
 
-  dataSource.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  dataSource.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Date", dataIndex: "date", key: "date" },
+    { title: 'Name', dataIndex: 'name', key: 'name' },
+    { title: 'Date', dataIndex: 'date', key: 'date' },
     {
-      title: "Recurring",
-      dataIndex: "isRecurring",
-      key: "isRecurring",
+      title: 'Recurring',
+      dataIndex: 'isRecurring',
+      key: 'isRecurring',
       render: (r: any, rowData: any) => (
         <Checkbox
           defaultChecked={rowData.isRecurring}
@@ -118,8 +123,8 @@ const LocationPage: React.FC<props> = ({
       ),
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (rowData: any) => (
         <Button
           type="link"
@@ -131,11 +136,11 @@ const LocationPage: React.FC<props> = ({
   ];
 
   return (
-    <Row gutter={[16, 16]} style={{ marginTop: "0px" }}>
+    <Row gutter={[16, 16]} style={{ marginTop: '0px' }}>
       <Col span={4}>
         <Select
           showSearch
-          style={{ width: "300px" }}
+          style={{ width: '300px' }}
           onChange={handleCountryChange}
           defaultValue={countryCode}
           options={locationsToUse.map((each: any) => ({
@@ -174,18 +179,18 @@ const LocationPage: React.FC<props> = ({
           <Form.Item
             name="name"
             label="Holiday Name"
-            rules={[{ required: true, message: "Please enter holiday name" }]}
+            rules={[{ required: true, message: 'Please enter holiday name' }]}
           >
             <Input placeholder="Name" />
           </Form.Item>
           <Form.Item
             name="date"
             label="Holiday Date"
-            rules={[{ required: true, message: "Please select a date!" }]}
+            rules={[{ required: true, message: 'Please select a date!' }]}
           >
-            <DatePicker style={{ width: "100%" }} />
+            <DatePicker style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item label="Recurring" name="isRecurring" initialValue={true}>
+          <Form.Item label="Recurring" name="isRecurring" initialValue>
             <Checkbox defaultChecked />
           </Form.Item>
         </Form>

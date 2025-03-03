@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Card,
@@ -10,9 +10,10 @@ import {
   Segmented,
   Select,
   Switch,
-} from "antd";
-import Text from "antd/es/typography/Text";
-import React, { useEffect, useState } from "react";
+} from 'antd';
+import Text from 'antd/es/typography/Text';
+import React, { useEffect, useState } from 'react';
+
 const { Item: FormItem } = Form;
 
 export interface ILeavePolicyProps {
@@ -34,11 +35,11 @@ export interface ILeavePolicyUpdate {
 }
 
 const mainSectionHeading: React.CSSProperties = {
-  fontWeight: "400",
+  fontWeight: '400',
 };
 
 const mainSectionHelp: React.CSSProperties = {
-  color: "#ccc",
+  color: '#ccc',
 };
 
 export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
@@ -50,23 +51,31 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
     form.setFieldsValue(props);
   }, [form, props]);
 
-  const onValuesChange = (changedValues: any,) => {
+  const onValuesChange = (changedValues: any) => {
     update({ ...props, ...changedValues });
   };
 
   return (
-    <Form form={form} layout="vertical" onValuesChange={onValuesChange} style={{width:'100%'}}>
+    <Form
+      form={form}
+      layout="vertical"
+      onValuesChange={onValuesChange}
+      style={{ width: '100%' }}
+    >
       <Card
-        style={{ marginBottom: "16px", border: '1px solid #ccc',width:"100%"}}
-        
+        style={{
+          marginBottom: '16px',
+          border: '1px solid #ccc',
+          width: '100%',
+        }}
         title={
           <Flex gap={8} justify="start" align="center">
             <div
               style={{
-                height: "16px",
-                width: "16px",
-                backgroundColor: "#34cfeb",
-                borderRadius: "50%",
+                height: '16px',
+                width: '16px',
+                backgroundColor: '#34cfeb',
+                borderRadius: '50%',
               }}
             />
             {props.name}
@@ -89,7 +98,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
             <Flex justify="space-between">
               <Flex vertical>
                 <Text style={mainSectionHeading}>Unlimited leave days</Text>
-                {form.getFieldValue("unlimited") ? (
+                {form.getFieldValue('unlimited') ? (
                   <Text style={mainSectionHelp}>
                     Unlimited leave days per year.
                   </Text>
@@ -110,13 +119,13 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
             </Flex>
             <Divider />
             <Flex justify="space-between">
-              <FormItem noStyle dependencies={["maxLeaves"]}>
+              <FormItem noStyle dependencies={['maxLeaves']}>
                 {() => {
                   return (
                     <Text>{`Maximum ${
-                      form.getFieldValue("maxLeaves")
-                        ? form.getFieldValue("maxLeaves")
-                        : ""
+                      form.getFieldValue('maxLeaves')
+                        ? form.getFieldValue('maxLeaves')
+                        : ''
                     } leave days in a year`}</Text>
                   );
                 }}
@@ -138,13 +147,10 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
               }
             >
               {({ getFieldValue }) => {
-                return getFieldValue("accruals") ? (
+                return getFieldValue('accruals') ? (
                   <Flex justify="space-between">
-                    <FormItem
-                      name="accrualFrequency"
-                      label="Accrual Frequency"
-                    >
-                      <Select >
+                    <FormItem name="accrualFrequency" label="Accrual Frequency">
+                      <Select>
                         <Select.Option value="MONTHLY">Monthly</Select.Option>
                         <Select.Option value="QUARTERLY">
                           Quarterly
@@ -157,7 +163,10 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                       initialValue="Beginning"
                       label="AccrueOn"
                     >
-                      <Segmented style={{color:"red"}}options={["BEGINNING", "END"]}/>
+                      <Segmented
+                        style={{ color: 'red' }}
+                        options={['BEGINNING', 'END']}
+                      />
                     </FormItem>
                   </Flex>
                 ) : null;
@@ -177,7 +186,7 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
               }
             >
               {({ getFieldValue }) => {
-                return getFieldValue("rollOver") ? (
+                return getFieldValue('rollOver') ? (
                   <Flex justify="space-between" vertical>
                     <FormItem
                       name="rollOverLimit"
@@ -189,17 +198,18 @@ export const LeavePolicy: React.FC<ILeavePolicyProps & ILeavePolicyUpdate> = ({
                         max={14}
                         min={1}
                         suffix={
-                          <span style={{ marginRight: "15px" }}>days</span>
+                          <span style={{ marginRight: '15px' }}>days</span>
                         }
-                        style={{ width: "30%" }}
+                        style={{ width: '30%' }}
                       />
                     </FormItem>
 
                     <FormItem
                       name="rollOverExpiry"
                       label="Roll Over Expiry"
-                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
-                      <DatePicker format="DD/MM" style={{ width: "30%" }} />
+                      help="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."
+                    >
+                      <DatePicker format="DD/MM" style={{ width: '30%' }} />
                     </FormItem>
                   </Flex>
                 ) : null;

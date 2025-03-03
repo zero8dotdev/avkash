@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 // import { Scheduler } from "@aldabil/react-scheduler";
-import { useCallback, useEffect, useState } from "react";
-import { Scheduler } from "@elonsteve/calendar";
-import { useApplicationContext } from "@/app/_context/appContext";
+import { useCallback, useEffect, useState } from 'react';
+import { Scheduler } from '@elonsteve/calendar';
+import { useApplicationContext } from '@/app/_context/appContext';
 
 export default function LeaveCalendar({
   users,
@@ -57,10 +57,10 @@ export default function LeaveCalendar({
   return (
     <div
       style={{
-        margin: "20px 0px 20px 0px",
-        position: "relative",
-        width: "100%",
-        height: "500px",
+        margin: '20px 0px 20px 0px',
+        position: 'relative',
+        width: '100%',
+        height: '500px',
       }}
     >
       <Scheduler
@@ -84,7 +84,7 @@ export default function LeaveCalendar({
           filterButtonState: -1,
           maxRecordsPerPage: 10,
           showThemeToggle: false,
-          defaultTheme: "light",
+          defaultTheme: 'light',
           showTooltip: false,
         }}
       />

@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { forwardRef, useImperativeHandle } from "react";
-import { Select, Space, Spin, type SelectProps } from "antd";
+import { forwardRef, useImperativeHandle } from 'react';
+import { Select, Space, Spin, type SelectProps } from 'antd';
+
+import { useApplicationContext } from '@/app/_context/appContext';
+import useSWR from 'swr';
+import { getUser, getUsersListWithTeam } from '../_actions';
+
 const { Option } = Select;
-
-import { useApplicationContext } from "@/app/_context/appContext";
-import { getUser, getUsersListWithTeam } from "../_actions";
-import useSWR from "swr";
 
 // Forward ref to expose mutate function to the parent
 const TeamSelect = forwardRef(
@@ -14,15 +15,15 @@ const TeamSelect = forwardRef(
     const {
       state: {
         role,
-        org: { visibility = "SELF" } = {},
-        team: { teamId = "" } = {},
+        org: { visibility = 'SELF' } = {},
+        team: { teamId = '' } = {},
         orgId,
         teams,
         userId,
       },
     } = useApplicationContext();
 
-    const onChangeSelect: SelectProps["onChange"] = async (value) => {
+    const onChangeSelect: SelectProps['onChange'] = async (value) => {
       try {
         const fetchedUsers = await getUsersListWithTeam(value);
         onChangeTeamUsers(fetchedUsers || []);
@@ -39,14 +40,19 @@ const TeamSelect = forwardRef(
     ) => {
       if (!teamId) return []; // Return an empty array if no teamId is provided
 
-      if (role === "USER" && visibility === "SELF") {
+      if (role === 'USER' && visibility === 'SELF') {
         return await getUser(teamId, userId);
       } else {
         return await getUsersListWithTeam(teamId);
       }
     };
 
-    const { data: users, error, isLoading, mutate } = useSWR(
+    const {
+      data: users,
+      error,
+      isLoading,
+      mutate,
+    } = useSWR(
       teamId ? [teamId, userId, role, visibility] : null,
       ([teamId, userId, role, visibility]) =>
         fetchUsers(teamId, userId, role, visibility),
@@ -73,13 +79,13 @@ const TeamSelect = forwardRef(
         ) : (
           <Select
             onChange={onChangeSelect}
-            style={{ minWidth: "150px" }}
+            style={{ minWidth: '150px' }}
             defaultValue={teamId}
             disabled={
-              (visibility === "TEAM" || visibility === "SELF") &&
-              (role === "MANAGER" || role === "USER")
-                ? true
-                : false
+              !!(
+                (visibility === 'TEAM' || visibility === 'SELF') &&
+                (role === 'MANAGER' || role === 'USER')
+              )
             }
             placeholder="Select Team"
           >
@@ -99,6 +105,6 @@ const TeamSelect = forwardRef(
   }
 );
 
-TeamSelect.displayName = "TeamSelect";
+TeamSelect.displayName = 'TeamSelect';
 
 export default TeamSelect;
