@@ -1,6 +1,7 @@
-"use client";
-import { useEffect } from "react";
-import { useApplicationContext } from "@/app/_context/appContext";
+'use client';
+
+import { useEffect } from 'react';
+import { useApplicationContext } from '@/app/_context/appContext';
 
 const StoreToContext = ({
   user,
@@ -16,10 +17,10 @@ const StoreToContext = ({
   const { dispatch } = useApplicationContext();
 
   useEffect(() => {
-    dispatch({ type: "setOrg", payload: org });
-    dispatch({ type: "setTeam", payload: team });
-    dispatch({ type: "setUser", payload: user });
-    dispatch({ type: "setTeams", payload: teams });
+    dispatch({ type: 'setOrg', payload: org });
+    dispatch({ type: 'setTeam', payload: team });
+    dispatch({ type: 'setUser', payload: user });
+    dispatch({ type: 'setTeams', payload: teams });
   }, [org, team, user, teams]);
 
   return null;

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Card, List, Select } from "antd";
-import React, { useState } from "react";
+import { Card, List, Select } from 'antd';
+import React, { useState } from 'react';
 
-const users = ["keshav", "ashuthosh", "yashwanth"];
+const users = ['keshav', 'ashuthosh', 'yashwanth'];
 const Users = () => {
   const [user, setUser] = useState<any[]>([]);
 
@@ -13,7 +13,7 @@ const Users = () => {
 
   return (
     <Card title="teamname-users">
-      <Select style={{ width: "100%" }} onChange={onChange}>
+      <Select style={{ width: '100%' }} onChange={onChange}>
         {users.map((i, index) => {
           return (
             <Select.Option key={index} value={i}>
@@ -26,7 +26,7 @@ const Users = () => {
         <List
           dataSource={user}
           renderItem={(i) => (
-            <List.Item style={{ paddingLeft: "10px" }}>
+            <List.Item style={{ paddingLeft: '10px' }}>
               {i}
               <List.Item.Meta>Edit0</List.Item.Meta>
             </List.Item>

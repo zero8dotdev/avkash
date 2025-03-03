@@ -1,18 +1,19 @@
-"use client";
-import { Button, Card, Checkbox, Form, Input, Select } from "antd";
-import moment from "moment-timezone";
-import { useEffect, useState } from "react";
+'use client';
+
+import { Button, Card, Checkbox, Form, Input, Select } from 'antd';
+import moment from 'moment-timezone';
+import { useEffect, useState } from 'react';
 
 const TeamSettings = () => {
   const [timezones, setTimezones] = useState<any[]>([]);
 
   // we need to fetch team details from backend
   const team = {
-    name: "team1",
-    id: "603ca341-bb32-48bb-aed8-9e99d2b49153",
-    startOfWorkWeek: "Monday",
+    name: 'team1',
+    id: '603ca341-bb32-48bb-aed8-9e99d2b49153',
+    startOfWorkWeek: 'Monday',
     workWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
-    timeZone: "Asia/kolkata",
+    timeZone: 'Asia/kolkata',
   };
 
   useEffect(() => {
@@ -20,8 +21,7 @@ const TeamSettings = () => {
     setTimezones(allTimezones);
   }, []);
 
-  const onFinish = async(values: any) => {
-  };
+  const onFinish = async (values: any) => {};
 
   return (
     <Card
@@ -34,7 +34,7 @@ const TeamSettings = () => {
           name: team.name,
           startOfWorkWeek: team.startOfWorkWeek,
           workWeek: team.workWeek,
-          timeZone:team.timeZone,
+          timeZone: team.timeZone,
         }}
       >
         <Form.Item name="name" label="Team Name" initialValue={team.name}>
@@ -84,18 +84,18 @@ const TeamSettings = () => {
         </Form.Item>
         <Form.Item label="Time Zone" name="timeZone">
           <Select
-            style={{ width: "200px" }}
+            style={{ width: '200px' }}
             className="ml-16"
             showSearch
             placeholder="Search to Select"
             optionFilterProp="children"
             filterOption={(input, option) =>
-              ((option?.label ?? "") as string).includes(input)
+              ((option?.label ?? '') as string).includes(input)
             }
             filterSort={(optionA, optionB) =>
-              ((optionA?.label ?? "") as string)
+              ((optionA?.label ?? '') as string)
                 .toLowerCase()
-                .localeCompare(((optionB?.label ?? "") as string).toLowerCase())
+                .localeCompare(((optionB?.label ?? '') as string).toLowerCase())
             }
             options={timezones.map((timezone: string) => ({
               value: timezone,

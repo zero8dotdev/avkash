@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
-import { calculateAccural } from "./_functions/calculateAccural";
+import { NextResponse } from 'next/server';
+import { calculateAccural } from './_functions/calculateAccural';
 
-type IFrequency = "MONTHLY" | "QUARTERLY" | "HALF_YEARLY";
-type IAccuredOn = "BEGINNING" | "END";
+type IFrequency = 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY';
+type IAccuredOn = 'BEGINNING' | 'END';
 
 export async function POST(request: Request) {
-  const { frequency, accuredOn }: {
+  const {
+    frequency,
+    accuredOn,
+  }: {
     frequency: IFrequency;
     accuredOn: IAccuredOn;
   } = await request.json();
@@ -13,7 +16,7 @@ export async function POST(request: Request) {
   if (!frequency) {
     return new NextResponse(
       JSON.stringify({ error: `frequency is required.` }),
-      { status: 400 },
+      { status: 400 }
     );
   }
 

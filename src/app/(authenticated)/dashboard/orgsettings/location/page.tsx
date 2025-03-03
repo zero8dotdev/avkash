@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useApplicationContext } from "@/app/_context/appContext";
+import { useApplicationContext } from '@/app/_context/appContext';
 import {
   Avatar,
   Button,
@@ -14,10 +14,13 @@ import {
   Space,
   Tooltip,
   Typography,
-} from "antd";
-import { useState } from "react";
-import Flag from "react-world-flags";
-import SideMenu from "../_components/menu";
+} from 'antd';
+import { useState } from 'react';
+import Flag from 'react-world-flags';
+import useSWR from 'swr';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import moment from 'moment-timezone';
+import SideMenu from '../_components/menu';
 import {
   deleteOrgLocations,
   fetchOrg,
@@ -25,11 +28,8 @@ import {
   fetchTeam,
   updateHolidaysList,
   updateOrgLocations,
-} from "../_actions";
-import useSWR from "swr";
-import LocationPage from "../_components/locations";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import moment from "moment-timezone";
+} from '../_actions';
+import LocationPage from '../_components/locations';
 
 const Page = () => {
   const [locations, setLocations] = useState<string[]>([]);
@@ -43,18 +43,18 @@ const Page = () => {
   const { orgId, role, teamId } = appState;
 
   const fetchOrgData = async (orgId: string, role: any) => {
-    const [, org, team] = orgId.split("*");
+    const [, org, team] = orgId.split('*');
     let data: any;
-    if (role === "MANAGER") {
+    if (role === 'MANAGER') {
       const teamData = await fetchTeam(team);
       const { location } = teamData;
       setLocations(location);
-      data= teamData
+      data = teamData;
     } else {
       const orgData = await fetchOrg(org);
       const { location } = orgData;
       setLocations(location);
-      data = orgData
+      data = orgData;
     }
     return data;
   };
@@ -68,7 +68,7 @@ const Page = () => {
   } = useSWR(role ? `orgLocations*${orgId}*${teamId}` : null, fetcher);
 
   const handleAddLocation = () => {
-    setLocationMode("create");
+    setLocationMode('create');
     setSelectedCountryCode(null); // Start dropdown empty
     setHolidaysList([]);
   };
@@ -78,7 +78,7 @@ const Page = () => {
     try {
       if (!holidaysList.length || !locations || !selectedCountryCode) {
         throw new Error(
-          "Missing required data for updating holidays or locations"
+          'Missing required data for updating holidays or locations'
         );
       }
       const updatedOrgHolidays = await updateHolidaysList(
@@ -95,7 +95,7 @@ const Page = () => {
       setSelectedCountryCode(null);
       setHolidaysList([]);
     } catch (error) {
-      console.error("Error in updateHolidays:", error);
+      console.error('Error in updateHolidays:', error);
     } finally {
       mutate();
       setLoading(false);
@@ -103,11 +103,11 @@ const Page = () => {
   };
 
   const countryList = [
-    { countryCode: "IN", countryName: "India" },
-    { countryCode: "DE", countryName: "Germany" },
-    { countryCode: "GB", countryName: "United Kingdom" },
-    { countryCode: "US", countryName: "United States" },
-    { countryCode: "NL", countryName: "Netherlands" },
+    { countryCode: 'IN', countryName: 'India' },
+    { countryCode: 'DE', countryName: 'Germany' },
+    { countryCode: 'GB', countryName: 'United Kingdom' },
+    { countryCode: 'US', countryName: 'United States' },
+    { countryCode: 'NL', countryName: 'Netherlands' },
   ];
 
   const selectedLocations = countryList.filter((each) =>
@@ -130,18 +130,18 @@ const Page = () => {
       }));
       setHolidaysList(transformedHolidays);
     } catch (error) {
-      console.error("Error fetching location details:", error);
+      console.error('Error fetching location details:', error);
     }
   };
 
   const handleEdit = async (countryCode: string) => {
     await fetchLocationDetails(countryCode);
-    setLocationMode("edit");
+    setLocationMode('edit');
     setSelectedCountryCode(countryCode);
   };
 
   return (
-    <Row style={{ padding: "80px", overflow: "hidden" }}>
+    <Row style={{ padding: '80px', overflow: 'hidden' }}>
       <Col span={3}>
         <SideMenu position="location" />
       </Col>
@@ -149,12 +149,12 @@ const Page = () => {
         <Card
           title="Location Settings"
           extra={
-            role === "OWNER" ? (
+            role === 'OWNER' ? (
               <Tooltip title="Add Location">
                 <Button
                   onClick={handleAddLocation}
                   type="primary"
-                  style={{ marginTop: "15px", marginBottom: "15px" }}
+                  style={{ marginTop: '15px', marginBottom: '15px' }}
                   disabled={availableLocations?.length === 0}
                 >
                   Add Location
@@ -164,7 +164,7 @@ const Page = () => {
           }
         >
           <List
-            style={{ margin: "12px" }}
+            style={{ margin: '12px' }}
             bordered
             itemLayout="horizontal"
             dataSource={selectedLocations}
@@ -172,10 +172,10 @@ const Page = () => {
               <List.Item>
                 <List.Item.Meta
                   avatar={
-                    <Avatar style={{ background: "none" }}>
+                    <Avatar style={{ background: 'none' }}>
                       <Flag
                         code={item.countryCode}
-                        style={{ width: "50px", height: "50px" }}
+                        style={{ width: '50px', height: '50px' }}
                         alt={item.countryName}
                       />
                     </Avatar>
@@ -206,12 +206,12 @@ const Page = () => {
         </Card>
 
         <Modal
-          open={locationMode === "create" || locationMode === "edit"}
+          open={locationMode === 'create' || locationMode === 'edit'}
           footer={null}
           onCancel={() => {
             setLocationMode(null), setSelectedCountryCode(null);
           }}
-          title={locationMode === "create" ? "Add New Holiday" : "Edit Holiday"}
+          title={locationMode === 'create' ? 'Add New Holiday' : 'Edit Holiday'}
           width={1000}
         >
           <LocationPage
@@ -222,7 +222,7 @@ const Page = () => {
             countryCode={selectedCountryCode}
             availableLocations={availableLocations}
           />
-          <Flex gap={8} justify="flex-end" style={{ width: "100%" }}>
+          <Flex gap={8} justify="flex-end" style={{ width: '100%' }}>
             <Space>
               <Button
                 danger

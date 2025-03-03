@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server";
-import { handleViewSubmission } from "./handleViewSubmission";
-import { avkashUserInfoProps } from "@/app/api/slack/route";
-import handleBlockActions from "../handleBlockActions/handleBlockActions";
+import { NextResponse } from 'next/server';
+import { avkashUserInfoProps } from '@/app/api/slack/route';
+import { handleViewSubmission } from './handleViewSubmission';
+import handleBlockActions from '../handleBlockActions/handleBlockActions';
 
-export default async function handlePayload(avkashUserInfo: avkashUserInfoProps, payload: any) {
-  const { type, view} = payload;
+export default async function handlePayload(
+  avkashUserInfo: avkashUserInfoProps,
+  payload: any
+) {
+  const { type, view } = payload;
   switch (type) {
     case 'view_submission':
       return handleViewSubmission(view, avkashUserInfo);

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { createClient } from "@/app/_utils/supabase/client";
-import { Avatar, Button, Flex, List } from "antd";
-import { useEffect, useState } from "react";
+import { createClient } from '@/app/_utils/supabase/client';
+import { Avatar, Button, Flex, List } from 'antd';
+import { useEffect, useState } from 'react';
 
 const OrgList = ({
   organisations,
@@ -16,16 +16,15 @@ const OrgList = ({
   useEffect(() => {
     (async () => {
       const client = createClient();
-      const { data: users } = await client.from("User").select();
+      const { data: users } = await client.from('User').select();
       setUsers(users);
     })();
   }, []);
 
-  const clientAction = async () => {
-  };
+  const clientAction = async () => {};
 
   const serverActionHandler = async () => {
-    const newUsers = await serverAction("SriHari");
+    const newUsers = await serverAction('SriHari');
     Array.isArray(users)
       ? setUsers([...users, ...newUsers])
       : setUsers(newUsers);
@@ -39,14 +38,14 @@ const OrgList = ({
         renderItem={(item) => (
           <List.Item>
             <List.Item.Meta
-              avatar={<Avatar src={""} />}
+              avatar={<Avatar src="" />}
               title={<a href="#">{item.name}</a>}
               description={item.visibility}
             />
           </List.Item>
         )}
       />
-      <div style={{ marginTop: "10px" }}>
+      <div style={{ marginTop: '10px' }}>
         {users ? (
           <List
             dataSource={users}
@@ -54,7 +53,7 @@ const OrgList = ({
             renderItem={(item) => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={<Avatar src={""} />}
+                  avatar={<Avatar src="" />}
                   title={<a href="#">{item.name}</a>}
                   description={item.visibility}
                 />
@@ -63,7 +62,7 @@ const OrgList = ({
           />
         ) : null}
       </div>
-      <Flex style={{ marginTop: "10px" }} justify="center" align="center">
+      <Flex style={{ marginTop: '10px' }} justify="center" align="center">
         <Button.Group>
           <Button block type="primary" onClick={clientAction}>
             Action from Client

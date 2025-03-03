@@ -12,9 +12,9 @@ import {
   Space,
   Switch,
   Typography,
-} from "antd";
-import React from "react";
-import { updatePolicyData } from "../_actions";
+} from 'antd';
+import React from 'react';
+import { updatePolicyData } from '../_actions';
 
 const LeavePolicyModal = ({
   selectedPolicy,
@@ -37,12 +37,12 @@ const LeavePolicyModal = ({
 }) => {
   const orgLeaveTypes = [
     {
-      id: "1",
-      name: "testing",
+      id: '1',
+      name: 'testing',
     },
     {
-      id: "2",
-      name: "testing2",
+      id: '2',
+      name: 'testing2',
     },
   ];
   const { Item } = Form;
@@ -52,7 +52,7 @@ const LeavePolicyModal = ({
       open={selectedPolicy !== null}
       width={700}
       title={
-        selectedPolicy === "create" ? (
+        selectedPolicy === 'create' ? (
           <Typography.Title>Create New Policy</Typography.Title>
         ) : (
           <Flex vertical>
@@ -61,7 +61,7 @@ const LeavePolicyModal = ({
             </Typography.Title>
             <Typography.Paragraph
               type="secondary"
-              style={{ fontSize: "20px", marginTop: "0px" }}
+              style={{ fontSize: '20px', marginTop: '0px' }}
             >
               For {teamData?.name} Team
             </Typography.Paragraph>
@@ -70,11 +70,11 @@ const LeavePolicyModal = ({
       }
       onCancel={() => update()}
     >
-      {selectedPolicy === "create" ? (
+      {selectedPolicy === 'create' ? (
         <Flex vertical gap={10}>
           <Typography.Text strong>Select Leave Type</Typography.Text>
           <Select
-            style={{ width: "50%" }}
+            style={{ width: '50%' }}
             defaultValue={orgLeaveTypes[0].name}
             onChange={(v) => onChangeLeaveType(v)}
           >
@@ -87,7 +87,7 @@ const LeavePolicyModal = ({
               form={form}
               onFinish={async (values) => {
                 if (values.rollOverExpiry) {
-                  values.rollOverExpiry = values.rollOverExpiry.format("DD/MM"); // or use "DD/MM" depending on your requirement
+                  values.rollOverExpiry = values.rollOverExpiry.format('DD/MM'); // or use "DD/MM" depending on your requirement
                 }
                 await updatePolicyData(
                   teamId,
@@ -101,7 +101,7 @@ const LeavePolicyModal = ({
               <Flex gap={50}>
                 <Item
                   name="maxLeaves"
-                  style={{ padding: "0px", margin: "0px" }}
+                  style={{ padding: '0px', margin: '0px' }}
                 >
                   <InputNumber />
                 </Item>
@@ -109,11 +109,11 @@ const LeavePolicyModal = ({
               </Flex>
               <Flex
                 gap={95}
-                style={{ padding: "0px", margin: "12px 0px 0px 0px" }}
+                style={{ padding: '0px', margin: '12px 0px 0px 0px' }}
               >
                 <Item
                   name="unlimited"
-                  style={{ padding: "0px", margin: "0px" }}
+                  style={{ padding: '0px', margin: '0px' }}
                 >
                   <Switch />
                 </Item>
@@ -123,7 +123,7 @@ const LeavePolicyModal = ({
               </Flex>
               <Flex
                 gap={95}
-                style={{ padding: "0px", margin: "12px 0px 0px 0px" }}
+                style={{ padding: '0px', margin: '12px 0px 0px 0px' }}
               >
                 <Item name="accruals">
                   <Switch />
@@ -140,29 +140,29 @@ const LeavePolicyModal = ({
                     </Typography.Text>
                     <Item
                       name="accrualFrequency"
-                      style={{ padding: "0px", margin: "0px", width: "100px" }}
+                      style={{ padding: '0px', margin: '0px', width: '100px' }}
                     >
                       <Select
                         options={[
-                          { value: "BIWEEKLY", label: "Biweekly" },
-                          { value: "WEEKLY", label: "Weekly" },
-                          { value: "MONTHLY", label: "Monthly" },
-                          { value: "QUARTERLY", label: "Quarterly" },
-                          { value: "HALF_YEARLY", label: "Half Yearly" },
+                          { value: 'BIWEEKLY', label: 'Biweekly' },
+                          { value: 'WEEKLY', label: 'Weekly' },
+                          { value: 'MONTHLY', label: 'Monthly' },
+                          { value: 'QUARTERLY', label: 'Quarterly' },
+                          { value: 'HALF_YEARLY', label: 'Half Yearly' },
                         ]}
                       />
                     </Item>
                   </Flex>
-                  <Flex gap={10} style={{ marginTop: "15px" }}>
+                  <Flex gap={10} style={{ marginTop: '15px' }}>
                     <Typography.Text type="secondary">
                       Accrual On
                     </Typography.Text>
                     <Item
                       name="accrueOn"
                       initialValue="BEGINNING"
-                      style={{ padding: "0px", margin: "0px", width: "100px" }}
+                      style={{ padding: '0px', margin: '0px', width: '100px' }}
                     >
-                      <Segmented options={["BEGINNING", "END"]} />
+                      <Segmented options={['BEGINNING', 'END']} />
                     </Item>
                   </Flex>
                 </Flex>
@@ -193,7 +193,7 @@ const LeavePolicyModal = ({
                       rules={[
                         {
                           validator: (_, value) => {
-                            const maxLeaves = form.getFieldValue("maxLeaves"); // Get the maxLeaves value
+                            const maxLeaves = form.getFieldValue('maxLeaves'); // Get the maxLeaves value
                             if (value === undefined || value <= maxLeaves) {
                               return Promise.resolve();
                             }
@@ -205,7 +205,7 @@ const LeavePolicyModal = ({
                           },
                         },
                       ]}
-                      style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
+                      style={{ margin: '0px 0px 2px 2px', padding: '0px' }}
                     >
                       <InputNumber />
                     </Item>
@@ -222,7 +222,7 @@ const LeavePolicyModal = ({
                     </Typography.Text>
                     <Item
                       name="rollOverExpiry"
-                      style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
+                      style={{ margin: '0px 0px 2px 2px', padding: '0px' }}
                     >
                       <DatePicker format="DD/MM" />
                     </Item>
@@ -261,7 +261,7 @@ const LeavePolicyModal = ({
           form={form}
           onFinish={async (values) => {
             if (values.rollOverExpiry) {
-              values.rollOverExpiry = values.rollOverExpiry.format("DD/MM"); // or use "DD/MM" depending on your requirement
+              values.rollOverExpiry = values.rollOverExpiry.format('DD/MM'); // or use "DD/MM" depending on your requirement
             }
             await updatePolicyData(
               teamId,
@@ -273,18 +273,18 @@ const LeavePolicyModal = ({
           }}
         >
           <Flex gap={50}>
-            <Item name="maxLeaves" style={{ padding: "0px", margin: "0px" }}>
+            <Item name="maxLeaves" style={{ padding: '0px', margin: '0px' }}>
               <InputNumber />
             </Item>
             <Typography.Text strong>Days per year</Typography.Text>
           </Flex>
-          <Flex gap={95} style={{ padding: "0px", margin: "12px 0px 0px 0px" }}>
-            <Item name="unlimited" style={{ padding: "0px", margin: "0px" }}>
+          <Flex gap={95} style={{ padding: '0px', margin: '12px 0px 0px 0px' }}>
+            <Item name="unlimited" style={{ padding: '0px', margin: '0px' }}>
               <Switch />
             </Item>
             <Typography.Text strong>Allow unlimited leave days</Typography.Text>
           </Flex>
-          <Flex gap={95} style={{ padding: "0px", margin: "12px 0px 0px 0px" }}>
+          <Flex gap={95} style={{ padding: '0px', margin: '12px 0px 0px 0px' }}>
             <Item name="accruals">
               <Switch />
             </Item>
@@ -300,27 +300,27 @@ const LeavePolicyModal = ({
                 </Typography.Text>
                 <Item
                   name="accrualFrequency"
-                  style={{ padding: "0px", margin: "0px", width: "100px" }}
+                  style={{ padding: '0px', margin: '0px', width: '100px' }}
                 >
                   <Select
                     options={[
-                      { value: "BIWEEKLY", label: "Biweekly" },
-                      { value: "WEEKLY", label: "Weekly" },
-                      { value: "MONTHLY", label: "Monthly" },
-                      { value: "QUARTERLY", label: "Quarterly" },
-                      { value: "HALF_YEARLY", label: "Half Yearly" },
+                      { value: 'BIWEEKLY', label: 'Biweekly' },
+                      { value: 'WEEKLY', label: 'Weekly' },
+                      { value: 'MONTHLY', label: 'Monthly' },
+                      { value: 'QUARTERLY', label: 'Quarterly' },
+                      { value: 'HALF_YEARLY', label: 'Half Yearly' },
                     ]}
                   />
                 </Item>
               </Flex>
-              <Flex gap={10} style={{ marginTop: "15px" }}>
+              <Flex gap={10} style={{ marginTop: '15px' }}>
                 <Typography.Text type="secondary">Accrual On</Typography.Text>
                 <Item
                   name="accrueOn"
                   initialValue="BEGINNING"
-                  style={{ padding: "0px", margin: "0px", width: "100px" }}
+                  style={{ padding: '0px', margin: '0px', width: '100px' }}
                 >
-                  <Segmented options={["BEGINNING", "END"]} />
+                  <Segmented options={['BEGINNING', 'END']} />
                 </Item>
               </Flex>
             </Flex>
@@ -351,7 +351,7 @@ const LeavePolicyModal = ({
                   rules={[
                     {
                       validator: (_, value) => {
-                        const maxLeaves = form.getFieldValue("maxLeaves"); // Get the maxLeaves value
+                        const maxLeaves = form.getFieldValue('maxLeaves'); // Get the maxLeaves value
                         if (value === undefined || value <= maxLeaves) {
                           return Promise.resolve();
                         }
@@ -363,7 +363,7 @@ const LeavePolicyModal = ({
                       },
                     },
                   ]}
-                  style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
+                  style={{ margin: '0px 0px 2px 2px', padding: '0px' }}
                 >
                   <InputNumber />
                 </Item>
@@ -380,7 +380,7 @@ const LeavePolicyModal = ({
                 </Typography.Text>
                 <Item
                   name="rollOverExpiry"
-                  style={{ margin: "0px 0px 2px 2px", padding: "0px" }}
+                  style={{ margin: '0px 0px 2px 2px', padding: '0px' }}
                 >
                   <DatePicker format="DD/MM" />
                 </Item>

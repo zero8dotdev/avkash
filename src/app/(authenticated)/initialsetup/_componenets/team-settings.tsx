@@ -1,20 +1,21 @@
-"use client";
-import { Card, Checkbox, Form, Select } from "antd";
-import React, { useEffect, useState } from "react";
-import moment from "moment-timezone";
+'use client';
+
+import { Card, Checkbox, Form, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import moment from 'moment-timezone';
 
 const { Item: FormItem } = Form;
 const { Option: SelectOption } = Select;
 const { Group: CheckboxGroup } = Checkbox;
 
 const weekDays = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
 ];
 
 const TeamSettings = ({ form, data }: { form: any; data?: any }) => {
@@ -37,7 +38,7 @@ const TeamSettings = ({ form, data }: { form: any; data?: any }) => {
     const sortedDays = values.sort(
       (a, b) => weekDays.indexOf(a) - weekDays.indexOf(b)
     );
-    form.setFieldValue("startOfWorkWeek", sortedDays[0]);
+    form.setFieldValue('startOfWorkWeek', sortedDays[0]);
   };
 
   return (
@@ -45,7 +46,7 @@ const TeamSettings = ({ form, data }: { form: any; data?: any }) => {
       <FormItem
         label="Start of Work Week"
         name="startOfWorkWeek"
-        rules={[{ required: true, message: "Please select a start day." }]}
+        rules={[{ required: true, message: 'Please select a start day.' }]}
       >
         <Select>
           {weekDays.map((day) => (
@@ -58,7 +59,7 @@ const TeamSettings = ({ form, data }: { form: any; data?: any }) => {
       <FormItem
         label="Work Week"
         name="workweek"
-        rules={[{ required: true, message: "Please select work days." }]}
+        rules={[{ required: true, message: 'Please select work days.' }]}
       >
         <CheckboxGroup onChange={onChangeWorkWeek}>
           {weekDays.map((day) => (
@@ -71,7 +72,7 @@ const TeamSettings = ({ form, data }: { form: any; data?: any }) => {
       <FormItem
         label="Time Zone"
         name="timeZone"
-        rules={[{ required: true, message: "Please select a time zone." }]}
+        rules={[{ required: true, message: 'Please select a time zone.' }]}
       >
         <Select
           showSearch

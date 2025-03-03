@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { Flex, Tabs, Card, List, type TabsProps, Tag } from "antd";
-import { useState } from "react";
+import { Flex, Tabs, Card, List, type TabsProps, Tag } from 'antd';
+import { useState } from 'react';
 
 export default function LeavePreview() {
-  const tabs: TabsProps["items"] = [
+  const tabs: TabsProps['items'] = [
     {
-      key: "today",
-      label: "Today",
+      key: 'today',
+      label: 'Today',
       children: (
         <Card>
           <Tag color="blue">Coming Soon!</Tag>
@@ -15,8 +15,8 @@ export default function LeavePreview() {
       ),
     },
     {
-      key: "pending",
-      label: "Pending",
+      key: 'pending',
+      label: 'Pending',
       children: (
         <Card>
           <Tag color="magenta">Coming Soon!</Tag>
@@ -24,8 +24,8 @@ export default function LeavePreview() {
       ),
     },
     {
-      key: "planned",
-      label: "Planned",
+      key: 'planned',
+      label: 'Planned',
       children: (
         <Card>
           <Tag color="green">Coming Soon!</Tag>
@@ -34,19 +34,19 @@ export default function LeavePreview() {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState<TabsProps["activeKey"]>("today");
+  const [activeTab, setActiveTab] = useState<TabsProps['activeKey']>('today');
 
   return (
-    <Flex style={{ minHeight: "100px" }}>
+    <Flex style={{ minHeight: '100px' }}>
       <Tabs
         size="small"
         type="card"
         items={tabs}
         activeKey={activeTab}
-        onChange={(activeKey: TabsProps["activeKey"]) => {
+        onChange={(activeKey: TabsProps['activeKey']) => {
           setActiveTab(activeKey);
         }}
-      ></Tabs>
+      />
     </Flex>
   );
 }
