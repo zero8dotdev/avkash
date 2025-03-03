@@ -343,7 +343,7 @@ export const fetchLeaveTypes = async (
 
 /* Sign Up process, takes care of creating org team and user */
 export const signUpAction = async (values: any) => {
-  const supabaseServerClient = createClient();
+  const supabaseServerClient = await createClient();
   const {
     data: { user: authUser },
     error,
@@ -562,7 +562,7 @@ export const completeSetup = async (orgId: string, setupData: any) => {
       teamId,
     } = setupData;
 
-    const supabaseServerClient = createClient();
+    const supabaseServerClient =  await createClient();
     const {
       data: { user: currentUser },
       error,
@@ -768,7 +768,7 @@ export const fetchAllActivities = async (
 
 export const isSlackTokenExists = async (orgId: string) => {
   try {
-    const serverClient = createClient();
+    const serverClient = await createClient();
     const { count, error } = await serverClient
       .from("OrgAccessData")
       .select("*", { count: "exact", head: true })

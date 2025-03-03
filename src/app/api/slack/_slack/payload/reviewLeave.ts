@@ -1,5 +1,5 @@
 import { avkashUserInfoProps } from "@/app/api/slack/route";
-import { fetchOrgWorkWeek, getLeaveDetails } from "../../header/_components/actions";
+import { fetchOrgWorkWeek, getLeaveDetails } from "../../../../_components/header/_components/actions";
 import { createCommonModalBlocks } from "../createCommonModalBlocks";
 import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";

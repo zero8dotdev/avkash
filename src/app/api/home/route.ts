@@ -5,8 +5,8 @@ import { getUserData } from "@/app/_components/header/_components/actions";
 
 export async function POST(request: NextRequest) {
   let body: { [key: string]: any } = {};
-  const headersList = headers();
-  const contentType = headersList.get("content-type");
+  const headersList = await headers();
+  const contentType =  headersList.get("content-type");
 
 
   try {

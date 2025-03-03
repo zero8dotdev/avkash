@@ -1,5 +1,5 @@
 import { avkashUserInfoProps } from "@/app/api/slack/route";
-import { getTeamsList, getUsersList } from "../../header/_components/actions";
+import { getTeamsList, getUsersList } from "../../../../_components/header/_components/actions";
 import { createCommonModalBlocks } from "../createCommonModalBlocks";
 import { NextResponse } from "next/server";
 import { openView, updateViews } from "../sendMessages";

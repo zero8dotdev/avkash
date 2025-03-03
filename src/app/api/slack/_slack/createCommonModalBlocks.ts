@@ -1,5 +1,5 @@
 import { avkashUserInfoProps } from "@/app/api/slack/route";
-import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails, fetchIsHalfDay } from "../header/_components/actions";
+import { fetchOrgWorkWeek, getLeaveDetails, getLeaveTypes, fetchHolidays, getUserDataBasedOnUUID, getLeaveTypeDetails, fetchIsHalfDay } from "../../../_components/header/_components/actions";
 
 interface commonModelProps {
   avkashUserInfo: avkashUserInfoProps,

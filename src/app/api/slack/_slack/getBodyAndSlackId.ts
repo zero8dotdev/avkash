@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export default async function getBodyAndSlackId(request: NextRequest): Promise<any> {
-  const headersList = headers();
+  const headersList = await headers();
   const contentType = headersList.get('content-type');
   let body: any = {};
   let currentUserSlackId: string = '';
