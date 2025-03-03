@@ -293,7 +293,7 @@ export const updateInitialsetupstatus = async (
   return data;
 };
 
-export const getAvatarBackground = (userId: any) => {
+export const getAvatarBackground = async (userId: any) => {
   // const colors = [
   //   "FFF5F5", // Light Misty Rose
   //   "F8FFF8", // Light Honeydew
@@ -377,7 +377,7 @@ export const fetchTeamGeneralData = async (teamId: any) => {
 export const fetchOrgLeavePolicyData = async (orgId: any) => {
   const supabase = await createClient();
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await supabase
     .from("LeaveType")
     .select("*, LeavePolicy(*)")
     .eq("orgId", orgId);
@@ -389,7 +389,7 @@ export const fetchOrgLeavePolicyData = async (orgId: any) => {
 export const fetchHolidaysData = async (orgId: any, countryCode: any) => {
   const supabase = await createClient();
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await supabase
     .from("Holiday")
     .select()
     .eq("orgId", orgId)

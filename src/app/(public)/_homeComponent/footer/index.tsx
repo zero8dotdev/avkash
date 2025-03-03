@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import ContactUs from "../contactUs";
+import Link from "next/link";
 
 const FooterSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,9 +15,9 @@ const FooterSection = () => {
         <div className="w-full p-4 lg:flex lg:items-center lg:justify-between border-solid">
           <span className="text-sm text-gray-800 sm:text-center dark:text-gray-400">
             © 2024{" "}
-            <a href="/" className="hover:underline">
+            <Link href="/" className="hover:underline">
               avkash
-            </a>
+            </Link>
             . All Rights Reserved.
           </span>
           <ul className="flex flex-wrap justify-center items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">

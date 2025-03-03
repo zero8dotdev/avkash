@@ -3,8 +3,8 @@ import { headers } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   let body: { [key: string]: any } = {};
-  const headersList = headers();
-  const contentType = headersList.get('content-type');
+  const headersList = await headers();
+  const contentType =  headersList.get('content-type');
 
   try {
     if (contentType && contentType.includes('application/x-www-form-urlencoded')) {

@@ -1,8 +1,8 @@
-import { applyLeave, fetchIsHalfDay, fetchOrgWorkWeek, getLeaveDetails, getNotifiedUser, getUserDataBasedOnUUID, updateLeaveStatus } from "../../header/_components/actions";
-import { avkashUserInfoProps } from "../../../api/slack/route"
+import { applyLeave, fetchIsHalfDay, fetchOrgWorkWeek, getLeaveDetails, getNotifiedUser, getUserDataBasedOnUUID, updateLeaveStatus } from "../../../../_components/header/_components/actions";
 import { NextResponse } from "next/server";
 import { sendPostMessages } from "../sendMessages";
 import { calculateWorkingDays } from "../createCommonModalBlocks";
+import { avkashUserInfoProps } from "../../route";
 
 export async function handleViewSubmission(view: any, avkashUserInfo: avkashUserInfoProps) {
   let whoGetNotified ; 

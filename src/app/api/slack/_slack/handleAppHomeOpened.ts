@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { avkashUserInfoProps } from "../../api/slack/route";
 import { WebClient } from "@slack/web-api";
 import { getLeavesHistory, getTeamsList } from "@/app/_components/header/_components/actions";
+import { avkashUserInfoProps } from "../route";
 
 
 interface appHomeOpenedProps {

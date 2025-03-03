@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { fetchLeavesHistory } from "../handleAppHomeOpened";
 import { sendPostMessages } from "../sendMessages";
 import { calculateWorkingDays } from "../createCommonModalBlocks";
-import { fetchOrgWorkWeek } from "../../header/_components/actions";
+import { fetchOrgWorkWeek } from "../../../../_components/header/_components/actions";
 
 export default async function handleYourLeaves(avkashUserInfo: avkashUserInfoProps, channelId: string) {
     const userId = avkashUserInfo.userId;
