@@ -8,10 +8,6 @@ let _supabase: SupabaseClient | null = null;
 export async function createClient() {
   const cookieStore = await cookies();
 
-  if (_supabase) {
-    return _supabase;
-  }
-
   _supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -41,12 +37,6 @@ export async function createClient() {
       },
     }
   );
-
-  _supabase.auth.getUser().then(({ data, error }) => {
-    if (!error) {
-      (_supabase as any).userId = data.user.id;
-    }
-  });
 
   return _supabase;
 }
