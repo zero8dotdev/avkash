@@ -11,7 +11,7 @@ export default function WithSlack() {
       process.env.NEXT_PUBLIC_REDIRECT_PATH_AFTER_OAUTH!,
       window?.location.origin
     ).toString();
-
+    console.log('Redirect Route error', redirectTo);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'slack_oidc',
       options: {

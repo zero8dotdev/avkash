@@ -20,7 +20,13 @@ export default function AppHeader() {
       }}
     >
       <Link href="/" className="flex justify-center align-center">
-        <Image src={logo} alt="avkash" height={45} width={45} />
+        <Image
+          src={logo}
+          alt="avkash"
+          height={45}
+          width={45}
+          style={{ objectFit: 'contain' }}
+        />
         <Title
           className="hidden sm:block m-0 mt-2 leading-none"
           style={{
@@ -28,6 +34,7 @@ export default function AppHeader() {
             fontWeight: 300,
             lineHeight: '30px',
             fontSize: 30,
+            whiteSpace: 'nowrap',
           }}
         >
           avkash

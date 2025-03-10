@@ -4,9 +4,51 @@ import { createClient } from '@/app/_utils/supabase/server';
 import { WebClient } from '@slack/web-api';
 import { createAdminClient } from '../_utils/supabase/adminClient';
 
+// fetch the current logged in user's "ownerSlackId"
+export const fetchOwnerSlackId = async (userId: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('OrgAccessData')
+    .select('ownerSlackId')
+    .eq('userId', userId)
+    .maybeSingle();
+  if (error) {
+    console.log(error);
+  }
+  return data;
+};
+
 /*
   Fetch the current logged in user
 */
+export const fetchOrgUsingDomain = async (domain: string | null) => {
+  const supabase = await createClient();
+
+  if (!supabase) {
+    console.error('Supabase client creation failed!');
+    throw new Error('Supabase client is null or undefined.');
+  }
+
+  console.log('Supabase client initialized successfully.');
+  if (!domain) {
+    console.warn('Domain is null or undefined, returning null.');
+    return null;
+  }
+  const { data: org, error } = await supabase
+    .from('Organisation')
+    .select('*')
+    .eq('domain', domain)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Supabase fetch error:', error);
+    throw error;
+  }
+
+  console.log('Fetched Org Data:', org);
+  return org;
+};
+
 export const fetchUser = async () => {
   try {
     const supabase = await createClient();
@@ -347,43 +389,52 @@ export const signUpAction = async (values: any) => {
     data: { user: authUser },
     error,
   } = await supabaseServerClient.auth.getUser();
-
+  console.log('Auth User:', authUser);
+  console.log('Auth Error:', error);
   if (!authUser) {
     throw new Error('Something went wrong!');
   }
 
-  const { name, team_name, email, slackUserId } = values;
+  const { name, team_name, email, slackUserId, isAdmin } = values;
   const supabaseAdminClient = createAdminClient();
 
   try {
-    // create one organisation
-    const { data: org, error: orgError } = await supabaseAdminClient
-      .from('Organisation')
-      .insert({
-        ownerId: authUser.id,
-        createdBy: authUser.id,
-      })
-      .select('*')
-      .single();
+    const domain = email.split('@')[1];
+    console.log('Extracted Domain:', domain);
+    let org: any;
+    let team: any;
+    // create org and team only if user is owner of slack workspace
+    if (isAdmin) {
+      // create one organisation
+      const { data: org, error: orgError } = await supabaseAdminClient
+        .from('Organisation')
+        .insert({
+          ownerId: authUser.id,
+          createdBy: authUser.id,
+          domain,
+        })
+        .select('*')
+        .single();
 
-    if (orgError) {
-      throw orgError;
-    }
+      if (orgError) {
+        throw orgError;
+      }
 
-    // create a team with that orgId
-    const { data: team, error: teamError } = await supabaseAdminClient
-      .from('Team')
-      .insert({
-        name: team_name,
-        orgId: org.orgId,
-        createdBy: authUser.id,
-        managers: [authUser.id],
-      })
-      .select()
-      .single();
+      // create a team with that orgId
+      const { data: team, error: teamError } = await supabaseAdminClient
+        .from('Team')
+        .insert({
+          name: team_name,
+          orgId: org.orgId,
+          createdBy: authUser.id,
+          managers: [authUser.id],
+        })
+        .select()
+        .single();
 
-    if (teamError) {
-      throw teamError;
+      if (teamError) {
+        throw teamError;
+      }
     }
 
     // create a user as well
@@ -394,12 +445,14 @@ export const signUpAction = async (values: any) => {
         name,
         email,
         picture: authUser?.user_metadata.picture,
-        teamId: team.teamId,
+        // teamId: team.teamId,
         slackId: slackUserId,
         accruedLeave: {},
         usedLeave: {},
-        orgId: org.orgId,
+        // orgId: org.orgId,
         createdBy: authUser.id,
+        ...(org?.orgId && { orgId: org.orgId }),
+        ...(team?.teamId && { teamId: team.teamId }),
       })
       .select()
       .single();
@@ -451,7 +504,7 @@ export const getUserRole = async (userId: any): Promise<string> => {
       console.error('Error fetching user role:', error);
       return 'Error';
     }
-
+    console.log('Data:', data);
     // Get the single Organisation and Team data
     const organisation = data.Organisation as any; // Organisation should now be a single object
     const team = data.Team as any; // Team should now be a single object

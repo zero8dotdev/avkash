@@ -57,7 +57,8 @@ CREATE TABLE
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
-    "updatedOn" TIMESTAMP(6) DEFAULT now()
+    "updatedOn" TIMESTAMP(6) DEFAULT now(),
+    "domain" VARCHAR(255),
   );
 
 

@@ -17,13 +17,18 @@ export const getUserRole = async (userId: any): Promise<string> => {
       `
       )
       .eq('userId', userId)
-      .single();
+      .maybeSingle();
+
+    if (!data) {
+      console.error('User not found in the database.');
+      return 'USER'; // Default role if user record is missing
+    }
 
     if (error) {
       console.error('Error fetching user role:', error);
       return 'Error';
     }
-
+    console.log('Data:', data);
     // Get the single Organisation and Team data
     const organisation = data.Organisation as any; // Organisation should now be a single object
     const team = data.Team as any; // Team should now be a single object
