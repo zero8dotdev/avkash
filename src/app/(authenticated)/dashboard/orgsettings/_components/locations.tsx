@@ -15,7 +15,7 @@ import {
 import { DeleteOutlined } from '@ant-design/icons';
 import { fetchPublicHolidays } from '../_actions';
 
-export interface holidaysList {
+interface holidaysList {
   key: string;
   name: string;
   date: string;
