@@ -152,66 +152,6 @@ export const insertLeavePolicies = async (
   return leavePoliciesData;
 };
 
-export const updateLocation = async (
-  id: any,
-  location: any,
-  type: 'org' | 'team'
-) => {
-  const supabaseAdminClient = createAdminClient();
-  const table = type === 'org' ? 'Organisation' : 'Team';
-  const idField = type === 'org' ? 'orgId' : 'teamId';
-
-  const { data, error } = await supabaseAdminClient
-    .from(table)
-    .update({ location })
-    .eq(idField, id)
-    .select('*');
-
-  if (error) throw error;
-  return data;
-};
-
-export const insertHolidays = async (
-  orgId: any,
-  holidaysList: any,
-  currentUserId: any,
-  countryCode: any
-) => {
-  const supabaseAdminClient = createAdminClient();
-
-  // Delete all existing holidays for the given orgId and countryCode (location)
-  const { error: deleteError } = await supabaseAdminClient
-    .from('Holiday')
-    .delete()
-    .eq('orgId', orgId)
-    .eq('location', countryCode);
-
-  if (deleteError) {
-    throw new Error(
-      `Failed to delete existing holidays: ${deleteError.message}`
-    );
-  }
-
-  // Insert new holidays
-  const { data, error } = await supabaseAdminClient
-    .from('Holiday')
-    .insert(
-      holidaysList.map(({ name, isRecurring, isCustom, date }: any) => ({
-        name,
-        isRecurring,
-        isCustom,
-        orgId,
-        date,
-        createdBy: currentUserId,
-        location: countryCode,
-      }))
-    )
-    .select('*');
-
-  if (error) throw error;
-  return data;
-};
-
 export const updateTeamNotificationsSettings = async (
   teamId: any,
   setupData: any
@@ -367,30 +307,6 @@ export const fetchTeamGeneralData = async (teamId: any) => {
     .eq('teamId', teamId)
     .single();
 
-  if (error) throw error;
-  return data;
-};
-
-export const fetchOrgLeavePolicyData = async (orgId: any) => {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('LeaveType')
-    .select('*, LeavePolicy(*)')
-    .eq('orgId', orgId);
-
-  if (error) throw error;
-  return data;
-};
-
-export const fetchHolidaysData = async (orgId: any, countryCode: any) => {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('Holiday')
-    .select()
-    .eq('orgId', orgId)
-    .eq('location', countryCode);
   if (error) throw error;
   return data;
 };
