@@ -20,21 +20,6 @@ export const updateteamsettings = async (teamId: any, setupData: any) => {
   return data;
 };
 
-export interface LeavePolicy {
-  maxLeaves: number; // Maximum number of leaves allowed
-  accruals?: boolean; // Whether leaves are accrued
-  rollOver?: boolean; // Whether unused leaves are rolled over
-  autoApprove?: boolean; // Whether leave requests are auto-approved
-  accrualFrequency?: 'MONTHLY' | 'YEARLY'; // Frequency of accruals
-  accrueOn?: 'START' | 'END'; // When accruals happen in the period
-  rollOverLimit?: string; // Maximum leaves that can be rolled over
-  rollOverExpiry?: string; // Expiry date for rolled-over leaves
-  createdBy?: string; // ID of the user who created the policy
-  createdOn?: string; // Creation timestamp
-  updatedBy?: string; // ID of the user who last updated the policy
-  updatedOn?: string; // Last update timestamp
-}
-
 export const insertLeavePolicies = async (
   orgId: string,
   userId: string,
@@ -150,66 +135,6 @@ export const insertLeavePolicies = async (
   }
 
   return leavePoliciesData;
-};
-
-export const updateLocation = async (
-  id: any,
-  location: any,
-  type: 'org' | 'team'
-) => {
-  const supabaseAdminClient = createAdminClient();
-  const table = type === 'org' ? 'Organisation' : 'Team';
-  const idField = type === 'org' ? 'orgId' : 'teamId';
-
-  const { data, error } = await supabaseAdminClient
-    .from(table)
-    .update({ location })
-    .eq(idField, id)
-    .select('*');
-
-  if (error) throw error;
-  return data;
-};
-
-export const insertHolidays = async (
-  orgId: any,
-  holidaysList: any,
-  currentUserId: any,
-  countryCode: any
-) => {
-  const supabaseAdminClient = createAdminClient();
-
-  // Delete all existing holidays for the given orgId and countryCode (location)
-  const { error: deleteError } = await supabaseAdminClient
-    .from('Holiday')
-    .delete()
-    .eq('orgId', orgId)
-    .eq('location', countryCode);
-
-  if (deleteError) {
-    throw new Error(
-      `Failed to delete existing holidays: ${deleteError.message}`
-    );
-  }
-
-  // Insert new holidays
-  const { data, error } = await supabaseAdminClient
-    .from('Holiday')
-    .insert(
-      holidaysList.map(({ name, isRecurring, isCustom, date }: any) => ({
-        name,
-        isRecurring,
-        isCustom,
-        orgId,
-        date,
-        createdBy: currentUserId,
-        location: countryCode,
-      }))
-    )
-    .select('*');
-
-  if (error) throw error;
-  return data;
 };
 
 export const updateTeamNotificationsSettings = async (
@@ -367,30 +292,6 @@ export const fetchTeamGeneralData = async (teamId: any) => {
     .eq('teamId', teamId)
     .single();
 
-  if (error) throw error;
-  return data;
-};
-
-export const fetchOrgLeavePolicyData = async (orgId: any) => {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('LeaveType')
-    .select('*, LeavePolicy(*)')
-    .eq('orgId', orgId);
-
-  if (error) throw error;
-  return data;
-};
-
-export const fetchHolidaysData = async (orgId: any, countryCode: any) => {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('Holiday')
-    .select()
-    .eq('orgId', orgId)
-    .eq('location', countryCode);
   if (error) throw error;
   return data;
 };

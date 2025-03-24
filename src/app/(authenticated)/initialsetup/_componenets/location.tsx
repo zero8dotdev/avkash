@@ -38,14 +38,6 @@ import { updateInitialsetupState } from '../_actions';
 import TopSteps from './steps';
 import LocationPage from '../../dashboard/orgsettings/_components/locations';
 
-export interface holidaysList {
-  key: string;
-  name: string;
-  date: string;
-  isRecurring: boolean;
-  isCustom: boolean;
-}
-
 const Location = () => {
   const [holidaysList, setHolidaysList] = useState<any[]>([]);
   const [locationMode, setLocationMode] = useState<string | null>(null);
