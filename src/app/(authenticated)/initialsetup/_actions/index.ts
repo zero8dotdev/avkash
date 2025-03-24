@@ -20,6 +20,21 @@ export const updateteamsettings = async (teamId: any, setupData: any) => {
   return data;
 };
 
+export interface LeavePolicy {
+  maxLeaves: number; // Maximum number of leaves allowed
+  accruals?: boolean; // Whether leaves are accrued
+  rollOver?: boolean; // Whether unused leaves are rolled over
+  autoApprove?: boolean; // Whether leave requests are auto-approved
+  accrualFrequency?: 'MONTHLY' | 'YEARLY'; // Frequency of accruals
+  accrueOn?: 'START' | 'END'; // When accruals happen in the period
+  rollOverLimit?: string; // Maximum leaves that can be rolled over
+  rollOverExpiry?: string; // Expiry date for rolled-over leaves
+  createdBy?: string; // ID of the user who created the policy
+  createdOn?: string; // Creation timestamp
+  updatedBy?: string; // ID of the user who last updated the policy
+  updatedOn?: string; // Last update timestamp
+}
+
 export const insertLeavePolicies = async (
   orgId: string,
   userId: string,
