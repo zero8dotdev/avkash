@@ -15,6 +15,13 @@ import {
 import { DeleteOutlined } from '@ant-design/icons';
 import { fetchPublicHolidays } from '../_actions';
 
+interface holidaysList {
+  key: string;
+  name: string;
+  date: string;
+  isRecurring: boolean;
+  isCustom: boolean;
+}
 interface props {
   holidaysList: holidaysList[];
   locationMode: string | null;
