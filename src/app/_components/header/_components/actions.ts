@@ -14,27 +14,7 @@ export async function logoutAction() {
   revalidatePath('/', 'layout');
   redirect('/');
 }
-
-interface getUserDataProps {
-  id: string;
-  slackId?: string;
-  googleId?: string;
-}
 const supabaseAdmin = createAdminClient();
-
-export async function getUserData({ id, slackId, googleId }: getUserDataProps) {
-  const { data: userData, error: userError } = await supabaseAdmin
-    .from('User')
-    .select('*,Team(name),Organisation(notificationToWhom)')
-    .eq(`${slackId ? 'slackId' : 'googleId'}`, id)
-    .single();
-
-  if (userData) {
-    return userData;
-  } else {
-    return userError;
-  }
-}
 
 export const addSubscriptionToOrg = async (
   orgId: string,
