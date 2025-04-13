@@ -1,25 +1,17 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 
-import {
-  SmileOutlined,
-  SolutionOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Flex, Button, Row, Col, Steps, Card } from 'antd';
+import { Card } from 'antd';
 import { useRouter } from 'next/navigation';
-import TopSteps from '../../(authenticated)/initialsetup/_componenets/steps';
 
 export default function AddToSlack() {
   const router = useRouter();
 
-  const redirectToNext = new URL(
-    '/initialsetup/settings',
-    window?.location.origin
-  ).toString();
-
   const handlenext = () => {
+    const redirectToNext = new URL(
+      '/initialsetup/settings',
+      window.location.origin
+    ).toString();
+
     router.push(redirectToNext);
   };
 
@@ -30,8 +22,8 @@ export default function AddToSlack() {
         minHeight: '300px',
         overflow: 'auto',
         display: 'flex',
-        justifyContent: 'center', // Horizontal alignment
-        alignItems: 'center', // Vertical alignment
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <a
