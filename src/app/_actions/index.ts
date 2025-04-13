@@ -149,6 +149,7 @@ export const signUpAction = async (values: any) => {
       .insert({
         ownerId: authUser.id,
         createdBy: authUser.id,
+        name: team_name,
       })
       .select('*')
       .single();
@@ -195,10 +196,20 @@ export const signUpAction = async (values: any) => {
       throw userError;
     }
 
+    const { data: orgAccess, error: accessDataUpdateError } =
+      await supabaseAdminClient
+        .from('OrgAccessData')
+        .update({ orgId: org.orgId })
+        .eq('ownerSlackId', slackUserId);
+
+    if (accessDataUpdateError) {
+      throw accessDataUpdateError;
+    }
     return {
       org,
       team,
       user,
+      orgAccess,
     };
   } catch (error) {
     throw error;
@@ -340,3 +351,173 @@ export const isInitialSetupDone = async (orgId: string) => {
 
   return res.data;
 };
+
+export async function checkSlackOwnership(): Promise<
+  | 'signup'
+  | 'dashboard/timeline'
+  | 'initialsetup/settings'
+  | 'add-to-slack'
+  | 'you-are-not-admin'
+  | 'ask-for-invitation'
+  | 'login'
+> {
+  const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching user:', userError);
+    return 'login';
+  }
+
+  const isSlackAdmin = user.user_metadata?.is_slack_admin;
+
+  if (typeof isSlackAdmin !== 'boolean') {
+    return 'add-to-slack';
+  }
+
+  if (!isSlackAdmin) {
+    const domain = user?.email?.split('@')[1] || '';
+    const userId = user?.id;
+    console.log(domain, 'DOMAIN');
+    console.log(userId, 'USERID');
+    // Step 2: Check if organisation exists by domain
+    const { data: org, error: orgError } = await adminSupabase
+      .from('Organisation')
+      .select('*')
+      .eq('name', domain);
+    console.log(org, 'ORG');
+    // Step 3: Check if user exists by userId
+    const { data: existingUser, error: userError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('userId', userId);
+    console.log(existingUser, 'USER');
+    const orgExists = Array.isArray(org) && org.length > 0;
+    const userExists = Array.isArray(existingUser) && existingUser.length > 0;
+
+    // Step 4: Return based on conditions
+    if (orgExists && userExists) return 'dashboard/timeline';
+    if (!orgExists && !userExists) return 'you-are-not-admin';
+    if (orgExists && !userExists) return 'ask-for-invitation';
+
+    return 'add-to-slack';
+  }
+
+  const { data: userData, error: userFetchError } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', user.id)
+    .maybeSingle();
+
+  if (userFetchError) {
+    console.error('Error fetching user from User table:', userFetchError);
+    return 'add-to-slack';
+  }
+
+  if (!userData) {
+    return 'signup';
+  }
+
+  const { data: orgData, error: orgError } = await supabase
+    .from('Organisation')
+    .select('*')
+    .eq('orgId', userData.orgId)
+    .maybeSingle();
+
+  if (orgError || !orgData) {
+    console.error('Error fetching organisation data:', orgError);
+    return 'add-to-slack';
+  }
+
+  if (orgData.isSetupCompleted === true) {
+    return 'dashboard/timeline';
+  } else {
+    const step = Number(orgData?.initialsetup);
+    return 'initialsetup/settings';
+  }
+}
+
+export const getUserAndOrgStatus = async (): Promise<
+  | 'dashboard/timeline'
+  | 'you-are-not-admin'
+  | 'ask-for-invitation'
+  | 'add-to-slack'
+> => {
+  const adminSupabase = createAdminClient();
+  const supabase = await createClient();
+
+  // Step 1: Get Authenticated User
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user?.email || !user?.id) {
+    console.error('Auth error or missing user info');
+    return 'you-are-not-admin';
+  }
+
+  const domain = user?.email?.split('@')[1] || '';
+  const userId = user?.id;
+  console.log(domain, 'DOMAIN');
+  console.log(userId, 'USERID');
+  // Step 2: Check if organisation exists by domain
+  const { data: org, error: orgError } = await adminSupabase
+    .from('Organisation')
+    .select('*')
+    .eq('name', domain);
+  console.log(org, 'ORG');
+  // Step 3: Check if user exists by userId
+  const { data: existingUser, error: userError } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', userId);
+  console.log(existingUser, 'USER');
+  const orgExists = Array.isArray(org) && org.length > 0;
+  const userExists = Array.isArray(existingUser) && existingUser.length > 0;
+
+  // Step 4: Return based on conditions
+  if (orgExists && userExists) return 'dashboard/timeline';
+  if (!orgExists && !userExists) return 'you-are-not-admin';
+  if (orgExists && !userExists) return 'ask-for-invitation';
+
+  // fallback
+  return 'add-to-slack';
+};
+
+export async function isOrgExist(): Promise<boolean> {
+  const supabase = await createClient();
+
+  // Step 1: Get Authenticated User
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user?.email) {
+    console.error('Auth error or missing user email');
+    return false;
+  }
+
+  // Step 2: Extract domain from email
+  const domainName = user.email.split('@')[1] || '';
+  if (!domainName) return false;
+
+  // Step 3: Check if organisation with that name exists
+  const { data, error } = await supabase
+    .from('Organisation')
+    .select('orgId')
+    .eq('name', domainName)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error checking org by domain name:', error);
+    return false;
+  }
+
+  return !!data;
+}
