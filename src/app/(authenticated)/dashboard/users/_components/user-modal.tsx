@@ -42,6 +42,7 @@ const UserModal = ({
       : null,
     ([_, userId]) => activityFetcher(userId)
   );
+  console.log('activityData', activityData);
 
   // Handle tab change
   const handleTabChange = (key: string) => {

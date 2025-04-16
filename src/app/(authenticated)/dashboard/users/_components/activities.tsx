@@ -1,6 +1,7 @@
-import React from 'react';
-import { Avatar, Timeline } from 'antd';
-import { format, formatDistanceToNow } from 'date-fns';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Timeline, Table } from 'antd';
+import { format, formatDistanceToNowStrict } from 'date-fns';
+// import { getLeaveType } from '@/app/_actions'; // Implement this later , Make the object return this as well.
 
 const Activities = ({ activity, user }: any) => {
   return (
@@ -9,15 +10,33 @@ const Activities = ({ activity, user }: any) => {
         let description;
 
         // Format the changedOn date (only the date)
-        const formattedDate = format(new Date(each.changedOn), 'dd.MM.yyyy');
-        const relativeTime = formatDistanceToNow(new Date(each.changedOn), {
-          addSuffix: true,
-        });
+        const absoluteDateAndTime = format(
+          new Date(each.changedOn),
+          'MMMM d. yyyy h:mm a'
+        );
+        const relativeTime = formatDistanceToNowStrict(
+          new Date(each.changedOn),
+          {
+            addSuffix: true,
+          }
+        );
+
+        // Format startDate and endDate if available
+        const startDate = each.changedColumns?.startDate?.new
+          ? format(
+              new Date(each.changedColumns?.startDate?.new),
+              'MMMM d. yyyy'
+            )
+          : 'N/A';
+
+        const endDate = each.changedColumns?.endDate?.new
+          ? format(new Date(each.changedColumns?.endDate?.new), 'MMMM d. yyyy')
+          : 'N/A';
 
         // Generate the description based on the keyword
         switch (each.keyword) {
           case 'invitation':
-            description = <p>You are invited to a team.</p>;
+            description = <p>You were invited to a team.</p>;
             break;
 
           case 'leave_status':
@@ -33,14 +52,56 @@ const Activities = ({ activity, user }: any) => {
           case 'leave_request':
             description = (
               <p>
-                You applied for leave from {each.changedColumns?.startDate?.new}{' '}
-                to {each.changedColumns?.endDate?.new}.
+                You applied for leave from <strong>{startDate}</strong> -{' '}
+                <strong>{endDate}</strong>.
               </p>
             );
             break;
 
           case 'accrual':
-            description = <p>Accrual Table updated.</p>;
+            const accrualData = [
+              {
+                key: '1',
+                detail: 'Accrual per month',
+                days: 2,
+              },
+              {
+                key: '2',
+                detail: 'New balance',
+                days: 6,
+              },
+            ];
+
+            const columns = [
+              {
+                title: 'Details',
+                dataIndex: 'detail',
+                key: 'detail',
+              },
+              {
+                title: 'Days',
+                dataIndex: 'days',
+                key: 'days',
+              },
+            ];
+
+            description = (
+              <div className="text-sm">
+                <p>
+                  You accrued <strong>2 days</strong> of{' '}
+                  <strong>Paid time off</strong> leave.
+                </p>
+                <div className="mt-2 max-w-xs rounded-md border">
+                  <Table
+                    columns={columns}
+                    dataSource={accrualData}
+                    pagination={false}
+                    size="small"
+                    bordered
+                  />
+                </div>
+              </div>
+            );
             break;
 
           case 'change':
@@ -63,9 +124,10 @@ const Activities = ({ activity, user }: any) => {
           color: each.color || 'blue', // Default color
           children: (
             <div>
-              <strong>
-                {formattedDate} ({relativeTime})
-              </strong>
+              <p className="text-xs flex">
+                {absoluteDateAndTime}{' '}
+                <p className="text-xs text-gray-500 ps-1"> {relativeTime}</p>
+              </p>
               {description}
             </div>
           ),

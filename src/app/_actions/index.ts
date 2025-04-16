@@ -418,6 +418,24 @@ export const signUpAction = async (values: any) => {
   }
 };
 
+export const getLeaveType = async (leaveTypeId: string | null) => {
+  if (!leaveTypeId) return 'Unknown';
+
+  const supabase = createAdminClient();
+  const { data: leaveType, error } = await supabase
+    .from('LeaveType')
+    .select('name')
+    .eq('leaveTypeId', leaveTypeId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching leave type:', error);
+    return 'Unknown';
+  }
+
+  return leaveType?.name || 'Unknown';
+};
+
 export const getLeaves = async (idColumn: any, id: any) => {
   const supabase = createAdminClient();
   const { data: leaves, error: leaveError } = await supabase
