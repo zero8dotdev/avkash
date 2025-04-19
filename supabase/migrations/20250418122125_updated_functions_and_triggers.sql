@@ -1,6 +1,12 @@
-CREATE OR REPLACE FUNCTION auth_to_user_uuid_update() RETURNS TRIGGER AS
-$$
-DECLARE
+alter table "public"."User" alter column "name" drop not null;
+
+set check_function_bodies = off;
+
+CREATE OR REPLACE FUNCTION public.auth_to_user_uuid_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$DECLARE
   old_user_id UUID;
   temp_user_id UUID;
 BEGIN
@@ -41,10 +47,8 @@ BEGIN
     WHERE email = new.email;
   END IF;
   RETURN new;
-END;
-$$ SECURITY DEFINER
-LANGUAGE plpgsql;
-
+END;$function$
+;
 
 CREATE OR REPLACE TRIGGER auth_to_user_uuid_update_trigger
 AFTER UPDATE OF last_sign_in_at ON auth.users
