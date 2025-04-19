@@ -57,7 +57,8 @@ CREATE TABLE
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
-    "updatedOn" TIMESTAMP(6) DEFAULT now()
+    "updatedOn" TIMESTAMP(6) DEFAULT now(),
+    "name" VARCHAR(255)
   );
 
 
@@ -97,7 +98,7 @@ CREATE TABLE
 CREATE TABLE
   "User" (
     "userId" UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-    "name" VARCHAR(255) NOT NULL,
+    "name" VARCHAR(255)  NULL,
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "picture" TEXT,
     "teamId" UUID,
