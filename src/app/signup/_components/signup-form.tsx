@@ -34,7 +34,7 @@ export default function SignUpForm({ user }: { user: any }) {
       console.log(error);
     } finally {
       setIsSaving(false);
-      router.replace('/initialsetup/connect-slack');
+      router.replace('/initialsetup/settings');
     }
   };
 
