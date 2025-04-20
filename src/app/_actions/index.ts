@@ -335,7 +335,7 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
     const nonExistingUsers = users?.filter(
       (user: any) => !existingUserEmails.has(user.profile.email)
     );
-    return nonExistingUsers;
+    return { nonExistingUsers, existedUsers };
   } catch (error) {
     console.log(error);
   }
