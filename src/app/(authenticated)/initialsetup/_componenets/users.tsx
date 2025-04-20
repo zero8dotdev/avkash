@@ -24,7 +24,7 @@ export const Users = forwardRef(function Users(props, ref) {
   const [form] = Form.useForm();
   useImperativeHandle(ref, () => ({
     getUsers: () => {
-      const users = [...(existedUsers || []), ...(newUsers || [])];
+      const users = newUsers;
       return users?.map(
         ({ id, profile: { image_48, real_name, email } }: any) => {
           return {
