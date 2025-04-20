@@ -42,7 +42,7 @@ const Inviteusers = () => {
 
       // Create users array with prorated leave balances
       const updatedUsers = await Promise.all(
-        users.map(async (user) => {
+        users?.map(async (user) => {
           const prorateFactor = user.isProrate;
           const today = new Date();
 
