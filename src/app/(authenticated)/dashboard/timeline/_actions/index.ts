@@ -2,6 +2,7 @@
 
 import { createClient } from '@/app/_utils/supabase/server';
 import { createAdminClient } from '@/app/_utils/supabase/adminClient';
+import { calculateWorkingDays } from '@/app/_utils/calculateWorkingDays';
 
 export const getUserRole = async (userId: any): Promise<string> => {
   try {
@@ -80,35 +81,6 @@ export async function getUser(teamId: string, userId: string) {
   return usersData;
 }
 
-// export const insertLeave = async (values: any, orgId: any, teamId: any, userId: any) => {
-//   const supabase = createClient();
-
-//   // Prepare the data for insertion
-//   const { data, error } = await supabase
-//     .from('Leave')
-//     .insert({
-//       leaveTypeId: values?.type,
-//       startDate: values?.startDate,
-//       endDate: values?.endDate,
-//       duration: values.duration,
-//       shift: values.shift,
-//       isApproved: values.isApproved || 'PENDING',  // Use value from form or default to 'PENDING'
-//       userId: userId,
-//       teamId: teamId,
-//       orgId: orgId,
-//       reason: values.reason,
-//       managerComment: values.managerComment,
-//     })
-//     .single();
-
-//   if (error) {
-//     console.log(error);
-//     throw new Error("Failed to insert leave.");
-//   }
-
-//   return data;
-// };
-
 export const insertLeave = async (
   values: any,
   orgId: any,
@@ -116,29 +88,36 @@ export const insertLeave = async (
   userId: any
 ) => {
   const supabase = await createClient();
+  const workingDays = await calculateWorkingDays({
+    startDate: new Date(values.startDate),
+    endDate: new Date(values.endDate),
+    teamId,
+    orgId,
+  });
+  const finalWorkingDays =
+    values.duration === 'HALF_DAY' ? workingDays / 2 : workingDays;
 
-  // Prepare the data for insertion, now including shift and duration
   const { data, error } = await supabase
     .from('Leave')
     .insert({
       leaveTypeId: values.type,
       startDate: values.startDate,
       endDate: values.endDate,
-      duration: values.duration || 'FULL_DAY', // 'FULL_DAY' or 'HALF_DAY'
-      shift: values.shift || 'NONE', // 'MORNING', 'AFTERNOON', or 'NONE'
-      isApproved: values.isApproved || 'PENDING', // Default to 'PENDING'
+      duration: values.duration || 'FULL_DAY',
+      shift: values.shift || 'NONE',
+      isApproved: values.isApproved || 'PENDING',
       userId,
       teamId,
       orgId,
       reason: values.reason,
       managerComment: values.managerComment,
+      workingDays: finalWorkingDays,
     })
     .single();
 
   if (error) {
-    console.log(error);
-    throw new Error('Failed to insert leave.');
+    console.error('Supabase error:', error);
   }
 
-  return data;
+  return { data, error };
 };
