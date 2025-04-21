@@ -6,6 +6,7 @@ import {
   Form,
   FormInstance,
   InputNumber,
+  message,
   Modal,
   Segmented,
   Select,
@@ -13,8 +14,13 @@ import {
   Switch,
   Typography,
 } from 'antd';
-import React from 'react';
-import { updatePolicyData } from '../_actions';
+import React, { useEffect, useState } from 'react';
+import { useApplicationContext } from '@/app/_context/appContext';
+import {
+  createPolicyData,
+  fetchOrgleaveTypes,
+  updatePolicyData,
+} from '../_actions';
 
 const LeavePolicyModal = ({
   selectedPolicy,
@@ -35,17 +41,38 @@ const LeavePolicyModal = ({
   onChangeLeaveType: Function;
   selctedLeaveType: any;
 }) => {
-  const orgLeaveTypes = [
-    {
-      id: '1',
-      name: 'testing',
-    },
-    {
-      id: '2',
-      name: 'testing2',
-    },
-  ];
+  const {
+    state: { orgId },
+    dispatch,
+  } = useApplicationContext();
+
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const [leaveTypes, setLeaveTypes] = useState<
+    { leaveTypeId: any; name: any }[]
+  >([]);
+
+  const [selectedLeaveId, setSelectedLeaveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const orgLeaveTypes = await fetchOrgleaveTypes(orgId);
+      setLeaveTypes(orgLeaveTypes);
+      if (orgLeaveTypes.length > 0) {
+        setSelectedLeaveId(orgLeaveTypes[0].leaveTypeId); // ✅ set default id
+        onChangeLeaveType(orgLeaveTypes[0].leaveTypeId); // optional
+      }
+    };
+
+    fetchData();
+  }, [orgId]);
+
+  // const fetchLeaveTypes = async () => {
+  //   const orgLeaveTypes = await fetchOrgleaveTypes(orgId);
+  //   return orgLeaveTypes;
+  // };
   const { Item } = Form;
+
   return (
     <Modal
       footer={null}
@@ -75,27 +102,53 @@ const LeavePolicyModal = ({
           <Typography.Text strong>Select Leave Type</Typography.Text>
           <Select
             style={{ width: '50%' }}
-            defaultValue={orgLeaveTypes[0].name}
-            onChange={(v) => onChangeLeaveType(v)}
+            value={selectedLeaveId}
+            onChange={(id) => {
+              setSelectedLeaveId(id); // ✅ stores selected leaveTypeId
+              onChangeLeaveType(id); // ✅ pass it back if needed
+            }}
           >
-            {orgLeaveTypes.map((e) => (
-              <Select.Option key={e.id}>{e.name}</Select.Option>
+            {leaveTypes.map((e) => (
+              <Select.Option key={e.leaveTypeId} value={e.leaveTypeId}>
+                {e.name}
+              </Select.Option>
             ))}
           </Select>
+
+          {contextHolder}
           {selctedLeaveType && (
             <Form
               form={form}
               onFinish={async (values) => {
                 if (values.rollOverExpiry) {
-                  values.rollOverExpiry = values.rollOverExpiry.format('DD/MM'); // or use "DD/MM" depending on your requirement
+                  values.rollOverExpiry = values.rollOverExpiry.format('DD/MM');
                 }
-                await updatePolicyData(
-                  teamId,
-                  values,
-                  selectedPolicy.leavePolicyId
-                ); // Update backend data
-                callMutate();
-                update();
+
+                try {
+                  const result = await createPolicyData(
+                    teamId,
+                    values,
+                    selectedLeaveId
+                  );
+
+                  if (result?.message === 'LeavePolicy Already Exists') {
+                    messageApi.warning(
+                      'A policy with this Leave Type already exists for this team.'
+                    );
+                    form.resetFields();
+                  }
+                  if (result?.message === 'LeavePolicy Added Successfully') {
+                    messageApi.success('Policy created successfully!');
+                    form.resetFields();
+                  }
+                  callMutate();
+                  update();
+                } catch (err) {
+                  console.error(err);
+                  messageApi.error(
+                    'Failed to create policy. Please try again.'
+                  );
+                }
               }}
             >
               <Flex gap={50}>
