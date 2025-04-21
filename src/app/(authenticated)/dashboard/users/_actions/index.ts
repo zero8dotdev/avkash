@@ -83,21 +83,9 @@ export const getLeaveSummaryByUser = async (userId: string) => {
 
   // Step 3: Combine data
   const result = leaveTypes.map((type) => {
-    const takenCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'APPROVED'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
-
-    const plannedCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'PENDING'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
+    const leaveSummary = leaveData?.find(
+      (leave: { leaveTypeId: string }) => leave.leaveTypeId === type.leaveTypeId
+    ) || { taken: 0, planned: 0, total_days: 0 };
 
     const totalLeaves = type.LeavePolicy?.[0]?.unlimited
       ? Infinity
@@ -106,17 +94,20 @@ export const getLeaveSummaryByUser = async (userId: string) => {
     return {
       key: type.leaveTypeId,
       leaveType: type.name,
-      taken: takenCount || 0,
-      planned: plannedCount || 0,
+      taken: leaveSummary.taken || 0,
+      planned: leaveSummary.planned || 0,
       total: totalLeaves,
       remaining:
         totalLeaves === Infinity
           ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount, 0),
+          : Math.max(totalLeaves - leaveSummary.taken, 0),
       available:
         totalLeaves === Infinity
           ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount - plannedCount, 0),
+          : Math.max(
+              totalLeaves - leaveSummary.taken - leaveSummary.planned,
+              0
+            ),
     };
   });
 
