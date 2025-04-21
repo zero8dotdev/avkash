@@ -150,6 +150,7 @@ CREATE TABLE
     "reason" VARCHAR(255),
     "managerComment" VARCHAR(255),
     "orgId" UUID NOT NULL,
+    "workingDays" NUMERIC(5,2) NOT NULL,
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
