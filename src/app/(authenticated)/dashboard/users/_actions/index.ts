@@ -131,6 +131,7 @@ export const formatLeavesData = async (rawData: any[]) => {
     leaveRequestNote: leave.reason || '',
     status: leave.isApproved.toLowerCase(),
     color: leave.LeaveType.color,
+    managerComment: leave.managerComment,
   }));
 };
 

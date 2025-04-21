@@ -1,9 +1,7 @@
-import { CalendarOutlined, FileTextOutlined } from '@ant-design/icons';
-import { Card, List, Space } from 'antd';
+'use client';
+
 import React from 'react';
-import useSWR from 'swr';
-import { useApplicationContext } from '@/app/_context/appContext';
-import { formatLeavesData, getLeaves } from '../_actions';
+import { CalendarOutlined } from '@ant-design/icons';
 
 const LeaveRequest = ({
   user,
@@ -13,59 +11,76 @@ const LeaveRequest = ({
   data: any;
   loading: any;
 }) => {
+  const getLeaveIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'sick':
+        return <span className=" text-xl">🤒</span>;
+      case 'paid time off':
+        return <span className=" text-xl">🏖️</span>;
+      case 'unpaid':
+        return <span className="text-xl">📅</span>;
+      default:
+        return <span className="text-xl">📅</span>;
+    }
+  };
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      case 'pending':
+        return 'text-yellow-500';
+      default:
+        return 'text-gray-400';
+    }
+  };
   return (
-    <List
-      dataSource={data || []}
-      renderItem={(item: any, i) => (
-        <Card
-          styles={{ body: { padding: '0 20px 0 20px' } }}
-          style={{
-            marginBottom: '10px',
-            borderLeft: `5px solid #${item.color}`,
-          }}
-        >
-          <List.Item
-            extra={
-              <span
-                style={{
-                  color: item.color,
-                  width: '100px',
-                  textAlign: 'right',
-                }}
-              >
-                {item.status}
-              </span>
-            }
+    <div>
+      {!data || data.length === 0 ? (
+        <p className="text-gray-500 text-center">No leave requests</p>
+      ) : (
+        data.map((item: any) => (
+          <div
+            key={item.id}
+            className="flex justify-between gap-4 rounded-md shadow-lg align-start p-2 border-l-8 pl-4 mb-2 "
+            style={{ borderColor: `#${item.color}` }}
           >
-            <List.Item.Meta
-              title={
-                <Space>
-                  <CalendarOutlined /> {item.type}
-                </Space>
-              }
-              description={
-                <p>
-                  {item.startDate} - {item.endDate}
+            <div className="flex flex-col gap-1 w-full">
+              <div className="flex justify-between items-center">
+                <p className="flex gap-2 items-center font-medium text-gray-700">
+                  {getLeaveIcon(item.type)}
+                  <span>{item.type}</span>
                 </p>
-              }
-            />
-            <Card
-              bordered={false}
-              styles={{ body: { padding: '10px' } }}
-              style={{
-                width: '75%',
-                boxShadow: 'none',
-                borderLeft: `2px solid ${item.color}`,
-                borderRadius: '0px',
-              }}
-            >
-              {item.leaveRequestNote}
-            </Card>
-          </List.Item>
-        </Card>
+                <span
+                  className={`text-sm font-semibold capitalize ${getStatusColor(item.status)}`}
+                >
+                  {`${item?.managerComment ?? ''} | ${item.status}`}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500">
+                {formatDate(item.startDate)} - {formatDate(item.endDate)}
+              </p>
+              {item.leaveRequestNote && (
+                <p className="text-sm text-gray-400 italic">
+                  Reason: {item.leaveRequestNote}
+                </p>
+              )}
+            </div>
+          </div>
+        ))
       )}
-    />
+    </div>
   );
 };
 
 export default LeaveRequest;
+
+// Format date to readable string
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+}
