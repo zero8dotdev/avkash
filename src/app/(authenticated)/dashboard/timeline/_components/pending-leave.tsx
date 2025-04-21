@@ -72,49 +72,54 @@ export default function TodayTab() {
 
   return (
     <div>
-      {leaves.map((leave) => (
-        <div
-          key={leave.leaveId}
-          className="flex justify-between gap-4 rounded-md shadow-lg align-start p-2 border-l-8 pl-4 mb-1"
-          style={{ borderColor: `#${leave?.leaveType?.color ?? '9ca3af'}` }}
-        >
-          <div className="gap-2">
-            <p className="flex gap-2 items-center font-medium">
-              {getLeaveIcon(leave?.leaveType?.name)}
-              <span>{leave?.user?.name}</span>
-            </p>
-            <p
-              className="text-md font-semibold"
-              style={{ color: `#${leave?.leaveType?.color ?? '9ca3af'}` }}
-            >
-              {leave?.leaveType?.name}
-            </p>
-            <p className="text-sm text-gray-500">
-              {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)}
-            </p>
-            {leave.reason && (
-              <p className="text-sm text-gray-400 italic">
-                Reason: {leave?.reason}
+      {leaves.length === 0 ? (
+        <p className=" text-gray-500 font-bold mt-2">No Pending Approvals</p>
+      ) : (
+        leaves.map((leave) => (
+          <div
+            key={leave.leaveId}
+            className="flex justify-between gap-4 rounded-md shadow-lg align-start p-2 border-l-8 pl-4 mb-1"
+            style={{ borderColor: `#${leave?.leaveType?.color ?? '9ca3af'}` }}
+          >
+            <div className="gap-2">
+              <p className="flex gap-2 items-center font-medium">
+                {getLeaveIcon(leave?.leaveType?.name)}
+                <span>{leave?.user?.name}</span>
               </p>
-            )}
+              <p
+                className="text-md font-semibold"
+                style={{ color: `#${leave?.leaveType?.color ?? '9ca3af'}` }}
+              >
+                {leave?.leaveType?.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)}
+              </p>
+              {leave.reason && (
+                <p className="text-sm text-gray-400 italic">
+                  Reason: {leave?.reason}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2 items-center mr-4">
+              <button
+                onClick={() => handleOpenModal(leave, 'APPROVED')}
+                className="text-xs border px-2 py-1 border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white"
+              >
+                Approve <CheckOutlined />
+              </button>
+              <button
+                onClick={() => handleOpenModal(leave, 'REJECTED')}
+                className="text-xs border px-2 py-1 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white"
+              >
+                Reject <CloseOutlined />
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2 items-center mr-4">
-            <button
-              onClick={() => handleOpenModal(leave, 'APPROVED')}
-              className="text-xs border px-2 py-1 border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white"
-            >
-              Approve <CheckOutlined />
-            </button>
-            <button
-              onClick={() => handleOpenModal(leave, 'REJECTED')}
-              className="text-xs border px-2 py-1 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white"
-            >
-              Reject <CloseOutlined />
-            </button>
-          </div>
-        </div>
-      ))}
+        ))
+      )}
 
+      {/* Modal */}
       {selectedLeave && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-md shadow-md w-[90%] max-w-md">
