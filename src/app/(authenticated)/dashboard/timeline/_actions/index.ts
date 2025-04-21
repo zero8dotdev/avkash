@@ -94,7 +94,6 @@ export const insertLeave = async (
     teamId,
     orgId,
   });
-  console.log('workingDays', workingDays);
   const finalWorkingDays =
     values.duration === 'HALF_DAY' ? workingDays / 2 : workingDays;
 
@@ -118,7 +117,6 @@ export const insertLeave = async (
 
   if (error) {
     console.error('Supabase error:', error);
-    throw error;
   }
 
   return { data, error };
