@@ -121,3 +121,134 @@ export const insertLeave = async (
 
   return { data, error };
 };
+
+type Leave = {
+  leaveId: string;
+  startDate: string;
+  endDate: string;
+  duration: string;
+  shift: string;
+  reason: string | null;
+  managerComment: string | null;
+  createdOn: string;
+  user: {
+    userId: string;
+    name: string;
+  };
+  leaveType: {
+    leaveTypeId: string;
+    name: string;
+    color: string;
+  };
+};
+
+export const getPendingLeavesByOrg = async (orgId: string) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('Leave')
+    .select(
+      `
+      leaveId,
+      startDate,
+      endDate,
+      duration,
+      shift,
+      reason,
+      managerComment,
+      createdOn,
+      user:userId ( userId, name ),
+      leaveType:leaveTypeId ( leaveTypeId, name, color )
+    `
+    )
+    .eq('orgId', orgId)
+    .eq('isApproved', 'PENDING');
+
+  if (error) {
+    console.error('Error fetching pending leaves:', error);
+    throw error;
+  }
+  return data;
+};
+
+export async function updateLeaveStatus(
+  leaveId: string,
+  status: 'APPROVED' | 'REJECTED',
+  comment: string
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('Leave')
+    .update({ isApproved: status, managerComment: comment })
+    .eq('leaveId', leaveId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+export const getTodayLeavesByOrg = async (orgId: string) => {
+  const today = new Date().toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('Leave')
+    .select(
+      `
+      leaveId,
+      startDate,
+      endDate,
+      duration,
+      shift,
+      reason,
+      managerComment,
+      createdOn,
+      user:userId ( userId, name ),
+      leaveType:leaveTypeId ( leaveTypeId, name, color )
+    `
+    )
+    .eq('orgId', orgId)
+    .lte('startDate', today)
+    .gte('endDate', today)
+    .eq('isApproved', 'APPROVED'); // Optional, if you want only approved leaves
+
+  if (error) {
+    console.error("Error fetching today's leaves:", error);
+    throw error;
+  }
+  return data;
+};
+
+export const getPlannedLeavesByOrg = async (orgId: string) => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const tomorrowDateStr = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('Leave')
+    .select(
+      `
+      leaveId,
+      startDate,
+      endDate,
+      duration,
+      shift,
+      reason,
+      managerComment,
+      createdOn,
+      user:userId ( userId, name ),
+      leaveType:leaveTypeId ( leaveTypeId, name, color )
+    `
+    )
+    .eq('orgId', orgId)
+    .eq('isApproved', 'APPROVED')
+    .gte('endDate', tomorrowDateStr); // Any leave that is ongoing or starts from tomorrow
+
+  if (error) {
+    console.error('Error fetching planned leaves:', error);
+    throw error;
+  }
+
+  return data;
+};
