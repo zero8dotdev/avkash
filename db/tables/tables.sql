@@ -150,6 +150,7 @@ CREATE TABLE
     "reason" VARCHAR(255),
     "managerComment" VARCHAR(255),
     "orgId" UUID NOT NULL,
+    "workingDays" NUMERIC(5,2) NOT NULL,
     "createdBy" VARCHAR(255),
     "createdOn" TIMESTAMP(6) DEFAULT now(),
     "updatedBy" VARCHAR(255),
@@ -352,9 +353,10 @@ CREATE OR REPLACE VIEW leave_summary AS
 SELECT
   "userId",
   "leaveTypeId",
-  "isApproved",
-  COUNT(*) AS count
+  SUM(CASE WHEN "isApproved" = 'APPROVED' THEN "workingDays" ELSE 0 END) as taken,
+  SUM(CASE WHEN "isApproved" = 'PENDING' THEN "workingDays" ELSE 0 END) as planned,
+  SUM("workingDays") as total_days
 FROM
   "Leave"
 GROUP BY
-  "userId", "leaveTypeId", "isApproved";
+  "userId", "leaveTypeId";
