@@ -45,17 +45,21 @@ export default function Page() {
   return (
     <Row style={{ padding: '25px' }}>
       <Col span={24}>
-        <Flex justify="space-between">
-          <AddLeave
-            users={users}
-            onSelectedUser={(v: any) => {
-              setSelectedUser(v);
-            }}
-          />
-          <TeamSelect
-            ref={teamSelectRef} // Pass ref to TeamSelect
-            onChangeTeamUsers={(users: any) => setUsers(users)}
-          />
+        <Flex justify="space-between" align="center">
+          <Flex gap="small">
+            <AddLeave
+              users={users}
+              onSelectedUser={(v: any) => {
+                setSelectedUser(v);
+              }}
+            />
+
+            <TeamSelect
+              ref={teamSelectRef} // Pass ref to TeamSelect
+              onChangeTeamUsers={(users: any) => setUsers(users)}
+            />
+          </Flex>
+
           <Space>
             <Radio.Group defaultValue={changeView}>
               <Radio.Button value={1} onChange={() => setChangeView(1)}>
