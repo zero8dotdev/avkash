@@ -127,7 +127,7 @@ const Page = () => {
                           }}
                         />
                       }
-                      description={`${item?.maxLeaves} days per year`}
+                      description={`${item?.maxLeaves} ${item?.maxLeaves > 1 ? 'days' : 'day'} per year`}
                     />
                     <Button
                       type="text"
