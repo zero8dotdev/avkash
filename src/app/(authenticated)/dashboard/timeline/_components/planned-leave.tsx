@@ -36,9 +36,9 @@ export default function PlannedLeavesTab() {
     }
   };
   return (
-    <div className="">
+    <div className="mt-2">
       {plannedLeaves.length === 0 ? (
-        <p className="text-gray-500 text-center">No planned leaves</p>
+        <p className="text-gray-500 font-bold">No planned leaves</p>
       ) : (
         plannedLeaves.map((leave) => (
           <div
