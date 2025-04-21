@@ -327,57 +327,6 @@ export const updateTeamData = async (isActive: boolean, teamId: string) => {
   return data;
 };
 
-export const fetchAllUsersFromChatApp = async (orgId: string) => {
-  try {
-    const supabaseAdminClient = createAdminClient();
-
-    const { data: organisation, error } = await supabaseAdminClient
-      .from('Organisation')
-      .select('*, OrgAccessData(slackAccessToken)')
-      .eq('orgId', orgId)
-      .single();
-
-    const slackAccessToken = organisation.OrgAccessData[0].slackAccessToken;
-    const slackClient = new WebClient(slackAccessToken);
-
-    const result = await slackClient.users.list({
-      limit: 1000,
-    });
-
-    if (!result.ok) {
-      throw new Error(`Error fetching users: ${result.error}`);
-    }
-
-    if (error) {
-      throw error;
-    }
-
-    const users = result.members?.filter(
-      ({ is_bot, deleted, is_email_confirmed }) =>
-        !is_bot && !deleted && is_email_confirmed
-    );
-
-    const existedUsers = await supabaseAdminClient
-      .from('User')
-      .select('*')
-      .eq('orgId', orgId);
-    if (existedUsers.error) {
-      throw existedUsers.error;
-    }
-    const existingUserEmails = new Set(
-      existedUsers.data.map((user: any) => user.email)
-    );
-
-    // Filter out non-existing users by email
-    const nonExistingUsers = users?.filter(
-      (user: any) => !existingUserEmails.has(user.profile.email)
-    );
-    return nonExistingUsers;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const fetchOrgHolidays = async (orgId: string, countryCode: string) => {
   const supabase = await createClient();
   const { data, error } = await supabase

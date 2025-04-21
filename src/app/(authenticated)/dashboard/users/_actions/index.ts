@@ -83,21 +83,9 @@ export const getLeaveSummaryByUser = async (userId: string) => {
 
   // Step 3: Combine data
   const result = leaveTypes.map((type) => {
-    const takenCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'APPROVED'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
-
-    const plannedCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'PENDING'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
+    const leaveSummary = leaveData?.find(
+      (leave: { leaveTypeId: string }) => leave.leaveTypeId === type.leaveTypeId
+    ) || { taken: 0, planned: 0, total_days: 0 };
 
     const totalLeaves = type.LeavePolicy?.[0]?.unlimited
       ? Infinity
@@ -106,115 +94,20 @@ export const getLeaveSummaryByUser = async (userId: string) => {
     return {
       key: type.leaveTypeId,
       leaveType: type.name,
-      taken: takenCount || 0,
-      planned: plannedCount || 0,
+      taken: leaveSummary.taken || 0,
+      planned: leaveSummary.planned || 0,
       total: totalLeaves,
       remaining:
         totalLeaves === Infinity
           ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount, 0),
+          : Math.max(totalLeaves - leaveSummary.taken, 0),
       available:
         totalLeaves === Infinity
           ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount - plannedCount, 0),
-    };
-  });
-
-  return result;
-};
-
-export const getLeaveSummaryByUserByPeriod = async (
-  userId: string,
-  year?: number,
-  month?: number
-) => {
-  const supabase = await createClient();
-
-  // Step 1: Get the user's organization ID and active leave types
-  const { data: userOrgData, error: userOrgError } = await supabase
-    .from('User')
-    .select('orgId')
-    .eq('userId', userId)
-    .single();
-
-  if (userOrgError || !userOrgData?.orgId) {
-    console.error('Error fetching user organization:', userOrgError);
-    return null;
-  }
-
-  const { orgId } = userOrgData;
-
-  const { data: leaveTypes, error: leaveTypeError } = await supabase
-    .from('LeaveType')
-    .select(
-      'leaveTypeId, name, isActive, color, LeavePolicy(maxLeaves, unlimited)'
-    )
-    .eq('orgId', orgId)
-    .eq('isActive', true);
-
-  if (leaveTypeError) {
-    console.error('Error fetching active leave types:', leaveTypeError);
-    return null;
-  }
-
-  // Step 2: Build filters for year and month
-  let query = supabase.from('leave_summary').select('*').eq('userId', userId);
-
-  if (year) {
-    query = query
-      .gte('createdAt', `${year}-01-01`)
-      .lte('createdAt', `${year}-12-31`);
-  }
-
-  if (month) {
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-    const endDate = new Date(year!, month!, 0).toISOString().split('T')[0];
-    query = query.gte('createdAt', startDate).lte('createdAt', endDate);
-  }
-
-  const { data: leaveData, error: leaveError } = await query;
-
-  if (leaveError) {
-    console.error('Error fetching leave summary:', leaveError);
-    return null;
-  }
-
-  // Step 3: Combine data
-  const result = leaveTypes.map((type) => {
-    const takenCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'APPROVED'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
-
-    const plannedCount = leaveData
-      .filter(
-        (leave) =>
-          leave.leaveTypeId === type.leaveTypeId &&
-          leave.isApproved === 'PENDING'
-      )
-      .reduce((sum, leave) => sum + leave.count, 0);
-
-    const totalLeaves = type.LeavePolicy?.[0]?.unlimited
-      ? Infinity
-      : type.LeavePolicy?.[0]?.maxLeaves || 0;
-
-    return {
-      key: type.leaveTypeId,
-      leaveType: type.name,
-      taken: takenCount || 0,
-      planned: plannedCount || 0,
-      total: totalLeaves,
-      remaining:
-        totalLeaves === Infinity
-          ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount, 0),
-      available:
-        totalLeaves === Infinity
-          ? 'Unlimited'
-          : Math.max(totalLeaves - takenCount - plannedCount, 0),
+          : Math.max(
+              totalLeaves - leaveSummary.taken - leaveSummary.planned,
+              0
+            ),
     };
   });
 
@@ -229,6 +122,7 @@ export const formatLeavesData = async (rawData: any[]) => {
     leaveRequestNote: leave.reason || '',
     status: leave.isApproved.toLowerCase(),
     color: leave.LeaveType.color,
+    managerComment: leave.managerComment,
   }));
 };
 
