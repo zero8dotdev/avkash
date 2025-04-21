@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Avatar,
   Button,
@@ -9,7 +9,6 @@ import {
   Drawer,
   Flex,
   Form,
-  Input,
   List,
   Radio,
   Space,
@@ -22,9 +21,8 @@ import type { Dayjs } from 'dayjs';
 import TextArea from 'antd/es/input/TextArea';
 import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import { format } from 'date-fns';
-import { get } from 'http';
 import { getLeaves } from '../../users/_actions';
 import { insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
@@ -42,7 +40,8 @@ const UserDrawer = ({
 }) => {
   const [form] = Form.useForm();
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [showAddLeaveForm, setShowAddLeaveForm] = useState(false); // New state for form visibility
+  const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const {
     state: { orgId, userId, teamId, role },
@@ -68,31 +67,54 @@ const UserDrawer = ({
     return <div className="ant-picker-cell-inner">{current.date()}</div>;
   };
 
+  const handleError = useCallback(
+    (error: any) => {
+      const errorMessage = error?.message;
+
+      if (
+        error?.code === 'P0001' &&
+        errorMessage === 'Leave request overlaps with existing leave period'
+      ) {
+        messageApi.error(
+          'You already have leave scheduled for these dates. Please choose different dates or adjust the duration/shift.'
+        );
+      } else {
+        messageApi.error(errorMessage || 'Failed to submit leave request.');
+      }
+    },
+    [messageApi]
+  );
+
+  const handleSuccess = useCallback(() => {
+    setShowAddLeaveForm(false);
+    form.resetFields();
+    messageApi.success('Leave request submitted successfully!');
+  }, [messageApi, form, setShowAddLeaveForm]);
+
   const handleAddLeave = async (values: any) => {
     try {
-      // Ensure `isApproved` is set to 'PENDING' by default, and 'APPROVED' if the switch is on
       values.isApproved = values.isApproved ? 'APPROVED' : 'PENDING';
-      console.log('values', values);
-      // Format the dates to ensure correct insertion into the database
       const formattedStartDate = format(new Date(values.Date[0]), 'yyyy-MM-dd');
       const formattedEndDate = format(new Date(values.Date[1]), 'yyyy-MM-dd');
 
-      // Adjust to UTC or handle timezone issues if necessary
       values.startDate = formattedStartDate;
       values.endDate = formattedEndDate;
-
-      const data = await insertLeave(
+      const { data, error } = await insertLeave(
         values,
         selectedUser?.orgId,
         selectedUser?.teamId,
         selectedUser?.userId
       );
-      setShowAddLeaveForm(false); // Close the form on success
-      form.resetFields();
-      message.success('Leave request submitted successfully!');
-    } catch (error) {
-      console.error('Failed to submit leave:', error);
-      message.error('Failed to submit leave request.');
+
+      if (error) {
+        handleError(error);
+        return;
+      }
+
+      handleSuccess();
+    } catch (error: any) {
+      console.error('Unexpected error:', error);
+      messageApi.error('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -108,6 +130,7 @@ const UserDrawer = ({
 
   return (
     <>
+      {contextHolder}
       <Drawer
         open={selectedUser !== null}
         title={
@@ -186,7 +209,6 @@ const UserDrawer = ({
                   ))}
                 </Radio.Group>
               </Form.Item>
-
               <Form.Item
                 label="Start Date & End Date"
                 name="Date"
@@ -200,6 +222,14 @@ const UserDrawer = ({
                 <DatePicker.RangePicker
                   placement="bottomLeft"
                   cellRender={cellRender}
+                  disabledDate={(current) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (current && current.toDate() < today) {
+                      return true;
+                    }
+                    return false;
+                  }}
                 />
               </Form.Item>
 
