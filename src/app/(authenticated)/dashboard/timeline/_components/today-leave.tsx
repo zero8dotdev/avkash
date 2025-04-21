@@ -48,9 +48,9 @@ export default function TodayTab() {
     }
   };
   return (
-    <div className="mt-4">
+    <div className="mt-2">
       {leaves.length === 0 ? (
-        <p className="text-gray-500">No leaves today.</p>
+        <p className="text-gray-500 font-bold">No leaves today.</p>
       ) : (
         leaves.map((leave) => (
           <div

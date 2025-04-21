@@ -109,7 +109,7 @@ export const insertLeave = async (
       userId,
       teamId,
       orgId,
-      reason: values.reason,
+      reason: values.leaveRequestNote,
       managerComment: values.managerComment,
       workingDays: finalWorkingDays,
     })
