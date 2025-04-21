@@ -34,7 +34,7 @@ export default function SignUpForm({ user }: { user: any }) {
       console.log(error);
     } finally {
       setIsSaving(false);
-      router.replace('/initialsetup/connect-slack');
+      router.replace('/initialsetup/settings');
     }
   };
 
@@ -55,7 +55,7 @@ export default function SignUpForm({ user }: { user: any }) {
             name="team_name"
             initialValue={userCompany}
           >
-            <Input type="text" placeholder="Company name" />
+            <Input type="text" placeholder="Company name" disabled />
           </Form.Item>
           {/* <Form.Item
             label="Team Name"
@@ -65,11 +65,15 @@ export default function SignUpForm({ user }: { user: any }) {
             <Input type="text" placeholder="Default team name"></Input>
           </Form.Item> */}
           <Form.Item label="Work Email" name="email" initialValue={userEmail}>
-            <Input type="text" placeholder="yourname@yourcompany.com" />
+            <Input
+              type="text"
+              placeholder="yourname@yourcompany.com"
+              disabled
+            />
           </Form.Item>
           <Form.Item>
             <Button htmlType="submit" block type="primary" loading={isSaving}>
-              Singup
+              Sign up
             </Button>
           </Form.Item>
         </Form>
