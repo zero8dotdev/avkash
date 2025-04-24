@@ -134,3 +134,55 @@ export const fetchTeamManagersData = async (teamId: string) => {
 
   return users; // Return the list of matching users
 };
+
+export const fetchOrgleaveTypes = async (orgId: string) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('LeaveType')
+    .select('leaveTypeId, name')
+    .eq('isActive', 'TRUE')
+    .eq('orgId', orgId);
+
+  if (error) {
+    throw error;
+  }
+  return data;
+};
+
+export const createPolicyData = async (
+  teamId: string,
+  values: any,
+  leaveTypeId: any
+) => {
+  const supabase = await createClient();
+
+  // 🔍 Check if a record with the same teamId and leaveTypeId already exists
+  const { data: existingPolicy, error: fetchError } = await supabase
+    .from('LeavePolicy')
+    .select('*')
+    .eq('teamId', teamId)
+    .eq('leaveTypeId', leaveTypeId)
+    .maybeSingle(); // ✅ returns one or null
+
+  if (fetchError) {
+    throw fetchError;
+  }
+
+  if (existingPolicy) {
+    return { message: 'LeavePolicy Already Exists' };
+  }
+
+  // ✅ Insert new policy if not found
+  const { data, error } = await supabase
+    .from('LeavePolicy')
+    .insert([{ ...values, teamId, leaveTypeId }])
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return { message: 'LeavePolicy Added Successfully' };
+};
