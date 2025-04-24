@@ -283,6 +283,7 @@ const Leavepolicy = () => {
                               <Tag
                                 color="warning"
                                 onClick={() => handleLeaveTypes(e.name)}
+                                style={{ cursor: 'pointer' }}
                               >
                                 Disable
                               </Tag>
@@ -664,6 +665,7 @@ const Leavepolicy = () => {
                               <Tag
                                 color="success"
                                 onClick={() => handleLeaveTypes(e.name)}
+                                style={{ cursor: 'pointer' }}
                               >
                                 Enable
                               </Tag>
