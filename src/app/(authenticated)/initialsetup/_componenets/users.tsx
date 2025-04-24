@@ -18,14 +18,15 @@ import Search from 'antd/es/transfer/search';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 
 export const Users = forwardRef(function Users(props, ref) {
-  const [existedUsers, setExistedUsers] = useState<any[]>(); // Print these with a tag of pre-existence
-  const [newUsers, setNewUsers] = useState<any[]>();
+  const [existedUsers, setExistedUsers] = useState<any[]>([]);
+  const [newUsers, setNewUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
   useImperativeHandle(ref, () => ({
     getUsers: () => {
-      const users = newUsers;
-      return users?.map(
+      return newUsers?.map(
         ({ id, profile: { image_48, real_name, email } }: any) => {
           return {
             slackId: id,
@@ -45,9 +46,8 @@ export const Users = forwardRef(function Users(props, ref) {
   const onClickInviteUsers = async () => {
     try {
       setLoading(true);
-      const _users = await fetchAllUsersFromChatApp(orgId); // fetches {nonExistingUsers,existedUsers}
-      console.log('Fetched users:', _users);
-      // Separate existed and new users based on the fetched data
+      const _users = await fetchAllUsersFromChatApp(orgId);
+
       const existed = _users?.existedUsers?.data?.map((user: any) => ({
         id: user.userId,
         profile: {
@@ -69,6 +69,7 @@ export const Users = forwardRef(function Users(props, ref) {
       setExistedUsers(existed || []);
       setNewUsers(newUsers || []);
     } catch (error) {
+      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
@@ -79,11 +80,26 @@ export const Users = forwardRef(function Users(props, ref) {
     setNewUsers((prev) => (prev || []).filter((user) => user.id !== id));
   };
 
+  const filteredNewUsers = newUsers?.filter((user) => {
+    const name = user?.profile?.real_name?.toLowerCase() || '';
+    const email = user?.profile?.email?.toLowerCase() || '';
+    return name.includes(searchTerm) || email.includes(searchTerm);
+  });
+
+  const filteredExistedUsers = existedUsers?.filter((user) => {
+    const name = user?.profile?.real_name?.toLowerCase() || '';
+    const email = user?.profile?.email?.toLowerCase() || '';
+    return name.includes(searchTerm) || email.includes(searchTerm);
+  });
+
   return (
     <Flex vertical gap={8}>
       <Row gutter={8}>
         <Col span={12}>
-          <Search placeholder="Search users." onChange={(value) => {}} />
+          <Search
+            placeholder="Search users."
+            onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+          />
         </Col>
         <Col span={12}>
           <Flex justify="end">
@@ -100,15 +116,15 @@ export const Users = forwardRef(function Users(props, ref) {
             form={form}
             initialValues={{
               user: existedUsers?.reduce((acc, user) => {
-                acc[user.id] = false; // Default value for prorate switch
+                acc[user.id] = false;
                 return acc;
               }, {}),
             }}
           >
-            {(newUsers?.length ?? 0) > 0 && (
+            {(filteredNewUsers?.length ?? 0) > 0 && (
               <List
                 size="small"
-                dataSource={newUsers}
+                dataSource={filteredNewUsers}
                 loading={loading}
                 renderItem={(
                   { id, profile: { image_48, real_name, email } },
@@ -116,26 +132,16 @@ export const Users = forwardRef(function Users(props, ref) {
                 ) => {
                   return (
                     <Item
-                      extra={[
-                        <Flex
-                          key="extras"
-                          justify="center"
-                          align="center"
-                          gap={32}
-                        >
+                      extra={
+                        <Flex justify="center" align="center" gap={32}>
                           <Tooltip title="Prorate">
                             <Form.Item
-                              style={{
-                                margin: 0,
-                                padding: 0,
-                                display: 'flex',
-                                gap: '8px',
-                              }}
+                              style={{ margin: 0 }}
                               key="prorate"
                               name={`user[${id}]`}
                               valuePropName="checked"
                             >
-                              <Switch />
+                              <Switch defaultChecked />
                             </Form.Item>
                           </Tooltip>
                           <Button
@@ -148,8 +154,8 @@ export const Users = forwardRef(function Users(props, ref) {
                             }}
                             icon={<DeleteOutlined />}
                           />
-                        </Flex>,
-                      ]}
+                        </Flex>
+                      }
                     >
                       <Meta
                         title={real_name}
@@ -164,36 +170,15 @@ export const Users = forwardRef(function Users(props, ref) {
             <Divider style={{ margin: '4px 0' }} />
             <List
               size="small"
-              dataSource={existedUsers}
+              dataSource={filteredExistedUsers}
               renderItem={(
                 { id, profile: { image_48, real_name, email } },
                 index
               ) => {
                 return (
                   <Item
-                    extra={[
-                      <Flex
-                        key="extras"
-                        justify="center"
-                        align="center"
-                        gap={32}
-                      >
-                        {/* <Tooltip title="Prorate">
-                          <Form.Item
-                            style={{
-                              margin: 0,
-                              padding: 0,
-                              display: 'flex',
-                              gap: '8px',
-                            }}
-                            key="prorate"
-                            name={`user[${id}]`}
-                            valuePropName="checked"
-                          >
-                            
-                            <Switch />
-                          </Form.Item>
-                        </Tooltip> */}
+                    extra={
+                      <Flex justify="center" align="center" gap={32}>
                         <Tooltip title="Already Added!">
                           <Button
                             key="confirm"
@@ -203,8 +188,8 @@ export const Users = forwardRef(function Users(props, ref) {
                             icon={<CheckOutlined />}
                           />
                         </Tooltip>
-                      </Flex>,
-                    ]}
+                      </Flex>
+                    }
                   >
                     <Meta
                       title={real_name}
