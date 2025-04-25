@@ -123,6 +123,7 @@ export const formatLeavesData = async (rawData: any[]) => {
     status: leave.isApproved.toLowerCase(),
     color: leave.LeaveType.color,
     managerComment: leave.managerComment,
+    workingDays: leave.workingDays,
   }));
 };
 

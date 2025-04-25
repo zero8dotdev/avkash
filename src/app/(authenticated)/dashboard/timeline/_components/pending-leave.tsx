@@ -16,6 +16,7 @@ type Leave = {
   shift: string;
   reason: string | null;
   managerComment: string | null;
+  workingDays: number | null;
   createdOn: string;
   user: { userId: string; name: string };
   leaveType: { leaveTypeId: string; name: string; color: string };
@@ -93,8 +94,10 @@ export default function TodayTab() {
                 {leave?.leaveType?.name}
               </p>
               <p className="text-sm text-gray-500">
-                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)}
-              </p>
+                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
+                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
+                )
+              </p>{' '}
               {leave.reason && (
                 <p className="text-sm text-gray-400 italic">
                   Reason: {leave?.reason}
