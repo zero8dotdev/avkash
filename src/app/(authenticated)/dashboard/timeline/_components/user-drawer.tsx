@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Avatar,
   Button,
@@ -24,7 +24,7 @@ import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
 import { getLeaves } from '../../users/_actions';
-import { insertLeave } from '../_actions';
+import { getHalfDayLeave, insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
 
 const UserDrawer = ({
@@ -42,6 +42,7 @@ const UserDrawer = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isHalfDayAvailable, setIsHalfDayAvailable] = useState(false);
 
   const {
     state: { orgId, userId, teamId, role },
@@ -55,6 +56,16 @@ const UserDrawer = ({
       : null,
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
+
+  // useEffect(() => {
+  //   console.log(isHalfDayAvailable, 'HALFDAY');
+  //   const fetchHalfDayStatus = async () => {
+  //     const halfDayStatus = await getHalfDayLeave(orgId);
+  //     setIsHalfDayAvailable(halfDayStatus);
+  //   };
+
+  //   fetchHalfDayStatus();
+  // }, [form.getFieldValue('Date'), form.getFieldValue('isHalfDay')]);
 
   const cellRender: DatePickerProps<Dayjs>['cellRender'] = (current, info) => {
     const style = { backgroundColor: '#E85A4F' }; // Define the style variable
@@ -124,6 +135,19 @@ const UserDrawer = ({
     triggerMutate();
     setShowAddLeaveForm(false);
     form.resetFields();
+  };
+
+  const getLeaveIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'sick':
+        return <span className=" text-xl">🤒</span>;
+      case 'paid time off':
+        return <span className=" text-xl">🏖️</span>;
+      case 'unpaid':
+        return <span className="text-xl">📅</span>;
+      default:
+        return <span className="text-xl">📅</span>;
+    }
   };
 
   const isManagerOrOwner = role === 'MANAGER' || role === 'OWNER';
@@ -222,16 +246,51 @@ const UserDrawer = ({
                 <DatePicker.RangePicker
                   placement="bottomLeft"
                   cellRender={cellRender}
-                  disabledDate={(current) => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    if (current && current.toDate() < today) {
-                      return true;
-                    }
-                    return false;
-                  }}
+                  // disabledDate={(current) => {
+                  //   const today = new Date();
+                  //   today.setHours(0, 0, 0, 0);
+                  //   if (current && current.toDate() < today) {
+                  //     return true;
+                  //   }
+                  //   return false;
+                  // }}
                 />
               </Form.Item>
+              {form.getFieldValue('Date') &&
+                form.getFieldValue('Date')?.[0] &&
+                form.getFieldValue('Date')?.[1] &&
+                form
+                  .getFieldValue('Date')[0]
+                  .isSame(form.getFieldValue('Date')[1], 'day') &&
+                isHalfDayAvailable && (
+                  <>
+                    <Form.Item
+                      label="Half Day Leave?"
+                      name="isHalfDay"
+                      valuePropName="checked"
+                    >
+                      <Switch />
+                    </Form.Item>
+
+                    {form.getFieldValue('isHalfDay') && (
+                      <Form.Item
+                        label="Select Shift"
+                        name="halfDayShift"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please select Morning or Afternoon',
+                          },
+                        ]}
+                      >
+                        <Radio.Group>
+                          <Radio value="MORNING">Morning</Radio>
+                          <Radio value="AFTERNOON">Afternoon</Radio>
+                        </Radio.Group>
+                      </Form.Item>
+                    )}
+                  </>
+                )}
 
               <Form.Item label="Leave Note" name="leaveRequestNote">
                 <TextArea rows={4} placeholder="Enter leave details" />
@@ -264,53 +323,109 @@ const UserDrawer = ({
         {!showAddLeaveForm && (
           <List
             dataSource={leaveRequestData || []}
-            renderItem={(item: any, i) => (
-              <Card
-                styles={{ body: { padding: '0 20px 0 20px' } }}
-                style={{
-                  marginBottom: '10px',
-                  borderLeft: `5px solid #${item.color}`,
-                }}
-              >
-                <List.Item
-                  extra={
-                    <span
-                      style={{
-                        color:
-                          item.status === 'approved' ? '#339900' : '#ffcc00',
-                        width: '100px',
-                        textAlign: 'right',
-                      }}
-                    >
-                      {item.status}
-                    </span>
-                  }
+            renderItem={(item: any, i: number) => (
+              <List.Item style={{ padding: 0 }}>
+                <Card
+                  key={i}
+                  style={{
+                    borderLeft: `8px solid #${item.color ?? '9ca3af'}`,
+                    width: '100%',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                    marginBottom: '10px',
+                    padding: '16px',
+                  }}
+                  bodyStyle={{ padding: 0 }}
                 >
-                  <List.Item.Meta
-                    title={
-                      <Space>
-                        <CalendarOutlined /> {item.type}
-                      </Space>
-                    }
-                    description={
-                      <p>
-                        {item.startDate} - {item.endDate}
-                      </p>
-                    }
-                  />
-                  <Card
-                    bordered={false}
-                    styles={{ body: { padding: '10px' } }}
+                  <div
                     style={{
-                      boxShadow: 'none',
-                      borderLeft: `2px solid ${item.color}`,
-                      borderRadius: '0px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
                     }}
                   >
-                    {item.leaveRequestNote}
-                  </Card>
-                </List.Item>
-              </Card>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {/* <CalendarOutlined />
+                        <span>{item.type}</span> */}
+                      </div>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontWeight: 600,
+                          color: `#${item.color ?? '9ca3af'}`,
+                        }}
+                      >
+                        {getLeaveIcon(item.type)} {'  '}
+                        {item.type}
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          color: '#6b7280',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {formatDate(item?.startDate)} -{' '}
+                        {formatDate(item?.endDate)} ({item?.workingDays}{' '}
+                        {item?.workingDays === 1 ? 'day' : 'days'})
+                      </p>
+                      {item.leaveRequestNote && (
+                        <p
+                          style={{
+                            margin: 0,
+                            color: '#9ca3af',
+                            fontSize: '13px',
+                            fontStyle: 'italic',
+                          }}
+                        >
+                          Reason: {item.leaveRequestNote}
+                        </p>
+                      )}
+                      <p style={{ textAlign: 'left', marginTop: '8px' }}>
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            color:
+                              item.status === 'approved'
+                                ? '#22c55e' // green
+                                : item.status === 'pending'
+                                  ? '#eab308' // yellow
+                                  : '#ef4444', // red
+                          }}
+                        >
+                          {item.status.charAt(0).toUpperCase() +
+                            item.status.slice(1)}{' '}
+                          {/* Capitalize first letter */}
+                          {item.managerComment && (
+                            <>
+                              {' '}
+                              |{' '}
+                              <span style={{ color: '#6b7280' }}>
+                                {item.managerComment}
+                              </span>
+                            </>
+                          )}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </List.Item>
             )}
             locale={{
               emptyText: (
@@ -319,9 +434,10 @@ const UserDrawer = ({
                     textAlign: 'center',
                     color: '#999',
                     margin: '20px 0',
+                    fontWeight: 'bold',
                   }}
                 >
-                  No leave requests available.
+                  No Planned Leaves
                 </div>
               ),
             }}
@@ -337,3 +453,11 @@ const UserDrawer = ({
 };
 
 export default UserDrawer;
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+}
