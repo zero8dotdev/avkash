@@ -38,7 +38,7 @@ export default function PlannedLeavesTab() {
   return (
     <div className="mt-2">
       {plannedLeaves.length === 0 ? (
-        <p className="text-gray-500 font-bold">No planned leaves</p>
+        <p className="text-gray-500 font-bold">No Planned Leaves</p>
       ) : (
         plannedLeaves.map((leave) => (
           <div
@@ -58,7 +58,9 @@ export default function PlannedLeavesTab() {
                 {leave?.leaveType?.name}
               </p>
               <p className="text-sm text-gray-500">
-                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)}
+                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
+                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
+                )
               </p>
               {leave?.reason && (
                 <p className="text-sm text-gray-400 italic">

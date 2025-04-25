@@ -38,7 +38,7 @@ const LeaveRequest = ({
   return (
     <div>
       {!data || data.length === 0 ? (
-        <p className="text-gray-500 text-center">No leave requests</p>
+        <p className="text-gray-500 text-center">No Leave Requests</p>
       ) : (
         data.map((item: any) => (
           <div
