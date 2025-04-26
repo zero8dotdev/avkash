@@ -23,6 +23,7 @@ import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import { getLeaves } from '../../users/_actions';
 import { insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
@@ -42,11 +43,18 @@ const UserDrawer = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isLoading, setIsLoading] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
 
   const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
+
+  const router = useRouter();
+  const handleClick = () => {
+    setIsLoading(true);
+    router.push('/dashboard/orgsettings/leave-types');
+  };
 
   const {
     data: leaveRequestData,
@@ -203,16 +211,31 @@ const UserDrawer = ({
                   { required: true, message: 'Please select a leave type' },
                 ]}
               >
-                <Radio.Group>
-                  {leaveTypes.map((type: any) => (
-                    <Radio
-                      key={type?.LeaveType?.name}
-                      value={type?.leaveTypeId}
-                    >
-                      {type?.LeaveType?.name}
-                    </Radio>
-                  ))}
-                </Radio.Group>
+                {leaveTypes.length == 0 ? (
+                  <div>
+                    <p className="text-sm text-[#E85A4F]">
+                      You have not added any Leave Policy yet..
+                    </p>
+                    <Button danger onClick={handleClick}>
+                      {isLoading ? (
+                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
+                      ) : (
+                        'Add Leave Policy'
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <Radio.Group>
+                    {leaveTypes.map((type: any) => (
+                      <Radio
+                        key={type?.LeaveType?.name}
+                        value={type?.leaveTypeId}
+                      >
+                        {type?.LeaveType?.name}
+                      </Radio>
+                    ))}
+                  </Radio.Group>
+                )}
               </Form.Item>
               <Form.Item
                 label="Start Date & End Date"
