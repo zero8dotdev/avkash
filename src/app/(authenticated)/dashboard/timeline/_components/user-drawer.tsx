@@ -42,14 +42,17 @@ const UserDrawer = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [visible, setVisible] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
 
   const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
 
-  const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
+  const {
+    data: leaveRequestData,
+    isLoading: isLeaveRequestLoading,
+    mutate,
+  } = useSWR(
     selectedUser?.userId
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]
       : null,
@@ -112,6 +115,7 @@ const UserDrawer = ({
       }
 
       handleSuccess();
+      mutate();
     } catch (error: any) {
       console.error('Unexpected error:', error);
       messageApi.error('An unexpected error occurred. Please try again.');
