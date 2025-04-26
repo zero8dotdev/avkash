@@ -156,6 +156,7 @@ export const getPendingLeavesByOrg = async (orgId: string) => {
       shift,
       reason,
       managerComment,
+      workingDays,
       createdOn,
       user:userId ( userId, name ),
       leaveType:leaveTypeId ( leaveTypeId, name, color )
@@ -200,6 +201,7 @@ export const getTodayLeavesByOrg = async (orgId: string) => {
       shift,
       reason,
       managerComment,
+      workingDays,
       createdOn,
       user:userId ( userId, name ),
       leaveType:leaveTypeId ( leaveTypeId, name, color )
@@ -236,6 +238,7 @@ export const getPlannedLeavesByOrg = async (orgId: string) => {
       shift,
       reason,
       managerComment,
+      workingDays,
       createdOn,
       isApproved,
       user:userId ( userId, name ),
@@ -252,4 +255,21 @@ export const getPlannedLeavesByOrg = async (orgId: string) => {
   }
 
   return data;
+};
+
+export const getHalfDayLeave = async (orgId: string): Promise<boolean> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('Organisation')
+    .select('halfDayLeave')
+    .eq('orgId', orgId)
+    .single();
+
+  if (error || !data) {
+    console.error('Error fetching halfDayLeave:', error);
+    return false;
+  }
+  console.log(data, 'data');
+  return data.halfDayLeave;
 };
