@@ -62,7 +62,7 @@ export default function TodayTab() {
   return (
     <div className="mt-2">
       {leaves.length === 0 ? (
-        <p className="text-gray-500 font-bold">No leaves today.</p>
+        <p className="text-gray-500 font-bold">No Leaves Today</p>
       ) : (
         leaves.map((leave) => (
           <div
@@ -82,7 +82,9 @@ export default function TodayTab() {
                 {leave?.leaveType?.name}
               </p>
               <p className="text-sm text-gray-500">
-                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)}
+                {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
+                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
+                )
               </p>
               {leave.reason && (
                 <p className="text-sm text-gray-400 italic">
