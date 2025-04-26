@@ -134,16 +134,16 @@ export const Users = forwardRef(function Users(props, ref) {
                     <Item
                       extra={
                         <Flex justify="center" align="center" gap={32}>
-                          <Tooltip title="Prorate">
-                            <Form.Item
-                              style={{ margin: 0 }}
-                              key="prorate"
-                              name={`user[${id}]`}
-                              valuePropName="checked"
-                            >
+                          <Form.Item
+                            style={{ margin: 0 }}
+                            key="prorate"
+                            name={`user[${id}]`}
+                            valuePropName="checked"
+                          >
+                            <Tooltip title="Prorate">
                               <Switch defaultChecked />
-                            </Form.Item>
-                          </Tooltip>
+                            </Tooltip>
+                          </Form.Item>
                           <Button
                             key="delete"
                             size="small"
