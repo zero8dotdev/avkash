@@ -42,7 +42,7 @@ const UserDrawer = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-
+  const [visible, setVisible] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
@@ -157,8 +157,9 @@ const UserDrawer = ({
           </Flex>
         }
         closable={false}
+        maskClosable
         autoFocus={false}
-        onClose={() => console.log('closed')}
+        onClose={handleDrawerClose}
         extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
         {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
