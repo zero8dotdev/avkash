@@ -107,7 +107,7 @@ export const fetchLeaveTypes = async (
   orgId: string
 ) => {
   try {
-    const supabaseAdminClient = createAdminClient();
+    const supabaseAdminClient = await createClient();
 
     const { data, error } = await supabaseAdminClient
       .from('LeavePolicy')
