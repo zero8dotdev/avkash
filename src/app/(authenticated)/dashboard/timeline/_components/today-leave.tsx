@@ -77,6 +77,9 @@ export default function TodayTab() {
                   Reason: {leave?.reason}
                 </p>
               )}
+              <span className="text-sm font-semibold capitalize">
+                Manager Comment : {leave?.managerComment}
+              </span>
             </div>
           </div>
         ))
