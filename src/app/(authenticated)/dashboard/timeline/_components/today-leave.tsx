@@ -91,6 +91,9 @@ export default function TodayTab() {
                   Reason: {leave?.reason}
                 </p>
               )}
+              <span className="text-sm font-semibold capitalize">
+                Manager Comment : {leave?.managerComment}
+              </span>
             </div>
             <div className="flex flex-col gap-1 items-end">
               <span
