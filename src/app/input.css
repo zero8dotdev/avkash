@@ -28,3 +28,18 @@ body {
 .sc-irLwvL.oXLoA {
   margin-left: -85px;
 }
+#reactSchedulerOutsideWrapper::-webkit-scrollbar {
+  height: 10px; /* horizontal scrollbar height */
+  width: 10px; /* vertical scrollbar width */
+}
+#reactSchedulerOutsideWrapper::-webkit-scrollbar-track {
+  background-color: gray-400; /* track background color */
+  border-radius: 8px;
+}
+#reactSchedulerOutsideWrapper::-webkit-scrollbar-thumb {
+  background-color: #a3a1a1; /* thumb color */
+  border-radius: 8px;
+}
+#reactSchedulerOutsideWrapper::-webkit-scrollbar-corner {
+  background-color: gray-400; /* or transparent or theme color */
+}

@@ -23,6 +23,7 @@ import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import { isHTTPMethod } from 'next/dist/server/web/http';
 import { getLeaves } from '../../users/_actions';
 import { getHalfDayLeave, insertLeave } from '../_actions';
@@ -44,14 +45,24 @@ const UserDrawer = ({
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [isHalfDayAvailable, setIsHalfDayAvailable] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
 
   const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
 
-  const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
+  const router = useRouter();
+  const handleClick = () => {
+    setIsLoading(true);
+    router.push('/dashboard/orgsettings/leave-types');
+  };
+
+  const {
+    data: leaveRequestData,
+    isLoading: isLeaveRequestLoading,
+    mutate,
+  } = useSWR(
     selectedUser?.userId
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]
       : null,
@@ -124,6 +135,7 @@ const UserDrawer = ({
       }
 
       handleSuccess();
+      mutate();
     } catch (error: any) {
       console.error('Unexpected error:', error);
       messageApi.error('An unexpected error occurred. Please try again.');
@@ -182,8 +194,9 @@ const UserDrawer = ({
           </Flex>
         }
         closable={false}
+        maskClosable
         autoFocus={false}
-        onClose={() => console.log('closed')}
+        onClose={handleDrawerClose}
         extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
         {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
@@ -223,16 +236,31 @@ const UserDrawer = ({
                   { required: true, message: 'Please select a leave type' },
                 ]}
               >
-                <Radio.Group>
-                  {leaveTypes.map((type: any) => (
-                    <Radio
-                      key={type?.LeaveType?.name}
-                      value={type?.leaveTypeId}
-                    >
-                      {type?.LeaveType?.name}
-                    </Radio>
-                  ))}
-                </Radio.Group>
+                {leaveTypes.length == 0 ? (
+                  <div>
+                    <p className="text-sm text-[#E85A4F]">
+                      You have not added any Leave Policy yet..
+                    </p>
+                    <Button danger onClick={handleClick}>
+                      {isLoading ? (
+                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
+                      ) : (
+                        'Add Leave Policy'
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <Radio.Group>
+                    {leaveTypes.map((type: any) => (
+                      <Radio
+                        key={type?.LeaveType?.name}
+                        value={type?.leaveTypeId}
+                      >
+                        {type?.LeaveType?.name}
+                      </Radio>
+                    ))}
+                  </Radio.Group>
+                )}
               </Form.Item>
               <Form.Item
                 label="Start Date & End Date"
