@@ -95,8 +95,7 @@ export default function TodayTab() {
               </p>
               <p className="text-sm text-gray-500">
                 {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
-                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
-                )
+                {leave?.workingDays} {leave?.workingDays <= 1 ? 'day' : 'days'})
               </p>{' '}
               {leave.reason && (
                 <p className="text-sm text-gray-400 italic">
