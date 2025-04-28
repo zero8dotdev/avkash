@@ -23,6 +23,7 @@ import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
+import { isHTTPMethod } from 'next/dist/server/web/http';
 import { getLeaves } from '../../users/_actions';
 import { getHalfDayLeave, insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
@@ -57,15 +58,15 @@ const UserDrawer = ({
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
 
-  // useEffect(() => {
-  //   console.log(isHalfDayAvailable, 'HALFDAY');
-  //   const fetchHalfDayStatus = async () => {
-  //     const halfDayStatus = await getHalfDayLeave(orgId);
-  //     setIsHalfDayAvailable(halfDayStatus);
-  //   };
-
-  //   fetchHalfDayStatus();
-  // }, [form.getFieldValue('Date'), form.getFieldValue('isHalfDay')]);
+  useEffect(() => {
+    const fetchHalfDayStatus = async () => {
+      const halfDayStatus = await getHalfDayLeave(orgId);
+      setIsHalfDayAvailable(halfDayStatus);
+    };
+    if (orgId) {
+      fetchHalfDayStatus();
+    }
+  }, [orgId]);
 
   const cellRender: DatePickerProps<Dayjs>['cellRender'] = (current, info) => {
     const style = { backgroundColor: '#E85A4F' }; // Define the style variable
@@ -236,6 +237,7 @@ const UserDrawer = ({
               <Form.Item
                 label="Start Date & End Date"
                 name="Date"
+                style={{ marginBottom: '0px' }}
                 rules={[
                   {
                     required: true,
@@ -256,43 +258,82 @@ const UserDrawer = ({
                   // }}
                 />
               </Form.Item>
-              {form.getFieldValue('Date') &&
-                form.getFieldValue('Date')?.[0] &&
-                form.getFieldValue('Date')?.[1] &&
-                form
-                  .getFieldValue('Date')[0]
-                  .isSame(form.getFieldValue('Date')[1], 'day') &&
-                isHalfDayAvailable && (
-                  <>
-                    <Form.Item
-                      label="Half Day Leave?"
-                      name="isHalfDay"
-                      valuePropName="checked"
-                    >
-                      <Switch />
-                    </Form.Item>
 
-                    {form.getFieldValue('isHalfDay') && (
-                      <Form.Item
-                        label="Select Shift"
-                        name="halfDayShift"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Please select Morning or Afternoon',
-                          },
-                        ]}
-                      >
-                        <Radio.Group>
-                          <Radio value="MORNING">Morning</Radio>
-                          <Radio value="AFTERNOON">Afternoon</Radio>
-                        </Radio.Group>
-                      </Form.Item>
-                    )}
-                  </>
-                )}
+              {isHalfDayAvailable ? (
+                <>
+                  <Form.Item
+                    style={{ margin: '0px' }}
+                    shouldUpdate={(prev, current) => prev.Date !== current.Date}
+                  >
+                    {({ getFieldValue }) => {
+                      const dateSelected = getFieldValue('Date');
+                      if (
+                        dateSelected &&
+                        dateSelected.length === 2 &&
+                        dateSelected[0]?.isSame(dateSelected[1], 'day')
+                      ) {
+                        return (
+                          <Form.Item
+                            label="Attendance Type"
+                            name="attendanceType"
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Please select leave type',
+                              },
+                            ]}
+                            style={{ marginBottom: '5px', marginTop: '15px' }}
+                          >
+                            <Radio.Group>
+                              <Radio value="Full Day">Full Day</Radio>
+                              <Radio value="Half Day">Half Day</Radio>
+                            </Radio.Group>
+                          </Form.Item>
+                        );
+                      }
+                      return null;
+                    }}
+                  </Form.Item>
 
-              <Form.Item label="Leave Note" name="leaveRequestNote">
+                  <Form.Item
+                    shouldUpdate={(prev, current) =>
+                      prev.attendanceType !== current.attendanceType
+                    }
+                    style={{ margin: '0px' }}
+                  >
+                    {({ getFieldValue }) => {
+                      const dayType = getFieldValue('attendanceType');
+                      if (dayType === 'Half Day') {
+                        return (
+                          <Form.Item
+                            label="Shift"
+                            name="shift"
+                            style={{ margin: '0px' }}
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Please select session for half day',
+                              },
+                            ]}
+                          >
+                            <Radio.Group>
+                              <Radio value="Morning">Morning</Radio>
+                              <Radio value="Evening">Evening</Radio>
+                            </Radio.Group>
+                          </Form.Item>
+                        );
+                      }
+                      return null;
+                    }}
+                  </Form.Item>
+                </>
+              ) : null}
+
+              <Form.Item
+                label="Leave Note"
+                style={{ marginTop: isHalfDayAvailable ? '0px' : '15px' }}
+                name="leaveRequestNote"
+              >
                 <TextArea rows={4} placeholder="Enter leave details" />
               </Form.Item>
 
