@@ -307,16 +307,16 @@ const Leavepolicy = () => {
                                   },
                                 ]}
                               >
-                                <Popover
+                                {/* <Popover
                                   content={
                                     form.getFieldValue([e.name, 'unlimited'])
                                       ? 'Unlimited days per year'
                                       : 'Allow unlimited leaves days'
                                   }
                                   placement="right"
-                                >
-                                  <Switch />
-                                </Popover>
+                                > */}
+                                <Switch title="Hari" />
+                                {/* </Popover> */}
                               </Form.Item>
                             </Flex>
                             <Form.Item

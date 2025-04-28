@@ -200,6 +200,7 @@ export const getTodayLeavesByOrg = async (orgId: string) => {
       duration,
       shift,
       reason,
+      isApproved,
       managerComment,
       workingDays,
       createdOn,
