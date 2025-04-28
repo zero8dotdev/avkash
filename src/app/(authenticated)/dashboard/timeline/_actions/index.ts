@@ -95,7 +95,7 @@ export const insertLeave = async (
     orgId,
   });
   const finalWorkingDays =
-    values.duration === 'HALF_DAY' ? workingDays / 2 : workingDays;
+    values.attendanceType === 'HALF_DAY' ? workingDays / 2 : workingDays;
 
   const { data, error } = await supabase
     .from('Leave')
@@ -103,7 +103,7 @@ export const insertLeave = async (
       leaveTypeId: values.type,
       startDate: values.startDate,
       endDate: values.endDate,
-      duration: values.duration || 'FULL_DAY',
+      duration: values.attendanceType || 'FULL_DAY',
       shift: values.shift || 'NONE',
       isApproved: values.isApproved || 'PENDING',
       userId,
