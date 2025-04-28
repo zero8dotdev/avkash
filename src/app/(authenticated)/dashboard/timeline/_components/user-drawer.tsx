@@ -43,11 +43,8 @@ const UserDrawer = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-
-  const [isLoading, setIsLoading] = useState(false);
-
   const [isHalfDayAvailable, setIsHalfDayAvailable] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
