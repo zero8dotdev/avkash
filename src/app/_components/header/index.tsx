@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Space } from 'antd';
 import Image from 'next/image';
@@ -6,6 +8,7 @@ import { Header } from 'antd/es/layout/layout';
 import LogoutButton from './_components/logout';
 import MainMenu from './_components/main-menu';
 import logo from '../../(public)/avkash-logo-new.png';
+import GoToDashboard from './_components/GoToDashboard';
 
 export default function AppHeader() {
   return (
@@ -20,7 +23,13 @@ export default function AppHeader() {
       }}
     >
       <Link href="/" className="flex justify-center align-center">
-        <Image src={logo} alt="avkash" height={45} width={45} />
+        <Image
+          src={logo}
+          alt="avkash"
+          height={45}
+          width={45}
+          style={{ objectFit: 'contain' }}
+        />
         <Title
           className="hidden sm:block m-0 mt-2 leading-none"
           style={{
@@ -34,6 +43,7 @@ export default function AppHeader() {
         </Title>
       </Link>
       <MainMenu />
+      <GoToDashboard />
       <Space>
         <LogoutButton />
       </Space>

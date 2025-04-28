@@ -240,6 +240,7 @@ export const getPlannedLeavesByOrg = async (orgId: string) => {
       managerComment,
       workingDays,
       createdOn,
+      isApproved,
       user:userId ( userId, name ),
       leaveType:leaveTypeId ( leaveTypeId, name, color )
     `

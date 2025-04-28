@@ -155,6 +155,7 @@ const Leavepolicy = () => {
       }}
     >
       <TopSteps position={2} />
+
       {leavePolicies && leavePolicies?.length >= 1 ? (
         <Col span={16} push={4}>
           <Card
@@ -293,28 +294,30 @@ const Leavepolicy = () => {
                               <Typography.Text>
                                 unlimited leaves
                               </Typography.Text>
-                              <Popover
-                                content={
-                                  form.getFieldValue([e.name, 'unlimited'])
-                                    ? 'Unlimited days per year'
-                                    : 'Allow unlimited leaves days'
-                                }
+
+                              <Form.Item
+                                name={[e.name, 'unlimited']}
+                                style={{ margin: '0px 0px 10px 0px' }}
+                                initialValue={false}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      'Please specify if unlimited leave is allowed.',
+                                  },
+                                ]}
                               >
-                                <Form.Item
-                                  name={[e.name, 'unlimited']}
-                                  style={{ margin: '0px 0px 10px 0px' }}
-                                  initialValue={false}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message:
-                                        'Please specify if unlimited leave is allowed.',
-                                    },
-                                  ]}
+                                <Popover
+                                  content={
+                                    form.getFieldValue([e.name, 'unlimited'])
+                                      ? 'Unlimited days per year'
+                                      : 'Allow unlimited leaves days'
+                                  }
+                                  placement="right"
                                 >
                                   <Switch />
-                                </Form.Item>
-                              </Popover>
+                                </Popover>
+                              </Form.Item>
                             </Flex>
                             <Form.Item
                               style={{ margin: '0px 0px 0px 0px' }}
@@ -332,54 +335,59 @@ const Leavepolicy = () => {
                                       <Typography.Text>
                                         Maximum leaves
                                       </Typography.Text>
-                                      <Popover content="maximum 365 leave days per year">
-                                        <Form.Item
-                                          name={[e.name, 'maxLeaves']}
-                                          style={{ margin: '0px 0px 10px 0px' }}
-                                          initialValue={14}
-                                          rules={[
-                                            {
-                                              required: true,
-                                              message:
-                                                'Please specify the maximum number of leaves.',
-                                            },
-                                            {
-                                              type: 'number',
-                                              min: 1,
-                                              max: 365,
-                                              message:
-                                                'The number of leaves must be between 1 and 365.',
-                                            },
-                                          ]}
-                                          getValueFromEvent={(e) => {
-                                            const value = e.target.value;
-                                            return value
-                                              ? Number(value)
-                                              : undefined; // Convert string to number
-                                          }}
-                                        >
+
+                                      <Form.Item
+                                        name={[e.name, 'maxLeaves']}
+                                        style={{ margin: '0px 0px 10px 0px' }}
+                                        initialValue={14}
+                                        rules={[
+                                          {
+                                            required: true,
+                                            message:
+                                              'Please specify the maximum number of leaves.',
+                                          },
+                                          {
+                                            type: 'number',
+                                            min: 1,
+                                            max: 365,
+                                            message:
+                                              'The number of leaves must be between 1 and 365.',
+                                          },
+                                        ]}
+                                        getValueFromEvent={(e) => {
+                                          const value = e.target.value;
+                                          return value
+                                            ? Number(value)
+                                            : undefined; // Convert string to number
+                                        }}
+                                      >
+                                        <Popover content="maximum 365 leave days per year">
                                           <Input
                                             type="number"
                                             min={1}
                                             max={365}
                                           />
-                                        </Form.Item>
-                                      </Popover>
+                                        </Popover>
+                                      </Form.Item>
                                     </Flex>
 
                                     <Flex gap={12} justify="space-between">
                                       <Typography.Text>
                                         Accruals leaves
                                       </Typography.Text>
-                                      <Popover content="If you enable accruals, leave will be earned continuously over the year">
-                                        <Form.Item
-                                          name={[e.name, 'accruals']}
-                                          style={{ margin: '0px 0px 10px 0px' }}
-                                          initialValue={false}
+
+                                      <Form.Item
+                                        name={[e.name, 'accruals']}
+                                        style={{ margin: '0px 0px 10px 0px' }}
+                                        initialValue={false}
+                                      >
+                                        <Popover
+                                          content="If you enable accruals, leave will be earned continuously over the year"
+                                          placement="right"
                                         >
                                           <Switch />
-                                        </Form.Item>
-                                      </Popover>
+                                        </Popover>
+                                      </Form.Item>
                                     </Flex>
 
                                     <Form.Item
@@ -402,21 +410,22 @@ const Leavepolicy = () => {
                                               <Typography.Text>
                                                 Accrual Frequency
                                               </Typography.Text>
-                                              <Popover content="You can set accrual frequency only once.">
-                                                <Form.Item
-                                                  name={[
-                                                    e.name,
-                                                    'accrualFrequency',
-                                                  ]}
-                                                  style={{ margin: '0px' }}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        'Please select an accrual frequency.',
-                                                    },
-                                                  ]}
-                                                >
+
+                                              <Form.Item
+                                                name={[
+                                                  e.name,
+                                                  'accrualFrequency',
+                                                ]}
+                                                style={{ margin: '0px' }}
+                                                rules={[
+                                                  {
+                                                    required: true,
+                                                    message:
+                                                      'Please select an accrual frequency.',
+                                                  },
+                                                ]}
+                                              >
+                                                <Popover content="You can set accrual frequency only once.">
                                                   <Select
                                                     options={[
                                                       {
@@ -429,8 +438,8 @@ const Leavepolicy = () => {
                                                       },
                                                     ]}
                                                   />
-                                                </Form.Item>
-                                              </Popover>
+                                                </Popover>
+                                              </Form.Item>
                                             </Flex>
                                             <Flex vertical gap={5}>
                                               <Typography.Text>
@@ -456,15 +465,19 @@ const Leavepolicy = () => {
                                       <Typography.Text>
                                         Roll over
                                       </Typography.Text>
-                                      <Popover content="Roll over unused leave to next year">
-                                        <Form.Item
-                                          name={[e.name, 'rollOver']}
-                                          style={{ margin: '0px 0px 10px 0px' }}
-                                          initialValue={false}
+
+                                      <Form.Item
+                                        name={[e.name, 'rollOver']}
+                                        style={{ margin: '0px 0px 10px 0px' }}
+                                        initialValue={false}
+                                      >
+                                        <Popover
+                                          content="Roll over unused leave to next year"
+                                          placement="right"
                                         >
                                           <Switch />
-                                        </Form.Item>
-                                      </Popover>
+                                        </Popover>
+                                      </Form.Item>
                                     </Flex>
                                     <Form.Item
                                       style={{ margin: '0px' }}
@@ -487,8 +500,8 @@ const Leavepolicy = () => {
                                                 Limit roll over unused leave to
                                                 next year
                                               </Typography.Text>
-                                              <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days.">
-                                                {/* <Form.Item
+
+                                              {/* <Form.Item
                                                   name={[
                                                     e.name,
                                                     "rollOverLimit",
@@ -529,44 +542,42 @@ const Leavepolicy = () => {
                                                     }
                                                   />
                                                 </Form.Item> */}
-                                                <Form.Item
-                                                  name={[
-                                                    e.name,
-                                                    'rollOverLimit',
-                                                  ]}
-                                                  dependencies={[
-                                                    [e.name, 'maxLeaves'],
-                                                  ]}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        'Please specify a roll-over limit.',
+                                              <Form.Item
+                                                name={[e.name, 'rollOverLimit']}
+                                                dependencies={[
+                                                  [e.name, 'maxLeaves'],
+                                                ]}
+                                                rules={[
+                                                  {
+                                                    required: true,
+                                                    message:
+                                                      'Please specify a roll-over limit.',
+                                                  },
+                                                  ({ getFieldValue }) => ({
+                                                    validator(_, value) {
+                                                      const maxLeaves =
+                                                        getFieldValue([
+                                                          e.name,
+                                                          'maxLeaves',
+                                                        ]);
+                                                      if (
+                                                        value === undefined ||
+                                                        value === null ||
+                                                        (value >= 1 &&
+                                                          value <= maxLeaves)
+                                                      ) {
+                                                        return Promise.resolve();
+                                                      }
+                                                      return Promise.reject(
+                                                        new Error(
+                                                          `Roll-over limit must be between 1 and ${maxLeaves} days.`
+                                                        )
+                                                      );
                                                     },
-                                                    ({ getFieldValue }) => ({
-                                                      validator(_, value) {
-                                                        const maxLeaves =
-                                                          getFieldValue([
-                                                            e.name,
-                                                            'maxLeaves',
-                                                          ]);
-                                                        if (
-                                                          value === undefined ||
-                                                          value === null ||
-                                                          (value >= 1 &&
-                                                            value <= maxLeaves)
-                                                        ) {
-                                                          return Promise.resolve();
-                                                        }
-                                                        return Promise.reject(
-                                                          new Error(
-                                                            `Roll-over limit must be between 1 and ${maxLeaves} days.`
-                                                          )
-                                                        );
-                                                      },
-                                                    }),
-                                                  ]}
-                                                >
+                                                  }),
+                                                ]}
+                                              >
+                                                <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days.">
                                                   <Input
                                                     type="number"
                                                     min={1}
@@ -584,27 +595,28 @@ const Leavepolicy = () => {
                                                       </span>
                                                     }
                                                   />
-                                                </Form.Item>
-                                              </Popover>
+                                                </Popover>
+                                              </Form.Item>
                                             </Flex>
                                             <Flex vertical gap={5}>
                                               <Typography.Text>
                                                 Roll Over Expiry
                                               </Typography.Text>
-                                              <Popover content="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
-                                                <Form.Item
-                                                  name={[
-                                                    e.name,
-                                                    'rollOverExpiry',
-                                                  ]}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        'Please select a roll-over expiry date.',
-                                                    },
-                                                  ]}
-                                                >
+
+                                              <Form.Item
+                                                name={[
+                                                  e.name,
+                                                  'rollOverExpiry',
+                                                ]}
+                                                rules={[
+                                                  {
+                                                    required: true,
+                                                    message:
+                                                      'Please select a roll-over expiry date.',
+                                                  },
+                                                ]}
+                                              >
+                                                <Popover content="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
                                                   <DatePicker
                                                     format=""
                                                     onChange={(date) => {
@@ -615,8 +627,8 @@ const Leavepolicy = () => {
                                                       });
                                                     }}
                                                   />
-                                                </Form.Item>
-                                              </Popover>
+                                                </Popover>
+                                              </Form.Item>
                                             </Flex>
                                           </Flex>
                                         ) : null;
@@ -629,15 +641,19 @@ const Leavepolicy = () => {
 
                             <Flex gap={12} justify="space-between">
                               <Typography.Text>Auto approve</Typography.Text>
-                              <Popover content="Auto approve each leave request">
-                                <Form.Item
-                                  name={[e.name, 'autoApprove']}
-                                  style={{ margin: '0px 0px 10px 0px' }}
-                                  initialValue={false}
+
+                              <Form.Item
+                                name={[e.name, 'autoApprove']}
+                                style={{ margin: '0px 0px 10px 0px' }}
+                                initialValue={false}
+                              >
+                                <Popover
+                                  content="Auto approve each leave request"
+                                  placement="right"
                                 >
                                   <Switch />
-                                </Form.Item>
-                              </Popover>
+                                </Popover>
+                              </Form.Item>
                             </Flex>
                           </Card>
                         ) : (

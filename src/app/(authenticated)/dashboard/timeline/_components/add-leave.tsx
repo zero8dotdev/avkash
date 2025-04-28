@@ -36,7 +36,10 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
 
   return (
     <>
-      <Button type="primary" onClick={() => setModalVisible(true)}>
+      <Button
+        type="primary"
+        onClick={() => state.role != 'USER' && setModalVisible(true)}
+      >
         Add leave
       </Button>
       <Modal
