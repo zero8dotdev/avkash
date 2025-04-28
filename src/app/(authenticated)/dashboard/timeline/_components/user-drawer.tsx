@@ -285,8 +285,8 @@ const UserDrawer = ({
                             style={{ marginBottom: '5px', marginTop: '15px' }}
                           >
                             <Radio.Group>
-                              <Radio value="Full Day">Full Day</Radio>
-                              <Radio value="Half Day">Half Day</Radio>
+                              <Radio value="FULL_DAY">Full Day</Radio>
+                              <Radio value="HALF_DAY">Half Day</Radio>
                             </Radio.Group>
                           </Form.Item>
                         );
@@ -303,7 +303,7 @@ const UserDrawer = ({
                   >
                     {({ getFieldValue }) => {
                       const dayType = getFieldValue('attendanceType');
-                      if (dayType === 'Half Day') {
+                      if (dayType === 'HALF_DAY') {
                         return (
                           <Form.Item
                             label="Shift"
@@ -317,8 +317,8 @@ const UserDrawer = ({
                             ]}
                           >
                             <Radio.Group>
-                              <Radio value="Morning">Morning</Radio>
-                              <Radio value="Evening">Evening</Radio>
+                              <Radio value="MORNING">Morning</Radio>
+                              <Radio value="AFTERNOON">Afternoon</Radio>
                             </Radio.Group>
                           </Form.Item>
                         );
@@ -422,7 +422,7 @@ const UserDrawer = ({
                       >
                         {formatDate(item?.startDate)} -{' '}
                         {formatDate(item?.endDate)} ({item?.workingDays}{' '}
-                        {item?.workingDays === 1 ? 'day' : 'days'})
+                        {item?.workingDays <= 1 ? 'day' : 'days'})
                       </p>
                       {item.leaveRequestNote && (
                         <p
