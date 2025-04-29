@@ -31,7 +31,7 @@ export default function AppHeader() {
           style={{ objectFit: 'contain' }}
         />
         <Title
-          className="hidden sm:block m-0 mt-2 leading-none"
+          className="hidden sm:block m-0 whitespace-nowrap mt-2"
           style={{
             marginBottom: '0px',
             fontWeight: 300,
@@ -42,6 +42,7 @@ export default function AppHeader() {
           avkash
         </Title>
       </Link>
+
       <MainMenu />
       <GoToDashboard />
       <Space>
