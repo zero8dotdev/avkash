@@ -44,7 +44,7 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   return (
     <>
       <Button type="primary" onClick={handleAddLeaveClick}>
-        Add leave
+        Add Leave
       </Button>
       <Modal
         open={isModalVisible}
