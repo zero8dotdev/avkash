@@ -15,6 +15,8 @@ type TodayLeave = {
   reason: string | null;
   createdOn: string;
   user: { userId: string; name: string };
+  isApproved: string;
+  managerComment: string;
   leaveType: { leaveTypeId: string; name: string; color?: string };
 };
 
@@ -47,6 +49,18 @@ export default function TodayTab() {
         return <span className="text-xl">📅</span>;
     }
   };
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'approved':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      case 'pending':
+        return 'text-yellow-500';
+      default:
+        return 'text-gray-400';
+    }
+  };
   return (
     <div className="mt-2">
       {leaves.length === 0 ? (
@@ -71,14 +85,20 @@ export default function TodayTab() {
               </p>
               <p className="text-sm text-gray-500">
                 {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
-                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
-                )
+                {leave?.workingDays} {leave?.workingDays <= 1 ? 'day' : 'days'})
               </p>
               {leave.reason && (
                 <p className="text-sm text-gray-400 italic">
                   Reason: {leave?.reason}
                 </p>
               )}
+            </div>
+            <div className="flex flex-col gap-1 items-end">
+              <span
+                className={`text-sm font-semibold capitalize ${getStatusColor(leave?.isApproved)}`}
+              >
+                {leave?.managerComment} | {leave?.isApproved}
+              </span>
             </div>
           </div>
         ))

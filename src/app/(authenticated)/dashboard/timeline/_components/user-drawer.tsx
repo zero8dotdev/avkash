@@ -23,6 +23,8 @@ import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import { isHTTPMethod } from 'next/dist/server/web/http';
 import { getLeaves } from '../../users/_actions';
 import { getHalfDayLeave, insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
@@ -43,29 +45,39 @@ const UserDrawer = ({
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [isHalfDayAvailable, setIsHalfDayAvailable] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
 
   const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
 
-  const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
+  const router = useRouter();
+  const handleClick = () => {
+    setIsLoading(true);
+    router.push('/dashboard/teams/[teamId]/leave-policy');
+  };
+
+  const {
+    data: leaveRequestData,
+    isLoading: isLeaveRequestLoading,
+    mutate,
+  } = useSWR(
     selectedUser?.userId
       ? [`leave-requests-${selectedUser.userId}`, selectedUser.userId]
       : null,
     ([_, userId]) => leaveRequestsFetcher(userId)
   );
 
-  // useEffect(() => {
-  //   console.log(isHalfDayAvailable, 'HALFDAY');
-  //   const fetchHalfDayStatus = async () => {
-  //     const halfDayStatus = await getHalfDayLeave(orgId);
-  //     setIsHalfDayAvailable(halfDayStatus);
-  //   };
-
-  //   fetchHalfDayStatus();
-  // }, [form.getFieldValue('Date'), form.getFieldValue('isHalfDay')]);
+  useEffect(() => {
+    const fetchHalfDayStatus = async () => {
+      const halfDayStatus = await getHalfDayLeave(orgId);
+      setIsHalfDayAvailable(halfDayStatus);
+    };
+    if (orgId) {
+      fetchHalfDayStatus();
+    }
+  }, [orgId]);
 
   const cellRender: DatePickerProps<Dayjs>['cellRender'] = (current, info) => {
     const style = { backgroundColor: '#E85A4F' }; // Define the style variable
@@ -123,6 +135,7 @@ const UserDrawer = ({
       }
 
       handleSuccess();
+      mutate();
     } catch (error: any) {
       console.error('Unexpected error:', error);
       messageApi.error('An unexpected error occurred. Please try again.');
@@ -181,8 +194,9 @@ const UserDrawer = ({
           </Flex>
         }
         closable={false}
+        maskClosable
         autoFocus={false}
-        onClose={() => console.log('closed')}
+        onClose={handleDrawerClose}
         extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
         {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
@@ -215,106 +229,182 @@ const UserDrawer = ({
               onFinish={handleAddLeave}
               initialValues={{ type: leaveTypes[0]?.value }}
             >
-              <Form.Item
-                label="Leave Type"
-                name="type"
-                rules={[
-                  { required: true, message: 'Please select a leave type' },
-                ]}
-              >
-                <Radio.Group>
-                  {leaveTypes.map((type: any) => (
-                    <Radio
-                      key={type?.LeaveType?.name}
-                      value={type?.leaveTypeId}
-                    >
-                      {type?.LeaveType?.name}
-                    </Radio>
-                  ))}
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item
-                label="Start Date & End Date"
-                name="Date"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select a start date and end date',
-                  },
-                ]}
-              >
-                <DatePicker.RangePicker
-                  placement="bottomLeft"
-                  cellRender={cellRender}
-                  // disabledDate={(current) => {
-                  //   const today = new Date();
-                  //   today.setHours(0, 0, 0, 0);
-                  //   if (current && current.toDate() < today) {
-                  //     return true;
-                  //   }
-                  //   return false;
-                  // }}
-                />
-              </Form.Item>
-              {form.getFieldValue('Date') &&
-                form.getFieldValue('Date')?.[0] &&
-                form.getFieldValue('Date')?.[1] &&
-                form
-                  .getFieldValue('Date')[0]
-                  .isSame(form.getFieldValue('Date')[1], 'day') &&
-                isHalfDayAvailable && (
-                  <>
+              {leaveTypes.length === 0 ? (
+                <Form.Item
+                  name="zero"
+                  rules={[
+                    { required: true, message: 'Please select a leave policy' },
+                  ]}
+                >
+                  {role !== 'USER' ? (
+                    <div>
+                      <p className="text-sm text-[#E85A4F]">
+                        You have not added any Leave Policy yet..
+                      </p>
+                      <Button onClick={handleClick}>
+                        {isLoading ? (
+                          <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
+                        ) : (
+                          'Add Leave Policy'
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#E85A4F]">
+                      No leave policies available. Please contact your admin.
+                    </p>
+                  )}
+                </Form.Item>
+              ) : (
+                <>
+                  <Form.Item
+                    label="Leave Type"
+                    name="type"
+                    rules={[
+                      { required: true, message: 'Please select a leave type' },
+                    ]}
+                  >
+                    <Radio.Group>
+                      {leaveTypes.map((type: any) => (
+                        <Radio
+                          key={type?.LeaveType?.name}
+                          value={type?.leaveTypeId}
+                        >
+                          {type?.LeaveType?.name}
+                        </Radio>
+                      ))}
+                    </Radio.Group>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Start Date & End Date"
+                    name="Date"
+                    style={{ marginBottom: '0px' }}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select a start date and end date',
+                      },
+                    ]}
+                  >
+                    <DatePicker.RangePicker
+                      placement="bottomLeft"
+                      cellRender={cellRender}
+                      // disabledDate={(current) => {
+                      //   const today = new Date();
+                      //   today.setHours(0, 0, 0, 0);
+                      //   if (current && current.toDate() < today) {
+                      //     return true;
+                      //   }
+                      //   return false;
+                      // }}
+                    />
+                  </Form.Item>
+
+                  {isHalfDayAvailable ? (
+                    <>
+                      <Form.Item
+                        style={{ margin: '0px' }}
+                        shouldUpdate={(prev, current) =>
+                          prev.Date !== current.Date
+                        }
+                      >
+                        {({ getFieldValue }) => {
+                          const dateSelected = getFieldValue('Date');
+                          if (
+                            dateSelected &&
+                            dateSelected.length === 2 &&
+                            dateSelected[0]?.isSame(dateSelected[1], 'day')
+                          ) {
+                            return (
+                              <Form.Item
+                                label="Attendance Type"
+                                name="attendanceType"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select leave type',
+                                  },
+                                ]}
+                                style={{
+                                  marginBottom: '5px',
+                                  marginTop: '15px',
+                                }}
+                              >
+                                <Radio.Group>
+                                  <Radio value="FULL_DAY">Full Day</Radio>
+                                  <Radio value="HALF_DAY">Half Day</Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                            );
+                          }
+                          return null;
+                        }}
+                      </Form.Item>
+
+                      <Form.Item
+                        shouldUpdate={(prev, current) =>
+                          prev.attendanceType !== current.attendanceType
+                        }
+                        style={{ margin: '0px' }}
+                      >
+                        {({ getFieldValue }) => {
+                          const dayType = getFieldValue('attendanceType');
+                          if (dayType === 'HALF_DAY') {
+                            return (
+                              <Form.Item
+                                label="Shift"
+                                name="shift"
+                                style={{ margin: '0px' }}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      'Please select session for half day',
+                                  },
+                                ]}
+                              >
+                                <Radio.Group>
+                                  <Radio value="MORNING">Morning</Radio>
+                                  <Radio value="AFTERNOON">Afternoon</Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                            );
+                          }
+                          return null;
+                        }}
+                      </Form.Item>
+                    </>
+                  ) : null}
+
+                  <Form.Item
+                    label="Leave Note"
+                    style={{ marginTop: isHalfDayAvailable ? '0px' : '15px' }}
+                    name="leaveRequestNote"
+                  >
+                    <TextArea rows={4} placeholder="Enter leave details" />
+                  </Form.Item>
+
+                  {isManagerOrOwner && (
                     <Form.Item
-                      label="Half Day Leave?"
-                      name="isHalfDay"
+                      label="Approve this leave?"
+                      name="isApproved"
                       valuePropName="checked"
                     >
-                      <Switch />
+                      <Switch defaultValue={false} />
                     </Form.Item>
+                  )}
 
-                    {form.getFieldValue('isHalfDay') && (
-                      <Form.Item
-                        label="Select Shift"
-                        name="halfDayShift"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Please select Morning or Afternoon',
-                          },
-                        ]}
-                      >
-                        <Radio.Group>
-                          <Radio value="MORNING">Morning</Radio>
-                          <Radio value="AFTERNOON">Afternoon</Radio>
-                        </Radio.Group>
-                      </Form.Item>
-                    )}
-                  </>
-                )}
-
-              <Form.Item label="Leave Note" name="leaveRequestNote">
-                <TextArea rows={4} placeholder="Enter leave details" />
-              </Form.Item>
-
-              {/* Conditional Approve Switch for Manager or Owner */}
-              {isManagerOrOwner && (
-                <Form.Item
-                  label="Approve this leave?"
-                  name="isApproved"
-                  valuePropName="checked"
-                >
-                  <Switch defaultValue={false} />
-                </Form.Item>
+                  <Flex gap={12}>
+                    <Button type="primary" htmlType="submit">
+                      Submit
+                    </Button>
+                    <Button onClick={() => setShowAddLeaveForm(false)}>
+                      Cancel
+                    </Button>
+                  </Flex>
+                </>
               )}
-
-              <Flex gap={12}>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-                <Button onClick={() => setShowAddLeaveForm(false)}>
-                  Cancel
-                </Button>
-              </Flex>
             </Form>
           </Card>
         )}
@@ -381,7 +471,7 @@ const UserDrawer = ({
                       >
                         {formatDate(item?.startDate)} -{' '}
                         {formatDate(item?.endDate)} ({item?.workingDays}{' '}
-                        {item?.workingDays === 1 ? 'day' : 'days'})
+                        {item?.workingDays <= 1 ? 'day' : 'days'})
                       </p>
                       {item.leaveRequestNote && (
                         <p
