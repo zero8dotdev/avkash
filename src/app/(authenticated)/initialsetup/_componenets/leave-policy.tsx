@@ -315,7 +315,14 @@ const Leavepolicy = () => {
                                   }
                                   placement="right"
                                 > */}
-                                <Switch title="Hari" />
+                                <Switch
+                                  title={
+                                    form.getFieldValue([e.name, 'unlimited'])
+                                      ? 'Unlimited days per year'
+                                      : 'Allow unlimited leaves days'
+                                  }
+                                />
+
                                 {/* </Popover> */}
                               </Form.Item>
                             </Flex>
@@ -361,13 +368,14 @@ const Leavepolicy = () => {
                                             : undefined; // Convert string to number
                                         }}
                                       >
-                                        <Popover content="maximum 365 leave days per year">
-                                          <Input
-                                            type="number"
-                                            min={1}
-                                            max={365}
-                                          />
-                                        </Popover>
+                                        {/* <Popover content="maximum 365 leave days per year"> */}
+                                        <Input
+                                          type="number"
+                                          min={1}
+                                          max={365}
+                                          title="Maximum 365 leave days per year"
+                                        />
+                                        {/* </Popover> */}
                                       </Form.Item>
                                     </Flex>
 
@@ -381,12 +389,12 @@ const Leavepolicy = () => {
                                         style={{ margin: '0px 0px 10px 0px' }}
                                         initialValue={false}
                                       >
-                                        <Popover
+                                        {/* <Popover
                                           content="If you enable accruals, leave will be earned continuously over the year"
                                           placement="right"
-                                        >
-                                          <Switch />
-                                        </Popover>
+                                        > */}
+                                        <Switch title="If you enable accruals, leave will be earned continuously over the year" />
+                                        {/* </Popover> */}
                                       </Form.Item>
                                     </Flex>
 
@@ -425,20 +433,21 @@ const Leavepolicy = () => {
                                                   },
                                                 ]}
                                               >
-                                                <Popover content="You can set accrual frequency only once.">
-                                                  <Select
-                                                    options={[
-                                                      {
-                                                        value: 'MONTHLY',
-                                                        label: 'Monthly',
-                                                      },
-                                                      {
-                                                        value: 'QUARTERLY',
-                                                        label: 'Quarterly',
-                                                      },
-                                                    ]}
-                                                  />
-                                                </Popover>
+                                                {/* <Popover content="You can set accrual frequency only once."> */}
+                                                <Select
+                                                  title="You can set accrual frequency only once."
+                                                  options={[
+                                                    {
+                                                      value: 'MONTHLY',
+                                                      label: 'Monthly',
+                                                    },
+                                                    {
+                                                      value: 'QUARTERLY',
+                                                      label: 'Quarterly',
+                                                    },
+                                                  ]}
+                                                />
+                                                {/* </Popover> */}
                                               </Form.Item>
                                             </Flex>
                                             <Flex vertical gap={5}>
@@ -471,12 +480,12 @@ const Leavepolicy = () => {
                                         style={{ margin: '0px 0px 10px 0px' }}
                                         initialValue={false}
                                       >
-                                        <Popover
+                                        {/* <Popover
                                           content="Roll over unused leave to next year"
                                           placement="right"
-                                        >
-                                          <Switch />
-                                        </Popover>
+                                        > */}
+                                        <Switch title="Roll over unused leave to next year" />
+                                        {/* </Popover> */}
                                       </Form.Item>
                                     </Flex>
                                     <Form.Item
@@ -577,25 +586,26 @@ const Leavepolicy = () => {
                                                   }),
                                                 ]}
                                               >
-                                                <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days.">
-                                                  <Input
-                                                    type="number"
-                                                    min={1}
-                                                    max={form.getFieldValue([
-                                                      e.name,
-                                                      'maxLeaves',
-                                                    ])}
-                                                    suffix={
-                                                      <span
-                                                        style={{
-                                                          marginRight: '15px',
-                                                        }}
-                                                      >
-                                                        days
-                                                      </span>
-                                                    }
-                                                  />
-                                                </Popover>
+                                                {/* <Popover content="Instead of rolling over all unused days, this allows you to set a maximum number of days."> */}
+                                                <Input
+                                                  title="Instead of rolling over all unused days, this allows you to set a maximum number of days."
+                                                  type="number"
+                                                  min={1}
+                                                  max={form.getFieldValue([
+                                                    e.name,
+                                                    'maxLeaves',
+                                                  ])}
+                                                  suffix={
+                                                    <span
+                                                      style={{
+                                                        marginRight: '15px',
+                                                      }}
+                                                    >
+                                                      days
+                                                    </span>
+                                                  }
+                                                />
+                                                {/* </Popover> */}
                                               </Form.Item>
                                             </Flex>
                                             <Flex vertical gap={5}>
@@ -616,18 +626,19 @@ const Leavepolicy = () => {
                                                   },
                                                 ]}
                                               >
-                                                <Popover content="Instead of keeping  roll over days indefinitely, you  can set an expiration date here.">
-                                                  <DatePicker
-                                                    format=""
-                                                    onChange={(date) => {
-                                                      form.setFieldsValue({
-                                                        rollOverExpiry: date
-                                                          ? date.format('DD/MM')
-                                                          : null,
-                                                      });
-                                                    }}
-                                                  />
-                                                </Popover>
+                                                {/* <Popover content="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."> */}
+                                                <DatePicker
+                                                  title="Instead of keeping  roll over days indefinitely, you  can set an expiration date here."
+                                                  format=""
+                                                  onChange={(date) => {
+                                                    form.setFieldsValue({
+                                                      rollOverExpiry: date
+                                                        ? date.format('DD/MM')
+                                                        : null,
+                                                    });
+                                                  }}
+                                                />
+                                                {/* </Popover> */}
                                               </Form.Item>
                                             </Flex>
                                           </Flex>
@@ -647,12 +658,12 @@ const Leavepolicy = () => {
                                 style={{ margin: '0px 0px 10px 0px' }}
                                 initialValue={false}
                               >
-                                <Popover
+                                {/* <Popover
                                   content="Auto approve each leave request"
                                   placement="right"
-                                >
-                                  <Switch />
-                                </Popover>
+                                > */}
+                                <Switch title="Auto approve each leave request" />
+                                {/* </Popover> */}
                               </Form.Item>
                             </Flex>
                           </Card>

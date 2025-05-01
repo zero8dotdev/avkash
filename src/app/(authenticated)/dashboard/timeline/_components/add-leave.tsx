@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button, Flex, Modal, Select, Typography, Card } from 'antd';
 import { useApplicationContext } from '@/app/_context/appContext';
+import { sr } from 'date-fns/locale';
 
 interface Props {
   users: any[];
@@ -11,7 +12,7 @@ interface Props {
 
 const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [userId, setUserId] = useState();
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const { state } = useApplicationContext();
   const onCancel = () => {
     setModalVisible(false);
@@ -33,13 +34,16 @@ const AddLeave: React.FC<Props> = ({ users, onSelectedUser }) => {
   } else {
     filteredusers = users.filter((user) => user.userId === state.userId);
   }
-
+  const handleAddLeaveClick = () => {
+    if (state.role === 'USER') {
+      onSelectedUser(users?.find((each) => each.userId === state.userId));
+    } else {
+      setModalVisible(true);
+    }
+  };
   return (
     <>
-      <Button
-        type="primary"
-        onClick={() => state.role != 'USER' && setModalVisible(true)}
-      >
+      <Button type="primary" onClick={handleAddLeaveClick}>
         Add leave
       </Button>
       <Modal
