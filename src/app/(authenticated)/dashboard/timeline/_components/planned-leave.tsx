@@ -23,6 +23,19 @@ export default function PlannedLeavesTab() {
     fetchLeaves();
   }, [orgId]);
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      case 'pending':
+        return 'text-yellow-500';
+      default:
+        return 'text-gray-400';
+    }
+  };
+
   const getLeaveIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'sick':
@@ -59,14 +72,20 @@ export default function PlannedLeavesTab() {
               </p>
               <p className="text-sm text-gray-500">
                 {formatDate(leave?.startDate)} - {formatDate(leave?.endDate)} (
-                {leave?.workingDays} {leave?.workingDays === 1 ? 'day' : 'days'}
-                )
+                {leave?.workingDays} {leave?.workingDays <= 1 ? 'day' : 'days'})
               </p>
               {leave?.reason && (
                 <p className="text-sm text-gray-400 italic">
                   Reason: {leave?.reason}
                 </p>
               )}
+            </div>
+            <div className="flex flex-col gap-1 items-end">
+              <span
+                className={`text-sm font-semibold capitalize ${getStatusColor(leave.isApproved)}`}
+              >
+                {leave?.managerComment} | {leave.isApproved}
+              </span>
             </div>
           </div>
         ))
