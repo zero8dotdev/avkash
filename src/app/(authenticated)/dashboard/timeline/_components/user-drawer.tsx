@@ -208,7 +208,7 @@ const UserDrawer = ({
               onClick={() => setShowAddLeaveForm(true)}
               style={{ marginBottom: '20px' }}
             >
-              Add leave
+              Add Leave
             </Button>
           )}
 
