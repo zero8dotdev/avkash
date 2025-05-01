@@ -55,7 +55,7 @@ const UserDrawer = ({
   const router = useRouter();
   const handleClick = () => {
     setIsLoading(true);
-    router.push('/dashboard/orgsettings/leave-types');
+    router.push('/dashboard/teams/[teamId]/leave-policy');
   };
 
   const {
@@ -229,161 +229,182 @@ const UserDrawer = ({
               onFinish={handleAddLeave}
               initialValues={{ type: leaveTypes[0]?.value }}
             >
-              <Form.Item
-                label="Leave Type"
-                name="type"
-                rules={[
-                  { required: true, message: 'Please select a leave type' },
-                ]}
-              >
-                {leaveTypes.length == 0 ? (
-                  <div>
+              {leaveTypes.length === 0 ? (
+                <Form.Item
+                  name="zero"
+                  rules={[
+                    { required: true, message: 'Please select a leave policy' },
+                  ]}
+                >
+                  {role !== 'USER' ? (
+                    <div>
+                      <p className="text-sm text-[#E85A4F]">
+                        You have not added any Leave Policy yet..
+                      </p>
+                      <Button onClick={handleClick}>
+                        {isLoading ? (
+                          <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
+                        ) : (
+                          'Add Leave Policy'
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
                     <p className="text-sm text-[#E85A4F]">
-                      You have not added any Leave Policy yet..
+                      No leave policies available. Please contact your admin.
                     </p>
-                    <Button danger onClick={handleClick}>
-                      {isLoading ? (
-                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
-                      ) : (
-                        'Add Leave Policy'
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <Radio.Group>
-                    {leaveTypes.map((type: any) => (
-                      <Radio
-                        key={type?.LeaveType?.name}
-                        value={type?.leaveTypeId}
-                      >
-                        {type?.LeaveType?.name}
-                      </Radio>
-                    ))}
-                  </Radio.Group>
-                )}
-              </Form.Item>
-              <Form.Item
-                label="Start Date & End Date"
-                name="Date"
-                style={{ marginBottom: '0px' }}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select a start date and end date',
-                  },
-                ]}
-              >
-                <DatePicker.RangePicker
-                  placement="bottomLeft"
-                  cellRender={cellRender}
-                  // disabledDate={(current) => {
-                  //   const today = new Date();
-                  //   today.setHours(0, 0, 0, 0);
-                  //   if (current && current.toDate() < today) {
-                  //     return true;
-                  //   }
-                  //   return false;
-                  // }}
-                />
-              </Form.Item>
-
-              {isHalfDayAvailable ? (
+                  )}
+                </Form.Item>
+              ) : (
                 <>
                   <Form.Item
-                    style={{ margin: '0px' }}
-                    shouldUpdate={(prev, current) => prev.Date !== current.Date}
+                    label="Leave Type"
+                    name="type"
+                    rules={[
+                      { required: true, message: 'Please select a leave type' },
+                    ]}
                   >
-                    {({ getFieldValue }) => {
-                      const dateSelected = getFieldValue('Date');
-                      if (
-                        dateSelected &&
-                        dateSelected.length === 2 &&
-                        dateSelected[0]?.isSame(dateSelected[1], 'day')
-                      ) {
-                        return (
-                          <Form.Item
-                            label="Attendance Type"
-                            name="attendanceType"
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please select leave type',
-                              },
-                            ]}
-                            style={{ marginBottom: '5px', marginTop: '15px' }}
-                          >
-                            <Radio.Group>
-                              <Radio value="FULL_DAY">Full Day</Radio>
-                              <Radio value="HALF_DAY">Half Day</Radio>
-                            </Radio.Group>
-                          </Form.Item>
-                        );
-                      }
-                      return null;
-                    }}
+                    <Radio.Group>
+                      {leaveTypes.map((type: any) => (
+                        <Radio
+                          key={type?.LeaveType?.name}
+                          value={type?.leaveTypeId}
+                        >
+                          {type?.LeaveType?.name}
+                        </Radio>
+                      ))}
+                    </Radio.Group>
                   </Form.Item>
 
                   <Form.Item
-                    shouldUpdate={(prev, current) =>
-                      prev.attendanceType !== current.attendanceType
-                    }
-                    style={{ margin: '0px' }}
+                    label="Start Date & End Date"
+                    name="Date"
+                    style={{ marginBottom: '0px' }}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select a start date and end date',
+                      },
+                    ]}
                   >
-                    {({ getFieldValue }) => {
-                      const dayType = getFieldValue('attendanceType');
-                      if (dayType === 'HALF_DAY') {
-                        return (
-                          <Form.Item
-                            label="Shift"
-                            name="shift"
-                            style={{ margin: '0px' }}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please select session for half day',
-                              },
-                            ]}
-                          >
-                            <Radio.Group>
-                              <Radio value="MORNING">Morning</Radio>
-                              <Radio value="AFTERNOON">Afternoon</Radio>
-                            </Radio.Group>
-                          </Form.Item>
-                        );
-                      }
-                      return null;
-                    }}
+                    <DatePicker.RangePicker
+                      placement="bottomLeft"
+                      cellRender={cellRender}
+                      // disabledDate={(current) => {
+                      //   const today = new Date();
+                      //   today.setHours(0, 0, 0, 0);
+                      //   if (current && current.toDate() < today) {
+                      //     return true;
+                      //   }
+                      //   return false;
+                      // }}
+                    />
                   </Form.Item>
+
+                  {isHalfDayAvailable ? (
+                    <>
+                      <Form.Item
+                        style={{ margin: '0px' }}
+                        shouldUpdate={(prev, current) =>
+                          prev.Date !== current.Date
+                        }
+                      >
+                        {({ getFieldValue }) => {
+                          const dateSelected = getFieldValue('Date');
+                          if (
+                            dateSelected &&
+                            dateSelected.length === 2 &&
+                            dateSelected[0]?.isSame(dateSelected[1], 'day')
+                          ) {
+                            return (
+                              <Form.Item
+                                label="Attendance Type"
+                                name="attendanceType"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select leave type',
+                                  },
+                                ]}
+                                style={{
+                                  marginBottom: '5px',
+                                  marginTop: '15px',
+                                }}
+                              >
+                                <Radio.Group>
+                                  <Radio value="FULL_DAY">Full Day</Radio>
+                                  <Radio value="HALF_DAY">Half Day</Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                            );
+                          }
+                          return null;
+                        }}
+                      </Form.Item>
+
+                      <Form.Item
+                        shouldUpdate={(prev, current) =>
+                          prev.attendanceType !== current.attendanceType
+                        }
+                        style={{ margin: '0px' }}
+                      >
+                        {({ getFieldValue }) => {
+                          const dayType = getFieldValue('attendanceType');
+                          if (dayType === 'HALF_DAY') {
+                            return (
+                              <Form.Item
+                                label="Shift"
+                                name="shift"
+                                style={{ margin: '0px' }}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      'Please select session for half day',
+                                  },
+                                ]}
+                              >
+                                <Radio.Group>
+                                  <Radio value="MORNING">Morning</Radio>
+                                  <Radio value="AFTERNOON">Afternoon</Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                            );
+                          }
+                          return null;
+                        }}
+                      </Form.Item>
+                    </>
+                  ) : null}
+
+                  <Form.Item
+                    label="Leave Note"
+                    style={{ marginTop: isHalfDayAvailable ? '0px' : '15px' }}
+                    name="leaveRequestNote"
+                  >
+                    <TextArea rows={4} placeholder="Enter leave details" />
+                  </Form.Item>
+
+                  {isManagerOrOwner && (
+                    <Form.Item
+                      label="Approve this leave?"
+                      name="isApproved"
+                      valuePropName="checked"
+                    >
+                      <Switch defaultValue={false} />
+                    </Form.Item>
+                  )}
+
+                  <Flex gap={12}>
+                    <Button type="primary" htmlType="submit">
+                      Submit
+                    </Button>
+                    <Button onClick={() => setShowAddLeaveForm(false)}>
+                      Cancel
+                    </Button>
+                  </Flex>
                 </>
-              ) : null}
-
-              <Form.Item
-                label="Leave Note"
-                style={{ marginTop: isHalfDayAvailable ? '0px' : '15px' }}
-                name="leaveRequestNote"
-              >
-                <TextArea rows={4} placeholder="Enter leave details" />
-              </Form.Item>
-
-              {/* Conditional Approve Switch for Manager or Owner */}
-              {isManagerOrOwner && (
-                <Form.Item
-                  label="Approve this leave?"
-                  name="isApproved"
-                  valuePropName="checked"
-                >
-                  <Switch defaultValue={false} />
-                </Form.Item>
               )}
-
-              <Flex gap={12}>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-                <Button onClick={() => setShowAddLeaveForm(false)}>
-                  Cancel
-                </Button>
-              </Flex>
             </Form>
           </Card>
         )}
