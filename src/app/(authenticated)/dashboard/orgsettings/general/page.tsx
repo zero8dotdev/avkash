@@ -94,14 +94,14 @@ const General: React.FC<{}> = () => {
               </FormItem>
               <FormItem name="visibility" label="Who can see other's leave?">
                 <Select>
-                  <SelectOption value="ORG">
+                  {/* <SelectOption value="ORG">
                     Users can see the organization`&apos`s leave
-                  </SelectOption>
+                  </SelectOption> */}
                   <SelectOption value="TEAM">
-                    Users can see their team`&apos`s leave
+                    Users can see their leaves and their team leaves
                   </SelectOption>
                   <SelectOption value="SELF">
-                    Users can only see their own leave
+                    Users can only see their own leaves
                   </SelectOption>
                 </Select>
               </FormItem>
