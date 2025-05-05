@@ -15,19 +15,26 @@ import {
   Switch,
   Typography,
   message,
+  Divider,
 } from 'antd';
 import type { DatePickerProps } from 'antd';
 import type { Dayjs } from 'dayjs';
 import TextArea from 'antd/es/input/TextArea';
-import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  CloseOutlined,
+  TruckFilled,
+} from '@ant-design/icons';
 import { useApplicationContext } from '@/app/_context/appContext';
 import useSWR from 'swr';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { isHTTPMethod } from 'next/dist/server/web/http';
+import { FaFilter } from 'react-icons/fa';
 import { getLeaves } from '../../users/_actions';
 import { getHalfDayLeave, insertLeave } from '../_actions';
 import UserModal from '../../users/_components/user-modal';
+import Filters from './filters';
 
 const UserDrawer = ({
   selectedUser,
@@ -46,9 +53,12 @@ const UserDrawer = ({
   const [messageApi, contextHolder] = message.useMessage();
   const [isHalfDayAvailable, setIsHalfDayAvailable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const {
     state: { orgId, userId, teamId, role },
   } = useApplicationContext();
+
+  const { RangePicker } = DatePicker;
 
   const leaveRequestsFetcher = (userId: string) => getLeaves(userId);
 
@@ -144,6 +154,7 @@ const UserDrawer = ({
 
   const handleDrawerClose = () => {
     // Close the drawer
+    setFilterOpen(false);
     onSelectUserChange();
     triggerMutate();
     setShowAddLeaveForm(false);
@@ -164,6 +175,10 @@ const UserDrawer = ({
   };
 
   const isManagerOrOwner = role === 'MANAGER' || role === 'OWNER';
+
+  const handleFilterClick = () => {
+    setFilterOpen(!filterOpen);
+  };
 
   return (
     <>
@@ -199,19 +214,33 @@ const UserDrawer = ({
         onClose={handleDrawerClose}
         extra={<CloseOutlined onClick={handleDrawerClose} />}
       >
-        {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
-          role === 'OWNER' ||
-          selectedUser?.userId === userId) &&
-          !showAddLeaveForm && (
-            <Button
-              type="primary"
-              onClick={() => setShowAddLeaveForm(true)}
-              style={{ marginBottom: '20px' }}
-            >
-              Add leave
-            </Button>
+        <div className="flex justify-between items-center">
+          {((role === 'MANAGER' && teamId === selectedUser?.teamId) ||
+            role === 'OWNER' ||
+            selectedUser?.userId === userId) &&
+            !showAddLeaveForm && (
+              <Button
+                type="primary"
+                onClick={() => setShowAddLeaveForm(true)}
+                style={{ marginBottom: '8px' }}
+              >
+                Add leave
+              </Button>
+            )}
+          {!showAddLeaveForm && (
+            <FaFilter
+              className="text-gray-500 cursor-pointer  "
+              size={20}
+              onClick={handleFilterClick}
+            />
           )}
-
+        </div>
+        {filterOpen && !showAddLeaveForm && (
+          <div className="mb-2">
+            <Divider style={{ margin: 0 }}> Leave &nbsp; Filters</Divider>
+            <Filters vertical />
+          </div>
+        )}
         {/* Add Leave Form */}
         {showAddLeaveForm && (
           <Card
