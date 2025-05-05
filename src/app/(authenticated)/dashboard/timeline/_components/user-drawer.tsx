@@ -233,6 +233,7 @@ const UserDrawer = ({
               size={20}
               onClick={handleFilterClick}
             />
+
           )}
         </div>
         {filterOpen && !showAddLeaveForm && (
