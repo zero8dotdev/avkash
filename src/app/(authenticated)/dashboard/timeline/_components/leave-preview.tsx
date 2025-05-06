@@ -4,18 +4,22 @@ import useSWR from 'swr';
 import { Tabs, Card } from 'antd';
 import { useState, useEffect, useMemo } from 'react';
 import { useApplicationContext } from '@/app/_context/appContext';
+import { FaFilter } from 'react-icons/fa';
 import LeaveRequest from '../../users/_components/leave-request';
 import LeaveReport from '../../users/_components/leave-report';
 import { getLeaves, getLeaveSummaryByUser } from '../../users/_actions';
 import TodayLeave from './today-leave';
 import PlannedLeave from './planned-leave';
 import PendingLeave from './pending-leave';
+import Filters from './filters';
 
 export default function LeavePreview() {
   const { state } = useApplicationContext();
   const { user, role, userId } = state;
 
   const [activeTab, setActiveTab] = useState<string>('');
+
+  const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
     if (role && !activeTab) {
@@ -99,13 +103,27 @@ export default function LeavePreview() {
   ];
 
   return (
-    <div className="leave-preview-container">
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        items={role === 'USER' ? userTabs : managerTabs}
-        className="custom-tabs"
-      />
-    </div>
+    <>
+      <div className="leave-preview-container">
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={role === 'USER' ? userTabs : managerTabs}
+          className="custom-tabs"
+          tabBarExtraContent={
+            <div className="flex items-center gap-2">
+              {filterOpen && <Filters vertical={false} activeTab={activeTab} />}
+              <FaFilter
+                className="text-gray-500 cursor-pointer  "
+                size={20}
+                onClick={() => {
+                  setFilterOpen(!filterOpen);
+                }}
+              />
+            </div>
+          }
+        />
+      </div>
+    </>
   );
 }
