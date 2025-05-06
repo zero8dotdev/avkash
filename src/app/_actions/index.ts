@@ -372,18 +372,20 @@ export async function checkSlackOwnership(): Promise<
     console.error('Error fetching user:', userError);
     return 'login';
   }
-
+  const domain = user?.email?.split('@')[1] || '';
+  const userId = user?.id;
   const isSlackAdmin = user.user_metadata?.is_slack_admin;
 
+  const { data: existingUser, error: Error } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', userId);
+
   if (typeof isSlackAdmin !== 'boolean') {
-    return 'add-to-slack';
+    return existingUser?.length ? 'dashboard/timeline' : 'add-to-slack';
   }
 
   if (!isSlackAdmin) {
-    const domain = user?.email?.split('@')[1] || '';
-    const userId = user?.id;
-    console.log(domain, 'DOMAIN');
-    console.log(userId, 'USERID');
     // Step 2: Check if organisation exists by domain
     const { data: org, error: orgError } = await adminSupabase
       .from('Organisation')
@@ -391,15 +393,15 @@ export async function checkSlackOwnership(): Promise<
       .eq('name', domain);
     console.log(org, 'ORG');
     // Step 3: Check if user exists by userId
-    const { data: existingUser, error: userError } = await supabase
-      .from('User')
-      .select('*')
-      .eq('userId', userId);
-    console.log(existingUser, 'USER');
+    // const { data: existingUser, error: userError } = await supabase
+    //   .from('User')
+    //   .select('*')
+    //   .eq('userId', userId);
     const orgExists = Array.isArray(org) && org.length > 0;
     const userExists = Array.isArray(existingUser) && existingUser.length > 0;
 
     // Step 4: Return based on conditions
+    if (userExists) return 'dashboard/timeline';
     if (orgExists && userExists) return 'dashboard/timeline';
     if (!orgExists && !userExists) return 'you-are-not-admin';
     if (orgExists && !userExists) return 'ask-for-invitation';
