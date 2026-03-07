@@ -1,5 +1,5 @@
-import { Flex, Typography, Form, Switch, Checkbox } from "antd";
-import React from "react";
+import { Flex, Typography, Form, Switch, Checkbox } from 'antd';
+import React from 'react';
 
 const { Item } = Form;
 const { Group } = Checkbox;
@@ -23,7 +23,7 @@ const Notification = () => {
           <Item name="notificationDailySummary" valuePropName="checked">
             <Switch />
           </Item>
-          <Typography.Text style={{ marginRight: "95px" }}>
+          <Typography.Text style={{ marginRight: '95px' }}>
             Send a report of upcoming work days leave
           </Typography.Text>
         </Flex>
@@ -34,7 +34,7 @@ const Notification = () => {
           <Item name="notificationWeeklySummary" valuePropName="checked">
             <Switch />
           </Item>
-          <Typography.Text style={{ marginRight: "118px" }}>
+          <Typography.Text style={{ marginRight: '118px' }}>
             Send a report of upcoming weeks leave
           </Typography.Text>
         </Flex>

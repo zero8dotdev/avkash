@@ -1,52 +1,129 @@
-"use client";
+'use client';
 
-import { Flex, Tabs, Card, List, type TabsProps, Tag } from "antd";
-import { useState } from "react";
+import useSWR from 'swr';
+import { Tabs, Card } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { useApplicationContext } from '@/app/_context/appContext';
+import { FaFilter } from 'react-icons/fa';
+import LeaveRequest from '../../users/_components/leave-request';
+import LeaveReport from '../../users/_components/leave-report';
+import { getLeaves, getLeaveSummaryByUser } from '../../users/_actions';
+import TodayLeave from './today-leave';
+import PlannedLeave from './planned-leave';
+import PendingLeave from './pending-leave';
+import Filters from './filters';
 
 export default function LeavePreview() {
-  const tabs: TabsProps["items"] = [
+  const { state } = useApplicationContext();
+  const { user, role, userId } = state;
+
+  const [activeTab, setActiveTab] = useState<string>('');
+
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  useEffect(() => {
+    if (role && !activeTab) {
+      setActiveTab(role === 'USER' ? 'your-requests' : 'today'); // this will update active tab only after role is available
+    }
+  }, [role, activeTab]);
+
+  // SWR Fetchers
+  const { data: leaveRequestData, isLoading: isLeaveRequestLoading } = useSWR(
+    activeTab === 'your-requests' && userId
+      ? [`leave-requests-${userId}`, userId]
+      : null,
+    ([_, userId]) => getLeaves(userId)
+  );
+
+  const { data: leaveReportData, isLoading: isLeaveReportLoading } = useSWR(
+    activeTab === 'your-report' && userId
+      ? [`leave-summary-${userId}`, userId]
+      : null,
+    ([_, userId]) => getLeaveSummaryByUser(userId)
+  );
+
+  // Define Tabs
+  const userTabs = [
     {
-      key: "today",
-      label: "Today",
+      key: 'your-requests',
+      label: 'Your Leave Requests',
       children: (
         <Card>
-          <Tag color="blue">Coming Soon!</Tag>
+          <LeaveRequest
+            user={user}
+            data={leaveRequestData}
+            loading={isLeaveRequestLoading}
+          />
         </Card>
       ),
     },
     {
-      key: "pending",
-      label: "Pending",
+      key: 'your-report',
+      label: 'Your Report',
       children: (
         <Card>
-          <Tag color="magenta">Coming Soon!</Tag>
-        </Card>
-      ),
-    },
-    {
-      key: "planned",
-      label: "Planned",
-      children: (
-        <Card>
-          <Tag color="green">Coming Soon!</Tag>
+          <LeaveReport
+            user={user}
+            data={leaveReportData}
+            loading={isLeaveReportLoading}
+          />
         </Card>
       ),
     },
   ];
 
-  const [activeTab, setActiveTab] = useState<TabsProps["activeKey"]>("today");
+  const managerTabs = [
+    {
+      key: 'today',
+      label: 'Today',
+      children: (
+        <Card>
+          <TodayLeave />
+        </Card>
+      ),
+    },
+    {
+      key: 'planned',
+      label: 'Planned',
+      children: (
+        <Card>
+          <PlannedLeave />
+        </Card>
+      ),
+    },
+    {
+      key: 'pending',
+      label: 'Pending Approval',
+      children: (
+        <Card>
+          <PendingLeave />
+        </Card>
+      ),
+    },
+  ];
 
   return (
-    <Flex style={{ minHeight: "100px" }}>
-      <Tabs
-        size="small"
-        type="card"
-        items={tabs}
-        activeKey={activeTab}
-        onChange={(activeKey: TabsProps["activeKey"]) => {
-          setActiveTab(activeKey);
-        }}
-      ></Tabs>
-    </Flex>
+    <>
+      <div className="leave-preview-container">
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={role === 'USER' ? userTabs : managerTabs}
+          className="custom-tabs"
+          tabBarExtraContent={
+            <div className="flex items-center gap-2">
+              {filterOpen && <Filters vertical={false} activeTab={activeTab} />}
+              <FaFilter
+                className="text-gray-500 cursor-pointer  "
+                size={20}
+                onClick={() => {
+                  setFilterOpen(!filterOpen);
+                }}
+              />
+            </div>
+          }
+        />
+      </div>
+    </>
   );
 }

@@ -1,53 +1,40 @@
-import { redirect } from "next/navigation";
-import { createClient } from "../_utils/supabase/server";
-import { type NextRequest } from "next/server";
-import { isInitialSetupDone } from "../_actions";
+import { redirect } from 'next/navigation';
+import { type NextRequest } from 'next/server';
+import { createClient } from '../_utils/supabase/server';
+import { checkSlackOwnership } from '../_actions';
 
 export async function GET(request: NextRequest) {
   let redirectPath: string | null = null;
   const searchParams = request.nextUrl.searchParams;
-  const code = searchParams.get("code");
+  const code = searchParams.get('code');
 
   if (!code) {
-    redirectPath = "/login";
+    redirectPath = '/login';
     return;
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   try {
     const { data: authUserSession, error: authError } =
       await supabase.auth.exchangeCodeForSession(code);
-
     if (authError) {
       throw authError;
     }
+    const result = await checkSlackOwnership();
+    // const redirectMap: Record<string, string> = {
+    //   'initial-setup': '/initialsetup/settings',
+    //   'add-to-slack': '/add-to-slack',
+    //   signup: '/signup',
+    //   'dashboard/timeline': '/dashboard/timeline',
+    //   'you-are-not-admin': '/you-are-not-admin',
+    //   'ask-for-invitation': '/ask-for-invitation',
+    //   login: '/login',
+    // };
 
-    const {
-      data: user,
-      error: userError,
-      count,
-    } = await supabase
-      .from("User")
-      .select("*")
-      .eq("userId", authUserSession.user.id);
-
-    if (userError) {
-      throw userError;
-    }
-    if (user.length === 0) {
-      redirectPath = "/signup";
-      return;
-    }
-
-    let isInitialSetupavailable = await isInitialSetupDone(user[0].orgId);
-    if (!isInitialSetupavailable?.isSetupCompleted) {
-      redirectPath = "/setup";
-    } else {
-      redirectPath = "/dashboard";
-    }
+    redirectPath = `/${result}`;
   } catch (error) {
-    redirectPath = "/error";
+    redirectPath = '/error';
   } finally {
-    redirect(redirectPath || "/");
+    redirect(redirectPath || '/');
   }
 }

@@ -1,11 +1,12 @@
-"use client";
-import { Avatar, Button, Flex, List, Modal, Space, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+'use client';
+
+import { Avatar, Button, Flex, List, Modal, Space, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 import {
   fetchAllTeams,
   fetchTeamUsers,
   updateLeaveTypeBasedOnOrg,
-} from "../_actions";
+} from '../_actions';
 
 interface LeaveType {
   name: string;
@@ -70,8 +71,8 @@ const LeaveTypeDisable: React.FC<LeaveTypeDisableProps> = ({
   return visible ? (
     <Modal
       width="38%"
-      centered={true}
-      open={true}
+      centered
+      open
       title={`Are you sure you want to disable ${item.name} leave type?`}
       onCancel={onCancel}
       footer={[
@@ -94,10 +95,10 @@ const LeaveTypeDisable: React.FC<LeaveTypeDisableProps> = ({
         type. Are you sure?
       </Typography.Paragraph>
       <List
-        style={{ marginTop: "12px" }}
+        style={{ marginTop: '12px' }}
         bordered
         itemLayout="horizontal"
-        dataSource={teams}  //yaswath: we should not use all teams here (only  some teams have this leavetype)
+        dataSource={teams} // yaswath: we should not use all teams here (only  some teams have this leavetype)
         size="small"
         renderItem={(item: any, index) => {
           const users = teamUsers[item.teamId] || [];
@@ -111,14 +112,14 @@ const LeaveTypeDisable: React.FC<LeaveTypeDisableProps> = ({
                   {displayedUsers.map((user: any, i: number) => (
                     <Avatar
                       key={i}
-                      style={{ backgroundColor: "pink", marginRight: "4px" }}
+                      style={{ backgroundColor: 'pink', marginRight: '4px' }}
                     >
                       {user.name.charAt(0).toUpperCase()}
                     </Avatar>
                   ))}
                   {addtitionalUserCount > 0 && (
                     <Typography.Text
-                      style={{ marginTop: "5px" }}
+                      style={{ marginTop: '5px' }}
                     >{`+${addtitionalUserCount} more`}</Typography.Text>
                   )}
                 </Flex>,
@@ -126,7 +127,7 @@ const LeaveTypeDisable: React.FC<LeaveTypeDisableProps> = ({
             >
               <List.Item.Meta
                 title={
-                  <Typography.Paragraph style={{ color: "#E71E9A" }}>
+                  <Typography.Paragraph style={{ color: '#E71E9A' }}>
                     {item.name}
                   </Typography.Paragraph>
                 }

@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/react";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider, Layout } from "antd";
-import AppHeader from "./_components/header";
-import Content from "./_components/content";
-import { ApplicationProvider } from "./_context/appContext";
-import "./input.css";
+import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { ConfigProvider, Layout } from 'antd';
+import AppHeader from './_components/header';
+import Content from './_components/content';
+import { ApplicationProvider } from './_context/appContext';
+import './input.css';
 
 export const metadata: Metadata = {
-  title: "Avkash | Streamlines Leave Management for Modern Remote Teams",
+  title: 'Avkash | Streamlines Leave Management for Modern Remote Teams',
   description:
-    "Avkash is a leave management HR automation tool crafted for founders of new-age remote teams, promoting a seamless work-life balance. With effortless integration into Slack and Google Workspace, Avkash simplifies your leave management.",
+    'Avkash is a leave management HR automation tool crafted for founders of new-age remote teams, promoting a seamless work-life balance. With effortless integration into Slack and Google Workspace, Avkash simplifies your leave management.',
 };
 
 export default function RootLayout({
@@ -21,10 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          src="https://checkout.razorpay.com/v1/checkout.js"
-          async
-        ></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
       </head>
       <body
         style={{
@@ -36,10 +33,10 @@ export default function RootLayout({
           <ConfigProvider
             theme={{
               token: {
-                colorBgBase: "#EAE7DC",
-                colorPrimary: "#E85A4F",
-                colorText: "#000000",
-                fontFamily: "General Sans, sans-serif",
+                colorBgBase: '#EAE7DC',
+                colorPrimary: '#E85A4F',
+                colorText: '#000000',
+                fontFamily: 'General Sans, sans-serif',
               },
             }}
           >

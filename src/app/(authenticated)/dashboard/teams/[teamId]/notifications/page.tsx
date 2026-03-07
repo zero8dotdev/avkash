@@ -1,18 +1,18 @@
-"use client";
-import { Button, Card, Col, Form, Row } from "antd";
-import React from "react";
-import TeamSettingsTabs from "../_components/team-settings-tabs";
-import Notification from "@/app/(authenticated)/dashboard/teams/[teamId]/_components/notification";
-import { useParams } from "next/navigation";
-import useSWR from "swr";
-import { fetchTeamGeneralData, updateTeamNotifications } from "../_actions";
+'use client';
+
+import { Button, Card, Col, Form, Row } from 'antd';
+import React from 'react';
+import Notification from '@/app/(authenticated)/dashboard/teams/[teamId]/_components/notification';
+import { useParams } from 'next/navigation';
+import useSWR from 'swr';
+import TeamSettingsTabs from '../_components/team-settings-tabs';
+import { fetchTeamGeneralData, updateTeamNotifications } from '../_actions';
 
 const Page = () => {
-
   const { teamId } = useParams() as { teamId: string };
   // Fetch team data
   const fetcher = async (key: string) => {
-    const team = key.split("*")[1];
+    const team = key.split('*')[1];
     return await fetchTeamGeneralData(team);
   };
 
@@ -26,9 +26,9 @@ const Page = () => {
   const handleFormSubmit = async (values: any) => {
     try {
       await updateTeamNotifications(teamId, values);
-      mutate({...team, ...values}, false);
+      mutate({ ...team, ...values }, false);
     } catch (err) {
-      console.error("Failed to update notifications:", err);
+      console.error('Failed to update notifications:', err);
     }
   };
 
@@ -39,7 +39,7 @@ const Page = () => {
       </Col>
       <Col span={16}>
         <Card title="Team Notifications">
-          <Form   initialValues={team} onFinish={handleFormSubmit}>
+          <Form initialValues={team} onFinish={handleFormSubmit}>
             <Notification />
             <Form.Item>
               <Button type="primary" htmlType="submit">

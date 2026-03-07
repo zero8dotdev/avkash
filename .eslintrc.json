@@ -1,3 +1,97 @@
 {
-  "extends": "next/core-web-vitals"
+  "env": {
+    "node": true,
+    "es2021": true,
+    "browser": true
+  },
+  "globals": {
+    "react": true
+  },
+  "extends": [
+    "airbnb",
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "no-use-before-define": "off",
+    "react/no-unstable-nested-components": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "no-param-reassign": 0,
+    "react/no-array-index-key": "off",
+    "no-nested-ternary": "off",
+    "curly": "off",
+    "react/jsx-props-no-spreading": "off",
+    "no-console": "off",
+    "no-shadow": "off",
+    "arrow-body-style": "off",
+    "import/extensions": "off",
+    "react/button-has-type": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-filename-extension": "off",
+    "import/prefer-default-export": "off",
+    "semi": 0, // let it handle by prettier
+    "react/function-component-definition": "off",
+    "indent": "off", // let it handle by prettier
+    "max-len": "off", // let it handle by prettier
+    "comma-dangle": "off", // let it handle by prettier
+    "no-redeclare": "off", // let it handle by TypeScript
+    "react/jsx-indent": "off", // let it handle by prettier
+    "no-unused-vars": "off", // let it handle by TypeScript
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "operator-linebreak": "off", // let it handle by prettier
+    "object-curly-newline": "off", // let it handle by prettier
+    "function-paren-newline": "off", // let it handle by prettier
+    "implicit-arrow-linebreak": "off", // let it handle by prettier
+    "react/require-default-props": "off", // let it handle by TypeScript
+    "nonblock-statement-body-position": "off", // let it handle by prettier
+    "react/jsx-one-expression-per-line": "off", // let it handle by prettier
+    "camelcase": "off",
+    "no-empty": "off",
+    "eqeqeq": "off",
+    "no-undef": "off",
+    "no-return-await": "off",
+    "consistent-return": "off",
+    "global-require": "off",
+    "no-restricted-syntax": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "no-underscore-dangle": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "no-unused-expressions": "off",
+    "no-sequences": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    "no-case-declarations": "off",
+    "react/no-unused-prop-types": "off",
+    "no-lonely-if": "off",
+    "no-plusplus": "off",
+    "prefer-const": "off",
+    "default-param-last": "off",
+    "import/no-cycle": "off",
+    "no-unsafe-optional-chaining": "off",
+    "prefer-destructuring": "off",
+    "@next/next/no-img-element": "off",
+    "no-alert": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "no-else-return": "off",
+    "no-useless-catch": "off",
+    "react/jsx-no-constructed-context-values": "off",
+    "import/no-extraneous-dependencies": "off",
+    "func-names": "off",
+    "no-unreachable": "off"
+  }
 }

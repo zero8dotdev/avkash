@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { Layout } from "antd";
+import { Layout } from 'antd';
+
 const { Content: AntContent } = Layout;
 
 export default function Content({
@@ -9,7 +10,7 @@ export default function Content({
   children: React.ReactNode;
 }>) {
   return (
-    <AntContent style={{ minHeight: "calc(100vh - 64px)" }}>
+    <AntContent style={{ minHeight: 'calc(100vh - 64px)' }}>
       {children}
     </AntContent>
   );

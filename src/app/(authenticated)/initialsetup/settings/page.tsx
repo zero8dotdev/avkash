@@ -1,4 +1,4 @@
-import Setting from "../_componenets/settings";
+import Setting from '../_componenets/settings';
 
 const SettingsPage = async () => {
   return <Setting />;

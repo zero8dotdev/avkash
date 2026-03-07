@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { contactUs } from "@/app/_components/header/_components/actions";
-import { useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import { contactUs } from '@/app/_components/header/_components/actions';
+import { useState } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface ContactProps {
   isOpen: boolean;
@@ -11,13 +11,13 @@ interface ContactProps {
 
 const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    message: "",
+    firstName: '',
+    lastName: '',
+    email: '',
+    message: '',
   });
 
-  const [responseMessage, setResponseMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const handleChange = (e: any) => {
@@ -27,10 +27,10 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setResponseMessage("");
+    setResponseMessage('');
 
     if (!recaptchaToken) {
-      alert("Please complete the reCAPTCHA");
+      alert('Please complete the reCAPTCHA');
       return;
     }
     const result = await contactUs({ ...formData, recaptchaToken });
@@ -143,7 +143,7 @@ const ContactModal: React.FC<ContactProps> = ({ isOpen, closeModal }) => {
                   placeholder="Your message..."
                   required
                   onChange={handleChange}
-                ></textarea>
+                />
               </div>
               <div className="mb-4">
                 <ReCAPTCHA

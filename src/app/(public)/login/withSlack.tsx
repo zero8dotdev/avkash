@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { createClient } from "@/app/_utils/supabase/client";
-import SlackButton from "./slackLogo";
+import { createClient } from '@/app/_utils/supabase/client';
+import SlackButton from './slackLogo';
 
 export default function WithSlack() {
   const supabase = createClient();
@@ -13,7 +13,7 @@ export default function WithSlack() {
     ).toString();
 
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "slack_oidc",
+      provider: 'slack_oidc',
       options: {
         redirectTo,
       },

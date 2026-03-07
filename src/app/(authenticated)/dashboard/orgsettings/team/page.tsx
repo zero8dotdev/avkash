@@ -1,6 +1,7 @@
-"use client";
-import { useApplicationContext } from "@/app/_context/appContext";
-import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+'use client';
+
+import { useApplicationContext } from '@/app/_context/appContext';
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -10,22 +11,22 @@ import {
   Row,
   Segmented,
   Typography,
-} from "antd";
-import { useEffect, useState } from "react";
-import TeamTableActive from "./teamTable";
-import SideMenu from "../_components/menu";
-import useSWR from "swr";
-import { fetchTeamsData, updateTeamData } from "../_actions";
+} from 'antd';
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import TeamTableActive from './teamTable';
+import SideMenu from '../_components/menu';
+import { fetchTeamsData, updateTeamData } from '../_actions';
 
 const Team = () => {
-  const [segmentValue, setSegmentValue] = useState<string | number>("active");
+  const [segmentValue, setSegmentValue] = useState<string | number>('active');
   const [teams, setTeams] = useState<any>();
 
   const { state: appState } = useApplicationContext();
   const { orgId, role } = appState;
 
   const fetchteams = async (orgId: string) => {
-    const org = orgId.split("*")[1];
+    const org = orgId.split('*')[1];
     const teams = await fetchTeamsData(org);
     return teams;
   };
@@ -44,36 +45,34 @@ const Team = () => {
   const handleDisable = async (teamData: any) => {
     await updateTeamData(false, teamData.teamId);
     mutate();
-    setSegmentValue("inactive");
+    setSegmentValue('inactive');
   };
 
   const handleEnable = async (teamData: any) => {
     await updateTeamData(true, teamData.teamId);
     mutate();
-    setSegmentValue("active");
+    setSegmentValue('active');
   };
 
   return (
-    <Row gutter={8} style={{ padding: "80px", overflow: "hidden" }}>
+    <Row gutter={8} style={{ padding: '80px', overflow: 'hidden' }}>
       <Col span={3}>
         <SideMenu position="team" />
       </Col>
       <Col span={16}>
         <Card
-          title='Teams'
+          title="Teams"
           // {
           //   <Typography.Title level={4} style={{ marginTop: "25px" }}>
           //     Teams
           //   </Typography.Title>
           // }
           extra={
-            role === "OWNER"? (
-            <Button
-              type="primary"
-              style={{ marginTop: "12px" }}
-            >
-              Add new team
-            </Button>) : null
+            role === 'OWNER' ? (
+              <Button type="primary" style={{ marginTop: '12px' }}>
+                Add new team
+              </Button>
+            ) : null
           }
         >
           <Segmented
@@ -81,19 +80,19 @@ const Team = () => {
             onChange={setSegmentValue}
             options={[
               {
-                label: "active",
-                value: "active",
+                label: 'active',
+                value: 'active',
                 icon: <CheckCircleTwoTone />,
               },
               {
-                label: "inactive",
-                value: "inactive",
+                label: 'inactive',
+                value: 'inactive',
                 icon: <CloseCircleTwoTone />,
               },
             ]}
           />
-          <Flex vertical style={{ marginTop: "12px" }}>
-            {segmentValue === "active" ? (
+          <Flex vertical style={{ marginTop: '12px' }}>
+            {segmentValue === 'active' ? (
               <TeamTableActive
                 teams={activeTeams}
                 status={segmentValue}

@@ -1,15 +1,15 @@
-"use server";
+'use server';
 
-import { createClient } from "@/app/_utils/supabase/server";
-import { createAdminClient } from "../_utils/supabase/adminClient";
-import { WebClient } from "@slack/web-api";
+import { createClient } from '@/app/_utils/supabase/server';
+import { WebClient } from '@slack/web-api';
+import { createAdminClient } from '../_utils/supabase/adminClient';
 
 /*
   Fetch the current logged in user
 */
 export const fetchUser = async () => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     // TODO: figure out if we can skip this step.
     const {
       data: { user },
@@ -20,9 +20,9 @@ export const fetchUser = async () => {
       throw error;
     }
     const { data: userProfile, error: userProfileError } = await supabase
-      .from("User")
+      .from('User')
       .select()
-      .eq("userId", user.id)
+      .eq('userId', user.id)
       .single();
 
     if (userProfileError || !userProfile) {
@@ -39,12 +39,12 @@ export const fetchUser = async () => {
 */
 export const fetchOrg = async (orgId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: organisation, error } = await supabase
-      .from("Organisation")
+      .from('Organisation')
       .select()
-      .eq("orgId", orgId)
+      .eq('orgId', orgId)
       .single();
 
     if (error || !organisation) {
@@ -62,12 +62,12 @@ export const fetchOrg = async (orgId: string) => {
 */
 export const fetchTeam = async (teamId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: team, error } = await supabase
-      .from("Team")
+      .from('Team')
       .select()
-      .eq("teamId", teamId)
+      .eq('teamId', teamId)
       .single();
 
     if (error || !team) {
@@ -84,12 +84,12 @@ export const fetchTeam = async (teamId: string) => {
 */
 export const fetchAllTeams = async (orgId: string) => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: teams, error } = await supabase
-      .from("Team")
+      .from('Team')
       .select()
-      .eq("orgId", orgId);
+      .eq('orgId', orgId);
 
     if (error) {
       throw error;
@@ -101,232 +101,18 @@ export const fetchAllTeams = async (orgId: string) => {
   }
 };
 
-export const fetchTeamMembers = async (teamId: string) => {
-  try {
-    const supabase = createClient();
-    const { data: teamMembers, error } = await supabase
-      .from("User")
-      .select(
-        `
-      *,
-      Team (
-        name
-      )
-    `
-      )
-      .eq("teamId", teamId);
-
-    if (error) {
-      throw error;
-    }
-
-    return teamMembers;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// export const updataOrgData = async (values: any, orgId: string) => {
-//   const supabase = createClient();
-
-//   const { data, error } = await supabase
-//     .from("Organisation")
-//     .update({
-//       ...values,
-//     })
-//     .eq("orgId", orgId)
-//     .select();
-//   if (error) {
-//     throw error;
-//   }
-//   return data;
-// };
-
-// export const fetchleaveTypes = async (orgId: string) => {
-//   const supabase = createClient();
-//   const { data, error } = await supabase
-//     .from("LeaveType")
-//     .select("name,leaveTypeId,color,isActive")
-//     .eq("orgId", orgId);
-
-//   if (error) {
-//     throw error;
-//   }
-//   return data;
-// };
-
-export const updateLeaveType = async (values: any, leaveTypeId: any) => {
-  const supabase = createClient();
-  const { color } = values;
-
-  const leaveTypeValues = { ...values, color: color.slice(1) };
-
-  const { data, error } = await supabase
-    .from("LeaveType")
-    .update(leaveTypeValues)
-    .eq("leaveTypeId", leaveTypeId)
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data;
-};
-export const fetchTeamsData = async (orgId: string) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("Team")
-    .select(`*, User(*)`)
-    .eq("orgId", orgId);
-
-  if (error) {
-    throw error;
-  }
-
-  const processedData = data.map((team) => {
-    const teamId = team.teamId;
-    const name = team.name;
-    const status = team.isActive;
-    const users = team.User.length;
-    const manager =
-      team.User.find((user: any) => user?.role === "MANAGER")?.name ||
-      "No manager assigned";
-
-    return {
-      teamId,
-      name,
-      manager,
-      users,
-      status,
-    };
-  });
-
-  return processedData;
-};
-export const fetchPublicHolidays = async (countryCode: any) => {
-  const currentYear = new Date().getFullYear();
-  const supabase = createClient();
-  const { data: holidaysdata, error } = await supabase
-    .from("PublicHolidays")
-    .select("*")
-    .eq("iso", countryCode)
-    .eq("year", currentYear);
-
-  if (error) {
-    throw error;
-  }
-  return holidaysdata;
-};
-
-export const updateLeaveTypeBasedOnOrg = async (
-  isActive: boolean,
-  orgId: string,
-  leaveTypeId: any
-) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("LeaveType")
-    .update({ isActive: isActive })
-    .eq("orgId", orgId)
-    .eq("leaveTypeId", leaveTypeId)
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data;
-};
-
-export const updateTeamData = async (isActive: boolean, teamId: string) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("Team")
-    .update({ isActive: isActive })
-    .eq("teamId", teamId)
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data;
-};
-
-export const fetchAllOrgUsers = async (orgId: string, withTeam: boolean) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("User")
-    .select(`${withTeam ? "*, Team(*)" : "*"}`)
-    .eq("orgId", orgId);
-  if (error) {
-    throw error;
-  }
-  return data;
-};
-
-export const insertNewLeaveType = async (values: any) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("LeaveType")
-    .insert(values)
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data;
-};
-
-export const updateLeavePolicies = async (
-  values: any,
-  leaveTypeId: string,
-  orgId: string
-) => {
-  const supabase = createClient();
-
-  const { data: isDataAvailable, error } = await supabase
-    .from("LeavePolicy")
-    .select("*")
-    .eq("leaveTypeId", leaveTypeId)
-    .eq("orgId", orgId);
-  if (error) {
-    console.log(error);
-  }
-  if (
-    isDataAvailable === undefined ||
-    isDataAvailable?.length === 0 ||
-    isDataAvailable === null
-  ) {
-    const { data, error } = await supabase
-      .from("LeavePolicy")
-      .insert({ ...values, leaveTypeId, orgId });
-    if (error) {
-      console.log(error);
-    }
-    return data;
-  } else {
-    const { data, error } = await supabase
-      .from("LeavePolicy")
-      .update(values)
-      .eq("leaveTypeId", leaveTypeId)
-      .eq("orgId", orgId)
-
-      .select("*");
-    if (error) {
-      console.log(error);
-    }
-
-    return data;
-  }
-};
-
 export const fetchLeaveTypes = async (
   teamId: string,
   userId: string,
   orgId: string
 ) => {
   try {
-    const supabaseAdminClient = createAdminClient();
+    const supabaseAdminClient = await createClient();
 
     const { data, error } = await supabaseAdminClient
-      .from("LeavePolicy")
+      .from('LeavePolicy')
       .select(`*, LeaveType(*)`)
-      .eq("teamId", teamId);
+      .eq('teamId', teamId);
 
     if (error) {
       throw error;
@@ -343,14 +129,14 @@ export const fetchLeaveTypes = async (
 
 /* Sign Up process, takes care of creating org team and user */
 export const signUpAction = async (values: any) => {
-  const supabaseServerClient = createClient();
+  const supabaseServerClient = await createClient();
   const {
     data: { user: authUser },
     error,
   } = await supabaseServerClient.auth.getUser();
 
   if (!authUser) {
-    throw new Error("Something went wrong!");
+    throw new Error('Something went wrong!');
   }
 
   const { name, team_name, email, slackUserId } = values;
@@ -359,12 +145,13 @@ export const signUpAction = async (values: any) => {
   try {
     // create one organisation
     const { data: org, error: orgError } = await supabaseAdminClient
-      .from("Organisation")
+      .from('Organisation')
       .insert({
         ownerId: authUser.id,
         createdBy: authUser.id,
+        name: team_name,
       })
-      .select("*")
+      .select('*')
       .single();
 
     if (orgError) {
@@ -373,7 +160,7 @@ export const signUpAction = async (values: any) => {
 
     // create a team with that orgId
     const { data: team, error: teamError } = await supabaseAdminClient
-      .from("Team")
+      .from('Team')
       .insert({
         name: team_name,
         orgId: org.orgId,
@@ -389,11 +176,11 @@ export const signUpAction = async (values: any) => {
 
     // create a user as well
     const { data: user, error: userError } = await supabaseAdminClient
-      .from("User")
+      .from('User')
       .insert({
         userId: authUser.id,
-        name: name,
-        email: email,
+        name,
+        email,
         picture: authUser?.user_metadata.picture,
         teamId: team.teamId,
         slackId: slackUserId,
@@ -409,10 +196,20 @@ export const signUpAction = async (values: any) => {
       throw userError;
     }
 
+    const { data: orgAccess, error: accessDataUpdateError } =
+      await supabaseAdminClient
+        .from('OrgAccessData')
+        .update({ orgId: org.orgId })
+        .eq('ownerSlackId', slackUserId);
+
+    if (accessDataUpdateError) {
+      throw accessDataUpdateError;
+    }
     return {
       org,
       team,
       user,
+      orgAccess,
     };
   } catch (error) {
     throw error;
@@ -422,7 +219,7 @@ export const signUpAction = async (values: any) => {
 export const getLeaves = async (idColumn: any, id: any) => {
   const supabase = createAdminClient();
   const { data: leaves, error: leaveError } = await supabase
-    .from("Leave")
+    .from('Leave')
     .select(`*, User(*)`)
     .eq(`${idColumn}`, id);
   if (leaveError) {
@@ -433,11 +230,11 @@ export const getLeaves = async (idColumn: any, id: any) => {
 
 export const getUserRole = async (userId: any): Promise<string> => {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Fetch user, team, and organisation data
     const { data, error } = await supabase
-      .from("User")
+      .from('User')
       .select(
         `
         userId,
@@ -445,12 +242,12 @@ export const getUserRole = async (userId: any): Promise<string> => {
         Team(*)
       `
       )
-      .eq("userId", userId)
+      .eq('userId', userId)
       .single();
 
     if (error) {
-      console.error("Error fetching user role:", error);
-      return "Error";
+      console.error('Error fetching user role:', error);
+      return 'Error';
     }
 
     // Get the single Organisation and Team data
@@ -458,19 +255,19 @@ export const getUserRole = async (userId: any): Promise<string> => {
     const team = data.Team as any; // Team should now be a single object
     // Check if the Organisation exists and if user is the Owner
     if (organisation?.ownerId === userId) {
-      return "OWNER";
+      return 'OWNER';
     }
 
     // Check if the Team exists and if user is a Manager for the specific team
     if (team?.managers?.includes(userId)) {
-      return "MANAGER";
+      return 'MANAGER';
     }
 
     // Default to "User" if no higher roles match
-    return "USER";
+    return 'USER';
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return "Error";
+    console.error('Unexpected error:', error);
+    return 'Error';
   }
 };
 
@@ -479,9 +276,9 @@ export const getUserVisibility = async (orgId: any) => {
 
   try {
     const { data: visibility, error: visibilityError } = await supabase
-      .from("Organisation")
-      .select("visibility")
-      .eq("orgId", orgId)
+      .from('Organisation')
+      .select('visibility')
+      .eq('orgId', orgId)
       .single();
 
     if (visibilityError) {
@@ -498,13 +295,12 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
     const supabaseAdminClient = createAdminClient();
 
     const { data: organisation, error } = await supabaseAdminClient
-      .from("Organisation")
-      .select("*, OrgAccessData(slackAccessToken)")
-      .eq("orgId", orgId)
+      .from('Organisation')
+      .select('*, OrgAccessData(slackAccessToken)')
+      .eq('orgId', orgId)
       .single();
 
-    const slackAccessToken =
-      organisation["OrgAccessData"][0]["slackAccessToken"];
+    const slackAccessToken = organisation.OrgAccessData[0].slackAccessToken;
     const slackClient = new WebClient(slackAccessToken);
 
     const result = await slackClient.users.list({
@@ -525,9 +321,9 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
     );
 
     const existedUsers = await supabaseAdminClient
-      .from("User")
-      .select("*")
-      .eq("orgId", orgId);
+      .from('User')
+      .select('*')
+      .eq('orgId', orgId);
     if (existedUsers.error) {
       throw existedUsers.error;
     }
@@ -539,344 +335,191 @@ export const fetchAllUsersFromChatApp = async (orgId: string) => {
     const nonExistingUsers = users?.filter(
       (user: any) => !existingUserEmails.has(user.profile.email)
     );
-    return nonExistingUsers;
+    return { nonExistingUsers, existedUsers };
   } catch (error) {
     console.log(error);
-  }
-};
-
-export const completeSetup = async (orgId: string, setupData: any) => {
-  try {
-    const {
-      startOfWorkWeek,
-      workweek,
-      timeZone,
-      leaveChange: notificationLeaveChanged,
-      dailySummary: notificationDailySummary,
-      weeklySummary: notificationWeeklySummary,
-      sendNtf: notificationToWhom,
-      leavePolicies,
-      holidaysList,
-      countryCode,
-      users,
-      teamId,
-    } = setupData;
-
-    const supabaseServerClient = createClient();
-    const {
-      data: { user: currentUser },
-      error,
-    } = await supabaseServerClient.auth.getUser();
-
-    const supabaseAdminClient = createAdminClient();
-
-    const { data: organisation, error: orgError } = await supabaseAdminClient
-      .from("Organisation")
-      .update({
-        startOfWorkWeek,
-        workweek,
-        notificationLeaveChanged,
-        notificationDailySummary,
-        notificationWeeklySummary,
-        // notificationToWhom: Array.isArray(notificationToWhom) && notificationToWhom[0]
-      })
-      .eq("orgId", orgId)
-      .select("*");
-
-    if (orgError) {
-      throw orgError;
-    }
-
-    // leavePolicies
-    const { data: leavePoliciesData, error: leavePoliciesError } =
-      await supabaseAdminClient
-        .from("LeavePolicy")
-        .insert(leavePolicies.map((policy: any) => ({ ...policy, orgId })))
-        .select("*");
-
-    if (leavePoliciesError) {
-      throw leavePoliciesError;
-    }
-
-    // holidays
-    const { data: holidaysData, error: holidaysError } =
-      await supabaseAdminClient
-        .from("Holiday")
-        .insert(
-          holidaysList.map(({ name, isRecurring, isCustom, date }: any) => ({
-            name,
-            isRecurring,
-            isCustom,
-            orgId,
-            date,
-            createdBy: currentUser?.id,
-            location: countryCode,
-          }))
-        )
-        .select();
-
-    if (holidaysError) {
-      throw holidaysError;
-    }
-
-    let accruedLeave = leavePoliciesData
-      .filter(({ isActive }) => isActive)
-      .reduce((acc, leavePolicy) => {
-        acc[leavePolicy.leaveTypeId] = {
-          balance: leavePolicy.unlimited ? "unlimited" : leavePolicy.maxLeaves,
-        };
-        return acc;
-      }, {});
-
-    let usedLeave = leavePoliciesData
-      .filter(({ isActive }) => isActive)
-      .reduce((acc, leavePolicy) => {
-        acc[leavePolicy.leaveTypeId] = {
-          balance: leavePolicy.unlimited ? "unlimited" : 0,
-        };
-        return acc;
-      }, {});
-
-    const acc = { loggedInUser: {}, users: [] };
-    const { loggedInUser, users: restUsers } = users.reduce(
-      (acc: any, { slackId, name, email, isProrate }: any) => {
-        if (slackId === currentUser?.user_metadata.sub) {
-          acc.loggedInUser = {
-            id: currentUser?.id,
-            slackId,
-            orgId,
-            accruedLeave,
-            usedLeave,
-          };
-        } else {
-          acc.users.push({
-            slackId,
-            name,
-            email,
-            orgId,
-            accruedLeave,
-            usedLeave,
-            teamId,
-            createdBy: currentUser?.id,
-          });
-        }
-        return acc;
-      },
-      acc
-    );
-
-    const { data: userData, error: userError } = await supabaseAdminClient
-      .from("User")
-      .update({
-        slackId: loggedInUser.slackId,
-        accruedLeave: loggedInUser.accruedLeave,
-        usedLeave: loggedInUser.usedLeave,
-      })
-      .eq("userId", loggedInUser.id)
-      .select();
-
-    if (userError) {
-      throw userError;
-    }
-
-    const { data: usersData, error: usersError } = await supabaseAdminClient
-      .from("User")
-      .insert(restUsers)
-      .select("*");
-
-    if (usersError) {
-      throw usersError;
-    }
-
-    const result = await supabaseAdminClient
-      .from("Organisation")
-      .update({ initialSetup: true })
-      .eq("orgId", orgId)
-      .select();
-
-    if (result.error) {
-      throw result.error;
-    }
-    return true;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const updateHolidaysList = async (
-  holidaysList: any,
-  orgId: string,
-  countryCode: any
-) => {
-  const holidayData = holidaysList.map((e: any) => {
-    return {
-      name: e.name,
-      date: e.date,
-      isRecurring: e.isRecurring,
-      isCustom: e.isCustom,
-      location: countryCode,
-      orgId: orgId,
-    };
-  });
-  const supabase = createClient();
-  const { data: deleteData, error: deleteError } = await supabase
-    .from("Holiday")
-    .delete()
-    .eq("orgId", orgId)
-    .select();
-
-  if (deleteData) {
-    const { data, error } = await supabase
-      .from("Holiday")
-      .insert(holidayData)
-      .select();
-    if (error) {
-      console.log(error);
-    }
-    return data;
-  }
-};
-
-export const fetchTeamUsers = async (teamId: string) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("User")
-    .select("name")
-    .eq("teamId", teamId);
-  if (error) {
-    console.log(error);
-  }
-  return data;
-};
-
-export const fetchAllActivities = async (
-  userId: string,
-  teamId: string,
-  orgId: string
-) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("ActivityLog")
-    .select("*")
-    .or(`userId.eq.${userId},teamId.eq.${userId},teamId.eq.${orgId}`);
-  if (error) {
-    console.log(error);
-  }
-  return data;
-};
-
-export const isSlackTokenExists = async (orgId: string) => {
-  try {
-    const serverClient = createClient();
-    const { count, error } = await serverClient
-      .from("OrgAccessData")
-      .select("*", { count: "exact", head: true })
-      .eq("orgId", orgId);
-
-    if (error) {
-      throw error;
-    }
-
-    return !!count;
-  } catch (error) {
-    throw error;
   }
 };
 
 export const isInitialSetupDone = async (orgId: string) => {
   const supabase = createAdminClient();
   const res = await supabase
-    .from("Organisation")
-    .select("isSetupCompleted")
-    .eq("orgId", orgId)
+    .from('Organisation')
+    .select('isSetupCompleted')
+    .eq('orgId', orgId)
     .single();
 
   return res.data;
 };
 
-export const fetchUserDetails = async (userId: string) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("User")
-    .select("*")
-    .eq("userId", userId)
-    .single();
-  if (error) {
-    console.log(error);
+export async function checkSlackOwnership(): Promise<
+  | 'signup'
+  | 'dashboard/timeline'
+  | 'initialsetup/settings'
+  | 'add-to-slack'
+  | 'you-are-not-admin'
+  | 'ask-for-invitation'
+  | 'login'
+> {
+  const supabase = await createClient();
+  const adminSupabase = createAdminClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('Error fetching user:', userError);
+    return 'login';
   }
-  return data;
+  const domain = user?.email?.split('@')[1] || '';
+  const userId = user?.id;
+  const isSlackAdmin = user.user_metadata?.is_slack_admin;
+
+  const { data: existingUser, error: Error } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', userId);
+
+  if (typeof isSlackAdmin !== 'boolean') {
+    return existingUser?.length ? 'dashboard/timeline' : 'add-to-slack';
+  }
+
+  if (!isSlackAdmin) {
+    // Step 2: Check if organisation exists by domain
+    const { data: org, error: orgError } = await adminSupabase
+      .from('Organisation')
+      .select('*')
+      .eq('name', domain);
+    console.log(org, 'ORG');
+    // Step 3: Check if user exists by userId
+    // const { data: existingUser, error: userError } = await supabase
+    //   .from('User')
+    //   .select('*')
+    //   .eq('userId', userId);
+    const orgExists = Array.isArray(org) && org.length > 0;
+    const userExists = Array.isArray(existingUser) && existingUser.length > 0;
+
+    // Step 4: Return based on conditions
+    if (userExists) return 'dashboard/timeline';
+    if (orgExists && userExists) return 'dashboard/timeline';
+    if (!orgExists && !userExists) return 'you-are-not-admin';
+    if (orgExists && !userExists) return 'ask-for-invitation';
+
+    return 'add-to-slack';
+  }
+
+  const { data: userData, error: userFetchError } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', user.id)
+    .maybeSingle();
+
+  if (userFetchError) {
+    console.error('Error fetching user from User table:', userFetchError);
+    return 'add-to-slack';
+  }
+
+  if (!userData) {
+    return 'signup';
+  }
+
+  const { data: orgData, error: orgError } = await supabase
+    .from('Organisation')
+    .select('*')
+    .eq('orgId', userData.orgId)
+    .maybeSingle();
+
+  if (orgError || !orgData) {
+    console.error('Error fetching organisation data:', orgError);
+    return 'add-to-slack';
+  }
+
+  if (orgData.isSetupCompleted === true) {
+    return 'dashboard/timeline';
+  } else {
+    const step = Number(orgData?.initialsetup);
+    return 'initialsetup/settings';
+  }
+}
+
+export const getUserAndOrgStatus = async (): Promise<
+  | 'dashboard/timeline'
+  | 'you-are-not-admin'
+  | 'ask-for-invitation'
+  | 'add-to-slack'
+> => {
+  const adminSupabase = createAdminClient();
+  const supabase = await createClient();
+
+  // Step 1: Get Authenticated User
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user?.email || !user?.id) {
+    console.error('Auth error or missing user info');
+    return 'you-are-not-admin';
+  }
+
+  const domain = user?.email?.split('@')[1] || '';
+  const userId = user?.id;
+  console.log(domain, 'DOMAIN');
+  console.log(userId, 'USERID');
+  // Step 2: Check if organisation exists by domain
+  const { data: org, error: orgError } = await adminSupabase
+    .from('Organisation')
+    .select('*')
+    .eq('name', domain);
+  console.log(org, 'ORG');
+  // Step 3: Check if user exists by userId
+  const { data: existingUser, error: userError } = await supabase
+    .from('User')
+    .select('*')
+    .eq('userId', userId);
+  console.log(existingUser, 'USER');
+  const orgExists = Array.isArray(org) && org.length > 0;
+  const userExists = Array.isArray(existingUser) && existingUser.length > 0;
+
+  // Step 4: Return based on conditions
+  if (orgExists && userExists) return 'dashboard/timeline';
+  if (!orgExists && !userExists) return 'you-are-not-admin';
+  if (orgExists && !userExists) return 'ask-for-invitation';
+
+  // fallback
+  return 'add-to-slack';
 };
 
-export const createNewTeam = async (values: any, orgId: string) => {
-  const supabase = createClient();
-  const { data: teamData, error } = await supabase
-    .from("Team")
-    .insert({ ...values })
-    .select("*");
-  if (error) {
-    console.log(error);
-  }
-  return teamData;
-};
-export const addUsersToNewTeam = async (values: any, userId: any) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("User")
-    .update({ teamId: values })
-    .eq("userId", userId);
-  if (error) {
-    console.log(error);
-  }
-  return data;
-};
+export async function isOrgExist(): Promise<boolean> {
+  const supabase = await createClient();
 
-export const fetchUsers = async (teamId: any, orgId: any) => {
-  try {
-    const supabase = createClient();
-    if (teamId) {
-      const { data: teamMembers, error } = await supabase
-        .from("User")
-        .select()
-        .eq("teamId", teamId);
-      if (error) {
-        throw error;
-      }
-      return teamMembers;
-    } else {
-      const { data: orgUsers, error } = await supabase
-        .from("User")
-        .select()
-        .eq("orgId", orgId);
-      if (error) {
-        throw error;
-      }
-      return orgUsers;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+  // Step 1: Get Authenticated User
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-export const insertLeaves = async (values: any) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("Leave")
-    .insert({ ...values })
-    .single();
-  if (error) {
-    console.log(error);
+  if (authError || !user?.email) {
+    console.error('Auth error or missing user email');
+    return false;
   }
-  return data;
-};
-export const fetchTeamId = async (userId: any) => {
-  const supabase = createClient();
+
+  // Step 2: Extract domain from email
+  const domainName = user.email.split('@')[1] || '';
+  if (!domainName) return false;
+
+  // Step 3: Check if organisation with that name exists
   const { data, error } = await supabase
-    .from("User")
-    .select("teamId")
-    .eq("userId", userId);
+    .from('Organisation')
+    .select('orgId')
+    .eq('name', domainName)
+    .maybeSingle();
+
   if (error) {
-    console.log(error);
+    console.error('Error checking org by domain name:', error);
+    return false;
   }
-  return data;
-};
+
+  return !!data;
+}

@@ -1,8 +1,8 @@
-import { Row, Col, Grid } from "antd";
-import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from "@/app/_actions";
-import StoreToContext from "@/app/_components/store-to-context";
+import { Row, Col, Grid } from 'antd';
+import { fetchUser, fetchTeam, fetchOrg, fetchAllTeams } from '@/app/_actions';
+import StoreToContext from '@/app/_components/store-to-context';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({
   children,

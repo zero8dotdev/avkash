@@ -9,9 +9,9 @@ import {
   SmileOutlined,
   SolutionOutlined,
   UserOutlined,
-} from "@ant-design/icons";
-import { Col, Steps } from "antd";
-import React from "react";
+} from '@ant-design/icons';
+import { Col, Steps } from 'antd';
+import React from 'react';
 
 interface TopStepsProps {
   position: number;
@@ -23,31 +23,31 @@ const TopSteps: React.FC<TopStepsProps> = ({ position }) => {
       current={position}
       items={[
         {
-          title: "Connect to Slack",
+          title: 'Connect to Slack',
           icon: <SlackCircleFilled />,
         },
         {
-          title: "Settings",
+          title: 'Settings',
           icon: <SettingFilled />,
         },
         {
-          title: "Leave Policy",
+          title: 'Leave Policy',
           icon: <CalendarFilled />,
         },
         {
-          title: "Locations",
+          title: 'Locations',
           icon: <EnvironmentFilled />,
         },
         {
-          title: "Notifications",
+          title: 'Notifications',
           icon: <NotificationFilled />,
         },
         {
-          title: "Invite Users",
+          title: 'Invite Users',
           icon: <UserOutlined />,
         },
       ]}
-      style={{ padding: "0px 100px 20px 100px" }}
+      style={{ padding: '0px 100px 20px 100px' }}
     />
   );
 };

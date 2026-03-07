@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import React from "react";
+import Link from 'next/link';
+import React from 'react';
 
 const faqItems = [
   {
-    question: "Why should I use an automated leave management tool?",
+    question: 'Why should I use an automated leave management tool?',
     answer:
-      "An automated leave management tool ensures accurate record-keeping, and enhances team coordination without extra hassle of manual tracking. It promotes transparency, boosts productivity, and empowers employees with self-service options.",
+      'An automated leave management tool ensures accurate record-keeping, and enhances team coordination without extra hassle of manual tracking. It promotes transparency, boosts productivity, and empowers employees with self-service options.',
   },
   {
-    question: "Who is Avkash for?",
+    question: 'Who is Avkash for?',
     answer:
-      "An automated leave management tool ensures accurate record-keeping, and enhances team coordination without extra hassle of manual tracking. It promotes transparency, boosts productivity, and empowers employees with self-service options.",
+      'An automated leave management tool ensures accurate record-keeping, and enhances team coordination without extra hassle of manual tracking. It promotes transparency, boosts productivity, and empowers employees with self-service options.',
   },
   {
-    question: "How does Avkash handle leave approvals?",
+    question: 'How does Avkash handle leave approvals?',
     answer:
-      "Leave requests submitted through Avkash are routed to the designated approvers based on the configured approval workflow. Approvers can review, approve, or deny leave requests directly within Slack or Google Workspace, and real-time notifications keep everyone updated.",
+      'Leave requests submitted through Avkash are routed to the designated approvers based on the configured approval workflow. Approvers can review, approve, or deny leave requests directly within Slack or Google Workspace, and real-time notifications keep everyone updated.',
   },
   {
-    question: "How secure is my data with Avkash?",
+    question: 'How secure is my data with Avkash?',
     answer:
-      "**Data security is a top priority for Avkash. We implement advanced security measures to protect your data. Please refer to our data and privacy policy for more details.**",
+      '**Data security is a top priority for Avkash. We implement advanced security measures to protect your data. Please refer to our data and privacy policy for more details.**',
   },
   {
-    question: "Can I try Avkash before committing to a subscription?",
+    question: 'Can I try Avkash before committing to a subscription?',
     answer:
-      "Yes, we offer a free trial so you can experience Avkash and see how it benefits your team. Sign up for 14 days free trial and start exploring Avkash’s features without any commitment.",
+      'Yes, we offer a free trial so you can experience Avkash and see how it benefits your team. Sign up for 14 days free trial and start exploring Avkash’s features without any commitment.',
   },
 ];
 

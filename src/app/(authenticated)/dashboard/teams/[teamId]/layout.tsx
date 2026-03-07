@@ -1,5 +1,5 @@
-import { Col, ConfigProvider, Row } from "antd";
-import React from "react";
+import { Col, ConfigProvider, Row } from 'antd';
+import React from 'react';
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -7,18 +7,18 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       theme={{
         components: {
           Tabs: {
-            colorBorder: "transparent",
-            inkBarColor: "transparent",
-            cardBg: "transparent",
+            colorBorder: 'transparent',
+            inkBarColor: 'transparent',
+            cardBg: 'transparent',
             fontSize: 15,
-            colorPrimaryBorder:'transparent',
-            colorBorderBg:'transparent',
+            colorPrimaryBorder: 'transparent',
+            colorBorderBg: 'transparent',
           },
         },
       }}
     >
-      <Row style={{ paddingLeft:"100px" }}>
-        <Col span={24} style={{ justifyContent: "center", padding: "80px"}}>
+      <Row style={{ paddingLeft: '100px' }}>
+        <Col span={24} style={{ justifyContent: 'center', padding: '80px' }}>
           {children}
         </Col>
       </Row>

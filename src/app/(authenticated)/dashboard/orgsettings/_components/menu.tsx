@@ -1,8 +1,9 @@
-"use client";
-import { useApplicationContext } from "@/app/_context/appContext";
-import { Menu, Tabs } from "antd";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState, useTransition } from "react";
+'use client';
+
+import { useApplicationContext } from '@/app/_context/appContext';
+import { Menu, Tabs } from 'antd';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useTransition } from 'react';
 
 const SideMenu = ({ position }: { position: string }) => {
   const router = useRouter();
@@ -11,25 +12,29 @@ const SideMenu = ({ position }: { position: string }) => {
 
   // Define the items outside the component to avoid re-creating them
   const allItems = [
-    { label: "General", key: "general", children: "" },
-    { label: "Billing", key: "billing", children: "" },
-    { label: "Leave Types", key: "leave-types", children: "" },
-    { label: "Teams", key: "team", children: "" },
-    { label: "Locations", key: "location", children: "" },
+    { label: 'General', key: 'general', children: '' },
+    { label: 'Billing', key: 'billing', children: '' },
+    { label: 'Leave Types', key: 'leave-types', children: '' },
+    { label: 'Teams', key: 'team', children: '' },
+    { label: 'Locations', key: 'location', children: '' },
   ];
 
   // Initialize state with filtered items based on role
   const initialItems =
-    state.role === "MANAGER"
-      ? allItems.filter((item) => item.key === "team" || item.key === "location")
+    state.role === 'MANAGER'
+      ? allItems.filter(
+          (item) => item.key === 'team' || item.key === 'location'
+        )
       : allItems;
 
   const [tabitems, setTabitems] = useState(initialItems);
 
   useEffect(() => {
     const filteredItems =
-      state.role === "MANAGER"
-        ? allItems.filter((item) => item.key === "team" || item.key === "location")
+      state.role === 'MANAGER'
+        ? allItems.filter(
+            (item) => item.key === 'team' || item.key === 'location'
+          )
         : allItems;
 
     setTabitems(filteredItems);

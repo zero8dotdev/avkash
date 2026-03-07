@@ -1,0 +1,18 @@
+# Get the name of the branch being pushed
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# Prevent pushing to the main branch
+if [ "$branch" = "main" ]; then
+    echo "🚫 You are not allowed to push to the main branch!"
+    exit 1
+fi
+
+# Run the build process
+echo "🔨 Running build process..."
+if npm run build; then
+    echo "✅ Build succeeded. Proceeding with the push..."
+    exit 0 # Allow the push
+else
+    echo "❌ Build failed. Push aborted."
+    exit 1 # Prevent the push
+fi

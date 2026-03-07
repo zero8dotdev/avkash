@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useApplicationContext } from "@/app/_context/appContext";
-import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Row, Flex, Select, Table, Col, Space, Typography } from "antd";
-import useSWR from "swr";
-import { getLeaveSummaryByUser, getLeaves } from "../_actions";
+import { useApplicationContext } from '@/app/_context/appContext';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Row, Flex, Select, Table, Col, Space, Typography } from 'antd';
+import useSWR from 'swr';
+import { getLeaveSummaryByUser, getLeaves } from '../_actions';
 
 export default function LeaveReport({
   user,
@@ -49,18 +49,18 @@ export default function LeaveReport({
             dataSource={data || []}
             pagination={false}
             columns={[
-              { title: "LEAVE TYPE", dataIndex: "leaveType", key: "leaveType" },
-              { title: "TAKEN", dataIndex: "taken", key: "taken" },
-              { title: "PLANNED", dataIndex: "planned", key: "planned" },
-              { title: "TOTAL", dataIndex: "total", key: "total" },
+              { title: 'LEAVE TYPE', dataIndex: 'leaveType', key: 'leaveType' },
+              { title: 'TAKEN', dataIndex: 'taken', key: 'taken' },
+              { title: 'PLANNED', dataIndex: 'planned', key: 'planned' },
+              { title: 'TOTAL', dataIndex: 'total', key: 'total' },
               {
                 title: (
                   <Space>
                     REMAINING <QuestionCircleOutlined />
                   </Space>
                 ),
-                dataIndex: "remaining",
-                key: "remaining",
+                dataIndex: 'remaining',
+                key: 'remaining',
               },
               {
                 title: (
@@ -68,38 +68,46 @@ export default function LeaveReport({
                     AVAILABLE <QuestionCircleOutlined />
                   </Space>
                 ),
-                dataIndex: "available",
-                key: "available",
+                dataIndex: 'available',
+                key: 'available',
               },
             ]}
-            summary={(pageData) => {
+            summary={(
+              pageData: readonly {
+                taken: number;
+                planned: number;
+                total: number;
+                remaining: number;
+                available: number;
+              }[]
+            ) => {
               return (
                 <Table.Summary.Row>
                   <Table.Summary.Cell index={1}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
                       Sum
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={2}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
-                      {pageData.reduce((sum, record) => sum + record.taken, 0)}
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
+                      {pageData.reduce((sum, record) => sum + record?.taken, 0)}
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={3}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
                       {pageData.reduce(
-                        (sum, record) => sum + record.planned,
+                        (sum, record) => sum + record?.planned,
                         0
                       )}
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={4}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
                       {pageData.reduce((sum, record) => sum + record.total, 0)}
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={5}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
                       {pageData.reduce(
                         (sum, record) => sum + Number(record.remaining),
                         0
@@ -107,7 +115,7 @@ export default function LeaveReport({
                     </Typography.Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={6}>
-                    <Typography.Text strong style={{ color: "#E85A4F" }}>
+                    <Typography.Text strong style={{ color: '#E85A4F' }}>
                       {pageData.reduce(
                         (sum, record) => sum + Number(record.available),
                         0

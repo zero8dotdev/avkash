@@ -1,6 +1,7 @@
-"use client";
-import { useEffect } from "react";
-import { Flex, Result, Button } from "antd";
+'use client';
+
+import { useEffect } from 'react';
+import { Flex, Result, Button } from 'antd';
 
 export default function Error({
   error,

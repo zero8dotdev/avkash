@@ -1,10 +1,10 @@
-"use client";
-import { Button, Card, Flex, Form, Select, Switch } from "antd";
-import React from "react";
+'use client';
+
+import { Button, Card, Flex, Form, Select, Switch } from 'antd';
+import React from 'react';
 
 const LeavePolicy = ({ name }: { name: string }) => {
-  const onFinish = (values: any) => {
-  };
+  const onFinish = (values: any) => {};
 
   return (
     <Card
@@ -12,11 +12,11 @@ const LeavePolicy = ({ name }: { name: string }) => {
         <Flex>
           <div
             style={{
-              height: "15px",
-              width: "15px",
-              margin: "6px 6px 0px 0px",
-              backgroundColor: "#34cfeb",
-              borderRadius: "50%",
+              height: '15px',
+              width: '15px',
+              margin: '6px 6px 0px 0px',
+              backgroundColor: '#34cfeb',
+              borderRadius: '50%',
             }}
           />
           {name}
@@ -34,7 +34,7 @@ const LeavePolicy = ({ name }: { name: string }) => {
 
         <Form.Item label="Maximum 14 leave days per year" name="maxleave">
           <Select
-            style={{ width: "100px" }}
+            style={{ width: '100px' }}
             placeholder="select how many days you want"
           >
             {Array.from(Array(14).keys()).map((i) => (
@@ -80,7 +80,7 @@ const LeavePolicy = ({ name }: { name: string }) => {
   );
 };
 
-const leaveTypes: string[] = ["paidOf", "sick"];
+const leaveTypes: string[] = ['paidOf', 'sick'];
 
 const LeavePolicyPage = () => {
   return (
