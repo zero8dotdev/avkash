@@ -1,0 +1,26 @@
+{
+  "name": "@avkash/org",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Domain: the Organisation tenant — creation, lifecycle (provisional/verified/restricted), domain verification, invitations.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/db": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "@avkash/notifications": "workspace:*",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/node": "^20.17.27",
+    "typescript": "^5.8.2"
+  }
+}
