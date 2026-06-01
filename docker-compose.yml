@@ -1,0 +1,72 @@
+name: avkash
+
+services:
+  # ── Postgres — the database for the Bun API (Better Auth + domain data) ──────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-avkash}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avkash}
+      POSTGRES_DB: ${POSTGRES_DB:-avkash}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-avkash} -d ${POSTGRES_DB:-avkash}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── API — strictly Bun (Hono server) ────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/${POSTGRES_DB:-avkash}
+      # Better Auth — set a strong secret in real use; this default is dev-only.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      # Slack login (leave blank until you have credentials).
+      SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
+      SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test:
+        - CMD
+        - bun
+        - -e
+        - "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Web — Next.js on Node ───────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      NEXT_TELEMETRY_DISABLED: 1
+    # The root Next.js app still reads its existing config (Supabase, Slack, etc.)
+    # from .env.local during the transition.
+    env_file:
+      - .env.local
+    ports:
+      - '3000:3000'
+
+volumes:
+  postgres_data:
