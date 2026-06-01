@@ -1,0 +1,20 @@
+{
+  "name": "@avkash/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "App: Next.js frontend. Depends on @avkash/shared (types) ONLY — cannot import db or domains.",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist .next"
+  },
+  "dependencies": {
+    "@avkash/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "typescript": "^5.8.2"
+  }
+}

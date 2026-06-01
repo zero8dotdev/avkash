@@ -1,0 +1,36 @@
+{
+  "name": "@avkash/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "App: Bun + Hono server. Wires domain packages into routes. Apps wire, packages think.",
+  "type": "module",
+  "exports": { ".": "./src/app.ts" },
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/shared": "workspace:*",
+    "@avkash/db": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "@avkash/org": "workspace:*",
+    "@avkash/users": "workspace:*",
+    "@avkash/leave": "workspace:*",
+    "@avkash/attendance": "workspace:*",
+    "@avkash/policy": "workspace:*",
+    "@avkash/documents": "workspace:*",
+    "@avkash/payroll": "workspace:*",
+    "@avkash/slack": "workspace:*",
+    "@avkash/jobs": "workspace:*",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.8.2"
+  }
+}
