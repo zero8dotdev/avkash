@@ -1,0 +1,7 @@
+{
+  "name": "@avkash/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared TypeScript bases. Foundation — zero internal deps.",
+  "files": ["base.json"]
+}

@@ -6,6 +6,16 @@
 .pnp.js
 .yarn/install-state.gz
 
+# v2 monorepo build artifacts (match at any depth)
+node_modules/
+.turbo/
+dist/
+**/.next/
+
+# local data / session artifacts
+data_dump.sql
+session-*.md
+
 # testing
 /coverage
 

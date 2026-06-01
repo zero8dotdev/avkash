@@ -1,0 +1,23 @@
+{
+  "name": "@avkash/leave",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Domain: leave types, policies, balances, requests, approval. The template domain.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/db": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/auth": "workspace:*"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "typescript": "^5.8.2"
+  }
+}

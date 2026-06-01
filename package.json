@@ -2,6 +2,7 @@
   "name": "avkash",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.3.0",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -20,7 +21,12 @@
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
     "prepare": "husky",
-    "knip": "knip"
+    "knip": "knip",
+    "turbo": "turbo",
+    "build:all": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint:all": "turbo run lint",
+    "clean": "turbo run clean"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
@@ -75,7 +81,8 @@
     "pg": "^8.12.0",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "turbo": "^2.3.0"
   },
   "overrides": {
     "@types/react": "19.0.10",
