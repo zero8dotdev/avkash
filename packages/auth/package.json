@@ -1,0 +1,27 @@
+{
+  "name": "@avkash/auth",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Identity (Layer 1): Better Auth + API keys. AuthN resolvers (one per transport) + authz guards. Where authN meets authz.",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/db": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/config": "workspace:*",
+    "@avkash/notifications": "workspace:*",
+    "better-auth": "^1.2.0",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/node": "^20.17.27",
+    "typescript": "^5.8.2"
+  }
+}
