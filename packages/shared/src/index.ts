@@ -5,4 +5,5 @@ export * from './enums';
 export * from './errors';
 export * from './db-errors';
 export * from './validate';
+export * from './serialize';
 export * from './context';

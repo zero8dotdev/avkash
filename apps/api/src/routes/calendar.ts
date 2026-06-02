@@ -12,4 +12,6 @@ const calendarQuerySchema = z.object({
 
 export const calendar = new Hono<AppEnv>()
   .use(requireAuth)
-  .get('/', validateQuery(calendarQuerySchema), async (c) => c.json(await getCalendar(c.get('auth'), c.get('query'))));
+  .get('/', validateQuery(calendarQuerySchema), async (c) =>
+    c.json({ data: await getCalendar(c.get('auth'), c.get('query')) })
+  );

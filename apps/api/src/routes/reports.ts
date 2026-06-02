@@ -13,8 +13,8 @@ const utilizationQuerySchema = z.object({
 export const reports = new Hono<AppEnv>()
   .use(requireAuth)
   .get('/leave-balance', validateQuery(balanceReportQuerySchema), async (c) =>
-    c.json(await balanceSummary(c.get('auth'), c.get('query')))
+    c.json({ data: await balanceSummary(c.get('auth'), c.get('query')) })
   )
   .get('/leave-utilization', validateQuery(utilizationQuerySchema), async (c) =>
-    c.json(await utilization(c.get('auth'), c.get('query')))
+    c.json({ data: await utilization(c.get('auth'), c.get('query')) })
   );

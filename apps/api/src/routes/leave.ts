@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { serialize } from '@avkash/shared';
 import {
   applyLeave,
   approveLeave,
@@ -12,6 +13,7 @@ import {
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { leaveDto, commentDto } from '../dto';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 
@@ -34,18 +36,22 @@ const listLeavesQuerySchema = z.object({
   userId: z.string().optional(),
 });
 
-// Thin transport adapter. Logic + authz live in @avkash/leave; this just maps HTTP.
-// validateBody/validateQuery parse + validate input into a typed c.get('body'|'query').
+// Thin transport adapter. Logic + authz live in @avkash/leave; this maps HTTP,
+// validates input (validateBody/validateQuery) and serializes output (leaveDto).
 export const leaves = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', validateBody(applyLeaveSchema), async (c) => c.json(await applyLeave(c.get('auth'), c.get('body')), 201))
-  .get('/', validateQuery(listLeavesQuerySchema), async (c) => c.json(await listLeaves(c.get('auth'), c.get('query'))))
-  .get('/:id', async (c) => c.json(await getLeave(c.get('auth'), c.req.param('id'))))
+  .post('/', validateBody(applyLeaveSchema), async (c) =>
+    c.json(serialize(leaveDto, await applyLeave(c.get('auth'), c.get('body'))), 201)
+  )
+  .get('/', validateQuery(listLeavesQuerySchema), async (c) =>
+    c.json({ data: serialize(z.array(leaveDto), await listLeaves(c.get('auth'), c.get('query'))) })
+  )
+  .get('/:id', async (c) => c.json(serialize(leaveDto, await getLeave(c.get('auth'), c.req.param('id')))))
   .post('/:id/approve', validateBody(decisionSchema), async (c) =>
-    c.json(await approveLeave(c.get('auth'), c.req.param('id'), c.get('body').comment))
+    c.json(serialize(leaveDto, await approveLeave(c.get('auth'), c.req.param('id'), c.get('body').comment)))
   )
   .post('/:id/reject', validateBody(decisionSchema), async (c) =>
-    c.json(await rejectLeave(c.get('auth'), c.req.param('id'), c.get('body').comment))
+    c.json(serialize(leaveDto, await rejectLeave(c.get('auth'), c.req.param('id'), c.get('body').comment)))
   )
   .delete('/:id', async (c) => {
     await cancelLeave(c.get('auth'), c.req.param('id'));
@@ -53,6 +59,8 @@ export const leaves = new Hono<AppEnv>()
   })
   // Comment thread (manager↔HR INTERNAL + applicant SHARED).
   .post('/:id/comments', validateBody(addCommentSchema), async (c) =>
-    c.json(await addLeaveComment(c.get('auth'), c.req.param('id'), c.get('body')), 201)
+    c.json(serialize(commentDto, await addLeaveComment(c.get('auth'), c.req.param('id'), c.get('body'))), 201)
   )
-  .get('/:id/comments', async (c) => c.json(await listLeaveComments(c.get('auth'), c.req.param('id'))));
+  .get('/:id/comments', async (c) =>
+    c.json({ data: serialize(z.array(commentDto), await listLeaveComments(c.get('auth'), c.req.param('id'))) })
+  );
