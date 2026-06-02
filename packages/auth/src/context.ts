@@ -14,6 +14,7 @@ function toAuthContext(u: User, opts: { assurance: Assurance; via: Transport }):
     role: u.role as Role,
     actorType: 'user',
     assurance: opts.assurance,
+    language: u.language ?? undefined,
     via: opts.via,
   }
 }

@@ -3,5 +3,4 @@
 
 export * from './enums'
 export * from './errors'
-export * from './error-messages'
 export * from './context'

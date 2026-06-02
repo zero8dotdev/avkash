@@ -77,7 +77,7 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   if (!lt) throw new NotFoundError('LEAVE_TYPE_NOT_FOUND')
   const policy = await getEffectivePolicy(ctx.orgId, u.teamId, input.leaveTypeId)
 
-  const workingDays = await computeWorkingDays(ctx.orgId, u.teamId, input.startDate, input.endDate, duration)
+  const workingDays = await computeWorkingDays(ctx.orgId, targetUserId, input.startDate, input.endDate, duration)
   if (workingDays <= 0) throw new BusinessRuleError('NO_WORKING_DAYS')
 
   // Overlap guard (ported from the DB trigger): block if a non-rejected leave

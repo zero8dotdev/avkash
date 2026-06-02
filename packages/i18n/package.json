@@ -1,20 +1,14 @@
 {
-  "name": "@avkash/users",
+  "name": "@avkash/i18n",
   "version": "0.0.0",
   "private": true,
-  "description": "Domain: the people — employees, teams, roles, profiles. (Org lifecycle lives in @avkash/org.)",
+  "description": "Foundation: error/message catalogs + locale resolution. Zero internal deps — transports localize by code.",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .turbo node_modules dist"
-  },
-  "dependencies": {
-    "@avkash/db": "workspace:*",
-    "@avkash/shared": "workspace:*",
-    "@avkash/auth": "workspace:*",
-    "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

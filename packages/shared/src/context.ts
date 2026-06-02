@@ -14,5 +14,6 @@ export interface AuthContext {
   actorType: 'user' | 'service' | 'system'
   assurance: Assurance             // how strongly identity was proven this session
   scopes?: string[]                // for API keys / OAuth tokens
+  language?: string                // user's preferred locale tag (overrides Accept-Language)
   via: Transport                   // AUDIT ONLY — never read in an authz decision
 }

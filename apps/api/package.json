@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@avkash/shared": "workspace:*",
+    "@avkash/i18n": "workspace:*",
     "@avkash/db": "workspace:*",
     "@avkash/auth": "workspace:*",
     "@avkash/org": "workspace:*",

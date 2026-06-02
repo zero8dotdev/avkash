@@ -91,6 +91,9 @@ export const user = pgTable(
     usedLeave: jsonb('usedLeave').$type<Record<string, unknown>>().default({}),
     overrides: jsonb('overrides').$type<Record<string, unknown>>().default({}),
     keyword: varchar('keyword'),
+    language: varchar('language', { length: 8 }), // preferred locale (e.g. 'en', 'hi')
+    // Per-person working days; overrides the team's workweek when set (else null → team).
+    workweek: daysOfWeekEnum('workweek').array(),
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },

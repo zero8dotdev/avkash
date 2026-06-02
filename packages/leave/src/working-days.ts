@@ -35,20 +35,26 @@ export function calculateWorkingDays(
   return duration === 'HALF_DAY' ? count / 2 : count
 }
 
-// DB wrapper: load the team's workweek + the org's holidays, then compute.
+// DB wrapper: resolve the person's EFFECTIVE workweek (own override → team → Mon–Fri),
+// load the org's holidays, then compute.
 export async function computeWorkingDays(
   orgId: string,
-  teamId: string,
+  userId: string,
   startDate: string,
   endDate: string,
   duration: Duration = 'FULL_DAY',
 ): Promise<number> {
-  const [team] = await db
-    .select({ workweek: schema.team.workweek })
-    .from(schema.team)
-    .where(eq(schema.team.teamId, teamId))
+  const [u] = await db
+    .select({ workweek: schema.user.workweek, teamId: schema.user.teamId })
+    .from(schema.user)
+    .where(eq(schema.user.id, userId))
     .limit(1)
-  const workweek = (team?.workweek ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY']) as DayName[]
+  let resolved = u?.workweek && u.workweek.length > 0 ? (u.workweek as DayName[]) : null
+  if (!resolved && u?.teamId) {
+    const [team] = await db.select({ workweek: schema.team.workweek }).from(schema.team).where(eq(schema.team.teamId, u.teamId)).limit(1)
+    resolved = (team?.workweek ?? null) as DayName[] | null
+  }
+  const workweek = resolved ?? (['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'] as DayName[])
   const holidays = await db
     .select({ date: schema.holiday.date, isRecurring: schema.holiday.isRecurring })
     .from(schema.holiday)
