@@ -1,6 +1,14 @@
 import { and, desc, eq, gte, lte, ne, type SQL } from 'drizzle-orm'
 import { db, schema, type Leave } from '@avkash/db'
-import { type AuthContext, type LeaveStatus, ForbiddenError, NotFoundError } from '@avkash/shared'
+import {
+  type AuthContext,
+  type LeaveStatus,
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+  ConflictError,
+  BusinessRuleError,
+} from '@avkash/shared'
 import { requireRole } from '@avkash/auth'
 import { computeWorkingDays, type Duration } from './working-days'
 import { getEffectivePolicy } from './leave-policy'
@@ -36,23 +44,23 @@ async function audit(ctx: AuthContext, lv: { userId: string; teamId: string }, k
 }
 
 async function assertCanApprove(ctx: AuthContext, teamId: string) {
-  if (!(await canApprove(ctx, teamId))) throw new ForbiddenError('Not authorised to approve for this team')
+  if (!(await canApprove(ctx, teamId))) throw new ForbiddenError('NOT_TEAM_APPROVER')
 }
 
 export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Promise<Leave> {
   const targetUserId = input.userId ?? ctx.userId
-  if (!targetUserId) throw new ForbiddenError('No target user')
+  if (!targetUserId) throw new ValidationError('NO_TARGET_USER')
   if (targetUserId !== ctx.userId) requireRole(ctx, 'MANAGER')
 
   const u = await loadUser(targetUserId)
-  if (!u || u.orgId !== ctx.orgId) throw new NotFoundError('User not found')
-  if (!u.teamId) throw new ForbiddenError('User is not assigned to a team')
+  if (!u || u.orgId !== ctx.orgId) throw new NotFoundError('USER_NOT_FOUND')
+  if (!u.teamId) throw new BusinessRuleError('USER_NO_TEAM')
 
   const duration: Duration = input.duration ?? 'FULL_DAY'
   const shift: Shift = input.shift ?? 'NONE'
   if (duration === 'HALF_DAY') {
-    if (input.startDate !== input.endDate) throw new ForbiddenError('Half-day leave must be a single day')
-    if (shift !== 'MORNING' && shift !== 'AFTERNOON') throw new ForbiddenError('Half-day leave requires a shift')
+    if (input.startDate !== input.endDate) throw new ValidationError('HALF_DAY_SINGLE_DAY')
+    if (shift !== 'MORNING' && shift !== 'AFTERNOON') throw new ValidationError('HALF_DAY_NEEDS_SHIFT')
   }
 
   const [lt] = await db
@@ -66,11 +74,11 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
       ),
     )
     .limit(1)
-  if (!lt) throw new NotFoundError('Leave type not found or inactive')
+  if (!lt) throw new NotFoundError('LEAVE_TYPE_NOT_FOUND')
   const policy = await getEffectivePolicy(ctx.orgId, u.teamId, input.leaveTypeId)
 
   const workingDays = await computeWorkingDays(ctx.orgId, u.teamId, input.startDate, input.endDate, duration)
-  if (workingDays <= 0) throw new ForbiddenError('No working days in the selected range')
+  if (workingDays <= 0) throw new BusinessRuleError('NO_WORKING_DAYS')
 
   // Overlap guard (ported from the DB trigger): block if a non-rejected leave
   // overlaps and (either is FULL_DAY, or both HALF_DAY with the same shift).
@@ -89,14 +97,14 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   const conflict = existing.some(
     (o) => duration === 'FULL_DAY' || o.duration === 'FULL_DAY' || (o.duration === 'HALF_DAY' && o.shift === shift),
   )
-  if (conflict) throw new ForbiddenError('Leave request overlaps with an existing leave')
+  if (conflict) throw new ConflictError('LEAVE_OVERLAP')
 
   // Balance check (bounded policies). Accrual policies now have a real accrued
   // balance in the ledger, so they're enforced too — you can't take un-accrued days.
   if (policy && !policy.unlimited && !policy.allowNegativeBalance) {
     const bal = await getBalance(ctx, targetUserId, input.leaveTypeId)
     if (typeof bal.available === 'number' && bal.available < workingDays) {
-      throw new ForbiddenError(`Insufficient leave balance (available ${bal.available}, requested ${workingDays})`)
+      throw new BusinessRuleError('INSUFFICIENT_BALANCE', { available: bal.available, requested: workingDays })
     }
   }
 
@@ -137,9 +145,9 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
 
 async function setStatus(ctx: AuthContext, leaveId: string, status: 'APPROVED' | 'REJECTED', comment?: string): Promise<Leave> {
   const [lv] = await db.select().from(schema.leave).where(and(eq(schema.leave.leaveId, leaveId), eq(schema.leave.orgId, ctx.orgId))).limit(1)
-  if (!lv) throw new NotFoundError('Leave not found')
+  if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND')
   await assertCanApprove(ctx, lv.teamId)
-  if (lv.isApproved !== 'PENDING') throw new ForbiddenError('Leave is not pending')
+  if (lv.isApproved !== 'PENDING') throw new ConflictError('LEAVE_NOT_PENDING')
   const [updated] = await db
     .update(schema.leave)
     .set({ isApproved: status, updatedBy: ctx.userId, updatedOn: new Date() })
@@ -168,9 +176,9 @@ export const rejectLeave = (ctx: AuthContext, leaveId: string, comment?: string)
 
 export async function cancelLeave(ctx: AuthContext, leaveId: string): Promise<void> {
   const [lv] = await db.select().from(schema.leave).where(and(eq(schema.leave.leaveId, leaveId), eq(schema.leave.orgId, ctx.orgId))).limit(1)
-  if (!lv) throw new NotFoundError('Leave not found')
+  if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND')
   if (lv.userId !== ctx.userId) requireRole(ctx, 'MANAGER')
-  if (lv.isApproved === 'DELETED') throw new ForbiddenError('Leave already cancelled')
+  if (lv.isApproved === 'DELETED') throw new ConflictError('LEAVE_ALREADY_CANCELLED')
   const wasApproved = lv.isApproved === 'APPROVED'
   await db.update(schema.leave).set({ isApproved: 'DELETED', updatedBy: ctx.userId, updatedOn: new Date() }).where(eq(schema.leave.leaveId, leaveId))
   if (wasApproved) {
@@ -209,7 +217,7 @@ export async function listLeaves(ctx: AuthContext, filter?: ListLeavesFilter): P
 
 export async function getLeave(ctx: AuthContext, leaveId: string): Promise<Leave> {
   const [lv] = await db.select().from(schema.leave).where(and(eq(schema.leave.leaveId, leaveId), eq(schema.leave.orgId, ctx.orgId))).limit(1)
-  if (!lv) throw new NotFoundError('Leave not found')
-  if (ctx.role === 'USER' && lv.userId !== ctx.userId) throw new ForbiddenError('Not allowed')
+  if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND')
+  if (ctx.role === 'USER' && lv.userId !== ctx.userId) throw new ForbiddenError('LEAVE_FORBIDDEN')
   return lv
 }

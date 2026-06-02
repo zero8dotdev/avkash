@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { and, eq, count } from 'drizzle-orm'
 import { db, schema, type Invitation } from '@avkash/db'
-import { type AuthContext, hasRank, ForbiddenError, NotFoundError } from '@avkash/shared'
+import { type AuthContext, hasRank, ForbiddenError, NotFoundError, ConflictError, BusinessRuleError } from '@avkash/shared'
 import { requireRole } from '@avkash/auth'
 import { sendEmail } from '@avkash/notifications'
 import { PROVISIONAL_INVITE_CAP } from './organization'
@@ -22,14 +22,14 @@ export async function inviteTeammate(ctx: AuthContext, input: InviteTeammateInpu
   requireRole(ctx, 'MANAGER')
   const role: InvitableRole = input.role ?? 'USER'
   // No privilege escalation: you can only invite at or below your own rank.
-  if (!hasRank(ctx.role, role)) throw new ForbiddenError(`You cannot invite someone as ${role}`)
+  if (!hasRank(ctx.role, role)) throw new ForbiddenError('INVITE_ROLE_TOO_HIGH', { role })
 
   const email = input.email.trim().toLowerCase()
 
   const [org] = await db.select().from(schema.organisation).where(eq(schema.organisation.orgId, ctx.orgId)).limit(1)
-  if (!org) throw new NotFoundError('Organisation not found')
+  if (!org) throw new NotFoundError('ORG_NOT_FOUND')
   if (org.status === 'RESTRICTED') {
-    throw new ForbiddenError('Organisation is restricted — verify your domain to invite again')
+    throw new BusinessRuleError('ORG_RESTRICTED')
   }
 
   // Already a member?
@@ -38,7 +38,7 @@ export async function inviteTeammate(ctx: AuthContext, input: InviteTeammateInpu
     .from(schema.user)
     .where(and(eq(schema.user.orgId, ctx.orgId), eq(schema.user.email, email)))
     .limit(1)
-  if (member) throw new ForbiddenError('That person is already a member')
+  if (member) throw new ConflictError('ALREADY_MEMBER')
 
   // Already invited (pending)?
   const [dupe] = await db
@@ -52,7 +52,7 @@ export async function inviteTeammate(ctx: AuthContext, input: InviteTeammateInpu
       ),
     )
     .limit(1)
-  if (dupe) throw new ForbiddenError('An invitation is already pending for that email')
+  if (dupe) throw new ConflictError('INVITATION_EXISTS')
 
   // Seat cap while PROVISIONAL: members + pending invites < cap. Lifts on VERIFIED.
   if (org.status === 'PROVISIONAL') {
@@ -62,7 +62,7 @@ export async function inviteTeammate(ctx: AuthContext, input: InviteTeammateInpu
       .from(schema.invitation)
       .where(and(eq(schema.invitation.orgId, ctx.orgId), eq(schema.invitation.status, 'PENDING')))
     if (Number(members) + Number(pending) >= PROVISIONAL_INVITE_CAP) {
-      throw new ForbiddenError(`Seat cap (${PROVISIONAL_INVITE_CAP}) reached — verify your domain to add more`)
+      throw new BusinessRuleError('SEAT_CAP_REACHED', { cap: PROVISIONAL_INVITE_CAP })
     }
   }
 

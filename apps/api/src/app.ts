@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { auth } from '@avkash/auth'
-import { DomainError } from '@avkash/shared'
+import { DomainError, defaultMessage } from '@avkash/shared'
 import { leaves } from './routes/leave'
 import { leaveTypes } from './routes/leave-types'
 import { leavePolicies } from './routes/leave-policies'
@@ -45,7 +45,7 @@ export const app = new Hono()
     const requestId = crypto.randomUUID()
     if (err instanceof DomainError) {
       return c.json(
-        { error: { code: err.code, message: err.message, details: err.params, requestId } },
+        { error: { code: err.code, message: defaultMessage(err.code, err.params), details: err.params, requestId } },
         err.status as ContentfulStatusCode,
       )
     }

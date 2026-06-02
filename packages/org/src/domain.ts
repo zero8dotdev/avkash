@@ -36,7 +36,7 @@ export async function verifyOrgDomain(ctx: AuthContext, domainId: string): Promi
     .from(schema.orgDomain)
     .where(and(eq(schema.orgDomain.id, domainId), eq(schema.orgDomain.orgId, ctx.orgId)))
     .limit(1)
-  if (!row) throw new NotFoundError('Domain not found')
+  if (!row) throw new NotFoundError('DOMAIN_NOT_FOUND')
 
   const expected = `${TXT_PREFIX}${row.verificationToken}`
   let found = false

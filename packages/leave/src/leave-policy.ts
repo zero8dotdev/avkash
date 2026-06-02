@@ -30,7 +30,7 @@ export async function createLeavePolicy(ctx: AuthContext, input: CreateLeavePoli
     .from(schema.leaveType)
     .where(and(eq(schema.leaveType.leaveTypeId, input.leaveTypeId), eq(schema.leaveType.orgId, ctx.orgId)))
     .limit(1)
-  if (!lt) throw new NotFoundError('Leave type not found')
+  if (!lt) throw new NotFoundError('LEAVE_TYPE_NOT_FOUND')
   const [row] = await db
     .insert(schema.leavePolicy)
     .values({
@@ -94,7 +94,7 @@ export async function updateLeavePolicy(
     .set({ ...patch, updatedBy: ctx.userId, updatedOn: new Date() })
     .where(eq(schema.leavePolicy.leavePolicyId, leavePolicyId))
     .returning()
-  if (!row) throw new NotFoundError('Leave policy not found')
+  if (!row) throw new NotFoundError('LEAVE_POLICY_NOT_FOUND')
   await writeAudit({
     orgId: ctx.orgId,
     tableName: 'LeavePolicy',

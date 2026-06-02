@@ -41,7 +41,7 @@ export async function clearDelegation(ctx: AuthContext, id: string): Promise<voi
     .delete(schema.approvalDelegation)
     .where(and(eq(schema.approvalDelegation.id, id), eq(schema.approvalDelegation.orgId, ctx.orgId)))
     .returning({ id: schema.approvalDelegation.id })
-  if (!deleted.length) throw new NotFoundError('Delegation not found')
+  if (!deleted.length) throw new NotFoundError('DELEGATION_NOT_FOUND')
   await writeAudit({ orgId: ctx.orgId, tableName: 'ApprovalDelegation', keyword: 'delegation_clear', changed: { id }, changedBy: ctx.userId })
 }
 

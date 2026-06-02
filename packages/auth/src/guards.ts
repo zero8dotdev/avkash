@@ -7,20 +7,20 @@ import { type AuthContext, type Role, hasRank, ForbiddenError } from '@avkash/sh
 
 /** Role-based access. OWNER > ADMIN > MANAGER > USER > ANON. */
 export function requireRole(ctx: AuthContext, min: Role): void {
-  if (!hasRank(ctx.role, min)) throw new ForbiddenError(`Requires ${min}`)
+  if (!hasRank(ctx.role, min)) throw new ForbiddenError('FORBIDDEN_ROLE', { role: min })
 }
 
 /** Credential scope (API keys / OAuth tokens). Delegation: a key may carry less than its owner. */
 export function requireScope(ctx: AuthContext, scope: string): void {
-  if (ctx.scopes && !ctx.scopes.includes(scope)) throw new ForbiddenError(`Missing scope ${scope}`)
+  if (ctx.scopes && !ctx.scopes.includes(scope)) throw new ForbiddenError('FORBIDDEN_SCOPE', { scope })
 }
 
 /** Identity-assurance gate for sensitive actions. Low-assurance ctx → step-up, not bypass. */
 export function requireAssurance(ctx: AuthContext, level: 'high'): void {
-  if (ctx.assurance !== level) throw new ForbiddenError('Step-up authentication required')
+  if (ctx.assurance !== level) throw new ForbiddenError('STEP_UP_REQUIRED')
 }
 
 /** Tenant isolation — the RLS replacement. Asserts a resource's org matches the caller's. */
 export function assertOrg(ctx: AuthContext, resourceOrgId: string): void {
-  if (ctx.orgId !== resourceOrgId) throw new ForbiddenError('Cross-org access denied')
+  if (ctx.orgId !== resourceOrgId) throw new ForbiddenError('CROSS_ORG')
 }

@@ -56,7 +56,7 @@ export async function updateLeaveType(
     .set({ ...patch, updatedBy: ctx.userId, updatedOn: new Date() })
     .where(and(eq(schema.leaveType.leaveTypeId, leaveTypeId), eq(schema.leaveType.orgId, ctx.orgId)))
     .returning()
-  if (!row) throw new NotFoundError('Leave type not found')
+  if (!row) throw new NotFoundError('LEAVE_TYPE_NOT_FOUND')
   await writeAudit({ orgId: ctx.orgId, tableName: 'LeaveType', keyword: 'leavetype_update', changed: patch, changedBy: ctx.userId })
   return row
 }

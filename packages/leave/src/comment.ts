@@ -24,14 +24,14 @@ async function loadLeave(ctx: AuthContext, leaveId: string) {
 // INTERNAL too. INTERNAL is invisible to the applicant — that's what keeps the
 // manager↔HR conversation private during escalation.
 export async function addLeaveComment(ctx: AuthContext, leaveId: string, input: AddCommentInput): Promise<LeaveComment> {
-  if (!input.body?.trim()) throw new ValidationError('Comment body is required')
+  if (!input.body?.trim()) throw new ValidationError('COMMENT_BODY_REQUIRED')
   const lv = await loadLeave(ctx, leaveId)
-  if (!lv) throw new NotFoundError('Leave not found')
+  if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND')
   const isApplicant = lv.userId === ctx.userId
   const isApprover = await canApprove(ctx, lv.teamId)
-  if (!isApplicant && !isApprover) throw new ForbiddenError('Not allowed on this leave')
+  if (!isApplicant && !isApprover) throw new ForbiddenError('LEAVE_FORBIDDEN')
   const visibility: CommentVisibility = input.visibility ?? 'SHARED'
-  if (visibility === 'INTERNAL' && !isApprover) throw new ForbiddenError('Only approvers can add internal comments')
+  if (visibility === 'INTERNAL' && !isApprover) throw new ForbiddenError('INTERNAL_COMMENT_FORBIDDEN')
 
   const [row] = await db
     .insert(schema.leaveComment)
@@ -52,10 +52,10 @@ export async function addLeaveComment(ctx: AuthContext, leaveId: string, input: 
 
 export async function listLeaveComments(ctx: AuthContext, leaveId: string): Promise<LeaveComment[]> {
   const lv = await loadLeave(ctx, leaveId)
-  if (!lv) throw new NotFoundError('Leave not found')
+  if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND')
   const isApplicant = lv.userId === ctx.userId
   const isApprover = await canApprove(ctx, lv.teamId)
-  if (!isApplicant && !isApprover) throw new ForbiddenError('Not allowed on this leave')
+  if (!isApplicant && !isApprover) throw new ForbiddenError('LEAVE_FORBIDDEN')
   const conds = [eq(schema.leaveComment.leaveId, leaveId)]
   if (!isApprover) conds.push(eq(schema.leaveComment.visibility, 'SHARED')) // applicant sees SHARED only
   return db.select().from(schema.leaveComment).where(and(...conds)).orderBy(asc(schema.leaveComment.createdAt))

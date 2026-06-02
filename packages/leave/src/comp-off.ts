@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db, schema, type CompOff } from '@avkash/db'
-import { type AuthContext, ForbiddenError, NotFoundError } from '@avkash/shared'
+import { type AuthContext, NotFoundError, ValidationError, ConflictError } from '@avkash/shared'
 import { requireRole } from '@avkash/auth'
 import { postLedger, todayStr } from './ledger'
 import { getEffectivePolicy } from './leave-policy'
@@ -23,7 +23,7 @@ export interface EarnCompOffInput {
 // grant for a teammate. Always starts PENDING (approval posts the credit).
 export async function earnCompOff(ctx: AuthContext, input: EarnCompOffInput): Promise<CompOff> {
   const userId = input.userId ?? ctx.userId
-  if (!userId) throw new ForbiddenError('No target user')
+  if (!userId) throw new ValidationError('NO_TARGET_USER')
   if (userId !== ctx.userId) requireRole(ctx, 'MANAGER')
 
   const [lt] = await db
@@ -31,8 +31,8 @@ export async function earnCompOff(ctx: AuthContext, input: EarnCompOffInput): Pr
     .from(schema.leaveType)
     .where(and(eq(schema.leaveType.leaveTypeId, input.leaveTypeId), eq(schema.leaveType.orgId, ctx.orgId)))
     .limit(1)
-  if (!lt) throw new NotFoundError('Leave type not found')
-  if (lt.kind !== 'COMP_OFF') throw new ForbiddenError('Leave type is not a comp-off type')
+  if (!lt) throw new NotFoundError('LEAVE_TYPE_NOT_FOUND')
+  if (lt.kind !== 'COMP_OFF') throw new ValidationError('NOT_COMP_OFF_TYPE')
 
   const [row] = await db
     .insert(schema.compOff)
@@ -62,8 +62,8 @@ export async function earnCompOff(ctx: AuthContext, input: EarnCompOffInput): Pr
 export async function approveCompOff(ctx: AuthContext, compOffId: string): Promise<CompOff> {
   requireRole(ctx, 'MANAGER')
   const [co] = await db.select().from(schema.compOff).where(and(eq(schema.compOff.id, compOffId), eq(schema.compOff.orgId, ctx.orgId))).limit(1)
-  if (!co) throw new NotFoundError('Comp-off not found')
-  if (co.status !== 'PENDING') throw new ForbiddenError('Comp-off is not pending')
+  if (!co) throw new NotFoundError('COMP_OFF_NOT_FOUND')
+  if (co.status !== 'PENDING') throw new ConflictError('COMP_OFF_NOT_PENDING')
 
   const [u] = await db.select({ teamId: schema.user.teamId }).from(schema.user).where(eq(schema.user.id, co.userId)).limit(1)
   const policy = u?.teamId ? await getEffectivePolicy(ctx.orgId, u.teamId, co.leaveTypeId) : null
@@ -99,8 +99,8 @@ export async function approveCompOff(ctx: AuthContext, compOffId: string): Promi
 export async function rejectCompOff(ctx: AuthContext, compOffId: string): Promise<CompOff> {
   requireRole(ctx, 'MANAGER')
   const [co] = await db.select().from(schema.compOff).where(and(eq(schema.compOff.id, compOffId), eq(schema.compOff.orgId, ctx.orgId))).limit(1)
-  if (!co) throw new NotFoundError('Comp-off not found')
-  if (co.status !== 'PENDING') throw new ForbiddenError('Comp-off is not pending')
+  if (!co) throw new NotFoundError('COMP_OFF_NOT_FOUND')
+  if (co.status !== 'PENDING') throw new ConflictError('COMP_OFF_NOT_PENDING')
   const [updated] = await db.update(schema.compOff).set({ status: 'REJECTED', approvedBy: ctx.userId }).where(eq(schema.compOff.id, compOffId)).returning()
   await writeAudit({ orgId: ctx.orgId, tableName: 'CompOff', keyword: 'compoff_reject', changed: {}, changedBy: ctx.userId, userId: co.userId })
   return updated
