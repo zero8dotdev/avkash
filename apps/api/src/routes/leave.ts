@@ -6,8 +6,11 @@ import {
   cancelLeave,
   listLeaves,
   getLeave,
+  addLeaveComment,
+  listLeaveComments,
   type ApplyLeaveInput,
   type ListLeavesFilter,
+  type AddCommentInput,
 } from '@avkash/leave'
 import { type AppEnv, requireAuth } from '../middleware/auth'
 
@@ -38,3 +41,9 @@ export const leaves = new Hono<AppEnv>()
     await cancelLeave(c.get('auth'), c.req.param('id'))
     return c.json({ cancelled: true })
   })
+  // Comment thread (manager↔HR INTERNAL + applicant SHARED).
+  .post('/:id/comments', async (c) => {
+    const body = (await c.req.json().catch(() => ({}))) as AddCommentInput
+    return c.json(await addLeaveComment(c.get('auth'), c.req.param('id'), body), 201)
+  })
+  .get('/:id/comments', async (c) => c.json(await listLeaveComments(c.get('auth'), c.req.param('id'))))

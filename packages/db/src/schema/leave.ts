@@ -25,6 +25,7 @@ import {
   ledgerKindEnum,
   compOffStatusEnum,
   encashmentStatusEnum,
+  commentVisibilityEnum,
 } from './enums'
 
 // ── LeaveType ───────────────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ export const leave = pgTable(
       .notNull()
       .references(() => team.teamId),
     reason: varchar('reason', { length: 255 }),
-    managerComment: varchar('managerComment', { length: 255 }),
+    // (decision notes folded into LeaveComment — single source of truth)
     orgId: uuid('orgId')
       .notNull()
       .references(() => organisation.orgId),
@@ -239,6 +240,27 @@ export const approvalDelegation = pgTable(
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
   (t) => [index('idx_delegation_org').on(t.orgId), index('idx_delegation_to').on(t.toUserId)],
+)
+
+// ── LeaveComment (thread on a leave; the manager↔HR conversation lives here) ──
+export const leaveComment = pgTable(
+  'LeaveComment',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    leaveId: uuid('leaveId')
+      .notNull()
+      .references(() => leave.leaveId, { onDelete: 'cascade' }),
+    authorId: uuid('authorId')
+      .notNull()
+      .references(() => user.id),
+    body: text('body').notNull(),
+    visibility: commentVisibilityEnum('visibility').notNull().default('SHARED'),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_leavecomment_leave').on(t.leaveId)],
 )
 
 // ── leave_summary (aggregate view) ───────────────────────────────────────────

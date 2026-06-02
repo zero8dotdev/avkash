@@ -7,7 +7,8 @@ import { getEffectivePolicy } from './leave-policy'
 import { getBalance } from './balance'
 import { postLedger, todayStr } from './ledger'
 import { writeAudit } from './audit'
-import { isActiveDelegate } from './delegation'
+import { canApprove } from './approver'
+import { addLeaveComment } from './comment'
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE'
 
@@ -35,13 +36,7 @@ async function audit(ctx: AuthContext, lv: { userId: string; teamId: string }, k
 }
 
 async function assertCanApprove(ctx: AuthContext, teamId: string) {
-  if (ctx.role === 'OWNER' || ctx.role === 'ADMIN') return
-  // A team manager can approve...
-  const [t] = await db.select({ managers: schema.team.managers }).from(schema.team).where(eq(schema.team.teamId, teamId)).limit(1)
-  if (t && (t.managers ?? []).includes(ctx.userId ?? '')) return
-  // ...or an active delegate (a manager may delegate their approvals for a period).
-  if (await isActiveDelegate(ctx.orgId, ctx.userId ?? '', teamId)) return
-  throw new ForbiddenError('Not authorised to approve for this team')
+  if (!(await canApprove(ctx, teamId))) throw new ForbiddenError('Not authorised to approve for this team')
 }
 
 export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Promise<Leave> {
@@ -147,7 +142,7 @@ async function setStatus(ctx: AuthContext, leaveId: string, status: 'APPROVED' |
   if (lv.isApproved !== 'PENDING') throw new ForbiddenError('Leave is not pending')
   const [updated] = await db
     .update(schema.leave)
-    .set({ isApproved: status, managerComment: comment, updatedBy: ctx.userId, updatedOn: new Date() })
+    .set({ isApproved: status, updatedBy: ctx.userId, updatedOn: new Date() })
     .where(eq(schema.leave.leaveId, leaveId))
     .returning()
   if (status === 'APPROVED') {
@@ -163,6 +158,8 @@ async function setStatus(ctx: AuthContext, leaveId: string, status: 'APPROVED' |
     })
   }
   await audit(ctx, lv, 'leave_status', { isApproved: { old: 'PENDING', new: status } })
+  // The decision note lives in the comment thread (single source of truth), SHARED with the applicant.
+  if (comment?.trim()) await addLeaveComment(ctx, leaveId, { body: comment, visibility: 'SHARED' })
   return updated
 }
 

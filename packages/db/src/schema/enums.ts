@@ -50,3 +50,6 @@ export const ledgerKindEnum = pgEnum('ledger_kind', [
 export const compOffStatusEnum = pgEnum('comp_off_status', ['PENDING', 'APPROVED', 'REJECTED', 'REDEEMED', 'EXPIRED'])
 
 export const encashmentStatusEnum = pgEnum('encashment_status', ['PENDING', 'APPROVED', 'REJECTED', 'PAID'])
+
+// INTERNAL = approvers only (manager ↔ HR); SHARED = visible to the applicant too.
+export const commentVisibilityEnum = pgEnum('comment_visibility', ['INTERNAL', 'SHARED'])
