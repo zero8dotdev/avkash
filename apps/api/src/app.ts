@@ -2,6 +2,14 @@ import { Hono } from 'hono'
 import { auth } from '@avkash/auth'
 import { DomainError } from '@avkash/shared'
 import { leaves } from './routes/leave'
+import { leaveTypes } from './routes/leave-types'
+import { leavePolicies } from './routes/leave-policies'
+import { balances } from './routes/balances'
+import { compOff } from './routes/comp-off'
+import { encashments } from './routes/encashments'
+import { delegations } from './routes/delegations'
+import { calendar } from './routes/calendar'
+import { reports } from './routes/reports'
 import { orgs } from './routes/orgs'
 import { invitations } from './routes/invitations'
 import { internal } from './routes/internal'
@@ -16,6 +24,14 @@ export const app = new Hono()
   .route('/orgs', orgs)
   .route('/invitations', invitations)
   .route('/leaves', leaves)
+  .route('/leave-types', leaveTypes)
+  .route('/leave-policies', leavePolicies)
+  .route('/balances', balances)
+  .route('/comp-off', compOff)
+  .route('/encashments', encashments)
+  .route('/delegations', delegations)
+  .route('/calendar', calendar)
+  .route('/reports', reports)
   .route('/internal', internal)
   // Map typed domain errors to HTTP status; everything else is a 500.
   .onError((err, c) => {
