@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import {
   requestEncashment,
   approveEncashment,
@@ -8,6 +7,7 @@ import {
   rejectEncashment,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const requestEncashmentSchema = z.object({
   leaveTypeId: z.string().min(1),
@@ -17,13 +17,9 @@ const requestEncashmentSchema = z.object({
 
 export const encashments = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(
-      requestEncashmentSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await requestEncashment(c.get('auth'), body), 201);
-  })
+  .post('/', validateBody(requestEncashmentSchema), async (c) =>
+    c.json(await requestEncashment(c.get('auth'), c.get('body')), 201)
+  )
   .post('/:id/approve', async (c) =>
     c.json(await approveEncashment(c.get('auth'), c.req.param('id')))
   )

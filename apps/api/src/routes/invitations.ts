@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import { inviteTeammate, listInvitations, revokeInvitation } from '@avkash/org';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const inviteSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   role: z.enum(['ADMIN', 'MANAGER', 'USER']).optional(),
   teamId: z.string().optional(),
 });
@@ -15,9 +15,8 @@ const inviteSchema = z.object({
 // the invited email (the auth create-hook provisions them).
 export const invitations = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(inviteSchema, await c.req.json().catch(() => ({})));
-    const invite = await inviteTeammate(c.get('auth'), body);
+  .post('/', validateBody(inviteSchema), async (c) => {
+    const invite = await inviteTeammate(c.get('auth'), c.get('body'));
     return c.json(
       {
         invitationId: invite.id,

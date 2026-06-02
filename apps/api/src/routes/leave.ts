@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import {
   applyLeave,
   approveLeave,
@@ -13,6 +12,7 @@ import {
   type ListLeavesFilter,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 
@@ -31,17 +31,13 @@ const addCommentSchema = z.object({
   visibility: z.enum(['INTERNAL', 'SHARED']).optional(),
 });
 
-// Thin transport adapter. Logic + authz live in @avkash/leave; this just maps HTTP
-// and validates the request body at the boundary before it reaches the domain.
+// Thin transport adapter. Logic + authz live in @avkash/leave; this just maps HTTP.
+// validateBody parses + validates the request body into a typed c.get('body').
 export const leaves = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(
-      applyLeaveSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await applyLeave(c.get('auth'), body), 201);
-  })
+  .post('/', validateBody(applyLeaveSchema), async (c) =>
+    c.json(await applyLeave(c.get('auth'), c.get('body')), 201)
+  )
   .get('/', async (c) => {
     const filter: ListLeavesFilter = {
       status: c.req.query('status') as ListLeavesFilter['status'],
@@ -52,37 +48,31 @@ export const leaves = new Hono<AppEnv>()
   .get('/:id', async (c) =>
     c.json(await getLeave(c.get('auth'), c.req.param('id')))
   )
-  .post('/:id/approve', async (c) => {
-    const { comment } = validate(
-      decisionSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await approveLeave(c.get('auth'), c.req.param('id'), comment)
-    );
-  })
-  .post('/:id/reject', async (c) => {
-    const { comment } = validate(
-      decisionSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await rejectLeave(c.get('auth'), c.req.param('id'), comment));
-  })
+  .post('/:id/approve', validateBody(decisionSchema), async (c) =>
+    c.json(
+      await approveLeave(
+        c.get('auth'),
+        c.req.param('id'),
+        c.get('body').comment
+      )
+    )
+  )
+  .post('/:id/reject', validateBody(decisionSchema), async (c) =>
+    c.json(
+      await rejectLeave(c.get('auth'), c.req.param('id'), c.get('body').comment)
+    )
+  )
   .delete('/:id', async (c) => {
     await cancelLeave(c.get('auth'), c.req.param('id'));
     return c.json({ cancelled: true });
   })
   // Comment thread (manager↔HR INTERNAL + applicant SHARED).
-  .post('/:id/comments', async (c) => {
-    const body = validate(
-      addCommentSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await addLeaveComment(c.get('auth'), c.req.param('id'), body),
+  .post('/:id/comments', validateBody(addCommentSchema), async (c) =>
+    c.json(
+      await addLeaveComment(c.get('auth'), c.req.param('id'), c.get('body')),
       201
-    );
-  })
+    )
+  )
   .get('/:id/comments', async (c) =>
     c.json(await listLeaveComments(c.get('auth'), c.req.param('id')))
   );

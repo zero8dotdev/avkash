@@ -1,24 +1,22 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import { createOrganization, addOrgDomain, verifyOrgDomain } from '@avkash/org';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const createOrgSchema = z.object({
   orgName: z.string().min(1).max(120),
-  ownerEmail: z.string().email(),
+  ownerEmail: z.email(),
 });
+
 const addDomainSchema = z.object({ domain: z.string().min(1).max(253) });
 
 // Org creation + ownership-validation (DNS TXT). Logic lives in @avkash/org;
 // these are thin transport handlers.
 export const orgs = new Hono<AppEnv>()
   // Public: self-serve org creation → PROVISIONAL org + OWNER invitation.
-  .post('/', async (c) => {
-    const body = validate(
-      createOrgSchema,
-      await c.req.json().catch(() => ({}))
-    );
+  .post('/', validateBody(createOrgSchema), async (c) => {
+    const body = c.get('body');
     const { org } = await createOrganization(body);
     return c.json(
       {
@@ -31,12 +29,11 @@ export const orgs = new Hono<AppEnv>()
     );
   })
   // OWNER: add a domain to verify → returns the TXT record to publish.
-  .post('/domains', requireAuth, async (c) => {
-    const { domain: name } = validate(
-      addDomainSchema,
-      await c.req.json().catch(() => ({}))
+  .post('/domains', requireAuth, validateBody(addDomainSchema), async (c) => {
+    const { domain, txtRecord } = await addOrgDomain(
+      c.get('auth'),
+      c.get('body').domain
     );
-    const { domain, txtRecord } = await addOrgDomain(c.get('auth'), name);
     return c.json(
       {
         domainId: domain.id,

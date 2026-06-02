@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import {
   earnCompOff,
   approveCompOff,
@@ -8,6 +7,7 @@ import {
   listCompOff,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const earnCompOffSchema = z.object({
   userId: z.string().optional(),
@@ -18,13 +18,9 @@ const earnCompOffSchema = z.object({
 
 export const compOff = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(
-      earnCompOffSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await earnCompOff(c.get('auth'), body), 201);
-  })
+  .post('/', validateBody(earnCompOffSchema), async (c) =>
+    c.json(await earnCompOff(c.get('auth'), c.get('body')), 201)
+  )
   .get('/', async (c) =>
     c.json(await listCompOff(c.get('auth'), c.req.query('userId')))
   )

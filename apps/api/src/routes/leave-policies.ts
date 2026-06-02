@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import { createLeavePolicy, updateLeavePolicy } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const createLeavePolicySchema = z.object({
   leaveTypeId: z.string().min(1),
@@ -32,19 +32,11 @@ const updateLeavePolicySchema = createLeavePolicySchema
 
 export const leavePolicies = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(
-      createLeavePolicySchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await createLeavePolicy(c.get('auth'), body), 201);
-  })
-  .patch('/:id', async (c) => {
-    const body = validate(
-      updateLeavePolicySchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await updateLeavePolicy(c.get('auth'), c.req.param('id'), body)
-    );
-  });
+  .post('/', validateBody(createLeavePolicySchema), async (c) =>
+    c.json(await createLeavePolicy(c.get('auth'), c.get('body')), 201)
+  )
+  .patch('/:id', validateBody(updateLeavePolicySchema), async (c) =>
+    c.json(
+      await updateLeavePolicy(c.get('auth'), c.req.param('id'), c.get('body'))
+    )
+  );

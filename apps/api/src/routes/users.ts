@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import { setUserWorkweek, setUserJoinedOn } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const workweekSchema = z.object({ workweek: z.array(z.string()).default([]) });
 const joinedOnSchema = z.object({
@@ -11,21 +11,21 @@ const joinedOnSchema = z.object({
 
 export const users = new Hono<AppEnv>()
   .use(requireAuth)
-  .patch('/:id/workweek', async (c) => {
-    const { workweek } = validate(
-      workweekSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await setUserWorkweek(c.get('auth'), c.req.param('id'), workweek)
-    );
-  })
-  .patch('/:id/joined-on', async (c) => {
-    const { joinedOn } = validate(
-      joinedOnSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await setUserJoinedOn(c.get('auth'), c.req.param('id'), joinedOn)
-    );
-  });
+  .patch('/:id/workweek', validateBody(workweekSchema), async (c) =>
+    c.json(
+      await setUserWorkweek(
+        c.get('auth'),
+        c.req.param('id'),
+        c.get('body').workweek
+      )
+    )
+  )
+  .patch('/:id/joined-on', validateBody(joinedOnSchema), async (c) =>
+    c.json(
+      await setUserJoinedOn(
+        c.get('auth'),
+        c.req.param('id'),
+        c.get('body').joinedOn
+      )
+    )
+  );

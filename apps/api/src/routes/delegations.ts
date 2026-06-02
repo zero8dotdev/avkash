@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import { setDelegation, clearDelegation, listDelegations } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const setDelegationSchema = z.object({
   toUserId: z.string().min(1),
@@ -13,13 +13,9 @@ const setDelegationSchema = z.object({
 
 export const delegations = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', async (c) => {
-    const body = validate(
-      setDelegationSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await setDelegation(c.get('auth'), body), 201);
-  })
+  .post('/', validateBody(setDelegationSchema), async (c) =>
+    c.json(await setDelegation(c.get('auth'), c.get('body')), 201)
+  )
   .get('/', async (c) => c.json(await listDelegations(c.get('auth'))))
   .delete('/:id', async (c) => {
     await clearDelegation(c.get('auth'), c.req.param('id'));

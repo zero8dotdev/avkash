@@ -1,12 +1,12 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { validate } from '@avkash/shared';
 import {
   createLeaveType,
   listLeaveTypes,
   updateLeaveType,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
 
 const createLeaveTypeSchema = z.object({
   name: z.string().min(1).max(80),
@@ -29,19 +29,11 @@ export const leaveTypes = new Hono<AppEnv>()
       })
     )
   )
-  .post('/', async (c) => {
-    const body = validate(
-      createLeaveTypeSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(await createLeaveType(c.get('auth'), body), 201);
-  })
-  .patch('/:id', async (c) => {
-    const body = validate(
-      updateLeaveTypeSchema,
-      await c.req.json().catch(() => ({}))
-    );
-    return c.json(
-      await updateLeaveType(c.get('auth'), c.req.param('id'), body)
-    );
-  });
+  .post('/', validateBody(createLeaveTypeSchema), async (c) =>
+    c.json(await createLeaveType(c.get('auth'), c.get('body')), 201)
+  )
+  .patch('/:id', validateBody(updateLeaveTypeSchema), async (c) =>
+    c.json(
+      await updateLeaveType(c.get('auth'), c.req.param('id'), c.get('body'))
+    )
+  );
