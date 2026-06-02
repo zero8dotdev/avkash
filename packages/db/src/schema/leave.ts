@@ -118,6 +118,7 @@ export const leavePolicy = pgTable(
     encashable: boolean('encashable').notNull().default(false),
     encashmentMaxDays: integer('encashmentMaxDays'),
     compOffExpiryDays: integer('compOffExpiryDays').default(90),
+    prorateOnJoin: boolean('prorateOnJoin').notNull().default(true), // mid-year joiners get a partial-year entitlement
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, index } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, index } from 'drizzle-orm/pg-core'
 import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums'
 
 // ── Organisation ──────────────────────────────────────────────────────────
@@ -94,6 +94,7 @@ export const user = pgTable(
     language: varchar('language', { length: 8 }), // preferred locale (e.g. 'en', 'hi')
     // Per-person working days; overrides the team's workweek when set (else null → team).
     workweek: daysOfWeekEnum('workweek').array(),
+    joinedOn: date('joinedOn'), // employment start; drives mid-year proration (falls back to createdAt)
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },

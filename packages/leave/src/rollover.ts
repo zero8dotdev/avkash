@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { db, schema } from '@avkash/db'
 import { currentYear, ledgerBalance, yearEnd, yearStart } from './ledger'
+import { proratedEntitlement } from './proration'
 import { writeAudit } from './audit'
 
 function expiryDate(mmdd: string | null, year: number): string | null {
@@ -26,10 +27,17 @@ export async function runRollover(year?: number): Promise<{ carried: number }> {
   const byOrg: Record<string, number> = {}
   for (const { policy, orgId } of policies) {
     if (policy.unlimited) continue
-    const base = policy.accruals ? 0 : Number(policy.maxLeaves ?? 0)
+    const max = Number(policy.maxLeaves ?? 0)
     const expiresOn = expiryDate(policy.rollOverExpiry, y)
-    const members = await db.select({ id: schema.user.id }).from(schema.user).where(eq(schema.user.teamId, policy.teamId))
+    const members = await db
+      .select({ id: schema.user.id, joinedOn: schema.user.joinedOn, createdAt: schema.user.createdAt })
+      .from(schema.user)
+      .where(eq(schema.user.teamId, policy.teamId))
     for (const m of members) {
+      // Prior-year entitlement (prorated for that member's join year), so rollover
+      // carries the right unused amount even for a mid-year joiner.
+      const joinedOn = m.joinedOn ?? (m.createdAt ? new Date(m.createdAt).toISOString().slice(0, 10) : `${prior}-01-01`)
+      const base = policy.accruals ? 0 : policy.prorateOnJoin ? proratedEntitlement(max, joinedOn, prior) : max
       const priorLedger = await ledgerBalance(orgId, m.id, policy.leaveTypeId, yearStart(prior), yearEnd(prior))
       const unused = base + priorLedger
       if (unused <= 0) continue

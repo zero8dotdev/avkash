@@ -20,6 +20,7 @@ export interface CreateLeavePolicyInput {
   encashable?: boolean
   encashmentMaxDays?: number
   compOffExpiryDays?: number
+  prorateOnJoin?: boolean
 }
 
 export async function createLeavePolicy(ctx: AuthContext, input: CreateLeavePolicyInput): Promise<LeavePolicy> {
@@ -49,6 +50,7 @@ export async function createLeavePolicy(ctx: AuthContext, input: CreateLeavePoli
       encashable: input.encashable ?? false,
       encashmentMaxDays: input.encashmentMaxDays,
       compOffExpiryDays: input.compOffExpiryDays ?? 90,
+      prorateOnJoin: input.prorateOnJoin ?? true,
       createdBy: ctx.userId,
     })
     .returning()

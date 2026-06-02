@@ -51,6 +51,7 @@ export const en: Record<string, string> = {
   NOT_TEAM_MANAGER: 'You are not a manager of this team.',
   WORKWEEK_EMPTY: 'A workweek must include at least one day.',
   WORKWEEK_INVALID_DAY: 'The workweek contains an invalid day.',
+  INVALID_DATE: 'Invalid date — expected YYYY-MM-DD.',
   // delegation / comments
   DELEGATION_NOT_FOUND: 'Delegation not found.',
   COMMENT_BODY_REQUIRED: 'A comment body is required.',

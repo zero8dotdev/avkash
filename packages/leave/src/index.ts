@@ -6,6 +6,7 @@ export * from './balance' // getBalance, getBalances (year-scoped)
 export * from './leave' // apply/approve/reject/cancel/list/get
 export * from './accrual' // runAccruals (scheduled)
 export * from './rollover' // runRollover (scheduled)
+export * from './proration' // proratedEntitlement
 export * from './comp-off' // earn/approve/reject/list comp-off
 export * from './encashment' // request/approve/pay/reject encashment
 export * from './delegation' // set/clear/list approval delegations
