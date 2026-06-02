@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { auth } from '@avkash/auth'
 import { DomainError } from '@avkash/shared'
 import { leaves } from './routes/leave'
@@ -13,6 +14,11 @@ import { reports } from './routes/reports'
 import { orgs } from './routes/orgs'
 import { invitations } from './routes/invitations'
 import { internal } from './routes/internal'
+
+// Expose real error internals only in lower environments. Explicit flag wins;
+// otherwise derive from NODE_ENV (anything but production is exposed). See plans/15.
+const EXPOSE_ERRORS =
+  process.env.EXPOSE_ERRORS != null ? process.env.EXPOSE_ERRORS === 'true' : process.env.NODE_ENV !== 'production'
 
 // The wiring layer. Each route group is thin: parse request -> call a domain
 // function with ctx -> return json. The exported AppType is the type-safe
@@ -33,14 +39,29 @@ export const app = new Hono()
   .route('/calendar', calendar)
   .route('/reports', reports)
   .route('/internal', internal)
-  // Map typed domain errors to HTTP status; everything else is a 500.
+  // Single error envelope. DomainError carries its own status + code + params;
+  // anything else is a system error (500), logged fully, internals hidden in prod.
   .onError((err, c) => {
+    const requestId = crypto.randomUUID()
     if (err instanceof DomainError) {
-      const status =
-        err.code === 'FORBIDDEN' ? 403 : err.code === 'NOT_FOUND' ? 404 : err.code === 'UNAUTHENTICATED' ? 401 : 400
-      return c.json({ error: err.message, code: err.code }, status)
+      return c.json(
+        { error: { code: err.code, message: err.message, details: err.params, requestId } },
+        err.status as ContentfulStatusCode,
+      )
     }
-    console.error(err)
-    return c.json({ error: 'internal error' }, 500)
+    console.error(`[${requestId}]`, err)
+    return c.json(
+      {
+        error: {
+          code: 'INTERNAL',
+          message: 'Something went wrong',
+          requestId,
+          ...(EXPOSE_ERRORS
+            ? { details: { message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined } }
+            : {}),
+        },
+      },
+      500,
+    )
   })
 export type AppType = typeof app
