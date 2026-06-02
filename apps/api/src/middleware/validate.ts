@@ -13,3 +13,12 @@ export const validateBody = <S extends z.ZodType>(schema: S) =>
     c.set('body', validate(schema, await c.req.json().catch(() => ({}))));
     await next();
   });
+
+// Same contract for query strings — the read boundary that was hand-parsed with
+// ad-hoc `if (!from)` checks. Unknown params are stripped (z.object default), so
+// extra query keys are ignored rather than rejected. Read as c.get('query').
+export const validateQuery = <S extends z.ZodType>(schema: S) =>
+  createMiddleware<{ Variables: { query: z.infer<S> } }>(async (c, next) => {
+    c.set('query', validate(schema, c.req.query()));
+    await next();
+  });

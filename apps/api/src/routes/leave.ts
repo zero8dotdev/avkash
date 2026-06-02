@@ -9,10 +9,9 @@ import {
   getLeave,
   addLeaveComment,
   listLeaveComments,
-  type ListLeavesFilter,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
-import { validateBody } from '../middleware/validate';
+import { validateBody, validateQuery } from '../middleware/validate';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 
@@ -30,19 +29,17 @@ const addCommentSchema = z.object({
   body: z.string().min(1).max(2000),
   visibility: z.enum(['INTERNAL', 'SHARED']).optional(),
 });
+const listLeavesQuerySchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'DELETED']).optional(),
+  userId: z.string().optional(),
+});
 
 // Thin transport adapter. Logic + authz live in @avkash/leave; this just maps HTTP.
-// validateBody parses + validates the request body into a typed c.get('body').
+// validateBody/validateQuery parse + validate input into a typed c.get('body'|'query').
 export const leaves = new Hono<AppEnv>()
   .use(requireAuth)
   .post('/', validateBody(applyLeaveSchema), async (c) => c.json(await applyLeave(c.get('auth'), c.get('body')), 201))
-  .get('/', async (c) => {
-    const filter: ListLeavesFilter = {
-      status: c.req.query('status') as ListLeavesFilter['status'],
-      userId: c.req.query('userId'),
-    };
-    return c.json(await listLeaves(c.get('auth'), filter));
-  })
+  .get('/', validateQuery(listLeavesQuerySchema), async (c) => c.json(await listLeaves(c.get('auth'), c.get('query'))))
   .get('/:id', async (c) => c.json(await getLeave(c.get('auth'), c.req.param('id'))))
   .post('/:id/approve', validateBody(decisionSchema), async (c) =>
     c.json(await approveLeave(c.get('auth'), c.req.param('id'), c.get('body').comment))

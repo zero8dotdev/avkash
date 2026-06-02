@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
 import type { AuthContext } from '@avkash/shared';
+import { requireRole } from '@avkash/auth';
 import { currentYear, ledgerBalance, plannedDays, takenDays, todayStr, yearEnd, yearStart } from './ledger';
 import { getEffectivePolicy } from './leave-policy';
 import { listLeaveTypes } from './leave-type';
@@ -66,6 +67,9 @@ export async function getBalance(
 }
 
 export async function getBalances(ctx: AuthContext, userId: string, year?: number): Promise<LeaveBalance[]> {
+  // Authz lives here, not in the route: your own balance is always visible; anyone
+  // else's needs MANAGER+ (matches the comp-off/encashment self-or-elevated rule).
+  if (userId !== ctx.userId) requireRole(ctx, 'MANAGER');
   const types = await listLeaveTypes(ctx, { activeOnly: true });
   return Promise.all(types.map((t) => getBalance(ctx, userId, t.leaveTypeId, year)));
 }
