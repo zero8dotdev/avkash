@@ -156,6 +156,9 @@ importers:
       postcss:
         specifier: ^8.4.40
         version: 8.5.15
+      prettier:
+        specifier: ^3.3.3
+        version: 3.8.3
       tailwindcss:
         specifier: ^3.4.7
         version: 3.4.19(yaml@2.9.0)
@@ -210,6 +213,9 @@ importers:
       hono:
         specifier: ^4.6.0
         version: 4.12.23
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -302,8 +308,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       zod:
-        specifier: ^3.24.1
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -538,8 +544,8 @@ importers:
   packages/shared:
     dependencies:
       zod:
-        specifier: ^3.24.1
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -4774,9 +4780,6 @@ packages:
   yocto-queue@1.2.2:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
-
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
@@ -9092,7 +9095,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.2.2: {}
-
-  zod@3.25.76: {}
 
   zod@4.4.3: {}
