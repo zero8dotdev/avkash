@@ -19,16 +19,8 @@ export async function runRollover(year?: number): Promise<{ carried: number }> {
   const policies = await db
     .select({ policy: schema.leavePolicy, orgId: schema.leaveType.orgId })
     .from(schema.leavePolicy)
-    .innerJoin(
-      schema.leaveType,
-      eq(schema.leavePolicy.leaveTypeId, schema.leaveType.leaveTypeId)
-    )
-    .where(
-      and(
-        eq(schema.leavePolicy.rollOver, true),
-        eq(schema.leavePolicy.isActive, true)
-      )
-    );
+    .innerJoin(schema.leaveType, eq(schema.leavePolicy.leaveTypeId, schema.leaveType.leaveTypeId))
+    .where(and(eq(schema.leavePolicy.rollOver, true), eq(schema.leavePolicy.isActive, true)));
 
   const periodKey = `rollover:${y}`;
 
@@ -42,23 +34,9 @@ export async function runRollover(year?: number): Promise<{ carried: number }> {
     const max = Number(policy.maxLeaves ?? 0);
     // Prior-year entitlement (prorated for that member's join year), so rollover
     // carries the right unused amount even for a mid-year joiner.
-    const joinedOn =
-      m.joinedOn ??
-      (m.createdAt
-        ? new Date(m.createdAt).toISOString().slice(0, 10)
-        : `${prior}-01-01`);
-    const base = policy.accruals
-      ? 0
-      : policy.prorateOnJoin
-        ? proratedEntitlement(max, joinedOn, prior)
-        : max;
-    const priorLedger = await ledgerBalance(
-      orgId,
-      m.id,
-      policy.leaveTypeId,
-      yearStart(prior),
-      yearEnd(prior)
-    );
+    const joinedOn = m.joinedOn ?? (m.createdAt ? new Date(m.createdAt).toISOString().slice(0, 10) : `${prior}-01-01`);
+    const base = policy.accruals ? 0 : policy.prorateOnJoin ? proratedEntitlement(max, joinedOn, prior) : max;
+    const priorLedger = await ledgerBalance(orgId, m.id, policy.leaveTypeId, yearStart(prior), yearEnd(prior));
     const unused = base + priorLedger;
     if (unused <= 0) return null;
     const amount = Math.min(unused, policy.rollOverLimit ?? unused);
@@ -78,11 +56,7 @@ export async function runRollover(year?: number): Promise<{ carried: number }> {
         createdBy: 'system',
       })
       .onConflictDoNothing({
-        target: [
-          schema.leaveLedger.userId,
-          schema.leaveLedger.leaveTypeId,
-          schema.leaveLedger.periodKey,
-        ],
+        target: [schema.leaveLedger.userId, schema.leaveLedger.leaveTypeId, schema.leaveLedger.periodKey],
       })
       .returning({ id: schema.leaveLedger.id });
     return res.length ? orgId : null;

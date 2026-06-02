@@ -1,6 +1,6 @@
-import { pgTable, uuid, text, varchar, boolean, timestamp, index } from 'drizzle-orm/pg-core'
-import { organisation, team, user } from './core'
-import { roleEnum, invitationStatusEnum } from './enums'
+import { pgTable, uuid, text, varchar, boolean, timestamp, index } from 'drizzle-orm/pg-core';
+import { organisation, team, user } from './core';
+import { roleEnum, invitationStatusEnum } from './enums';
 
 // ── Invitation ───────────────────────────────────────────────────────────────
 // Invite-only signup gate. The user.create.before hook in @avkash/auth looks up
@@ -23,8 +23,8 @@ export const invitation = pgTable(
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
     updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_invitation_email').on(t.email), index('idx_invitation_org').on(t.orgId)],
-)
+  (t) => [index('idx_invitation_email').on(t.email), index('idx_invitation_org').on(t.orgId)]
+);
 
 // ── OrgDomain ────────────────────────────────────────────────────────────────
 // Allowed Google Workspace hosted domains per org. The hd-restriction is enforced
@@ -42,5 +42,5 @@ export const orgDomain = pgTable(
     lastCheckedAt: timestamp('lastCheckedAt', { precision: 6 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_orgdomain_org').on(t.orgId)],
-)
+  (t) => [index('idx_orgdomain_org').on(t.orgId)]
+);

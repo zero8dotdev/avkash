@@ -4,7 +4,9 @@
   "private": true,
   "description": "Domain: the people — employees, teams, roles, profiles. (Org lifecycle lives in @avkash/org.)",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

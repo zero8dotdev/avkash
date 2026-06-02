@@ -1,5 +1,5 @@
-import { pgTable, uuid, varchar, char, integer, boolean, date, timestamp, index } from 'drizzle-orm/pg-core'
-import { organisation } from './core'
+import { pgTable, uuid, varchar, char, integer, boolean, date, timestamp, index } from 'drizzle-orm/pg-core';
+import { organisation } from './core';
 
 // ── Holiday (org-specific) ───────────────────────────────────────────────────
 export const holiday = pgTable(
@@ -23,8 +23,8 @@ export const holiday = pgTable(
     index('idx_holiday_org_id').on(t.orgId),
     index('idx_holiday_date').on(t.date),
     index('idx_holiday_recurring').on(t.isRecurring),
-  ],
-)
+  ]
+);
 
 // ── PublicHolidays (global reference data) ───────────────────────────────────
 export const publicHolidays = pgTable('PublicHolidays', {
@@ -36,4 +36,4 @@ export const publicHolidays = pgTable('PublicHolidays', {
   day: varchar('day', { length: 15 }),
   name: varchar('name', { length: 100 }),
   type: varchar('type', { length: 50 }),
-})
+});

@@ -1,11 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import {
-  earnCompOff,
-  approveCompOff,
-  rejectCompOff,
-  listCompOff,
-} from '@avkash/leave';
+import { earnCompOff, approveCompOff, rejectCompOff, listCompOff } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 
@@ -18,15 +13,7 @@ const earnCompOffSchema = z.object({
 
 export const compOff = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', validateBody(earnCompOffSchema), async (c) =>
-    c.json(await earnCompOff(c.get('auth'), c.get('body')), 201)
-  )
-  .get('/', async (c) =>
-    c.json(await listCompOff(c.get('auth'), c.req.query('userId')))
-  )
-  .post('/:id/approve', async (c) =>
-    c.json(await approveCompOff(c.get('auth'), c.req.param('id')))
-  )
-  .post('/:id/reject', async (c) =>
-    c.json(await rejectCompOff(c.get('auth'), c.req.param('id')))
-  );
+  .post('/', validateBody(earnCompOffSchema), async (c) => c.json(await earnCompOff(c.get('auth'), c.get('body')), 201))
+  .get('/', async (c) => c.json(await listCompOff(c.get('auth'), c.req.query('userId'))))
+  .post('/:id/approve', async (c) => c.json(await approveCompOff(c.get('auth'), c.req.param('id'))))
+  .post('/:id/reject', async (c) => c.json(await rejectCompOff(c.get('auth'), c.req.param('id'))));

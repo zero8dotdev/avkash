@@ -1,11 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import {
-  requestEncashment,
-  approveEncashment,
-  markEncashmentPaid,
-  rejectEncashment,
-} from '@avkash/leave';
+import { requestEncashment, approveEncashment, markEncashmentPaid, rejectEncashment } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 
@@ -20,12 +15,6 @@ export const encashments = new Hono<AppEnv>()
   .post('/', validateBody(requestEncashmentSchema), async (c) =>
     c.json(await requestEncashment(c.get('auth'), c.get('body')), 201)
   )
-  .post('/:id/approve', async (c) =>
-    c.json(await approveEncashment(c.get('auth'), c.req.param('id')))
-  )
-  .post('/:id/pay', async (c) =>
-    c.json(await markEncashmentPaid(c.get('auth'), c.req.param('id')))
-  )
-  .post('/:id/reject', async (c) =>
-    c.json(await rejectEncashment(c.get('auth'), c.req.param('id')))
-  );
+  .post('/:id/approve', async (c) => c.json(await approveEncashment(c.get('auth'), c.req.param('id'))))
+  .post('/:id/pay', async (c) => c.json(await markEncashmentPaid(c.get('auth'), c.req.param('id'))))
+  .post('/:id/reject', async (c) => c.json(await rejectEncashment(c.get('auth'), c.req.param('id'))));

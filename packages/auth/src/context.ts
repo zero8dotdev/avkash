@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm'
-import { db, schema, type User } from '@avkash/db'
-import type { AuthContext, Role, Transport, Assurance } from '@avkash/shared'
-import { auth } from './auth'
+import { eq } from 'drizzle-orm';
+import { db, schema, type User } from '@avkash/db';
+import type { AuthContext, Role, Transport, Assurance } from '@avkash/shared';
+import { auth } from './auth';
 
 // ── The funnel ───────────────────────────────────────────────────────────────
 // Every authN path ends here — the ONLY place that stamps assurance / actorType /
@@ -16,7 +16,7 @@ function toAuthContext(u: User, opts: { assurance: Assurance; via: Transport }):
     assurance: opts.assurance,
     language: u.language ?? undefined,
     via: opts.via,
-  }
+  };
 }
 
 // ── AuthN resolver (HTTP) ─────────────────────────────────────────────────────
@@ -26,8 +26,8 @@ function toAuthContext(u: User, opts: { assurance: Assurance; via: Transport }):
  * refinement that reads the account provider used for this session.
  */
 export async function getAuthContext(headers: Headers): Promise<AuthContext | null> {
-  const session = await auth.api.getSession({ headers })
-  if (!session?.user) return null
-  const [u] = await db.select().from(schema.user).where(eq(schema.user.id, session.user.id)).limit(1)
-  return u ? toAuthContext(u, { assurance: 'medium', via: 'http' }) : null
+  const session = await auth.api.getSession({ headers });
+  if (!session?.user) return null;
+  const [u] = await db.select().from(schema.user).where(eq(schema.user.id, session.user.id)).limit(1);
+  return u ? toAuthContext(u, { assurance: 'medium', via: 'http' }) : null;
 }

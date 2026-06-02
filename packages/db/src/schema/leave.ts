@@ -12,9 +12,9 @@ import {
   index,
   uniqueIndex,
   check,
-} from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
-import { organisation, team, user } from './core'
+} from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { organisation, team, user } from './core';
 import {
   leaveDurationEnum,
   shiftEnum,
@@ -26,7 +26,7 @@ import {
   compOffStatusEnum,
   encashmentStatusEnum,
   commentVisibilityEnum,
-} from './enums'
+} from './enums';
 
 // ── LeaveType ───────────────────────────────────────────────────────────────
 export const leaveType = pgTable(
@@ -49,8 +49,8 @@ export const leaveType = pgTable(
     updatedBy: varchar('updatedBy', { length: 255 }),
     updatedOn: timestamp('updatedOn', { precision: 6 }).defaultNow(),
   },
-  (t) => [index('idx_leavetype_org_id').on(t.orgId), index('idx_leavetype_active').on(t.isActive)],
-)
+  (t) => [index('idx_leavetype_org_id').on(t.orgId), index('idx_leavetype_active').on(t.isActive)]
+);
 
 // ── Leave (the leave request) ────────────────────────────────────────────────
 export const leave = pgTable(
@@ -90,8 +90,8 @@ export const leave = pgTable(
     index('idx_leave_start_date').on(t.startDate),
     index('idx_leave_end_date').on(t.endDate),
     index('idx_leave_status').on(t.isApproved),
-  ],
-)
+  ]
+);
 
 // ── LeavePolicy ──────────────────────────────────────────────────────────────
 export const leavePolicy = pgTable(
@@ -130,8 +130,8 @@ export const leavePolicy = pgTable(
     check('leavepolicy_rollover_expiry_format', sql`${t.rollOverExpiry} ~ '^\\d{2}/\\d{2}$'`),
     index('idx_leavepolicy_type_team').on(t.leaveTypeId, t.teamId),
     index('idx_leavepolicy_active').on(t.isActive),
-  ],
-)
+  ]
+);
 
 // ── LeaveLedger (authoritative balance source — signed entries) ──────────────
 // balance = Σ amount WHERE effectiveOn ≤ today AND (expiresOn IS NULL OR ≥ today).
@@ -166,8 +166,8 @@ export const leaveLedger = pgTable(
     // periodKey is NULL for TAKEN/ADJUSTMENT entries — Postgres treats NULLs as
     // distinct, so those are never blocked.
     uniqueIndex('uq_leaveledger_period').on(t.userId, t.leaveTypeId, t.periodKey),
-  ],
-)
+  ]
+);
 
 // ── CompOff (compensatory off earned by working a holiday/weekend) ───────────
 // On approval, a COMP_OFF_CREDIT ledger entry is posted (with expiry); redemption
@@ -193,8 +193,8 @@ export const compOff = pgTable(
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_compoff_user').on(t.userId), index('idx_compoff_org').on(t.orgId)],
-)
+  (t) => [index('idx_compoff_user').on(t.userId), index('idx_compoff_org').on(t.orgId)]
+);
 
 // ── Encashment (convert unused leave to cash; payout handled by payroll) ─────
 export const encashment = pgTable(
@@ -218,8 +218,8 @@ export const encashment = pgTable(
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_encashment_user').on(t.userId), index('idx_encashment_org').on(t.orgId)],
-)
+  (t) => [index('idx_encashment_user').on(t.userId), index('idx_encashment_org').on(t.orgId)]
+);
 
 // ── ApprovalDelegation (a manager delegates their approvals for a period) ────
 export const approvalDelegation = pgTable(
@@ -240,8 +240,8 @@ export const approvalDelegation = pgTable(
     endsOn: date('endsOn').notNull(),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_delegation_org').on(t.orgId), index('idx_delegation_to').on(t.toUserId)],
-)
+  (t) => [index('idx_delegation_org').on(t.orgId), index('idx_delegation_to').on(t.toUserId)]
+);
 
 // ── LeaveComment (thread on a leave; the manager↔HR conversation lives here) ──
 export const leaveComment = pgTable(
@@ -261,8 +261,8 @@ export const leaveComment = pgTable(
     visibility: commentVisibilityEnum('visibility').notNull().default('SHARED'),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },
-  (t) => [index('idx_leavecomment_leave').on(t.leaveId)],
-)
+  (t) => [index('idx_leavecomment_leave').on(t.leaveId)]
+);
 
 // ── leave_summary (aggregate view) ───────────────────────────────────────────
 export const leaveSummary = pgView('leave_summary', {
@@ -277,5 +277,5 @@ export const leaveSummary = pgView('leave_summary', {
         SUM(CASE WHEN "isApproved" = 'PENDING' THEN "workingDays" ELSE 0 END) AS planned,
         SUM("workingDays") AS total_days
       FROM "Leave"
-      GROUP BY "userId", "leaveTypeId"`,
-)
+      GROUP BY "userId", "leaveTypeId"`
+);

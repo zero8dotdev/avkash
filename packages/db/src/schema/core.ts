@@ -1,5 +1,5 @@
-import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, index } from 'drizzle-orm/pg-core'
-import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums'
+import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, index } from 'drizzle-orm/pg-core';
+import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums';
 
 // ── Organisation ──────────────────────────────────────────────────────────
 export const organisation = pgTable(
@@ -29,8 +29,8 @@ export const organisation = pgTable(
   (t) => [
     index('idx_organisation_subscription_id').on(t.subscriptionId),
     index('idx_organisation_owner_id').on(t.ownerId),
-  ],
-)
+  ]
+);
 
 // ── Team ──────────────────────────────────────────────────────────────────
 export const team = pgTable(
@@ -61,8 +61,8 @@ export const team = pgTable(
     updatedBy: varchar('updatedBy', { length: 255 }),
     updatedOn: timestamp('updatedOn', { precision: 6 }).defaultNow(),
   },
-  (t) => [index('idx_team_org_id').on(t.orgId), index('idx_team_manager').on(t.managers)],
-)
+  (t) => [index('idx_team_org_id').on(t.orgId), index('idx_team_manager').on(t.managers)]
+);
 
 // ── User ──────────────────────────────────────────────────────────────────
 // Reconciled with Better Auth (Option A: one table). The first block is Better
@@ -102,8 +102,8 @@ export const user = pgTable(
     index('idx_user_org_id').on(t.orgId),
     index('idx_user_team_id').on(t.teamId),
     index('idx_user_email').on(t.email),
-  ],
-)
+  ]
+);
 
 // ── OrgAccessData (OAuth tokens per org) ────────────────────────────────────
 export const orgAccessData = pgTable(
@@ -121,5 +121,5 @@ export const orgAccessData = pgTable(
     updatedBy: varchar('updatedBy', { length: 255 }),
     updatedOn: timestamp('updatedOn', { precision: 6 }).defaultNow(),
   },
-  (t) => [index('idx_orgaccessdata_org_id').on(t.orgId)],
-)
+  (t) => [index('idx_orgaccessdata_org_id').on(t.orgId)]
+);

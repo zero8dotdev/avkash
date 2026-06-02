@@ -1,11 +1,11 @@
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { phoneNumber } from 'better-auth/plugins'
-import { APIError } from 'better-auth/api'
-import { and, eq } from 'drizzle-orm'
-import { db, schema } from '@avkash/db'
-import { sendEmail, sendSMS } from '@avkash/notifications'
-import { env } from '@avkash/config'
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { phoneNumber } from 'better-auth/plugins';
+import { APIError } from 'better-auth/api';
+import { and, eq } from 'drizzle-orm';
+import { db, schema } from '@avkash/db';
+import { sendEmail, sendSMS } from '@avkash/notifications';
+import { env } from '@avkash/config';
 
 // ── Invite-only gate (shared by every login method) ──────────────────────────
 async function pendingInvite(email: string) {
@@ -13,23 +13,23 @@ async function pendingInvite(email: string) {
     .select()
     .from(schema.invitation)
     .where(and(eq(schema.invitation.email, email), eq(schema.invitation.status, 'PENDING')))
-    .limit(1)
-  return invite ?? null
+    .limit(1);
+  return invite ?? null;
 }
 
 // hd enforcement: if the org declares verified domains, the user's email domain
 // MUST be one of them (covers Google Workspace + any method). No domains → any
 // invited email is allowed.
 async function domainAllowed(orgId: string, email: string) {
-  const domain = email.split('@')[1] ?? ''
+  const domain = email.split('@')[1] ?? '';
   const rows = await db
     .select({ domain: schema.orgDomain.domain })
     .from(schema.orgDomain)
-    .where(and(eq(schema.orgDomain.orgId, orgId), eq(schema.orgDomain.verified, true)))
-  return rows.length === 0 || rows.some((r) => r.domain === domain)
+    .where(and(eq(schema.orgDomain.orgId, orgId), eq(schema.orgDomain.verified, true)));
+  return rows.length === 0 || rows.some((r) => r.domain === domain);
 }
 
-const googleConfigured = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
+const googleConfigured = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
@@ -53,12 +53,12 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      void sendEmail({ to: user.email, subject: 'Reset your Avkash password', text: `Reset link: ${url}` })
+      void sendEmail({ to: user.email, subject: 'Reset your Avkash password', text: `Reset link: ${url}` });
     },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      void sendEmail({ to: user.email, subject: 'Verify your Avkash email', text: `Verify link: ${url}` })
+      void sendEmail({ to: user.email, subject: 'Verify your Avkash email', text: `Verify link: ${url}` });
     },
   },
 
@@ -79,7 +79,7 @@ export const auth = betterAuth({
     phoneNumber({
       requireVerification: true,
       sendOTP: ({ phoneNumber: phone, code }) => {
-        void sendSMS(phone, `Your Avkash verification code is ${code}`)
+        void sendSMS(phone, `Your Avkash verification code is ${code}`);
       },
     }),
   ],
@@ -98,13 +98,13 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (newUser) => {
-          const email = (newUser as { email: string }).email
-          const invite = await pendingInvite(email)
+          const email = (newUser as { email: string }).email;
+          const invite = await pendingInvite(email);
           if (!invite) {
-            throw new APIError('FORBIDDEN', { message: 'No pending invitation for this email' })
+            throw new APIError('FORBIDDEN', { message: 'No pending invitation for this email' });
           }
           if (!(await domainAllowed(invite.orgId, email))) {
-            throw new APIError('FORBIDDEN', { message: 'Email domain not allowed for this organization' })
+            throw new APIError('FORBIDDEN', { message: 'Email domain not allowed for this organization' });
           }
           // Provision org membership from the invitation.
           return {
@@ -114,19 +114,19 @@ export const auth = betterAuth({
               orgId: invite.orgId,
               teamId: invite.teamId ?? null,
             },
-          }
+          };
         },
         after: async (createdUser) => {
-          const email = (createdUser as { email: string }).email
+          const email = (createdUser as { email: string }).email;
           await db
             .update(schema.invitation)
             .set({ status: 'ACCEPTED', updatedAt: new Date() })
-            .where(and(eq(schema.invitation.email, email), eq(schema.invitation.status, 'PENDING')))
+            .where(and(eq(schema.invitation.email, email), eq(schema.invitation.status, 'PENDING')));
         },
       },
     },
   },
-})
+});
 
-export type Auth = typeof auth
-export type Session = typeof auth.$Infer.Session
+export type Auth = typeof auth;
+export type Session = typeof auth.$Infer.Session;

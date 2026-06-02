@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, integer, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, integer, boolean } from 'drizzle-orm/pg-core';
 
 // ── Subscription (mirrors Razorpay subscription entity) ──────────────────────
 export const subscription = pgTable('Subscription', {
@@ -26,7 +26,7 @@ export const subscription = pgTable('Subscription', {
   hasScheduledChanges: boolean('hasScheduledChanges'),
   scheduleChangeAt: integer('scheduleChangeAt'),
   remainingCount: integer('remainingCount'),
-})
+});
 
 // ── PaySubMap (Razorpay payment ↔ subscription mapping) ──────────────────────
 export const paySubMap = pgTable('PaySubMap', {
@@ -34,4 +34,4 @@ export const paySubMap = pgTable('PaySubMap', {
   razorpayPaymentId: varchar('razorpayPaymentId', { length: 255 }),
   razorpaySignature: varchar('razorpaySignature', { length: 255 }),
   razorpaySubscriptionId: varchar('razorpaySubscriptionId', { length: 255 }),
-})
+});

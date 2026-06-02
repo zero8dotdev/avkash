@@ -5,5 +5,7 @@
   "description": "Shared ESLint flat config. Foundation — zero internal deps.",
   "type": "module",
   "main": "index.js",
-  "files": ["index.js"]
+  "files": [
+    "index.js"
+  ]
 }

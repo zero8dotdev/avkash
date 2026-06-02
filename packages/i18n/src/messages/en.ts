@@ -19,13 +19,11 @@ export const en: Record<string, string> = {
   INTERNAL: 'Something went wrong.',
   // org
   ORG_NOT_FOUND: 'Organisation not found.',
-  ORG_RESTRICTED:
-    'Your organisation is restricted — verify your domain to continue.',
+  ORG_RESTRICTED: 'Your organisation is restricted — verify your domain to continue.',
   ALREADY_MEMBER: 'That person is already a member.',
   INVITATION_EXISTS: 'An invitation is already pending for that email.',
   INVITE_ROLE_TOO_HIGH: 'You cannot invite someone at the {role} role.',
-  SEAT_CAP_REACHED:
-    'Seat limit ({cap}) reached — verify your domain to add more.',
+  SEAT_CAP_REACHED: 'Seat limit ({cap}) reached — verify your domain to add more.',
   DOMAIN_NOT_FOUND: 'Domain not found.',
   // leave
   LEAVE_NOT_FOUND: 'Leave not found.',
@@ -38,8 +36,7 @@ export const en: Record<string, string> = {
   HALF_DAY_NEEDS_SHIFT: 'A half-day leave requires a shift.',
   NO_WORKING_DAYS: 'There are no working days in the selected range.',
   LEAVE_OVERLAP: 'This leave overlaps an existing leave.',
-  INSUFFICIENT_BALANCE:
-    'Insufficient leave balance — {available} available, {requested} requested.',
+  INSUFFICIENT_BALANCE: 'Insufficient leave balance — {available} available, {requested} requested.',
   LEAVE_NOT_PENDING: 'This leave is not pending.',
   LEAVE_ALREADY_CANCELLED: 'This leave has already been cancelled.',
   LEAVE_TYPE_NOT_FOUND: 'Leave type not found or inactive.',

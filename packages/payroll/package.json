@@ -4,7 +4,9 @@
   "private": true,
   "description": "Orchestration: combines users + leave + attendance. Reaches THROUGH domains, never into db.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

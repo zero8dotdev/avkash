@@ -24,4 +24,4 @@ export const hi: Record<string, string> = {
   NOT_ENCASHABLE: 'इस अवकाश प्रकार को नकद नहीं किया जा सकता।',
   ENCASH_LIMIT: 'अधिकतम {max} दिन ही नकद किए जा सकते हैं।',
   COMMENT_BODY_REQUIRED: 'टिप्पणी का विवरण आवश्यक है।',
-}
+};

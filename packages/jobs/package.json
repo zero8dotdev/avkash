@@ -4,7 +4,9 @@
   "private": true,
   "description": "Top-of-graph orchestration: BullMQ workers. Orchestrates through packages, doesn't reach into db.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

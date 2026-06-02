@@ -21,9 +21,7 @@ import { internal } from './routes/internal';
 // Expose real error internals only in lower environments. Explicit flag wins;
 // otherwise derive from NODE_ENV (anything but production is exposed). See plans/15.
 const EXPOSE_ERRORS =
-  process.env.EXPOSE_ERRORS != null
-    ? process.env.EXPOSE_ERRORS === 'true'
-    : process.env.NODE_ENV !== 'production';
+  process.env.EXPOSE_ERRORS != null ? process.env.EXPOSE_ERRORS === 'true' : process.env.NODE_ENV !== 'production';
 
 // The wiring layer. Each route group is thin: parse request -> call a domain
 // function with ctx -> return json. The exported AppType is the type-safe

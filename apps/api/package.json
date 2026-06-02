@@ -4,7 +4,9 @@
   "private": true,
   "description": "App: Bun + Hono server. Wires domain packages into routes. Apps wire, packages think.",
   "type": "module",
-  "exports": { ".": "./src/app.ts" },
+  "exports": {
+    ".": "./src/app.ts"
+  },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --target bun --outdir dist",

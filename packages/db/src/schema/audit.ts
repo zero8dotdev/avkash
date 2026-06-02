@@ -1,5 +1,5 @@
-import { pgTable, serial, uuid, varchar, jsonb, timestamp } from 'drizzle-orm/pg-core'
-import { organisation, team, user } from './core'
+import { pgTable, serial, uuid, varchar, jsonb, timestamp } from 'drizzle-orm/pg-core';
+import { organisation, team, user } from './core';
 
 // ── ActivityLog (audit trail, written by DB triggers in v1) ──────────────────
 export const activityLog = pgTable('ActivityLog', {
@@ -16,4 +16,4 @@ export const activityLog = pgTable('ActivityLog', {
   createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
   updatedBy: varchar('updatedBy', { length: 255 }),
   updatedOn: timestamp('updatedOn', { precision: 6 }).defaultNow(),
-})
+});

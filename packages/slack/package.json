@@ -4,7 +4,9 @@
   "private": true,
   "description": "Orchestration / transport adapter: maps Slack commands to domain calls. Bolt SDK lives in apps/api, not here.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

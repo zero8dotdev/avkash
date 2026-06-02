@@ -4,7 +4,9 @@
   "private": true,
   "description": "Foundation: error/message catalogs + locale resolution. Zero internal deps — transports localize by code.",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

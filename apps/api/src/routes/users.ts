@@ -12,20 +12,8 @@ const joinedOnSchema = z.object({
 export const users = new Hono<AppEnv>()
   .use(requireAuth)
   .patch('/:id/workweek', validateBody(workweekSchema), async (c) =>
-    c.json(
-      await setUserWorkweek(
-        c.get('auth'),
-        c.req.param('id'),
-        c.get('body').workweek
-      )
-    )
+    c.json(await setUserWorkweek(c.get('auth'), c.req.param('id'), c.get('body').workweek))
   )
   .patch('/:id/joined-on', validateBody(joinedOnSchema), async (c) =>
-    c.json(
-      await setUserJoinedOn(
-        c.get('auth'),
-        c.req.param('id'),
-        c.get('body').joinedOn
-      )
-    )
+    c.json(await setUserJoinedOn(c.get('auth'), c.req.param('id'), c.get('body').joinedOn))
   );

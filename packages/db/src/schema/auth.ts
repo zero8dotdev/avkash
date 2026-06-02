@@ -1,5 +1,5 @@
-import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core'
-import { user } from './core'
+import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { user } from './core';
 
 // Better Auth managed tables. Owned (schema) by @avkash/db for one migration
 // history; populated/read by Better Auth via the Drizzle adapter in @avkash/auth.
@@ -18,7 +18,7 @@ export const session = pgTable('Session', {
   userAgent: text('userAgent'),
   createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
-})
+});
 
 // ── Account (identity links — slack, google, email/credential) ───────────────
 // This is the linking model: one human (user) → many Account rows. A Slack
@@ -39,7 +39,7 @@ export const account = pgTable('Account', {
   password: text('password'),
   createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
-})
+});
 
 // ── Verification (magic-link / email-verification tokens) ────────────────────
 export const verification = pgTable('Verification', {
@@ -49,4 +49,4 @@ export const verification = pgTable('Verification', {
   expiresAt: timestamp('expiresAt', { precision: 6 }).notNull(),
   createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
-})
+});

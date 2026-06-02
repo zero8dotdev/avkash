@@ -36,7 +36,5 @@ export const leavePolicies = new Hono<AppEnv>()
     c.json(await createLeavePolicy(c.get('auth'), c.get('body')), 201)
   )
   .patch('/:id', validateBody(updateLeavePolicySchema), async (c) =>
-    c.json(
-      await updateLeavePolicy(c.get('auth'), c.req.param('id'), c.get('body'))
-    )
+    c.json(await updateLeavePolicy(c.get('auth'), c.req.param('id'), c.get('body')))
   );
