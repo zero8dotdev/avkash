@@ -32,3 +32,21 @@ export const roleEnum = pgEnum('role', ['OWNER', 'MANAGER', 'USER', 'ANON', 'ADM
 export const invitationStatusEnum = pgEnum('invitation_status', ['PENDING', 'ACCEPTED', 'REVOKED'])
 
 export const orgStatusEnum = pgEnum('org_status', ['PROVISIONAL', 'VERIFIED', 'RESTRICTED'])
+
+// WFH is an ATTENDANCE status, not a leave type — it lives in @avkash/attendance.
+export const leaveTypeKindEnum = pgEnum('leave_type_kind', ['LEAVE', 'COMP_OFF'])
+
+export const ledgerKindEnum = pgEnum('ledger_kind', [
+  'OPENING',
+  'ACCRUAL',
+  'ROLLOVER',
+  'COMP_OFF_CREDIT',
+  'TAKEN',
+  'ENCASHMENT',
+  'ADJUSTMENT',
+  'EXPIRY',
+])
+
+export const compOffStatusEnum = pgEnum('comp_off_status', ['PENDING', 'APPROVED', 'REJECTED', 'REDEEMED', 'EXPIRED'])
+
+export const encashmentStatusEnum = pgEnum('encashment_status', ['PENDING', 'APPROVED', 'REJECTED', 'PAID'])

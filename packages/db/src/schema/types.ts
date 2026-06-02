@@ -4,7 +4,7 @@
 import type { organisation, team, user, orgAccessData } from './core'
 import type { session, account, verification } from './auth'
 import type { invitation, orgDomain } from './membership'
-import type { leaveType, leave, leavePolicy } from './leave'
+import type { leaveType, leave, leavePolicy, leaveLedger, compOff, encashment, approvalDelegation } from './leave'
 import type { holiday, publicHolidays } from './holiday'
 import type { activityLog } from './audit'
 import type { subscription, paySubMap } from './billing'
@@ -36,6 +36,14 @@ export type Leave = typeof leave.$inferSelect
 export type NewLeave = typeof leave.$inferInsert
 export type LeavePolicy = typeof leavePolicy.$inferSelect
 export type NewLeavePolicy = typeof leavePolicy.$inferInsert
+export type LeaveLedger = typeof leaveLedger.$inferSelect
+export type NewLeaveLedger = typeof leaveLedger.$inferInsert
+export type CompOff = typeof compOff.$inferSelect
+export type NewCompOff = typeof compOff.$inferInsert
+export type Encashment = typeof encashment.$inferSelect
+export type NewEncashment = typeof encashment.$inferInsert
+export type ApprovalDelegation = typeof approvalDelegation.$inferSelect
+export type NewApprovalDelegation = typeof approvalDelegation.$inferInsert
 
 export type Holiday = typeof holiday.$inferSelect
 export type NewHoliday = typeof holiday.$inferInsert

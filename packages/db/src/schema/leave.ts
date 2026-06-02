@@ -2,6 +2,7 @@ import {
   pgTable,
   pgView,
   uuid,
+  text,
   varchar,
   boolean,
   integer,
@@ -9,11 +10,22 @@ import {
   date,
   timestamp,
   index,
+  uniqueIndex,
   check,
 } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 import { organisation, team, user } from './core'
-import { leaveDurationEnum, shiftEnum, leaveStatusEnum, accrualFrequencyEnum, accrueOnEnum } from './enums'
+import {
+  leaveDurationEnum,
+  shiftEnum,
+  leaveStatusEnum,
+  accrualFrequencyEnum,
+  accrueOnEnum,
+  leaveTypeKindEnum,
+  ledgerKindEnum,
+  compOffStatusEnum,
+  encashmentStatusEnum,
+} from './enums'
 
 // ── LeaveType ───────────────────────────────────────────────────────────────
 export const leaveType = pgTable(
@@ -29,6 +41,8 @@ export const leaveType = pgTable(
     setSlackStatus: boolean('setSlackStatus').notNull().default(true),
     emoji: varchar('emoji'),
     statusMsg: varchar('statusMsg', { length: 255 }),
+    kind: leaveTypeKindEnum('kind').notNull().default('LEAVE'),
+    isPaid: boolean('isPaid').notNull().default(true),
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),
@@ -99,6 +113,10 @@ export const leavePolicy = pgTable(
     rollOverExpiry: varchar('rollOverExpiry', { length: 5 }),
     autoApprove: boolean('autoApprove').notNull().default(false),
     isActive: boolean('isActive').notNull().default(true),
+    allowNegativeBalance: boolean('allowNegativeBalance').notNull().default(false),
+    encashable: boolean('encashable').notNull().default(false),
+    encashmentMaxDays: integer('encashmentMaxDays'),
+    compOffExpiryDays: integer('compOffExpiryDays').default(90),
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),
@@ -111,6 +129,116 @@ export const leavePolicy = pgTable(
     index('idx_leavepolicy_type_team').on(t.leaveTypeId, t.teamId),
     index('idx_leavepolicy_active').on(t.isActive),
   ],
+)
+
+// ── LeaveLedger (authoritative balance source — signed entries) ──────────────
+// balance = Σ amount WHERE effectiveOn ≤ today AND (expiresOn IS NULL OR ≥ today).
+// See plans/14 for the entry-kind semantics.
+export const leaveLedger = pgTable(
+  'LeaveLedger',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => user.id),
+    leaveTypeId: uuid('leaveTypeId')
+      .notNull()
+      .references(() => leaveType.leaveTypeId),
+    kind: ledgerKindEnum('kind').notNull(),
+    amount: numeric('amount', { precision: 6, scale: 2 }).notNull(),
+    effectiveOn: date('effectiveOn').notNull(),
+    expiresOn: date('expiresOn'),
+    leaveId: uuid('leaveId').references(() => leave.leaveId),
+    periodKey: text('periodKey'), // job idempotency, e.g. "accrual:2026-06"
+    note: varchar('note', { length: 255 }),
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_leaveledger_user_type').on(t.userId, t.leaveTypeId),
+    index('idx_leaveledger_org').on(t.orgId),
+    // Idempotency for scheduled jobs: one ACCRUAL/ROLLOVER per (user, type, periodKey).
+    // periodKey is NULL for TAKEN/ADJUSTMENT entries — Postgres treats NULLs as
+    // distinct, so those are never blocked.
+    uniqueIndex('uq_leaveledger_period').on(t.userId, t.leaveTypeId, t.periodKey),
+  ],
+)
+
+// ── CompOff (compensatory off earned by working a holiday/weekend) ───────────
+// On approval, a COMP_OFF_CREDIT ledger entry is posted (with expiry); redemption
+// is just applying a leave of a COMP_OFF-kind type, which debits that balance.
+export const compOff = pgTable(
+  'CompOff',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => user.id),
+    leaveTypeId: uuid('leaveTypeId')
+      .notNull()
+      .references(() => leaveType.leaveTypeId),
+    workedOn: date('workedOn').notNull(),
+    days: numeric('days', { precision: 5, scale: 2 }).notNull().default('1'),
+    status: compOffStatusEnum('status').notNull().default('PENDING'),
+    expiresOn: date('expiresOn'),
+    approvedBy: uuid('approvedBy').references(() => user.id),
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_compoff_user').on(t.userId), index('idx_compoff_org').on(t.orgId)],
+)
+
+// ── Encashment (convert unused leave to cash; payout handled by payroll) ─────
+export const encashment = pgTable(
+  'Encashment',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => user.id),
+    leaveTypeId: uuid('leaveTypeId')
+      .notNull()
+      .references(() => leaveType.leaveTypeId),
+    days: numeric('days', { precision: 6, scale: 2 }).notNull(),
+    amount: numeric('amount', { precision: 12, scale: 2 }),
+    status: encashmentStatusEnum('status').notNull().default('PENDING'),
+    requestedBy: uuid('requestedBy').references(() => user.id),
+    approvedBy: uuid('approvedBy').references(() => user.id),
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_encashment_user').on(t.userId), index('idx_encashment_org').on(t.orgId)],
+)
+
+// ── ApprovalDelegation (a manager delegates their approvals for a period) ────
+export const approvalDelegation = pgTable(
+  'ApprovalDelegation',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    fromManagerId: uuid('fromManagerId')
+      .notNull()
+      .references(() => user.id),
+    toUserId: uuid('toUserId')
+      .notNull()
+      .references(() => user.id),
+    teamId: uuid('teamId').references(() => team.teamId), // null = all teams the delegator manages
+    startsOn: date('startsOn').notNull(),
+    endsOn: date('endsOn').notNull(),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_delegation_org').on(t.orgId), index('idx_delegation_to').on(t.toUserId)],
 )
 
 // ── leave_summary (aggregate view) ───────────────────────────────────────────
