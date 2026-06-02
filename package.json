@@ -18,8 +18,8 @@
     "seeds": "dotenv -e .env.local node db/setup.js db/seed",
     "setup": "npm run tables; npm run seeds; npm run functions;npm run triggers; npm run policies;",
     "lint-fix": "next lint --fix",
-    "format": "prettier --check --ignore-path .gitignore .",
-    "format:fix": "prettier --write --ignore-path .gitignore .",
+    "format": "prettier --check apps packages",
+    "format:fix": "prettier --write apps packages",
     "prepare": "husky",
     "knip": "knip",
     "turbo": "turbo",
@@ -80,6 +80,7 @@
     "lint-staged": "^15.2.10",
     "pg": "^8.12.0",
     "postcss": "^8.4.40",
+    "prettier": "^3.3.3",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.8.2",
     "turbo": "^2.3.0"
