@@ -12,14 +12,20 @@ export const en: Record<string, string> = {
   NOT_FOUND: 'Not found.',
   VALIDATION_FAILED: 'The request is invalid.',
   CONFLICT: 'This conflicts with the current state.',
+  FK_VIOLATION: 'This references something that does not exist.',
+  REQUIRED_FIELD: 'A required field is missing.',
+  CHECK_VIOLATION: 'A value is not allowed here.',
+  INVALID_INPUT: 'One or more values are malformed.',
   INTERNAL: 'Something went wrong.',
   // org
   ORG_NOT_FOUND: 'Organisation not found.',
-  ORG_RESTRICTED: 'Your organisation is restricted — verify your domain to continue.',
+  ORG_RESTRICTED:
+    'Your organisation is restricted — verify your domain to continue.',
   ALREADY_MEMBER: 'That person is already a member.',
   INVITATION_EXISTS: 'An invitation is already pending for that email.',
   INVITE_ROLE_TOO_HIGH: 'You cannot invite someone at the {role} role.',
-  SEAT_CAP_REACHED: 'Seat limit ({cap}) reached — verify your domain to add more.',
+  SEAT_CAP_REACHED:
+    'Seat limit ({cap}) reached — verify your domain to add more.',
   DOMAIN_NOT_FOUND: 'Domain not found.',
   // leave
   LEAVE_NOT_FOUND: 'Leave not found.',
@@ -32,7 +38,8 @@ export const en: Record<string, string> = {
   HALF_DAY_NEEDS_SHIFT: 'A half-day leave requires a shift.',
   NO_WORKING_DAYS: 'There are no working days in the selected range.',
   LEAVE_OVERLAP: 'This leave overlaps an existing leave.',
-  INSUFFICIENT_BALANCE: 'Insufficient leave balance — {available} available, {requested} requested.',
+  INSUFFICIENT_BALANCE:
+    'Insufficient leave balance — {available} available, {requested} requested.',
   LEAVE_NOT_PENDING: 'This leave is not pending.',
   LEAVE_ALREADY_CANCELLED: 'This leave has already been cancelled.',
   LEAVE_TYPE_NOT_FOUND: 'Leave type not found or inactive.',
@@ -56,4 +63,4 @@ export const en: Record<string, string> = {
   DELEGATION_NOT_FOUND: 'Delegation not found.',
   COMMENT_BODY_REQUIRED: 'A comment body is required.',
   INTERNAL_COMMENT_FORBIDDEN: 'Only approvers can add internal comments.',
-}
+};

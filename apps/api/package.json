@@ -26,7 +26,8 @@
     "@avkash/payroll": "workspace:*",
     "@avkash/slack": "workspace:*",
     "@avkash/jobs": "workspace:*",
-    "hono": "^4.6.0"
+    "hono": "^4.6.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

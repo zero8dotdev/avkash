@@ -11,7 +11,7 @@
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
-    "zod": "^3.24.1"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",
