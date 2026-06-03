@@ -102,6 +102,20 @@ export async function getLeavePolicy(ctx: AuthContext, leavePolicyId: string): P
   return row;
 }
 
+// Org's policies (optionally one team's). LeavePolicy has no orgId — it's scoped via
+// its team — so we join Team to filter by the caller's org.
+export async function listLeavePolicies(ctx: AuthContext, opts?: { teamId?: string }): Promise<LeavePolicy[]> {
+  requireRole(ctx, 'MANAGER');
+  const rows = await db
+    .select({ policy: schema.leavePolicy })
+    .from(schema.leavePolicy)
+    .innerJoin(schema.team, eq(schema.leavePolicy.teamId, schema.team.teamId))
+    .where(
+      and(eq(schema.team.orgId, ctx.orgId), opts?.teamId ? eq(schema.leavePolicy.teamId, opts.teamId) : undefined)
+    );
+  return rows.map((r) => r.policy);
+}
+
 export async function updateLeavePolicy(
   ctx: AuthContext,
   leavePolicyId: string,

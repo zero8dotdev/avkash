@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { and, eq, lt } from 'drizzle-orm';
 import { db, schema, type Organisation, type Invitation } from '@avkash/db';
+import { type AuthContext, NotFoundError } from '@avkash/shared';
+import { requireRole } from '@avkash/auth';
 
 export const GRACE_DAYS = 14;
 export const PROVISIONAL_INVITE_CAP = 10;
@@ -56,4 +58,43 @@ export async function restrictExpiredOrgs(now = new Date()): Promise<number> {
 // VERIFIED can — the per-seat cap is enforced by the invite endpoint.
 export function canInvite(org: Pick<Organisation, 'status'>): boolean {
   return org.status !== 'RESTRICTED';
+}
+
+// The caller's own org (the API is org-scoped — you only ever see yours).
+export async function getOrg(ctx: AuthContext): Promise<Organisation> {
+  const [row] = await db.select().from(schema.organisation).where(eq(schema.organisation.orgId, ctx.orgId)).limit(1);
+  if (!row) throw new NotFoundError('ORG_NOT_FOUND');
+  return row;
+}
+
+export interface UpdateOrgInput {
+  name?: string;
+  dateformat?: string;
+  timeformat?: string;
+  halfDayLeave?: boolean;
+  visibility?: 'ORG' | 'TEAM' | 'SELF';
+  initialSetup?: string; // onboarding wizard step
+  isSetupCompleted?: boolean;
+}
+
+// Org settings + onboarding state. HR (ADMIN) only.
+export async function updateOrg(ctx: AuthContext, patch: UpdateOrgInput): Promise<Organisation> {
+  requireRole(ctx, 'ADMIN');
+  const [row] = await db
+    .update(schema.organisation)
+    .set({
+      ...(patch.name !== undefined && { name: patch.name }),
+      ...(patch.dateformat !== undefined && { dateformat: patch.dateformat }),
+      ...(patch.timeformat !== undefined && { timeformat: patch.timeformat }),
+      ...(patch.halfDayLeave !== undefined && { halfDayLeave: patch.halfDayLeave }),
+      ...(patch.visibility !== undefined && { visibility: patch.visibility }),
+      ...(patch.initialSetup !== undefined && { initialSetup: patch.initialSetup }),
+      ...(patch.isSetupCompleted !== undefined && { isSetupCompleted: patch.isSetupCompleted }),
+      updatedBy: ctx.userId,
+      updatedOn: new Date(),
+    })
+    .where(eq(schema.organisation.orgId, ctx.orgId))
+    .returning();
+  if (!row) throw new NotFoundError('ORG_NOT_FOUND');
+  return row;
 }

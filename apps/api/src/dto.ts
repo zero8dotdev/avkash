@@ -53,6 +53,12 @@ export const teamDto = createSelectSchema(schema.team).omit({
   updatedBy: true,
 });
 
+export const orgDto = createSelectSchema(schema.organisation).omit({
+  createdBy: true,
+  updatedBy: true,
+  subscriptionId: true,
+});
+
 // User leaks the most, so allowlist via omit of everything internal/sensitive:
 // org wiring, audit, and the internal JSON accumulators.
 export const userDto = createSelectSchema(schema.user).omit({

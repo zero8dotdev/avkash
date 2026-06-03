@@ -1,9 +1,11 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { createOrganization, addOrgDomain, verifyOrgDomain, setOrgLocations } from '@avkash/org';
+import { createOrganization, addOrgDomain, verifyOrgDomain, setOrgLocations, getOrg, updateOrg } from '@avkash/org';
 import { setOrgEscalation } from '@avkash/leave';
+import { serialize } from '@avkash/shared';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
+import { orgDto } from '../dto';
 
 const createOrgSchema = z.object({
   orgName: z.string().min(1).max(120),
@@ -13,6 +15,15 @@ const createOrgSchema = z.object({
 const addDomainSchema = z.object({ domain: z.string().min(1).max(253) });
 const setLocationsSchema = z.object({ locations: z.array(z.string().min(2).max(50)) });
 const setOrgEscalationSchema = z.object({ escalateAfterDays: z.number().int().min(0).max(365).nullable() });
+const updateOrgSchema = z.object({
+  name: z.string().min(1).max(120).optional(),
+  dateformat: z.string().max(32).optional(),
+  timeformat: z.string().max(32).optional(),
+  halfDayLeave: z.boolean().optional(),
+  visibility: z.enum(['ORG', 'TEAM', 'SELF']).optional(),
+  initialSetup: z.string().max(1).optional(),
+  isSetupCompleted: z.boolean().optional(),
+});
 
 // Org creation + ownership-validation (DNS TXT). Logic lives in @avkash/org;
 // these are thin transport handlers.
@@ -31,6 +42,12 @@ export const orgs = new Hono<AppEnv>()
       201
     );
   })
+  // Current org (the API is org-scoped — you only ever see your own).
+  .get('/', requireAuth, async (c) => c.json({ data: serialize(orgDto, await getOrg(c.get('auth'))) }))
+  // HR: org settings + onboarding state.
+  .patch('/', requireAuth, validateBody(updateOrgSchema), async (c) =>
+    c.json({ data: serialize(orgDto, await updateOrg(c.get('auth'), c.get('body'))) })
+  )
   // OWNER: add a domain to verify → returns the TXT record to publish.
   .post('/domains', requireAuth, validateBody(addDomainSchema), async (c) => {
     const { domain, txtRecord } = await addOrgDomain(c.get('auth'), c.get('body').domain);

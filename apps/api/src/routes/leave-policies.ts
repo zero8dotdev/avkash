@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { serialize, PreconditionRequiredError } from '@avkash/shared';
-import { getLeavePolicy, createLeavePolicy, updateLeavePolicy } from '@avkash/leave';
+import { getLeavePolicy, listLeavePolicies, createLeavePolicy, updateLeavePolicy } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
-import { validateBody } from '../middleware/validate';
+import { validateBody, validateQuery } from '../middleware/validate';
 import { leavePolicyDto } from '../dto';
 
 // ETag for a policy is just its version, quoted (a strong validator).
@@ -35,9 +35,13 @@ const updateLeavePolicySchema = createLeavePolicySchema
   .omit({ leaveTypeId: true, teamId: true })
   .partial()
   .extend({ isActive: z.boolean().optional() });
+const listPoliciesQuery = z.object({ teamId: z.string().optional() });
 
 export const leavePolicies = new Hono<AppEnv>()
   .use(requireAuth)
+  .get('/', validateQuery(listPoliciesQuery), async (c) =>
+    c.json({ data: serialize(z.array(leavePolicyDto), await listLeavePolicies(c.get('auth'), c.get('query'))) })
+  )
   .post('/', validateBody(createLeavePolicySchema), async (c) =>
     c.json(serialize(leavePolicyDto, await createLeavePolicy(c.get('auth'), c.get('body'))), 201)
   )
