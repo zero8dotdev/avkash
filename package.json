@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.3.0",
+  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -22,9 +23,10 @@
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
+    "@avkash/eslint-config": "workspace:*",
     "@commitlint/types": "^19.5.0",
     "@types/node": "^20.17.27",
-    "eslint": "^8.57.1",
+    "eslint": "^9.17.0",
     "knip": "^5.46.0",
     "prettier": "^3.3.3",
     "turbo": "^2.3.0",
