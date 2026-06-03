@@ -260,9 +260,15 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/holidays':
+        specifier: workspace:*
+        version: link:../holidays
       '@avkash/shared':
         specifier: workspace:*
         version: link:../shared
+      drizzle-orm:
+        specifier: ^0.38.4
+        version: 0.38.4(@types/react@19.0.10)(bun-types@1.3.14)(kysely@0.29.2)(pg@8.21.0)(postgres@3.4.9)(react@19.0.0)
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*

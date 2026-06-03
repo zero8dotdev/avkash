@@ -15,7 +15,9 @@
   "dependencies": {
     "@avkash/db": "workspace:*",
     "@avkash/shared": "workspace:*",
-    "@avkash/auth": "workspace:*"
+    "@avkash/auth": "workspace:*",
+    "drizzle-orm": "^0.38.4",
+    "@avkash/holidays": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

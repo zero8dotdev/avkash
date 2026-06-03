@@ -59,6 +59,11 @@ export const orgDto = createSelectSchema(schema.organisation).omit({
   subscriptionId: true,
 });
 
+export const punchDto = createSelectSchema(schema.attendancePunch).omit({
+  orgId: true,
+  createdBy: true,
+});
+
 // User leaks the most, so allowlist via omit of everything internal/sensitive:
 // org wiring, audit, and the internal JSON accumulators.
 export const userDto = createSelectSchema(schema.user).omit({
