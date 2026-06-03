@@ -53,6 +53,17 @@ export class BusinessRuleError extends DomainError {
     super(code, 422, params, options);
   }
 }
+// Optimistic concurrency: If-Match precondition missing (428) or stale (412).
+export class PreconditionRequiredError extends DomainError {
+  constructor(code = 'PRECONDITION_REQUIRED', params?: ErrorParams, options?: { cause?: unknown }) {
+    super(code, 428, params, options);
+  }
+}
+export class PreconditionFailedError extends DomainError {
+  constructor(code = 'PRECONDITION_FAILED', params?: ErrorParams, options?: { cause?: unknown }) {
+    super(code, 412, params, options);
+  }
+}
 
 // ── Layer 4 — System (500) ──────────────────────────────────────────────────
 export class InternalError extends DomainError {

@@ -15,6 +15,8 @@ export const en: Record<string, string> = {
   CONFLICT: 'This conflicts with the current state.',
   IDEMPOTENCY_KEY_REUSED: 'This Idempotency-Key was already used for a different request.',
   IDEMPOTENCY_IN_PROGRESS: 'A request with this Idempotency-Key is still in progress.',
+  VERSION_CONFLICT: 'This record changed since you loaded it — reload and retry.',
+  PRECONDITION_REQUIRED: 'This update requires an If-Match version header.',
   FK_VIOLATION: 'This references something that does not exist.',
   REQUIRED_FIELD: 'A required field is missing.',
   CHECK_VIOLATION: 'A value is not allowed here.',

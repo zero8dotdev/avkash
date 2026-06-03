@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema, type LeavePolicy } from '@avkash/db';
-import { type AuthContext, NotFoundError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { writeAudit } from './audit';
 
@@ -90,18 +90,48 @@ export async function getEffectivePolicy(
   return row ?? null;
 }
 
+// Single policy by id (for the GET that hands the client its current ETag/version).
+export async function getLeavePolicy(ctx: AuthContext, leavePolicyId: string): Promise<LeavePolicy> {
+  requireRole(ctx, 'MANAGER');
+  const [row] = await db
+    .select()
+    .from(schema.leavePolicy)
+    .where(eq(schema.leavePolicy.leavePolicyId, leavePolicyId))
+    .limit(1);
+  if (!row) throw new NotFoundError('LEAVE_POLICY_NOT_FOUND');
+  return row;
+}
+
 export async function updateLeavePolicy(
   ctx: AuthContext,
   leavePolicyId: string,
-  patch: Partial<Omit<CreateLeavePolicyInput, 'leaveTypeId' | 'teamId'>> & { isActive?: boolean }
+  patch: Partial<Omit<CreateLeavePolicyInput, 'leaveTypeId' | 'teamId'>> & { isActive?: boolean },
+  expectedVersion?: number
 ): Promise<LeavePolicy> {
   requireRole(ctx, 'MANAGER');
+  const conds = [eq(schema.leavePolicy.leavePolicyId, leavePolicyId)];
+  // Optimistic lock: with a version supplied, the row updates only if it still
+  // matches — the compare-and-swap is atomic in the WHERE clause, no row lock held.
+  if (expectedVersion !== undefined) conds.push(eq(schema.leavePolicy.version, expectedVersion));
   const [row] = await db
     .update(schema.leavePolicy)
-    .set({ ...patch, updatedBy: ctx.userId, updatedOn: new Date() })
-    .where(eq(schema.leavePolicy.leavePolicyId, leavePolicyId))
+    .set({ ...patch, version: sql`${schema.leavePolicy.version} + 1`, updatedBy: ctx.userId, updatedOn: new Date() })
+    .where(and(...conds))
     .returning();
-  if (!row) throw new NotFoundError('LEAVE_POLICY_NOT_FOUND');
+  if (!row) {
+    // Nothing updated: either the id is wrong, or the version moved under us.
+    if (expectedVersion !== undefined) {
+      const [current] = await db
+        .select({ version: schema.leavePolicy.version })
+        .from(schema.leavePolicy)
+        .where(eq(schema.leavePolicy.leavePolicyId, leavePolicyId))
+        .limit(1);
+      if (current) {
+        throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: current.version });
+      }
+    }
+    throw new NotFoundError('LEAVE_POLICY_NOT_FOUND');
+  }
   await writeAudit({
     orgId: ctx.orgId,
     tableName: 'LeavePolicy',
