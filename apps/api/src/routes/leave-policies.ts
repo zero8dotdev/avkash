@@ -30,6 +30,7 @@ const createLeavePolicySchema = z.object({
   compOffExpiryDays: z.number().nonnegative().optional(),
   prorateOnJoin: z.boolean().optional(),
 });
+
 const updateLeavePolicySchema = createLeavePolicySchema
   .omit({ leaveTypeId: true, teamId: true })
   .partial()
