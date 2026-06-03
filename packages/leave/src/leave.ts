@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, ne, type SQL } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, lte, ne, or, type SQL } from 'drizzle-orm';
 import { db, schema, type Leave } from '@avkash/db';
 import {
   type AuthContext,
@@ -15,7 +15,7 @@ import { getEffectivePolicy } from './leave-policy';
 import { getBalance } from './balance';
 import { postLedger, todayStr } from './ledger';
 import { writeAudit } from './audit';
-import { canApprove } from './approver';
+import { canApprove, resolveManagedTeams } from './approver';
 import { addLeaveComment } from './comment';
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
@@ -233,8 +233,14 @@ export async function listLeaves(ctx: AuthContext, filter?: ListLeavesFilter): P
   if (ctx.role === 'USER') {
     conds.push(eq(schema.leave.userId, ctx.userId ?? ''));
   } else if (ctx.role === 'MANAGER') {
-    const u = await loadUser(ctx.userId ?? '');
-    conds.push(u?.teamId ? eq(schema.leave.teamId, u.teamId) : eq(schema.leave.userId, ctx.userId ?? ''));
+    // See leaves for every team this manager can approve for (direct + delegated),
+    // plus their own — so "what I see" matches "what I can act on".
+    const teamIds = await resolveManagedTeams(ctx);
+    conds.push(
+      teamIds.length
+        ? or(inArray(schema.leave.teamId, teamIds), eq(schema.leave.userId, ctx.userId ?? ''))!
+        : eq(schema.leave.userId, ctx.userId ?? '')
+    );
   }
   if (filter?.userId) conds.push(eq(schema.leave.userId, filter.userId));
   if (filter?.status) conds.push(eq(schema.leave.isApproved, filter.status));
