@@ -13,6 +13,7 @@ import {
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { leaveDto, commentDto } from '../dto';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
@@ -40,7 +41,7 @@ const listLeavesQuerySchema = z.object({
 // validates input (validateBody/validateQuery) and serializes output (leaveDto).
 export const leaves = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', validateBody(applyLeaveSchema), async (c) =>
+  .post('/', idempotency, validateBody(applyLeaveSchema), async (c) =>
     c.json(serialize(leaveDto, await applyLeave(c.get('auth'), c.get('body'))), 201)
   )
   .get('/', validateQuery(listLeavesQuerySchema), async (c) =>

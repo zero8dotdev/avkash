@@ -13,6 +13,8 @@ export const en: Record<string, string> = {
   NOT_FOUND: 'Not found.',
   VALIDATION_FAILED: 'The request is invalid.',
   CONFLICT: 'This conflicts with the current state.',
+  IDEMPOTENCY_KEY_REUSED: 'This Idempotency-Key was already used for a different request.',
+  IDEMPOTENCY_IN_PROGRESS: 'A request with this Idempotency-Key is still in progress.',
   FK_VIOLATION: 'This references something that does not exist.',
   REQUIRED_FIELD: 'A required field is missing.',
   CHECK_VIOLATION: 'A value is not allowed here.',

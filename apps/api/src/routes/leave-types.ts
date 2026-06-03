@@ -4,6 +4,7 @@ import { serialize } from '@avkash/shared';
 import { createLeaveType, listLeaveTypes, updateLeaveType } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { leaveTypeDto } from '../dto';
 
 const createLeaveTypeSchema = z.object({
@@ -26,7 +27,7 @@ export const leaveTypes = new Hono<AppEnv>()
       ),
     })
   )
-  .post('/', validateBody(createLeaveTypeSchema), async (c) =>
+  .post('/', idempotency, validateBody(createLeaveTypeSchema), async (c) =>
     c.json(serialize(leaveTypeDto, await createLeaveType(c.get('auth'), c.get('body'))), 201)
   )
   .patch('/:id', validateBody(updateLeaveTypeSchema), async (c) =>

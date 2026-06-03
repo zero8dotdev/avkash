@@ -1,4 +1,5 @@
 export { db, ping } from './client';
+export * from './idempotency';
 export type { DB } from './client';
 // All tables/enums/relations under the `schema` namespace (db.* queries use this)...
 export * as schema from './schema';
