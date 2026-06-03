@@ -4,6 +4,7 @@ import { serialize } from '@avkash/shared';
 import { setDelegation, clearDelegation, listDelegations } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { delegationDto } from '../dto';
 
 const setDelegationSchema = z.object({
@@ -15,7 +16,7 @@ const setDelegationSchema = z.object({
 
 export const delegations = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', validateBody(setDelegationSchema), async (c) =>
+  .post('/', idempotency, validateBody(setDelegationSchema), async (c) =>
     c.json(serialize(delegationDto, await setDelegation(c.get('auth'), c.get('body'))), 201)
   )
   .get('/', async (c) => c.json({ data: serialize(z.array(delegationDto), await listDelegations(c.get('auth'))) }))

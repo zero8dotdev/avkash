@@ -47,10 +47,12 @@ export async function createTeam(ctx: AuthContext, input: CreateTeamInput): Prom
 }
 
 export async function listTeams(ctx: AuthContext): Promise<Team[]> {
+  requireRole(ctx, 'MANAGER');
   return db.select().from(schema.team).where(eq(schema.team.orgId, ctx.orgId)).orderBy(schema.team.name);
 }
 
 export async function getTeam(ctx: AuthContext, teamId: string): Promise<Team> {
+  requireRole(ctx, 'MANAGER');
   const [row] = await db
     .select()
     .from(schema.team)

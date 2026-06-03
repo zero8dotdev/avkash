@@ -4,6 +4,7 @@ import { serialize } from '@avkash/shared';
 import { earnCompOff, approveCompOff, rejectCompOff, listCompOff } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { compOffDto } from '../dto';
 
 const earnCompOffSchema = z.object({
@@ -16,7 +17,7 @@ const compOffQuerySchema = z.object({ userId: z.string().optional() });
 
 export const compOff = new Hono<AppEnv>()
   .use(requireAuth)
-  .post('/', validateBody(earnCompOffSchema), async (c) =>
+  .post('/', idempotency, validateBody(earnCompOffSchema), async (c) =>
     c.json(serialize(compOffDto, await earnCompOff(c.get('auth'), c.get('body'))), 201)
   )
   .get('/', validateQuery(compOffQuerySchema), async (c) =>

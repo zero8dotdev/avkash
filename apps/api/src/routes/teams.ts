@@ -5,6 +5,7 @@ import { createTeam, listTeams, getTeam, updateTeam } from '@avkash/users';
 import { setTeamEscalation } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { teamDto } from '../dto';
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as const;
@@ -29,7 +30,7 @@ const teamEscalationSchema = z.object({
 export const teams = new Hono<AppEnv>()
   .use(requireAuth)
   .get('/', async (c) => c.json({ data: serialize(z.array(teamDto), await listTeams(c.get('auth'))) }))
-  .post('/', validateBody(createTeamSchema), async (c) =>
+  .post('/', idempotency, validateBody(createTeamSchema), async (c) =>
     c.json(serialize(teamDto, await createTeam(c.get('auth'), c.get('body'))), 201)
   )
   .get('/:id', async (c) => c.json(serialize(teamDto, await getTeam(c.get('auth'), c.req.param('id')))))

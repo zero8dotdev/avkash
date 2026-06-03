@@ -4,6 +4,7 @@ import { serialize, PreconditionRequiredError } from '@avkash/shared';
 import { getLeavePolicy, listLeavePolicies, createLeavePolicy, updateLeavePolicy } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { idempotency } from '../middleware/idempotency';
 import { leavePolicyDto } from '../dto';
 
 // ETag for a policy is just its version, quoted (a strong validator).
@@ -42,7 +43,7 @@ export const leavePolicies = new Hono<AppEnv>()
   .get('/', validateQuery(listPoliciesQuery), async (c) =>
     c.json({ data: serialize(z.array(leavePolicyDto), await listLeavePolicies(c.get('auth'), c.get('query'))) })
   )
-  .post('/', validateBody(createLeavePolicySchema), async (c) =>
+  .post('/', idempotency, validateBody(createLeavePolicySchema), async (c) =>
     c.json(serialize(leavePolicyDto, await createLeavePolicy(c.get('auth'), c.get('body'))), 201)
   )
   // GET hands the client the current version as an ETag, which it must echo back as
