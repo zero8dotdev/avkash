@@ -5,16 +5,3 @@
 
 # Generated / vendored
 pnpm-lock.yaml
-package-lock.json
-database.types.ts
-
-# Legacy Supabase/Next app — being migrated to apps/* + packages/*. Removed at
-# cutover, so it's deliberately left unformatted rather than churned.
-src/
-db/
-middleware.ts
-next.config.mjs
-tailwind.config.ts
-tsconfig.json
-.eslintrc.json
-.lintstagedrc.js
