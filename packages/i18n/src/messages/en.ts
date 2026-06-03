@@ -30,6 +30,7 @@ export const en: Record<string, string> = {
   INVITE_ROLE_TOO_HIGH: 'You cannot invite someone at the {role} role.',
   SEAT_CAP_REACHED: 'Seat limit ({cap}) reached — verify your domain to add more.',
   DOMAIN_NOT_FOUND: 'Domain not found.',
+  HOLIDAY_NOT_FOUND: 'Holiday not found.',
   // leave
   LEAVE_NOT_FOUND: 'Leave not found.',
   LEAVE_FORBIDDEN: 'You are not allowed to access this leave.',

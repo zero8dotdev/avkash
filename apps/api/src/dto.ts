@@ -41,6 +41,12 @@ export const commentDto = createSelectSchema(schema.leaveComment).omit({
   orgId: true,
 });
 
+export const holidayDto = createSelectSchema(schema.holiday).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
 // User leaks the most, so allowlist via omit of everything internal/sensitive:
 // org wiring, audit, and the internal JSON accumulators.
 export const userDto = createSelectSchema(schema.user).omit({

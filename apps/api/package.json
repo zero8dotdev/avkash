@@ -30,7 +30,8 @@
     "@avkash/jobs": "workspace:*",
     "hono": "^4.6.0",
     "zod": "^4.0.0",
-    "drizzle-zod": "^0.8.0"
+    "drizzle-zod": "^0.8.0",
+    "@avkash/holidays": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",
