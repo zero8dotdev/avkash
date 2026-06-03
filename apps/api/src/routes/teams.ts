@@ -6,6 +6,7 @@ import { setTeamEscalation } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
+import { etag, requireIfMatch } from '../concurrency';
 import { teamDto } from '../dto';
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as const;
@@ -33,10 +34,16 @@ export const teams = new Hono<AppEnv>()
   .post('/', idempotency, validateBody(createTeamSchema), async (c) =>
     c.json(serialize(teamDto, await createTeam(c.get('auth'), c.get('body'))), 201)
   )
-  .get('/:id', async (c) => c.json(serialize(teamDto, await getTeam(c.get('auth'), c.req.param('id')))))
-  .patch('/:id', validateBody(updateTeamSchema), async (c) =>
-    c.json(serialize(teamDto, await updateTeam(c.get('auth'), c.req.param('id'), c.get('body'))))
-  )
+  .get('/:id', async (c) => {
+    const t = await getTeam(c.get('auth'), c.req.param('id'));
+    c.header('ETag', etag(t.version));
+    return c.json(serialize(teamDto, t));
+  })
+  .patch('/:id', validateBody(updateTeamSchema), async (c) => {
+    const t = await updateTeam(c.get('auth'), c.req.param('id'), c.get('body'), requireIfMatch(c));
+    c.header('ETag', etag(t.version));
+    return c.json(serialize(teamDto, t));
+  })
   // HR: a team's escalation routing — when (escalateAfterDays, 0 = off) and who (escalatesTo).
   .patch('/:id/escalation', validateBody(teamEscalationSchema), async (c) => {
     await setTeamEscalation(c.get('auth'), c.req.param('id'), c.get('body'));

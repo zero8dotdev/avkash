@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getEmployeeProfile, updateProfile, listEmployees } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { etag, requireIfMatch } from '../concurrency';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 
@@ -42,11 +43,33 @@ const listQuery = z.object({ teamId: z.string().optional(), status: z.string().o
 export const employees = new Hono<AppEnv>()
   .use(requireAuth)
   .get('/', validateQuery(listQuery), async (c) => c.json({ data: await listEmployees(c.get('auth'), c.get('query')) }))
-  .get('/me', async (c) => c.json({ data: await getEmployeeProfile(c.get('auth'), c.get('auth').userId ?? '') }))
-  .patch('/me', validateBody(selfPatchSchema), async (c) =>
-    c.json({ data: await updateProfile(c.get('auth'), c.get('auth').userId ?? '', c.get('body')) })
-  )
-  .get('/:id', async (c) => c.json({ data: await getEmployeeProfile(c.get('auth'), c.req.param('id')) }))
-  .patch('/:id', validateBody(hrPatchSchema), async (c) =>
-    c.json({ data: await updateProfile(c.get('auth'), c.req.param('id'), c.get('body')) })
-  );
+  .get('/me', async (c) => {
+    const { profile, version } = await getEmployeeProfile(c.get('auth'), c.get('auth').userId ?? '');
+    c.header('ETag', etag(version));
+    return c.json({ data: profile });
+  })
+  .patch('/me', validateBody(selfPatchSchema), async (c) => {
+    const { profile, version } = await updateProfile(
+      c.get('auth'),
+      c.get('auth').userId ?? '',
+      c.get('body'),
+      requireIfMatch(c)
+    );
+    c.header('ETag', etag(version));
+    return c.json({ data: profile });
+  })
+  .get('/:id', async (c) => {
+    const { profile, version } = await getEmployeeProfile(c.get('auth'), c.req.param('id'));
+    c.header('ETag', etag(version));
+    return c.json({ data: profile });
+  })
+  .patch('/:id', validateBody(hrPatchSchema), async (c) => {
+    const { profile, version } = await updateProfile(
+      c.get('auth'),
+      c.req.param('id'),
+      c.get('body'),
+      requireIfMatch(c)
+    );
+    c.header('ETag', etag(version));
+    return c.json({ data: profile });
+  });

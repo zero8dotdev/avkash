@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createOrganization, addOrgDomain, verifyOrgDomain, setOrgLocations, getOrg, updateOrg } from '@avkash/org';
 import { setOrgEscalation } from '@avkash/leave';
 import { serialize } from '@avkash/shared';
+import { etag, requireIfMatch } from '../concurrency';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { orgDto } from '../dto';
@@ -43,11 +44,17 @@ export const orgs = new Hono<AppEnv>()
     );
   })
   // Current org (the API is org-scoped — you only ever see your own).
-  .get('/', requireAuth, async (c) => c.json({ data: serialize(orgDto, await getOrg(c.get('auth'))) }))
-  // HR: org settings + onboarding state.
-  .patch('/', requireAuth, validateBody(updateOrgSchema), async (c) =>
-    c.json({ data: serialize(orgDto, await updateOrg(c.get('auth'), c.get('body'))) })
-  )
+  .get('/', requireAuth, async (c) => {
+    const org = await getOrg(c.get('auth'));
+    c.header('ETag', etag(org.version));
+    return c.json({ data: serialize(orgDto, org) });
+  })
+  // HR: org settings + onboarding state (If-Match required).
+  .patch('/', requireAuth, validateBody(updateOrgSchema), async (c) => {
+    const org = await updateOrg(c.get('auth'), c.get('body'), requireIfMatch(c));
+    c.header('ETag', etag(org.version));
+    return c.json({ data: serialize(orgDto, org) });
+  })
   // OWNER: add a domain to verify → returns the TXT record to publish.
   .post('/domains', requireAuth, validateBody(addDomainSchema), async (c) => {
     const { domain, txtRecord } = await addOrgDomain(c.get('auth'), c.get('body').domain);

@@ -4,6 +4,7 @@ import { serialize } from '@avkash/shared';
 import { setUserWorkweek, setUserJoinedOn, listUsers, getUser, updateUserAdmin } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { etag, requireIfMatch } from '../concurrency';
 import { userDto } from '../dto';
 
 const workweekSchema = z.object({ workweek: z.array(z.string()).default([]) });
@@ -19,11 +20,17 @@ export const users = new Hono<AppEnv>()
   .get('/', validateQuery(listUsersQuery), async (c) =>
     c.json({ data: serialize(z.array(userDto), await listUsers(c.get('auth'), c.get('query'))) })
   )
-  .get('/:id', async (c) => c.json(serialize(userDto, await getUser(c.get('auth'), c.req.param('id')))))
-  // HR: change a person's role/team.
-  .patch('/:id', validateBody(updateUserSchema), async (c) =>
-    c.json(serialize(userDto, await updateUserAdmin(c.get('auth'), c.req.param('id'), c.get('body'))))
-  )
+  .get('/:id', async (c) => {
+    const u = await getUser(c.get('auth'), c.req.param('id'));
+    c.header('ETag', etag(u.version));
+    return c.json(serialize(userDto, u));
+  })
+  // HR: change a person's role/team (If-Match required).
+  .patch('/:id', validateBody(updateUserSchema), async (c) => {
+    const u = await updateUserAdmin(c.get('auth'), c.req.param('id'), c.get('body'), requireIfMatch(c));
+    c.header('ETag', etag(u.version));
+    return c.json(serialize(userDto, u));
+  })
   .patch('/:id/workweek', validateBody(workweekSchema), async (c) =>
     c.json(serialize(userDto, await setUserWorkweek(c.get('auth'), c.req.param('id'), c.get('body').workweek)))
   )

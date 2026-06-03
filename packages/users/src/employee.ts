@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
-import { type AuthContext, NotFoundError, ForbiddenError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 
 type EmployeeProfile = typeof schema.employeeProfile.$inferSelect;
@@ -90,8 +90,8 @@ async function loadOrSynth(orgId: string, userId: string): Promise<EmployeeProfi
     .where(eq(schema.employeeProfile.userId, userId))
     .limit(1);
   if (row) return row;
-  // No profile yet — synthesise an empty one (ACTIVE) so reads work before first write.
-  return { userId, orgId, employmentStatus: 'ACTIVE' } as EmployeeProfile;
+  // No profile yet — synthesise an empty one (ACTIVE, version 0) so reads work before first write.
+  return { userId, orgId, employmentStatus: 'ACTIVE', version: 0 } as EmployeeProfile;
 }
 
 async function assertInOrg(ctx: AuthContext, userId: string): Promise<void> {
@@ -103,32 +103,58 @@ async function assertInOrg(ctx: AuthContext, userId: string): Promise<void> {
   if (!u || u.orgId !== ctx.orgId) throw new NotFoundError('USER_NOT_FOUND');
 }
 
-// A person's record, projected to what the viewer may read.
-export async function getEmployeeProfile(ctx: AuthContext, userId: string): Promise<Record<string, unknown>> {
+// A person's record, projected to what the viewer may read, plus its version (ETag).
+export async function getEmployeeProfile(
+  ctx: AuthContext,
+  userId: string
+): Promise<{ profile: Record<string, unknown>; version: number }> {
   await assertInOrg(ctx, userId);
   const rel = await resolveRelationship(ctx, userId);
-  return projectProfile(await loadOrSynth(ctx.orgId, userId), rel);
+  const row = await loadOrSynth(ctx.orgId, userId);
+  return { profile: projectProfile(row, rel), version: row.version };
 }
 
-// One write path for both self-service and HR — the relationship decides what's writable.
+// One write path for both self-service and HR — the relationship decides what's
+// writable; expectedVersion (If-Match) makes the write a compare-and-swap. The row is
+// lazily created, so we ensure it exists, then CAS on version.
 export async function updateProfile(
   ctx: AuthContext,
   userId: string,
-  patch: Record<string, unknown>
-): Promise<Record<string, unknown>> {
+  patch: Record<string, unknown>,
+  expectedVersion?: number
+): Promise<{ profile: Record<string, unknown>; version: number }> {
   await assertInOrg(ctx, userId);
   const rel = await resolveRelationship(ctx, userId);
   const keys = Object.keys(patch);
-  if (keys.length === 0) return projectProfile(await loadOrSynth(ctx.orgId, userId), rel);
+  if (keys.length === 0) {
+    const cur = await loadOrSynth(ctx.orgId, userId);
+    return { profile: projectProfile(cur, rel), version: cur.version };
+  }
   assertWritable(keys, rel);
-  const [row] = await db
+  await db
     .insert(schema.employeeProfile)
-    .values({ userId, orgId: ctx.orgId, ...patch, createdBy: ctx.userId })
-    .onConflictDoUpdate({
-      target: schema.employeeProfile.userId,
-      set: { ...patch, updatedBy: ctx.userId, updatedOn: new Date() },
+    .values({ userId, orgId: ctx.orgId, createdBy: ctx.userId })
+    .onConflictDoNothing({ target: schema.employeeProfile.userId });
+  const conds = [eq(schema.employeeProfile.userId, userId)];
+  if (expectedVersion !== undefined) conds.push(eq(schema.employeeProfile.version, expectedVersion));
+  const [row] = await db
+    .update(schema.employeeProfile)
+    .set({
+      ...patch,
+      version: sql`${schema.employeeProfile.version} + 1`,
+      updatedBy: ctx.userId,
+      updatedOn: new Date(),
     })
+    .where(and(...conds))
     .returning();
+  if (!row) {
+    const [cur] = await db
+      .select({ version: schema.employeeProfile.version })
+      .from(schema.employeeProfile)
+      .where(eq(schema.employeeProfile.userId, userId))
+      .limit(1);
+    throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur?.version });
+  }
   await db.insert(schema.activityLog).values({
     orgId: ctx.orgId,
     tableName: 'EmployeeProfile',
@@ -137,7 +163,7 @@ export async function updateProfile(
     changedBy: ctx.userId,
     keyword: 'employee_profile_update',
   });
-  return projectProfile(row, rel);
+  return { profile: projectProfile(row, rel), version: row.version };
 }
 
 // Roster — identity + the org-chart-ish fields, MANAGER+ only. Detailed PII is per-record.

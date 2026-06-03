@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, date, jsonb, timestamp, uniqueIndex, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, date, jsonb, integer, timestamp, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { user, organisation } from './core';
 import { employmentTypeEnum, employmentStatusEnum } from './enums';
 
@@ -43,6 +43,7 @@ export const employeeProfile = pgTable(
     address: text('address'),
     emergencyContact: jsonb('emergencyContact').$type<{ name?: string; relation?: string; phone?: string }>(),
 
+    version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),

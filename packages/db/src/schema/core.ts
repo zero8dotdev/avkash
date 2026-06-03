@@ -14,6 +14,7 @@ export const organisation = pgTable(
     ownerId: uuid('ownerId'),
     halfDayLeave: boolean('halfDayLeave').notNull().default(false),
     escalateAfterDays: integer('escalateAfterDays'), // org-wide SLA: PENDING > N days → escalate (null → system default 3)
+    version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     initialSetup: varchar('initialSetup', { length: 1 }).default('0'),
     isSetupCompleted: boolean('isSetupCompleted').default(false),
     // Ownership-validation lifecycle (plans/13): PROVISIONAL → VERIFIED via DNS TXT,
@@ -47,6 +48,7 @@ export const team = pgTable(
     location: varchar('location', { length: 255 }),
     escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
+    version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     startOfWorkWeek: daysOfWeekEnum('startOfWorkWeek').default('MONDAY'),
     workweek: daysOfWeekEnum('workweek')
       .array()
@@ -98,6 +100,7 @@ export const user = pgTable(
     // Per-person working days; overrides the team's workweek when set (else null → team).
     workweek: daysOfWeekEnum('workweek').array(),
     joinedOn: date('joinedOn'), // employment start; drives mid-year proration (falls back to createdAt)
+    version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },

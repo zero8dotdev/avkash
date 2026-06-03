@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema, type User } from '@avkash/db';
-import { type AuthContext, NotFoundError, ForbiddenError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 
 // Session context — the web app's first call after login: who am I, my org, my team.
@@ -62,7 +62,12 @@ export interface UpdateUserInput {
 
 // HR changes a person's role or team (promote to manager via team.managers separately).
 // The OWNER is not reassignable here — that role is set once, at org creation.
-export async function updateUserAdmin(ctx: AuthContext, userId: string, patch: UpdateUserInput): Promise<User> {
+export async function updateUserAdmin(
+  ctx: AuthContext,
+  userId: string,
+  patch: UpdateUserInput,
+  expectedVersion?: number
+): Promise<User> {
   requireRole(ctx, 'ADMIN');
   const [target] = await db
     .select({ role: schema.user.role, orgId: schema.user.orgId })
@@ -71,15 +76,30 @@ export async function updateUserAdmin(ctx: AuthContext, userId: string, patch: U
     .limit(1);
   if (!target || target.orgId !== ctx.orgId) throw new NotFoundError('USER_NOT_FOUND');
   if (target.role === 'OWNER') throw new ForbiddenError('FORBIDDEN');
+  const conds = [eq(schema.user.id, userId)];
+  if (expectedVersion !== undefined) conds.push(eq(schema.user.version, expectedVersion));
   const [row] = await db
     .update(schema.user)
     .set({
       ...(patch.role !== undefined && { role: patch.role }),
       ...(patch.teamId !== undefined && { teamId: patch.teamId }),
+      version: sql`${schema.user.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),
     })
-    .where(eq(schema.user.id, userId))
+    .where(and(...conds))
     .returning();
+  if (!row) {
+    if (expectedVersion !== undefined) {
+      const [cur] = await db
+        .select({ version: schema.user.version })
+        .from(schema.user)
+        .where(eq(schema.user.id, userId))
+        .limit(1);
+      if (cur)
+        throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
+    }
+    throw new NotFoundError('USER_NOT_FOUND');
+  }
   return row;
 }

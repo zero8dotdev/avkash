@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { and, eq, lt } from 'drizzle-orm';
+import { and, eq, lt, sql } from 'drizzle-orm';
 import { db, schema, type Organisation, type Invitation } from '@avkash/db';
-import { type AuthContext, NotFoundError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 
 export const GRACE_DAYS = 14;
@@ -78,8 +78,14 @@ export interface UpdateOrgInput {
 }
 
 // Org settings + onboarding state. HR (ADMIN) only.
-export async function updateOrg(ctx: AuthContext, patch: UpdateOrgInput): Promise<Organisation> {
+export async function updateOrg(
+  ctx: AuthContext,
+  patch: UpdateOrgInput,
+  expectedVersion?: number
+): Promise<Organisation> {
   requireRole(ctx, 'ADMIN');
+  const conds = [eq(schema.organisation.orgId, ctx.orgId)];
+  if (expectedVersion !== undefined) conds.push(eq(schema.organisation.version, expectedVersion));
   const [row] = await db
     .update(schema.organisation)
     .set({
@@ -90,11 +96,23 @@ export async function updateOrg(ctx: AuthContext, patch: UpdateOrgInput): Promis
       ...(patch.visibility !== undefined && { visibility: patch.visibility }),
       ...(patch.initialSetup !== undefined && { initialSetup: patch.initialSetup }),
       ...(patch.isSetupCompleted !== undefined && { isSetupCompleted: patch.isSetupCompleted }),
+      version: sql`${schema.organisation.version} + 1`,
       updatedBy: ctx.userId,
       updatedOn: new Date(),
     })
-    .where(eq(schema.organisation.orgId, ctx.orgId))
+    .where(and(...conds))
     .returning();
-  if (!row) throw new NotFoundError('ORG_NOT_FOUND');
+  if (!row) {
+    if (expectedVersion !== undefined) {
+      const [cur] = await db
+        .select({ version: schema.organisation.version })
+        .from(schema.organisation)
+        .where(eq(schema.organisation.orgId, ctx.orgId))
+        .limit(1);
+      if (cur)
+        throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
+    }
+    throw new NotFoundError('ORG_NOT_FOUND');
+  }
   return row;
 }

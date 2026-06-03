@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema, type Team } from '@avkash/db';
-import { type AuthContext, ValidationError, NotFoundError } from '@avkash/shared';
+import { type AuthContext, ValidationError, NotFoundError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 
 type Day = 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
@@ -70,8 +70,15 @@ export interface UpdateTeamInput {
   isActive?: boolean;
 }
 
-export async function updateTeam(ctx: AuthContext, teamId: string, patch: UpdateTeamInput): Promise<Team> {
+export async function updateTeam(
+  ctx: AuthContext,
+  teamId: string,
+  patch: UpdateTeamInput,
+  expectedVersion?: number
+): Promise<Team> {
   requireRole(ctx, 'ADMIN');
+  const conds = [eq(schema.team.teamId, teamId), eq(schema.team.orgId, ctx.orgId)];
+  if (expectedVersion !== undefined) conds.push(eq(schema.team.version, expectedVersion));
   const [row] = await db
     .update(schema.team)
     .set({
@@ -80,11 +87,23 @@ export async function updateTeam(ctx: AuthContext, teamId: string, patch: Update
       ...(patch.location !== undefined && { location: patch.location }),
       ...(patch.workweek !== undefined && { workweek: normaliseWeek(patch.workweek) }),
       ...(patch.isActive !== undefined && { isActive: patch.isActive }),
+      version: sql`${schema.team.version} + 1`,
       updatedBy: ctx.userId,
       updatedOn: new Date(),
     })
-    .where(and(eq(schema.team.teamId, teamId), eq(schema.team.orgId, ctx.orgId)))
+    .where(and(...conds))
     .returning();
-  if (!row) throw new NotFoundError('TEAM_NOT_FOUND');
+  if (!row) {
+    if (expectedVersion !== undefined) {
+      const [cur] = await db
+        .select({ version: schema.team.version })
+        .from(schema.team)
+        .where(and(eq(schema.team.teamId, teamId), eq(schema.team.orgId, ctx.orgId)))
+        .limit(1);
+      if (cur)
+        throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
+    }
+    throw new NotFoundError('TEAM_NOT_FOUND');
+  }
   return row;
 }
