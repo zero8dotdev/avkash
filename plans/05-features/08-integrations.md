@@ -7,12 +7,14 @@
 WhatsApp is where tier 2 India does business. This is not a notification channel — it's a full UI.
 
 ### Why WhatsApp > Slack for our ICP
+
 - Factory worker has WhatsApp, not Slack
 - Owner manages business from WhatsApp groups
 - No training required
 - Works on 2G / basic Android
 
 ### Provider: Meta WhatsApp Business API
+
 - Via BSP (Business Solution Provider): Interakt, Wati, or MSG91 WhatsApp
 - MSG91 recommended — Indian provider, good rates, Hindi support
 - Alt: Direct Meta Cloud API (cheaper, more setup)
@@ -20,6 +22,7 @@ WhatsApp is where tier 2 India does business. This is not a notification channel
 ### Employee Flows via WhatsApp
 
 **Apply for Leave:**
+
 ```
 Employee: "leave"
 Bot: "Hi Rajan! Apply for leave:
@@ -40,6 +43,7 @@ Bot: "Leave request submitted! Your manager will be notified."
 ```
 
 **Check Leave Balance:**
+
 ```
 Employee: "balance"
 Bot: "Hi Rajan, your leave balance:
@@ -49,6 +53,7 @@ Bot: "Hi Rajan, your leave balance:
 ```
 
 **Attendance Check-in (for non-biometric cos):**
+
 ```
 Employee sends: "in"
 Bot: "Checked in at 9:32 AM. Good morning, Rajan!"
@@ -57,6 +62,7 @@ Bot: "Checked out at 6:45 PM. Total: 9h 13m"
 ```
 
 **Payslip:**
+
 ```
 Bot (on payroll finalization):
 "Hi Rajan, your salary for March 2025 has been processed.
@@ -67,6 +73,7 @@ Gross: ₹28,500 | Net: ₹24,810
 ### Manager Flows via WhatsApp
 
 **Leave Approval:**
+
 ```
 Manager receives:
 "Leave Request from Rajan Patel:
@@ -82,6 +89,7 @@ Bot: "Approved! Rajan has been notified."
 ```
 
 **Team Summary (Morning):**
+
 ```
 Bot sends daily at 9 AM:
 "Good morning, Vikram! Team status today:
@@ -92,6 +100,7 @@ Bot sends daily at 9 AM:
 ```
 
 ### Implementation
+
 - Webhook receives all WhatsApp messages
 - State machine per conversation (tracks where user is in a flow)
 - Session state stored in Redis (expires 30 min)
@@ -103,11 +112,13 @@ Bot sends daily at 9 AM:
 ## Slack (Existing — Deepen)
 
 ### Current State
+
 - OAuth token storage
 - Basic Slack status updates on leave
 - Notification preferences
 
 ### Enhance to Match WhatsApp Feature Parity
+
 - Slash commands: `/leave apply`, `/leave balance`, `/leave team`
 - Home tab: personal dashboard in Slack
 - Block Kit modals: full leave application form in Slack
@@ -121,25 +132,30 @@ Bot sends daily at 9 AM:
 ### Supported
 
 **ZKTeco (most common in India)**
+
 - Integration via ZKTeco Push SDK
 - Device sends punches to configured webhook URL
 - No need to install software on PC
 - Setup: provide API URL + device key in Avkash, configure on device
 
 **HID (access control)**
+
 - Via HID OSDP or REST API (model-dependent)
 - Door access event = attendance event
 
 **Hikvision**
+
 - Attendance terminals (DS-K1 series)
 - ISAPI push events to webhook
 
 **Generic CSV Import**
+
 - Any device can export punch log as CSV
 - Standard import: User ID, Date, Time, In/Out flag
 - Upload once or schedule via email attachment
 
 ### User Mapping
+
 - During device setup, HR maps device-user-IDs to Avkash employees
 - One-time setup via a mapping UI
 - Unmapped punches flagged for HR attention
@@ -178,6 +194,7 @@ Provider: **Resend** (modern, reliable, good India deliverability)
 Fallback: **Nodemailer** + SMTP (for self-hosted)
 
 Events that trigger email:
+
 - Leave request submitted (to manager)
 - Leave approved/rejected (to employee)
 - New employee invite
@@ -189,6 +206,7 @@ Events that trigger email:
 - PF/ESI due date reminder (to HR)
 
 ### Email Templates
+
 - HTML templates with org logo
 - Hindi + English variants
 - Consistent with web UI design
@@ -201,6 +219,7 @@ Provider: **MSG91** (trusted Indian provider, good tier 2 reach)
 Fallback: **Twilio India**
 
 Used for:
+
 - OTP for magic link auth (faster than email for some users)
 - Leave approval notification (managers without WhatsApp bot)
 - Payslip notification (fallback if WhatsApp fails)
@@ -225,6 +244,7 @@ POST /webhooks
 ```
 
 Events published:
+
 - `employee.created`, `employee.updated`, `employee.terminated`
 - `leave.requested`, `leave.approved`, `leave.rejected`
 - `attendance.marked`
@@ -249,6 +269,7 @@ Use cases: sync to custom ERP, trigger Azure DevOps scripts, custom Slack bots.
 
 Payment processing for SaaS subscriptions. Already integrated.
 Extend with:
+
 - GST-inclusive invoices (required for Indian B2B)
 - Annual billing option (2 months free)
 - Failed payment retry with WhatsApp nudge

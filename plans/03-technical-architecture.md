@@ -2,22 +2,22 @@
 
 ## Decision Summary
 
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| Frontend | Next.js 15 (App Router) | Keep — solid, React 19, SSR |
-| Backend API | Bun + Hono | Fast, TypeScript-native, runs on Bun |
-| Database | PostgreSQL 16 | Keep — all SQL is portable, no changes needed |
-| ORM | Drizzle ORM | Type-safe, Bun-compatible, lighter than Prisma |
-| Auth | Better Auth | Bun-native, plugins for Slack/Google OAuth, magic links |
-| File Storage | Cloudflare R2 | S3-compatible, cheap egress, free tier is large |
-| Email | Resend | Modern API, developer-friendly, good deliverability |
-| SMS / WhatsApp | MSG91 | Indian provider, good rates, WhatsApp Business API |
-| Queue / Jobs | BullMQ + Redis | Payroll runs, document generation, notifications |
-| Cache | Redis (Upstash for cloud) | Session cache, rate limiting, queue |
-| Search | PostgreSQL FTS → Meilisearch | Start simple, upgrade when needed |
-| CDN | Cloudflare | Free tier covers most traffic |
-| Monitoring | Sentry + OpenTelemetry | Error tracking + distributed tracing |
-| Logging | Pino → Loki + Grafana | Structured logs, self-hostable stack |
+| Layer          | Choice                       | Rationale                                               |
+| -------------- | ---------------------------- | ------------------------------------------------------- |
+| Frontend       | Next.js 15 (App Router)      | Keep — solid, React 19, SSR                             |
+| Backend API    | Bun + Hono                   | Fast, TypeScript-native, runs on Bun                    |
+| Database       | PostgreSQL 16                | Keep — all SQL is portable, no changes needed           |
+| ORM            | Drizzle ORM                  | Type-safe, Bun-compatible, lighter than Prisma          |
+| Auth           | Better Auth                  | Bun-native, plugins for Slack/Google OAuth, magic links |
+| File Storage   | Cloudflare R2                | S3-compatible, cheap egress, free tier is large         |
+| Email          | Resend                       | Modern API, developer-friendly, good deliverability     |
+| SMS / WhatsApp | MSG91                        | Indian provider, good rates, WhatsApp Business API      |
+| Queue / Jobs   | BullMQ + Redis               | Payroll runs, document generation, notifications        |
+| Cache          | Redis (Upstash for cloud)    | Session cache, rate limiting, queue                     |
+| Search         | PostgreSQL FTS → Meilisearch | Start simple, upgrade when needed                       |
+| CDN            | Cloudflare                   | Free tier covers most traffic                           |
+| Monitoring     | Sentry + OpenTelemetry       | Error tracking + distributed tracing                    |
+| Logging        | Pino → Loki + Grafana        | Structured logs, self-hostable stack                    |
 
 ---
 
@@ -66,12 +66,14 @@
 ## Backend: Bun + Hono API
 
 ### Why Bun?
+
 - 3–4x faster than Node.js for I/O workloads
 - Native TypeScript execution (no transpile step in dev)
 - Built-in test runner, bundler, package manager
 - Better Auth explicitly supports Bun
 
 ### Why Hono?
+
 - Runs on Bun, Cloudflare Workers, Node — portable
 - Clean, Express-like API, TypeScript-first
 - Middleware system (auth, rate limiting, cors, logging)
@@ -141,6 +143,7 @@ avkash/                       # Root
 ## Frontend: Next.js 15
 
 ### What Changes from Current
+
 - Replace `src/app/_utils/supabase/` with API client calling Bun API
 - Replace Supabase Auth session with Better Auth session cookies
 - Middleware updates: verify session via Better Auth `auth.api.getSession()`
@@ -153,10 +156,10 @@ avkash/                       # Root
 // packages/types/src/api.ts — shared RPC types
 // apps/web/src/lib/api.ts — typed fetch wrapper
 
-import type { AppType } from '@avkash/api'
-import { hc } from 'hono/client'
+import type { AppType } from '@avkash/api';
+import { hc } from 'hono/client';
 
-export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!)
+export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!);
 ```
 
 Hono's RPC client gives fully type-safe calls to the Bun API with no code generation step.
@@ -179,14 +182,14 @@ Use `next-intl` — works natively with Next.js App Router.
 
 ### Why Better Auth over others
 
-| Criteria | Better Auth | Lucia v3 | Auth.js v5 |
-|----------|------------|----------|-----------|
-| Bun support | Native | Yes | Limited |
-| Slack OAuth | Plugin | Manual | Plugin |
-| Magic links | Built-in | Manual | Plugin |
-| DB adapters | Drizzle ✓ | Yes | Yes |
-| Session strategy | Cookie + DB | Cookie + DB | JWT/DB |
-| Self-hostable | Yes | Yes | Yes |
+| Criteria         | Better Auth | Lucia v3    | Auth.js v5 |
+| ---------------- | ----------- | ----------- | ---------- |
+| Bun support      | Native      | Yes         | Limited    |
+| Slack OAuth      | Plugin      | Manual      | Plugin     |
+| Magic links      | Built-in    | Manual      | Plugin     |
+| DB adapters      | Drizzle ✓   | Yes         | Yes        |
+| Session strategy | Cookie + DB | Cookie + DB | JWT/DB     |
+| Self-hostable    | Yes         | Yes         | Yes        |
 
 ### Auth Flows
 
@@ -211,6 +214,7 @@ Request → Next.js Middleware
 ## Database: Drizzle ORM
 
 ### Why Drizzle over Prisma
+
 - Lighter runtime (no engine binary)
 - Bun-compatible (Prisma has known Bun issues)
 - SQL-like query syntax — easier to reason about
@@ -250,16 +254,16 @@ packages/db/src/schema/
 
 Jobs that run asynchronously:
 
-| Job | Trigger | Worker |
-|-----|---------|--------|
+| Job                  | Trigger                 | Worker                                       |
+| -------------------- | ----------------------- | -------------------------------------------- |
 | Payroll finalization | HR clicks "Run Payroll" | Calculates all employees, generates payslips |
-| PDF generation | Payslip / offer letter | Puppeteer or PDFKit |
-| WhatsApp delivery | Payslip ready | MSG91 API call per employee |
-| Biometric sync | Cron every 15 min | Pull from device API / parse CSV |
-| Leave accrual | Monthly cron | Credit leave balances |
-| Attendance auto-mark | EOD cron | Mark absent if no punch |
-| Compliance reminder | Cron | PF due date alerts |
-| Probation expiry | Daily cron | Alert manager 7 days before |
+| PDF generation       | Payslip / offer letter  | Puppeteer or PDFKit                          |
+| WhatsApp delivery    | Payslip ready           | MSG91 API call per employee                  |
+| Biometric sync       | Cron every 15 min       | Pull from device API / parse CSV             |
+| Leave accrual        | Monthly cron            | Credit leave balances                        |
+| Attendance auto-mark | EOD cron                | Mark absent if no punch                      |
+| Compliance reminder  | Cron                    | PF due date alerts                           |
+| Probation expiry     | Daily cron              | Alert manager 7 days before                  |
 
 ---
 
@@ -267,23 +271,23 @@ Jobs that run asynchronously:
 
 See [06-deployment.md](./06-deployment.md) for full detail.
 
-| Tier | Stack |
-|------|-------|
-| Hosted SaaS (cloud) | Fly.io / Railway + Neon PostgreSQL + Upstash Redis + R2 |
-| Self-hosted (Docker) | Docker Compose — all services on one VPS |
-| Self-hosted (K8s) | Helm chart — for larger installs |
+| Tier                 | Stack                                                   |
+| -------------------- | ------------------------------------------------------- |
+| Hosted SaaS (cloud)  | Fly.io / Railway + Neon PostgreSQL + Upstash Redis + R2 |
+| Self-hosted (Docker) | Docker Compose — all services on one VPS                |
+| Self-hosted (K8s)    | Helm chart — for larger installs                        |
 
 ---
 
 ## Performance Targets
 
-| Metric | Target |
-|--------|--------|
-| API p95 response time | < 100ms |
-| Payroll run (100 employees) | < 10 seconds |
-| PDF generation | < 3 seconds |
-| Dashboard load | < 1.5 seconds |
-| DB queries | All hot paths < 50ms (indexes required) |
+| Metric                      | Target                                  |
+| --------------------------- | --------------------------------------- |
+| API p95 response time       | < 100ms                                 |
+| Payroll run (100 employees) | < 10 seconds                            |
+| PDF generation              | < 3 seconds                             |
+| Dashboard load              | < 1.5 seconds                           |
+| DB queries                  | All hot paths < 50ms (indexes required) |
 
 ---
 

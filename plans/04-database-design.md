@@ -36,6 +36,7 @@ CREATE TYPE "BiometricEventType" AS ENUM('CHECK_IN', 'CHECK_OUT', 'BREAK_IN', 'B
 ## Module 1: Core HR
 
 ### Organisation (Existing — extend)
+
 ```sql
 ALTER TABLE "Organisation" ADD COLUMN "gstin" VARCHAR(15);
 ALTER TABLE "Organisation" ADD COLUMN "pan" VARCHAR(10);
@@ -51,6 +52,7 @@ ALTER TABLE "Organisation" ADD COLUMN "financialYearStart" VARCHAR(5) DEFAULT '0
 ```
 
 ### Department [NEW]
+
 ```sql
 CREATE TABLE "Department" (
   "deptId"     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -64,6 +66,7 @@ CREATE TABLE "Department" (
 ```
 
 ### Designation [NEW]
+
 ```sql
 CREATE TABLE "Designation" (
   "designationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -75,6 +78,7 @@ CREATE TABLE "Designation" (
 ```
 
 ### User (Existing — extend significantly)
+
 ```sql
 ALTER TABLE "User" ADD COLUMN "employeeCode"   VARCHAR(50);   -- EMP001
 ALTER TABLE "User" ADD COLUMN "deptId"         UUID REFERENCES "Department"("deptId");
@@ -106,6 +110,7 @@ ALTER TABLE "User" ADD COLUMN "emergencyContact" JSONB;
 ```
 
 ### CustomField [NEW]
+
 ```sql
 CREATE TABLE "CustomField" (
   "fieldId"   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -127,6 +132,7 @@ CREATE TABLE "CustomField" (
 ## Module 2: Leave & Attendance
 
 ### Leave (Existing — extend)
+
 ```sql
 ALTER TABLE "Leave" ADD COLUMN "wfhFlag"          BOOLEAN DEFAULT false;
 ALTER TABLE "Leave" ADD COLUMN "compOffEarnedFrom" UUID REFERENCES "Leave"("leaveId");
@@ -134,6 +140,7 @@ ALTER TABLE "Leave" ADD COLUMN "delegatedApproverId" UUID REFERENCES "User"("use
 ```
 
 ### LeaveCarryForward [NEW]
+
 ```sql
 CREATE TABLE "LeaveCarryForward" (
   "id"           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -149,6 +156,7 @@ CREATE TABLE "LeaveCarryForward" (
 ```
 
 ### Shift [NEW]
+
 ```sql
 CREATE TABLE "ShiftDefinition" (
   "shiftId"   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -173,6 +181,7 @@ CREATE TABLE "ShiftAssignment" (
 ```
 
 ### AttendanceRecord [NEW]
+
 ```sql
 CREATE TABLE "AttendanceRecord" (
   "recordId"       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -196,6 +205,7 @@ CREATE INDEX ON "AttendanceRecord"("userId", "date");
 ```
 
 ### BiometricDevice [NEW]
+
 ```sql
 CREATE TABLE "BiometricDevice" (
   "deviceId"    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -229,6 +239,7 @@ CREATE INDEX ON "BiometricEvent"("isProcessed", "createdAt");
 ## Module 3: Payroll & Compliance
 
 ### SalaryStructure [NEW]
+
 ```sql
 CREATE TABLE "SalaryStructure" (
   "structureId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -245,6 +256,7 @@ CREATE TABLE "SalaryStructure" (
 ```
 
 ### EmployeeSalary [NEW]
+
 ```sql
 CREATE TABLE "EmployeeSalary" (
   "salaryId"     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -263,6 +275,7 @@ CREATE INDEX ON "EmployeeSalary"("userId", "effectiveFrom");
 ```
 
 ### PayrollRun [NEW]
+
 ```sql
 CREATE TABLE "PayrollRun" (
   "runId"       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -285,6 +298,7 @@ CREATE TABLE "PayrollRun" (
 ```
 
 ### Payslip [NEW]
+
 ```sql
 CREATE TABLE "Payslip" (
   "payslipId"    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -309,6 +323,7 @@ CREATE TABLE "Payslip" (
 ```
 
 ### StatutoryConfig [NEW]
+
 ```sql
 CREATE TABLE "StatutoryConfig" (
   "configId"    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -330,6 +345,7 @@ CREATE TABLE "StatutoryConfig" (
 ```
 
 ### Reimbursement [NEW]
+
 ```sql
 CREATE TABLE "Reimbursement" (
   "claimId"     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -348,6 +364,7 @@ CREATE TABLE "Reimbursement" (
 ```
 
 ### TaxDeclaration [NEW]
+
 ```sql
 CREATE TABLE "TaxDeclaration" (
   "declarationId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -374,6 +391,7 @@ CREATE TABLE "TaxDeclaration" (
 ## Module 4: Documents
 
 ### Document [NEW]
+
 ```sql
 CREATE TABLE "Document" (
   "docId"       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -397,6 +415,7 @@ CREATE INDEX ON "Document"("expiresOn") WHERE "expiresOn" IS NOT NULL;
 ```
 
 ### DocumentTemplate [NEW]
+
 ```sql
 CREATE TABLE "DocumentTemplate" (
   "templateId"  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -416,6 +435,7 @@ CREATE TABLE "DocumentTemplate" (
 ## Module 5: Onboarding & Offboarding
 
 ### OnboardingTemplate [NEW]
+
 ```sql
 CREATE TABLE "OnboardingTemplate" (
   "templateId"  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -440,6 +460,7 @@ CREATE TABLE "OnboardingTask" (
 ```
 
 ### OnboardingInstance [NEW]
+
 ```sql
 CREATE TABLE "OnboardingInstance" (
   "instanceId"  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -468,6 +489,7 @@ CREATE TABLE "OnboardingTaskInstance" (
 ## Module 6: Performance
 
 ### ReviewCycle [NEW]
+
 ```sql
 CREATE TABLE "ReviewCycle" (
   "cycleId"    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -484,6 +506,7 @@ CREATE TABLE "ReviewCycle" (
 ```
 
 ### Goal [NEW]
+
 ```sql
 CREATE TABLE "Goal" (
   "goalId"     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -501,6 +524,7 @@ CREATE TABLE "Goal" (
 ```
 
 ### Review [NEW]
+
 ```sql
 CREATE TABLE "Review" (
   "reviewId"     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -527,6 +551,7 @@ CREATE TABLE "Review" (
 ## Module 7: Recruitment
 
 ### JobPosting [NEW]
+
 ```sql
 CREATE TABLE "JobPosting" (
   "jobId"       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -550,6 +575,7 @@ CREATE TABLE "JobPosting" (
 ```
 
 ### Candidate & Application [NEW]
+
 ```sql
 CREATE TABLE "Candidate" (
   "candidateId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -583,6 +609,7 @@ CREATE TABLE "Application" (
 ## Module 8: Communication
 
 ### Announcement [NEW]
+
 ```sql
 CREATE TABLE "Announcement" (
   "announcementId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -603,6 +630,7 @@ CREATE TABLE "Announcement" (
 ## Module 9: Auth (Better Auth)
 
 Better Auth manages its own tables via migration. Key tables it creates:
+
 - `user` — auth user (email, name, emailVerified)
 - `session` — session tokens with expiry
 - `account` — OAuth provider accounts (Slack, Google)

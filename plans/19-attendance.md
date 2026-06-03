@@ -4,9 +4,9 @@ Status: design (for review). Goal: capture who actually worked when, resolve it 
 calendar we already model (workweek + holidays + leave), and feed comp-off. Lives in the
 existing `@avkash/attendance` package (currently a stub).
 
-## The core idea: attendance is a *resolution*, not just a punch
+## The core idea: attendance is a _resolution_, not just a punch
 
-We already know what a day is *supposed* to be — workweek says which days are working days,
+We already know what a day is _supposed_ to be — workweek says which days are working days,
 holidays says which are off, the leave engine says who's approved off. Attendance fills in **what
 actually happened**. So the heart of this domain is one function:
 
@@ -38,6 +38,7 @@ the calendar, just layering actuals on it.
 ## Capture — transport-agnostic, like the rest
 
 One domain fn `recordPunch(ctx, {type, ts, source, wfh?, location?})`; many edges feed it:
+
 - **Self** check-in/out (web/app/Slack) → `POST /attendance/check-in|check-out`.
 - **Device/biometric** → a token-guarded ingest `POST /attendance/punch` (userId + ts + type), same
   shape, machine-auth (reuse the `/internal` token pattern).
@@ -60,23 +61,23 @@ written. This is leave-approval's twin — almost no new authz.
 
 Working on a `WEEKLY_OFF` or `HOLIDAY` (punches on a non-working day) makes the day **comp-off
 eligible** → creates a `CompOff` via the existing `earnCompOff` (manual confirm, or auto on a
-manager's nod). This is the §1B promise: comp-off earning *derived from real attendance* rather than
+manager's nod). This is the §1B promise: comp-off earning _derived from real attendance_ rather than
 self-asserted.
 
 ## API surface
 
-| Method | Route | Purpose |
-|---|---|---|
-| POST | `/attendance/check-in` · `/check-out` | self punch (wfh?, location?) |
-| POST | `/attendance/punch` | device/biometric ingest (token-guarded) |
-| GET | `/attendance/me?from=&to=` | my daily records (resolved) |
-| GET | `/attendance/:userId?from=&to=` | a person's (manager/HR, scoped) |
-| GET | `/attendance/today?teamId=` | team's live status (manager) |
-| POST | `/attendance/regularizations` | request a correction |
-| GET | `/attendance/regularizations` | pending for approval |
-| POST | `/attendance/regularizations/:id/{approve,reject}` | decision |
-| POST/GET/PATCH | `/shifts`, `/shifts/:id` | shift definitions (HR) |
-| GET | `/reports/attendance?month=&teamId=` | muster roll |
+| Method         | Route                                              | Purpose                                 |
+| -------------- | -------------------------------------------------- | --------------------------------------- |
+| POST           | `/attendance/check-in` · `/check-out`              | self punch (wfh?, location?)            |
+| POST           | `/attendance/punch`                                | device/biometric ingest (token-guarded) |
+| GET            | `/attendance/me?from=&to=`                         | my daily records (resolved)             |
+| GET            | `/attendance/:userId?from=&to=`                    | a person's (manager/HR, scoped)         |
+| GET            | `/attendance/today?teamId=`                        | team's live status (manager)            |
+| POST           | `/attendance/regularizations`                      | request a correction                    |
+| GET            | `/attendance/regularizations`                      | pending for approval                    |
+| POST           | `/attendance/regularizations/:id/{approve,reject}` | decision                                |
+| POST/GET/PATCH | `/shifts`, `/shifts/:id`                           | shift definitions (HR)                  |
+| GET            | `/reports/attendance?month=&teamId=`               | muster roll                             |
 
 DTOs + `{ data }` envelope + validation + idempotency on punches + optimistic concurrency on shift
 edits — all per the standards we just made uniform.
@@ -104,7 +105,7 @@ employee status (only ACTIVE employees are expected) · `canApprove` + comment t
 1. **Daily record: computed-on-read vs materialized.** Recommend **computed-on-read** for the MVP
    (always correct, no sync), add a materialized cache when reports get heavy.
 2. **Shift assignment home**: `user.shiftId → team.defaultShiftId` cascade (recommend) vs a
-   dedicated effective-dated roster (defer — that's shift *rotation*, v2).
+   dedicated effective-dated roster (defer — that's shift _rotation_, v2).
 3. **WFH**: self-declared flag at check-in (recommend, MVP) vs a pre-approval request (v2).
 4. **Comp-off on a non-working day**: auto-create on manager approval vs always manual `earnCompOff`.
    Recommend **manager-approved** (avoids gaming).

@@ -12,6 +12,7 @@ Don't say "HRMS" or "SaaS". Say:
 > PF aur ESI automatic calculate ho. Sab ek jagah."
 
 Translation:
+
 > "Approve leaves on WhatsApp. Send payslips on WhatsApp. PF and ESI calculated automatically. Everything in one place."
 
 This is what they understand. This is what they'll buy.
@@ -65,6 +66,7 @@ This is what they understand. This is what they'll buy.
 - Case study: "How CA Sharma in Indore automated payroll for 8 clients and added ₹40,000/month recurring income"
 
 **Outreach:**
+
 - ICAI regional chapters have email lists
 - LinkedIn: search "CA [city]" + connect with note
 - Referral: each CA who joins refers 2 more → exponential
@@ -72,11 +74,13 @@ This is what they understand. This is what they'll buy.
 ### Channel 2: WhatsApp Referral Program
 
 **For existing customers (business owners):**
+
 - "Refer a business owner friend. When they pay their first month, you get 1 free month."
 - Owner shares a referral link via WhatsApp to their own business network
 - Business owner peer groups (Rotary, Young Entrepreneurs Forum, Lions Club) are powerful
 
 **Mechanics:**
+
 - Referral link tied to org
 - Auto-tracked in billing system
 - Credit applied automatically
@@ -84,6 +88,7 @@ This is what they understand. This is what they'll buy.
 ### Channel 3: Content in Hindi (Slow Burn, High Value)
 
 **YouTube (most effective for tier 2 India):**
+
 - Channel name: "Smart HR India" or "HR सरल बनाओ"
 - Videos (5–10 min each):
   - "PF kaise calculate kare? Simple formula"
@@ -94,6 +99,7 @@ This is what they understand. This is what they'll buy.
 - Each video ends with: "Yeh sab automatically ho sakta hai Avkash mein. Free mein shuru karo."
 
 **Google Search (Hindi + English mix):**
+
 - Target keywords: "PF calculation software India", "HR software for small business India", "leave management app India"
 - Blog posts: solve one specific problem completely, end with Avkash CTA
 
@@ -102,12 +108,14 @@ This is what they understand. This is what they'll buy.
 ### Channel 4: Industry Association Partnerships
 
 **Target associations:**
+
 - Surat Textile Traders Association
 - Rajkot Engineering Industries Association
 - Nashik Industries & Manufacturers Association
 - CII SME chapters in 5 cities
 
 **Pitch:**
+
 - Offer 3-month free trial for all association members
 - Co-branded announcement via their newsletter/WhatsApp group
 - Speak at one of their events (5-minute demo)
@@ -135,11 +143,13 @@ This is what they understand. This is what they'll buy.
 ### Performance Marketing (After Product-Market Fit)
 
 Don't spend on ads until:
+
 - You have 10 customers who love the product
 - You know which industries convert best
 - You have a 30-day payback period on CAC
 
 Then:
+
 - Google Search ads: high intent, expensive but targeted ("payroll software India")
 - Meta ads: target by job title (Business Owner, HR Manager) + city + industry
 - Budget: ₹50,000/month initially, scale based on CAC data
@@ -149,10 +159,11 @@ Then:
 ## Pricing in Sales Conversation
 
 **Don't lead with price. Lead with pain:**
+
 1. "How long does your payroll take today?" (Answer: 2–3 days)
 2. "And what happens if PF is filed late?" (Answer: fine + interest)
 3. "With Avkash, payroll runs in 20 minutes. PF file is auto-generated."
-4. *Then* mention price: "₹60 per employee per month. For a 60-person company, that's ₹3,600/month."
+4. _Then_ mention price: "₹60 per employee per month. For a 60-person company, that's ₹3,600/month."
 5. Frame: "Less than what you'd pay a part-time accountant for 2 hours."
 6. Close: "Let me help you set it up right now. It takes 30 minutes."
 
@@ -176,6 +187,7 @@ Then:
 ## Launch Events
 
 **City-by-city launch (not a big national launch):**
+
 1. Partner with local CA association for a breakfast event
 2. Invite 20 business owners (CA brings them)
 3. 30-min product demo live, Q&A
@@ -188,14 +200,14 @@ Do this in 3 cities in Month 3–4. Repeat quarterly in new cities.
 
 ## Metrics to Track
 
-| Metric | Target (Month 12) |
-|--------|-------------------|
-| Paying companies | 200 |
-| Free tier companies | 500 |
-| CA resellers | 50 |
-| MRR | ₹8 L |
-| Churn (monthly) | < 3% |
-| NPS | > 50 |
-| CAC | < ₹5,000 |
-| LTV | > ₹60,000 (12 months) |
-| LTV:CAC | > 12x |
+| Metric              | Target (Month 12)     |
+| ------------------- | --------------------- |
+| Paying companies    | 200                   |
+| Free tier companies | 500                   |
+| CA resellers        | 50                    |
+| MRR                 | ₹8 L                  |
+| Churn (monthly)     | < 3%                  |
+| NPS                 | > 50                  |
+| CAC                 | < ₹5,000              |
+| LTV                 | > ₹60,000 (12 months) |
+| LTV:CAC             | > 12x                 |

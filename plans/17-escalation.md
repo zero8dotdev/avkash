@@ -9,24 +9,24 @@ reusing the approval/comment/authz machinery that already exists.
 - **Semantics: notify-only.** Escalation flags the leave + notifies HR; HR approves via the
   existing `canApprove` (OWNER/ADMIN approve anywhere) — the manager is NOT removed. No new authz.
 - **Triggers** (a leave escalates if any fire):
-  - **Time / SLA** — PENDING longer than `escalateAfterDays`. *On by default* (resolves to 3).
-  - **Severity** — workingDays > `LeavePolicy.escalateOverDays`. *Off by default* (null).
-  - **Type** — `LeaveType.alwaysEscalate`. *Off by default* (false).
+  - **Time / SLA** — PENDING longer than `escalateAfterDays`. _On by default_ (resolves to 3).
+  - **Severity** — workingDays > `LeavePolicy.escalateOverDays`. _Off by default_ (null).
+  - **Type** — `LeaveType.alwaysEscalate`. _Off by default_ (false).
   - **Manual** — `POST /leaves/:id/escalate`, always available.
 - **Target (who) — `Team.escalatesTo`** (a designated HR user); resolves `team.escalatesTo → all
-  org ADMINs`. Per-team so a multi-outlet brand routes Branch-A→HR-North, Branch-B→HR-South.
+org ADMINs`. Per-team so a multi-outlet brand routes Branch-A→HR-North, Branch-B→HR-South.
 - **When (how long) — `escalateAfterDays`** resolves `team → org → 3`; `0` = off (e.g. the
   HR-managed core team).
 
 ## Config homes (each knob where it belongs — no new EscalationPolicy table)
 
-| Knob | Table | Default |
-|---|---|---|
-| `escalateAfterDays` | Organisation + Team (cascade) | 3 (system const) |
-| `escalatesTo` | Team | null → all ADMINs |
-| `escalateOverDays` | LeavePolicy | null (off) |
-| `alwaysEscalate` | LeaveType | false |
-| `escalatedAt`, `escalatedTo` | Leave (the record) | null |
+| Knob                         | Table                         | Default           |
+| ---------------------------- | ----------------------------- | ----------------- |
+| `escalateAfterDays`          | Organisation + Team (cascade) | 3 (system const)  |
+| `escalatesTo`                | Team                          | null → all ADMINs |
+| `escalateOverDays`           | LeavePolicy                   | null (off)        |
+| `alwaysEscalate`             | LeaveType                     | false             |
+| `escalatedAt`, `escalatedTo` | Leave (the record)            | null              |
 
 ## Mechanism
 

@@ -10,6 +10,7 @@ Rajkot, Madurai, Nashik, Aurangabad, Jodhpur, Raipur, Kochi, Chandigarh, Bhubane
 Tiruppur, Salem, Ludhiana, Amritsar, Meerut, Agra, Dehradun
 
 **Sectors (non-IT):**
+
 - Manufacturing & light industry (textiles, plastics, metal fabrication)
 - Retail chains and wholesale distributors
 - Healthcare — private hospitals, nursing homes, polyclinics, diagnostic labs
@@ -31,6 +32,7 @@ Tiruppur, Salem, Ludhiana, Amritsar, Meerut, Agra, Dehradun
 ## Ideal Customer Profile (ICP)
 
 ### Primary ICP
+
 - **Company:** Manufacturing/retail firm, 75–250 employees
 - **Location:** Tier 2 city
 - **Current HR system:** WhatsApp groups + Excel + paper registers
@@ -40,6 +42,7 @@ Tiruppur, Salem, Ludhiana, Amritsar, Meerut, Agra, Dehradun
 - **Champion:** HR executive (if they have one) or the accountant
 
 ### Secondary ICP
+
 - **Company:** Private hospital or education group, 100–400 employees across 2–3 locations
 - **Pain:** Multi-location leave tracking, shift management for nurses/staff, salary compliance
 - **Buyer:** HR head or COO
@@ -59,20 +62,21 @@ Tiruppur, Salem, Ludhiana, Amritsar, Meerut, Agra, Dehradun
 
 ## Competition Analysis
 
-| Product | Strength | Weakness | Our Edge |
-|---------|----------|----------|----------|
-| **GreytHR** | Strong compliance, payroll | Complex UI, expensive for small cos | Simpler, cheaper, WhatsApp-native |
-| **Keka** | Good UX, HR-focused | ₹9,999/mo minimum, overkill for 50-person cos | Affordable per-employee pricing |
-| **Zoho People** | Brand trust, cheap | Generic, poor mobile, confusing | Purpose-built for our ICP |
-| **sumHR** | Affordable, India-focused | Outdated UX, limited integrations | Modern stack, open source trust |
-| **Darwinbox** | Enterprise-grade | Enterprise pricing, not for SME | Different league entirely |
-| **Excel + WhatsApp** | Free, familiar | No structure, compliance risk | Replace the habit, not just the tool |
+| Product              | Strength                   | Weakness                                      | Our Edge                             |
+| -------------------- | -------------------------- | --------------------------------------------- | ------------------------------------ |
+| **GreytHR**          | Strong compliance, payroll | Complex UI, expensive for small cos           | Simpler, cheaper, WhatsApp-native    |
+| **Keka**             | Good UX, HR-focused        | ₹9,999/mo minimum, overkill for 50-person cos | Affordable per-employee pricing      |
+| **Zoho People**      | Brand trust, cheap         | Generic, poor mobile, confusing               | Purpose-built for our ICP            |
+| **sumHR**            | Affordable, India-focused  | Outdated UX, limited integrations             | Modern stack, open source trust      |
+| **Darwinbox**        | Enterprise-grade           | Enterprise pricing, not for SME               | Different league entirely            |
+| **Excel + WhatsApp** | Free, familiar             | No structure, compliance risk                 | Replace the habit, not just the tool |
 
 ### Competitive Positioning
 
 > "The only HRMS built specifically for the shop floor, not the IT floor."
 
 Key differentiators:
+
 1. **WhatsApp-first** — Leave requests, approvals, payslips via WhatsApp (where these companies already are)
 2. **Statutory compliance baked in** — PF, ESI, PT auto-calculated, not an add-on
 3. **Hindi UI** — First-class Hindi language support
@@ -88,33 +92,39 @@ Key differentiators:
 ### Primary Channels
 
 **1. CA / Chartered Accountants as resellers**
+
 - Every SME in India has a CA. CAs handle payroll/compliance for most of them.
 - CAs are the most trusted advisor to these owners.
 - Strategy: Reseller program — CA gets 20% recurring commission + their own white-label dashboard
 - Target: 500 CA partners in first 2 years
 
 **2. WhatsApp and word-of-mouth**
+
 - These companies discover products through peer referrals, not Google ads
 - Build a referral program: ₹500 per referred company that converts
 - Seed with 10 happy customers in one city → word spreads fast in a business community
 
 **3. Industry associations**
+
 - CII (Confederation of Indian Industry) has tier 2 city chapters
 - MSME clusters (textile clusters in Surat, auto parts clusters in Pune/Rajkot)
 - Local chambers of commerce
 - Partner with these for bulk introductions
 
 **4. Direct field sales (later)**
+
 - 1 salesperson per city cluster, 10 cities initially
 - Laptop + demo, goes to industrial estates and business parks
 - Closes ₹3,000–8,000/month deals face-to-face
 
 **5. Content + SEO (slow but free)**
+
 - Hindi blog content: "PF compliance guide for small business India"
 - YouTube videos in Hindi on HR compliance, payslip rules
 - These owners search in Hindi on YouTube more than Google
 
 ### Secondary Channels
+
 - LinkedIn (HR professionals, not owners — for advocacy)
 - Partnerships with Tally resellers (they visit the same customer base)
 - Government MSME portal listings
@@ -134,28 +144,28 @@ Key differentiators:
 
 ## Localization Requirements
 
-| Requirement | Why |
-|-------------|-----|
-| Hindi UI (full) | Primary language of tier 2 city workforce |
-| Indian date formats (DD/MM/YYYY) | Already in codebase |
-| INR currency | Native |
-| GST-compliant invoicing | Mandatory for B2B billing in India |
-| Indian phone number format | +91 prefix, 10-digit validation |
-| PAN, Aadhaar field support | Statutory compliance |
-| Indian holiday calendar | National + state-level holidays |
-| WhatsApp integration | Primary communication channel |
-| MSG91 / Twilio India SMS | OTP and notifications |
-| Tally export | Accountant requirement |
+| Requirement                      | Why                                       |
+| -------------------------------- | ----------------------------------------- |
+| Hindi UI (full)                  | Primary language of tier 2 city workforce |
+| Indian date formats (DD/MM/YYYY) | Already in codebase                       |
+| INR currency                     | Native                                    |
+| GST-compliant invoicing          | Mandatory for B2B billing in India        |
+| Indian phone number format       | +91 prefix, 10-digit validation           |
+| PAN, Aadhaar field support       | Statutory compliance                      |
+| Indian holiday calendar          | National + state-level holidays           |
+| WhatsApp integration             | Primary communication channel             |
+| MSG91 / Twilio India SMS         | OTP and notifications                     |
+| Tally export                     | Accountant requirement                    |
 
 ---
 
 ## Key Risks
 
-| Risk | Mitigation |
-|------|-----------|
-| Low tech adoption in target segment | WhatsApp-first product reduces friction |
-| Price sensitivity | Free tier + affordable per-user pricing |
-| "I'll just use Excel" inertia | Show ROI: 1 PF fine > 1 year subscription |
+| Risk                                  | Mitigation                                                 |
+| ------------------------------------- | ---------------------------------------------------------- |
+| Low tech adoption in target segment   | WhatsApp-first product reduces friction                    |
+| Price sensitivity                     | Free tier + affordable per-user pricing                    |
+| "I'll just use Excel" inertia         | Show ROI: 1 PF fine > 1 year subscription                  |
 | Compliance complexity varies by state | Start with central compliance (PF/ESI), add state PT later |
-| Competition from funded players | Open source trust + local CA network |
-| Data privacy concerns | Self-hosted option + transparent codebase |
+| Competition from funded players       | Open source trust + local CA network                       |
+| Data privacy concerns                 | Self-hosted option + transparent codebase                  |

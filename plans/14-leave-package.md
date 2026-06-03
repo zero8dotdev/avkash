@@ -19,7 +19,7 @@ manager team-boundary enforced on approval, visibility enforced in queries.
 
 **Add (§1C):** accruals, rollover/carry-forward with expiry, comp-off (earn + redeem),
 encashment, WFH tracking, leave calendar (team + org), manager **delegation** of approvals,
-reports (balance / utilization / trends). WhatsApp apply+approve is a *transport* (separate
+reports (balance / utilization / trends). WhatsApp apply+approve is a _transport_ (separate
 package) that calls these same functions — out of scope here, unblocked by it.
 
 ---
@@ -49,16 +49,16 @@ balance(user, type)   = Σ amount  WHERE effectiveOn ≤ today AND (expiresOn IS
 available(user, type) = balance − Σ workingDays of that user's PENDING leaves of that type
 ```
 
-| Entry `kind` | Sign | Posted when |
-|---|---|---|
-| `OPENING` | + | org/user setup (opening balance) |
-| `ACCRUAL` | + | accrual job (monthly/quarterly) |
-| `ROLLOVER` | + | rollover job (year boundary); carries `expiresOn` |
-| `COMP_OFF_CREDIT` | + | comp-off approved; carries `expiresOn` |
-| `TAKEN` | − | leave **approved** (`leaveId` ref) |
-| `ENCASHMENT` | − | encashment approved |
-| `ADJUSTMENT` | ± | manual admin correction |
-| `EXPIRY` | − | expiry sweep snapshots lapsed credits (optional; or exclude via `expiresOn`) |
+| Entry `kind`      | Sign | Posted when                                                                  |
+| ----------------- | ---- | ---------------------------------------------------------------------------- |
+| `OPENING`         | +    | org/user setup (opening balance)                                             |
+| `ACCRUAL`         | +    | accrual job (monthly/quarterly)                                              |
+| `ROLLOVER`        | +    | rollover job (year boundary); carries `expiresOn`                            |
+| `COMP_OFF_CREDIT` | +    | comp-off approved; carries `expiresOn`                                       |
+| `TAKEN`           | −    | leave **approved** (`leaveId` ref)                                           |
+| `ENCASHMENT`      | −    | encashment approved                                                          |
+| `ADJUSTMENT`      | ±    | manual admin correction                                                      |
+| `EXPIRY`          | −    | expiry sweep snapshots lapsed credits (optional; or exclude via `expiresOn`) |
 
 Pending leaves are **not** posted to the ledger — they only reduce `available`. The `TAKEN`
 debit is posted on approval (with `leaveId`), and reversed (an `ADJUSTMENT`) on cancel.
@@ -84,15 +84,16 @@ default 90), `allowNegativeBalance` (bool default false). (Keeps existing `rollO
 differs (WFH posts no ledger debit; comp-off redemption debits the comp-off credit).
 
 **New tables:**
+
 - **`LeaveLedger`** — `id, orgId, userId, leaveTypeId, kind, amount numeric(6,2), effectiveOn date,
-  expiresOn date?, leaveId?, periodKey text?, note, createdBy, createdAt`. Indexes on
+expiresOn date?, leaveId?, periodKey text?, note, createdBy, createdAt`. Indexes on
   `(orgId,userId,leaveTypeId)`, partial unique on `(policyKey/periodKey,kind)` for job idempotency.
 - **`CompOff`** — `id, orgId, userId, workedOn date, leaveTypeId, status comp_off_status,
-  expiresOn date?, approvedBy?, createdAt`. Approval posts a `COMP_OFF_CREDIT` ledger entry.
+expiresOn date?, approvedBy?, createdAt`. Approval posts a `COMP_OFF_CREDIT` ledger entry.
 - **`Encashment`** — `id, orgId, userId, leaveTypeId, days numeric, amount numeric?, status
-  encashment_status, requestedBy, approvedBy?, createdAt`. Approval posts an `ENCASHMENT` debit.
+encashment_status, requestedBy, approvedBy?, createdAt`. Approval posts an `ENCASHMENT` debit.
 - **`ApprovalDelegation`** — `id, orgId, fromManagerId, toUserId, teamId?, startsOn date,
-  endsOn date, createdAt`. Resolves who may approve in a manager's absence.
+endsOn date, createdAt`. Resolves who may approve in a manager's absence.
 
 All pushed via `drizzle-kit push` (snake_case enum names — per the fix in `plans/13`).
 
@@ -129,7 +130,7 @@ Half-day allowed only for single-day leaves, requires a `shift`, gated by `org.h
 
 **Overlap guard** (ported from the trigger into `applyLeave`): reject if any existing
 non-`REJECTED` leave for the user overlaps the date range **and** (either is `FULL_DAY`, **or**
-both `HALF_DAY` with the *same shift*). Different shifts same day are allowed.
+both `HALF_DAY` with the _same shift_). Different shifts same day are allowed.
 
 ---
 
@@ -175,17 +176,17 @@ expireCredits()                      // daily: snapshot/zero entries past expire
 
 ## 8. Permissions & visibility (server-enforced)
 
-| Action | Allowed |
-|---|---|
-| apply (self) | USER+ |
-| apply for another | MANAGER+ (teammate within team; OWNER/ADMIN any) |
-| approve / reject | MANAGER+ for own team **or** active delegate; OWNER/ADMIN any |
-| cancel | the leave's owner, or MANAGER+ |
-| leave-type / policy CRUD | OWNER/ADMIN (policies: MANAGER for own team, configurable) |
-| comp-off grant / approve | MANAGER+ |
-| encashment approve | OWNER/ADMIN |
-| delegation | MANAGER+ (delegate their own approvals) |
-| view leaves | USER→self, MANAGER→team, OWNER/ADMIN→org, intersected with `org.visibility` |
+| Action                   | Allowed                                                                     |
+| ------------------------ | --------------------------------------------------------------------------- |
+| apply (self)             | USER+                                                                       |
+| apply for another        | MANAGER+ (teammate within team; OWNER/ADMIN any)                            |
+| approve / reject         | MANAGER+ for own team **or** active delegate; OWNER/ADMIN any               |
+| cancel                   | the leave's owner, or MANAGER+                                              |
+| leave-type / policy CRUD | OWNER/ADMIN (policies: MANAGER for own team, configurable)                  |
+| comp-off grant / approve | MANAGER+                                                                    |
+| encashment approve       | OWNER/ADMIN                                                                 |
+| delegation               | MANAGER+ (delegate their own approvals)                                     |
+| view leaves              | USER→self, MANAGER→team, OWNER/ADMIN→org, intersected with `org.visibility` |
 
 Every read is `WHERE orgId = ctx.orgId`; cross-org access throws `ForbiddenError`.
 
@@ -193,14 +194,14 @@ Every read is `WHERE orgId = ctx.orgId`; cross-org access throws `ForbiddenError
 
 ## 9. Moving off the database
 
-| Today (DB) | New home |
-|---|---|
-| `check_overlapping_leaves` trigger | `applyLeave` (app code) |
-| `leave_approved_activity_audit` trigger | explicit `ActivityLog` writes in functions |
-| `*_activity_audit` triggers (type/policy) | explicit audit writes |
-| `calculate_accruals` + pg_cron | `accrual.runAccruals` via `@avkash/jobs` schedule |
-| (none — rollover unbuilt) | `rollover.runRollover` + `expireCredits` via `@avkash/jobs` |
-| `leave_summary` view | kept for reporting; ledger is authoritative for balance |
+| Today (DB)                                | New home                                                    |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| `check_overlapping_leaves` trigger        | `applyLeave` (app code)                                     |
+| `leave_approved_activity_audit` trigger   | explicit `ActivityLog` writes in functions                  |
+| `*_activity_audit` triggers (type/policy) | explicit audit writes                                       |
+| `calculate_accruals` + pg_cron            | `accrual.runAccruals` via `@avkash/jobs` schedule           |
+| (none — rollover unbuilt)                 | `rollover.runRollover` + `expireCredits` via `@avkash/jobs` |
+| `leave_summary` view                      | kept for reporting; ledger is authoritative for balance     |
 
 ---
 
@@ -229,7 +230,7 @@ Even building "all of it," there's a dependency order. Each phase is curl-valida
 
 - **A — Spine** (unblocks everything): schema deltas + `ledger.ts`, `working-days.ts`,
   `leave-type`, `leave-policy`, `apply/approve/reject/cancel/list`, overlap, half-day, balance,
-  visibility, audit, routes. *This is the corrected, secure baseline.*
+  visibility, audit, routes. _This is the corrected, secure baseline._
 - **B — Time-based credits:** `accrual.ts` + `rollover.ts` + `expireCredits`, wired into
   `@avkash/jobs`, idempotent; `/internal/*` triggers.
 - **C — Earn/spend:** `comp-off.ts` + `encashment.ts` (+ policy fields, statuses).

@@ -15,7 +15,9 @@
 ## Tier Structure
 
 ### Free — ₹0/month
+
 **Up to 25 employees. Forever.**
+
 - Core HR: employee profiles, org structure
 - Leave management (all features)
 - Holiday calendar
@@ -29,10 +31,12 @@
 ---
 
 ### Starter — ₹60/employee/month (billed monthly)
+
 **₹50/employee/month (billed annually) — save 2 months**
 
 Up to 100 employees.
 Everything in Free, plus:
+
 - Attendance with biometric integration
 - Shift management
 - Payroll (up to 2 salary structures)
@@ -50,10 +54,12 @@ Everything in Free, plus:
 ---
 
 ### Growth — ₹100/employee/month (billed monthly)
+
 **₹83/employee/month (billed annually) — save 2 months**
 
 Up to 500 employees.
 Everything in Starter, plus:
+
 - Multi-location support
 - Multiple salary structures (unlimited)
 - All statutory compliance (all PT states, LWF, gratuity tracking)
@@ -72,7 +78,9 @@ Everything in Starter, plus:
 ---
 
 ### Enterprise — Custom pricing
+
 500+ employees, or:
+
 - Multiple organizations under one account
 - Self-hosted deployment
 - SSO (SAML, Google Workspace, Microsoft)
@@ -88,24 +96,24 @@ Everything in Starter, plus:
 
 ## Add-ons (Future Revenue)
 
-| Add-on | Price | For |
-|--------|-------|-----|
-| WhatsApp Business API | ₹999/month (includes 1,000 msgs) | All tiers |
-| Additional WhatsApp messages | ₹0.50/message | All tiers |
-| Biometric device setup assistance | ₹2,999 one-time | Starter+ |
-| Data migration from legacy HRMS | ₹9,999 one-time | Growth+ |
-| Payroll processing service (we do it for them) | 0.5% of payroll + ₹499/month | Growth+ |
-| CA partner integration | ₹499/month | Growth+ |
+| Add-on                                         | Price                            | For       |
+| ---------------------------------------------- | -------------------------------- | --------- |
+| WhatsApp Business API                          | ₹999/month (includes 1,000 msgs) | All tiers |
+| Additional WhatsApp messages                   | ₹0.50/message                    | All tiers |
+| Biometric device setup assistance              | ₹2,999 one-time                  | Starter+  |
+| Data migration from legacy HRMS                | ₹9,999 one-time                  | Growth+   |
+| Payroll processing service (we do it for them) | 0.5% of payroll + ₹499/month     | Growth+   |
+| CA partner integration                         | ₹499/month                       | Growth+   |
 
 ---
 
 ## Annual vs Monthly
 
-| Plan | Monthly | Annual (per month) | Savings |
-|------|---------|-------------------|---------|
-| Starter | ₹60/emp | ₹50/emp | 16.7% |
-| Growth | ₹100/emp | ₹83/emp | 17% |
-| Enterprise | Custom | Custom + 20% off | — |
+| Plan       | Monthly  | Annual (per month) | Savings |
+| ---------- | -------- | ------------------ | ------- |
+| Starter    | ₹60/emp  | ₹50/emp            | 16.7%   |
+| Growth     | ₹100/emp | ₹83/emp            | 17%     |
+| Enterprise | Custom   | Custom + 20% off   | —       |
 
 Annual billing paid upfront (12 months). GST (18%) added on invoice.
 
@@ -122,12 +130,14 @@ Target: 500 CA firms in 2 years.
 - CA can bill clients at any price they choose (margin play)
 
 **Why CAs will do this:**
+
 - Already does payroll for SME clients manually
 - This automates 80% of their work
 - Keeps client sticky to the CA's services
 - Passive recurring income
 
 **Onboarding CAs:**
+
 - ₹0 cost to become a reseller
 - Free training + certification
 - Co-marketing support (their name on case studies)
@@ -137,14 +147,14 @@ Target: 500 CA firms in 2 years.
 
 ## Competitive Price Positioning
 
-| Product | Starting Price |
-|---------|---------------|
-| Keka | ₹9,999/month minimum (~₹100/emp for 100 emp) |
-| GreytHR | ₹3,495/month for 50 emp (₹70/emp) |
-| Zoho People | $1/emp/month (~₹85/emp) |
-| sumHR | ₹2,495/month for 25 emp (₹100/emp) |
-| **Avkash Starter** | **₹60/emp/month (no minimum)** |
-| **Avkash Free** | **₹0 for ≤25 employees** |
+| Product            | Starting Price                               |
+| ------------------ | -------------------------------------------- |
+| Keka               | ₹9,999/month minimum (~₹100/emp for 100 emp) |
+| GreytHR            | ₹3,495/month for 50 emp (₹70/emp)            |
+| Zoho People        | $1/emp/month (~₹85/emp)                      |
+| sumHR              | ₹2,495/month for 25 emp (₹100/emp)           |
+| **Avkash Starter** | **₹60/emp/month (no minimum)**               |
+| **Avkash Free**    | **₹0 for ≤25 employees**                     |
 
 We are 15–40% cheaper than competitors for the 30–150 employee segment,
 with better WhatsApp integration and statutory compliance depth.
@@ -155,15 +165,16 @@ with better WhatsApp integration and statutory compliance depth.
 
 ### Conservative Case
 
-| Time | Paying Companies | Avg ARR/Company | ARR |
-|------|-----------------|-----------------|-----|
-| Month 6 | 50 | ₹36,000 | ₹18 L |
-| Month 12 | 200 | ₹48,000 | ₹96 L |
-| Month 18 | 500 | ₹60,000 | ₹3 Cr |
-| Month 24 | 1,200 | ₹72,000 | ₹8.6 Cr |
-| Month 36 | 3,000 | ₹84,000 | ₹25 Cr |
+| Time     | Paying Companies | Avg ARR/Company | ARR     |
+| -------- | ---------------- | --------------- | ------- |
+| Month 6  | 50               | ₹36,000         | ₹18 L   |
+| Month 12 | 200              | ₹48,000         | ₹96 L   |
+| Month 18 | 500              | ₹60,000         | ₹3 Cr   |
+| Month 24 | 1,200            | ₹72,000         | ₹8.6 Cr |
+| Month 36 | 3,000            | ₹84,000         | ₹25 Cr  |
 
 ### Assumptions
+
 - Average company: 80 employees
 - Average tier: Starter (₹50/emp annual) = ₹48,000/year
 - Churn: 2% monthly

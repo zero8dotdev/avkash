@@ -22,6 +22,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 **Goal:** Clean architecture, no Supabase dependency, local dev works cleanly.
 
 ### Week 1–2
+
 - [ ] Set up monorepo (Turborepo): `apps/web`, `apps/api`, `packages/db`
 - [ ] Bun + Hono API: scaffold, health check, basic auth middleware
 - [ ] Better Auth: installed, Google OAuth working, magic links working
@@ -29,12 +30,14 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] New PostgreSQL running (Neon + local Docker)
 
 ### Week 3–4
+
 - [ ] Migrate all existing Supabase read queries → Drizzle
 - [ ] Middleware updated to Better Auth session
 - [ ] AppContext updated
 - [ ] Existing leave + org + team features working end-to-end
 
 ### Week 5–6
+
 - [ ] Migrate all write queries (inserts, updates, deletes)
 - [ ] Remove `@supabase/supabase-js` and `@supabase/ssr` completely
 - [ ] Hindi i18n setup (next-intl): English + Hindi JSON files scaffolded
@@ -42,6 +45,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Slack OAuth re-wired through Better Auth
 
 ### Week 7–8
+
 - [ ] QA: full manual test of all existing features
 - [ ] Fix all broken flows
 - [ ] Deploy to staging (Fly.io + Neon + Vercel)
@@ -52,6 +56,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 ## Month 2–5: Phase 1 (Core Product)
 
 ### Month 2–3: People & Leave (extend existing)
+
 - [ ] Department + Designation tables + UI
 - [ ] Employee profile extended (employment type, status, direct manager, PAN/Aadhaar fields)
 - [ ] Employee directory with search + filter
@@ -65,6 +70,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] **Hindi UI: translate all leave + employee labels**
 
 ### Month 3–4: Attendance
+
 - [ ] Shift definition + assignment UI
 - [ ] AttendanceRecord table + API
 - [ ] Daily attendance marking (manual by manager)
@@ -76,6 +82,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] EOD cron: auto-mark absent
 
 ### Month 3–4: WhatsApp Bot
+
 - [ ] MSG91 WhatsApp Business API setup
 - [ ] Webhook receiver + state machine
 - [ ] Employee: check balance, apply leave, check-in/out
@@ -84,6 +91,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Redis session state for conversations
 
 ### Month 4–5: Payroll
+
 - [ ] Salary structure builder
 - [ ] Employee salary assignment
 - [ ] Payroll run flow (draft → finalize)
@@ -96,6 +104,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Reimbursements workflow
 
 ### Month 5: Documents (MVP)
+
 - [ ] Document vault per employee
 - [ ] Upload + categorize + access control
 - [ ] Document expiry alerts
@@ -103,6 +112,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Generate letter for employee → PDF → send via WhatsApp
 
 ### Month 5: Polish & Launch Prep
+
 - [ ] Hindi translations complete for Phase 1 modules
 - [ ] Mobile-responsive audit (all pages work on 375px phone)
 - [ ] Performance: all API calls < 200ms
@@ -129,6 +139,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 ## Month 6–10: Phase 2 (Grow & Retain)
 
 ### Month 6–7: Onboarding & Offboarding
+
 - [ ] Onboarding template builder
 - [ ] Pre-boarding portal (new hire form link)
 - [ ] Onboarding checklist instance + tracking
@@ -137,6 +148,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Exit interview form
 
 ### Month 7–8: Performance Reviews
+
 - [ ] Review cycle setup
 - [ ] Goal setting + tracking
 - [ ] Self-review + manager review form
@@ -144,6 +156,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] PIP tracking
 
 ### Month 8–9: Recruitment (ATS)
+
 - [ ] Job posting + career page
 - [ ] Application form (public link)
 - [ ] Kanban pipeline
@@ -151,6 +164,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Offer → employee conversion
 
 ### Month 9–10: Reporting & Analytics
+
 - [ ] Owner dashboard (today's snapshot + monthly KPIs)
 - [ ] All statutory reports (PF register, ESI register, Form 16, salary register)
 - [ ] Attendance reports (monthly sheet, absenteeism, overtime)
@@ -159,6 +173,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Excel/PDF exports
 
 ### Month 9–10: CA Reseller Portal
+
 - [ ] CA partner signup + verification
 - [ ] Multi-org dashboard for CA (see all client orgs)
 - [ ] Commission tracking + monthly payout
@@ -171,6 +186,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 ## Month 10+: Phase 3 (Enterprise & Scale)
 
 ### Month 10–12
+
 - [ ] SSO (Google Workspace, Microsoft)
 - [ ] Multi-location payroll (different PT slabs)
 - [ ] Kubernetes Helm chart
@@ -180,6 +196,7 @@ Month 10+   → Phase 3: Enterprise features, scale
 - [ ] Mobile app (React Native — Android first)
 
 ### Month 12+
+
 - [ ] Microsoft Teams integration
 - [ ] Benefits administration
 - [ ] Advanced compliance registers
@@ -192,17 +209,20 @@ Month 10+   → Phase 3: Enterprise features, scale
 ## Resource Requirements
 
 ### Now (Month 0–5)
+
 - **Founder/Lead Dev** (you): architecture, backend, product decisions
 - **1 Frontend Dev**: Next.js UI implementation
 - **Freelance designer**: Figma designs for new modules
 - **Cost**: ~₹1.5–2L/month (1 mid-level dev + design)
 
 ### Month 5–10
+
 - **Add 1 Backend Dev**: payroll engine, compliance, WhatsApp bot
 - **Add 1 Sales/BD person**: CA outreach, city launches
 - **Cost**: ~₹4–5L/month
 
 ### Month 10+
+
 - **Add Customer Success**: onboarding + retention
 - **Add 2–3 Dev**: mobile, enterprise features
 - **Add SDRs** (sales development reps): city-by-city
@@ -227,11 +247,11 @@ Everything else can be parallelized or deferred.
 
 ## Risk Register
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| WhatsApp API approval takes too long | Medium | High | Use Interakt/Wati as BSP (faster approval) |
-| Biometric device integration complexity | Medium | Medium | Start with CSV import only; push API is phase 2 |
-| Payroll calculation bugs | High | High | Extensive unit tests; beta with real company data |
-| CA reseller adoption slow | Medium | High | Reduce barrier: free for CA's own firm |
-| Supabase migration breaks existing features | Medium | High | Maintain feature flags, never delete Supabase until stable |
-| Team bandwidth (only 2 devs) | High | High | Strict phase-gating; don't build Phase 2 until Phase 1 is solid |
+| Risk                                        | Probability | Impact | Mitigation                                                      |
+| ------------------------------------------- | ----------- | ------ | --------------------------------------------------------------- |
+| WhatsApp API approval takes too long        | Medium      | High   | Use Interakt/Wati as BSP (faster approval)                      |
+| Biometric device integration complexity     | Medium      | Medium | Start with CSV import only; push API is phase 2                 |
+| Payroll calculation bugs                    | High        | High   | Extensive unit tests; beta with real company data               |
+| CA reseller adoption slow                   | Medium      | High   | Reduce barrier: free for CA's own firm                          |
+| Supabase migration breaks existing features | Medium      | High   | Maintain feature flags, never delete Supabase until stable      |
+| Team bandwidth (only 2 devs)                | High        | High   | Strict phase-gating; don't build Phase 2 until Phase 1 is solid |

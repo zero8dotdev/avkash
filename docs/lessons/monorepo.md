@@ -2,7 +2,7 @@
 
 > A learning doc, not a spec. Built around the Avkash HRMS API design (Bun + Hono +
 > Drizzle + Better Auth in a Turborepo). Read it to re-learn how a monorepo works and
-> *why* each decision is made. The architecture itself lives in `plans/03-technical-architecture.md`.
+> _why_ each decision is made. The architecture itself lives in `plans/03-technical-architecture.md`.
 
 ---
 
@@ -33,20 +33,21 @@ Each arrow is a design decision you make once. The build system remembers it for
 
 ## Layers: how to read the graph
 
-Sort every package by how many internal dependencies it has. That sort *is* your
+Sort every package by how many internal dependencies it has. That sort _is_ your
 architecture's layers.
 
-| Layer | Has dependencies on… | Avkash packages | What it means |
-|-------|----------------------|-----------------|---------------|
-| **0 — Foundations** | nothing internal | `shared`, `db`, `config`, `tsconfig`, `eslint-config` | Primitives everyone builds on |
-| **1 — Identity** | foundations | `auth` | "Who is calling" — needed before any domain logic |
-| **2 — Domains** | foundations + `auth` | `users`, `leave`, `attendance`, `policy`, `documents` | Business logic, one bounded context each |
-| **3 — Orchestration** | other domains (not `db`) | `payroll`, `slack`, `notifications`, `jobs` | Combine domains; never reach past them into data |
-| **4 — Apps** | everything they wire | `apps/api`, `apps/web` | Transport + UI. Apps wire; packages think. |
+| Layer                 | Has dependencies on…     | Avkash packages                                       | What it means                                     |
+| --------------------- | ------------------------ | ----------------------------------------------------- | ------------------------------------------------- |
+| **0 — Foundations**   | nothing internal         | `shared`, `db`, `config`, `tsconfig`, `eslint-config` | Primitives everyone builds on                     |
+| **1 — Identity**      | foundations              | `auth`                                                | "Who is calling" — needed before any domain logic |
+| **2 — Domains**       | foundations + `auth`     | `users`, `leave`, `attendance`, `policy`, `documents` | Business logic, one bounded context each          |
+| **3 — Orchestration** | other domains (not `db`) | `payroll`, `slack`, `notifications`, `jobs`           | Combine domains; never reach past them into data  |
+| **4 — Apps**          | everything they wire     | `apps/api`, `apps/web`                                | Transport + UI. Apps wire; packages think.        |
 
 Rules of thumb that fall out of the table:
+
 - **Foundations have zero internal deps.** If `shared` ever imports `leave`, the foundation is no longer a foundation.
-- **Domains reach *down*, never *sideways into data*.** `payroll` calls `leave`'s functions; it does not query the `leave` table itself.
+- **Domains reach _down_, never _sideways into data_.** `payroll` calls `leave`'s functions; it does not query the `leave` table itself.
 - **Apps are the only place a framework appears.** `Hono` and `Next.js` imports live in `apps/`. A domain package importing `Hono` is the same smell as a UI package importing a payroll calculation.
 
 ---
@@ -96,8 +97,8 @@ each other by name without publishing to npm. With pnpm:
 ```yaml
 # pnpm-workspace.yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 ```
 
 ```jsonc
@@ -105,10 +106,10 @@ packages:
 {
   "name": "@avkash/leave",
   "dependencies": {
-    "@avkash/db": "workspace:*",      // ← resolves to the local package, not npm
+    "@avkash/db": "workspace:*", // ← resolves to the local package, not npm
     "@avkash/shared": "workspace:*",
-    "@avkash/auth": "workspace:*"
-  }
+    "@avkash/auth": "workspace:*",
+  },
 }
 ```
 
@@ -125,8 +126,8 @@ export raw `.ts` and the consuming app's bundler (Next.js, Bun) compiles them.
 // packages/leave/package.json
 {
   "name": "@avkash/leave",
-  "exports": { ".": "./src/index.ts" },   // point straight at source
-  "scripts": { "typecheck": "tsc --noEmit", "lint": "eslint ." }
+  "exports": { ".": "./src/index.ts" }, // point straight at source
+  "scripts": { "typecheck": "tsc --noEmit", "lint": "eslint ." },
 }
 ```
 
@@ -136,20 +137,20 @@ itself (a published SDK, a Node service without a bundler).
 
 ### 3. The build pipeline you don't write
 
-The entire Turborepo config is short because the pipeline is *derived* from the graph:
+The entire Turborepo config is short because the pipeline is _derived_ from the graph:
 
 ```jsonc
 // turbo.json
 {
   "tasks": {
-    "build":     { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**", "!.next/cache/**"] },
-    "dev":       { "cache": false, "persistent": true },
-    "test":      { "dependsOn": ["^build"], "outputs": ["coverage/**"] },
-    "lint":      { "outputs": [] },
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**", "!.next/cache/**"] },
+    "dev": { "cache": false, "persistent": true },
+    "test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] },
+    "lint": { "outputs": [] },
     "typecheck": { "dependsOn": ["^build"], "outputs": [] },
-    "db:generate": { "cache": false },     // side effect — not cacheable
-    "db:migrate":  { "cache": false }
-  }
+    "db:generate": { "cache": false }, // side effect — not cacheable
+    "db:migrate": { "cache": false },
+  },
 }
 ```
 
@@ -217,12 +218,12 @@ fully typed client with no codegen step:
 
 ```ts
 // apps/api/src/app.ts
-export type AppType = typeof app
+export type AppType = typeof app;
 
 // apps/web/src/lib/api.ts
-import type { AppType } from '@avkash/api'
-import { hc } from 'hono/client'
-export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!)
+import type { AppType } from '@avkash/api';
+import { hc } from 'hono/client';
+export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!);
 ```
 
 ---
@@ -231,15 +232,15 @@ export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!)
 
 The real value isn't the build speed. It's that the monorepo **forces an architectural
 decision at every change**. When you reach for a dependency, you have to add it to a
-`package.json`, which shows up in the diff, which makes you ask: *should this package
-really depend on that one?*
+`package.json`, which shows up in the diff, which makes you ask: _should this package
+really depend on that one?_
 
 Worked example: adding a feature to `jobs`, you reach for `@avkash/payroll`'s internals.
 Easy — add the dep, import, done. But that would make `jobs → payroll → users, leave,
 attendance` pull half the system into the queue. So you stop, lift the one primitive you
 needed into `shared`, and `jobs` stays thin. In a single-folder repo that import would
 have been invisible and the architecture would have quietly degraded. The monorepo made
-the cost *visible* — as a structural change, not a code-review comment.
+the cost _visible_ — as a structural change, not a code-review comment.
 
 That's the whole point: **the monorepo refuses to let you stop thinking.**
 
@@ -248,7 +249,7 @@ That's the whole point: **the monorepo refuses to let you stop thinking.**
 ## Honest downsides
 
 - **Everything breaks together.** Rename a type in `shared` and you get 40 errors across
-  12 packages. This is correct — you *want* to know what broke — but a wall of red for a
+  12 packages. This is correct — you _want_ to know what broke — but a wall of red for a
   one-field rename feels violent. The cascade is the graph working as designed.
 - **Build output is noisy.** 15 packages print 15 headers, most saying `FULL TURBO`.
   `--filter` helps; the default is chatty.
@@ -263,11 +264,11 @@ That's the whole point: **the monorepo refuses to let you stop thinking.**
 ## When this stops working
 
 This setup (Turborepo, `workspace:*`, just-in-time packages, one person or a few) is great
-up to roughly a small team. Past ~50 engineers the concern shifts from *"what depends on
-what"* to *"who is allowed to change what"* — you'll want `CODEOWNERS`, affected-package CI
+up to roughly a small team. Past ~50 engineers the concern shifts from _"what depends on
+what"_ to _"who is allowed to change what"_ — you'll want `CODEOWNERS`, affected-package CI
 filters, and possibly Nx or Bazel.
 
-But the graph tells you *when* to split. If `payroll` grows into its own team's surface,
+But the graph tells you _when_ to split. If `payroll` grows into its own team's surface,
 its dependency list already names exactly which interfaces it consumes and exposes — the
 extraction boundary is drawn. And each package is a natural onboarding scope: "you own
 `leave` and `attendance`; here are their deps; here's what depends on them; don't break
@@ -282,15 +283,15 @@ Each is a 2-minute experiment that teaches more than re-reading the section abov
 lesson is in watching the system reject you.
 
 1. **The cascade.** Rename `AuthContext.orgId` → `tenantId` in `shared`. Run `turbo run
-   typecheck`. Watch the red spread across every consumer. *Lesson: types are the contract.*
+typecheck`. Watch the red spread across every consumer. _Lesson: types are the contract._
 2. **The forbidden dep.** Add `@avkash/db` to `apps/web/package.json` and try to
-   `import { db }`. *Lesson: boundaries are structural, not disciplinary.*
+   `import { db }`. _Lesson: boundaries are structural, not disciplinary._
 3. **The cache.** Edit one line in `shared`, run `turbo run build`, note what rebuilds vs.
-   `FULL TURBO`. Then run again with no change — all cached. *Lesson: inputs determine work.*
+   `FULL TURBO`. Then run again with no change — all cached. _Lesson: inputs determine work._
 4. **The derived order.** Run `turbo run build --graph` and read the build order out loud.
-   You never wrote it. *Lesson: the graph is the pipeline.*
+   You never wrote it. _Lesson: the graph is the pipeline._
 5. **The temptation.** Next time you reach for a cross-layer import, stop and ask where the
-   primitive really belongs. Lift it into `shared` instead. *Lesson: the thinking tool.*
+   primitive really belongs. Lift it into `shared` instead. _Lesson: the thinking tool._
 
 ---
 
@@ -299,5 +300,5 @@ lesson is in watching the system reject you.
 - `plans/03-technical-architecture.md` — the full stack and package structure.
 - `plans/09-migration-supabase.md` — the step-by-step migration this monorepo enables.
 - `docs/lessons/` — companion lessons (add `api-design.md` next).
-</content>
-</invoke>
+  </content>
+  </invoke>

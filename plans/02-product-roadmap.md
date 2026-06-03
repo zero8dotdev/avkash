@@ -12,17 +12,17 @@ and get value immediately.
 
 **Goal:** Clean house before building. Migrate off Supabase, stabilize architecture.
 
-| Task | Priority |
-|------|----------|
-| Migrate DB: Supabase → self-hosted PostgreSQL | Critical |
-| Migrate auth: Supabase Auth → Better Auth | Critical |
+| Task                                                       | Priority |
+| ---------------------------------------------------------- | -------- |
+| Migrate DB: Supabase → self-hosted PostgreSQL              | Critical |
+| Migrate auth: Supabase Auth → Better Auth                  | Critical |
 | Replace Supabase JS client → Drizzle ORM + direct Postgres | Critical |
-| Set up Bun + Hono API layer | Critical |
-| Hindi i18n foundation (i18next setup) | High |
-| WhatsApp Business API proof of concept | High |
-| Biometric device webhook skeleton | Medium |
-| Fix/complete existing Slack integration | Medium |
-| Set up Docker Compose for self-hosting | High |
+| Set up Bun + Hono API layer                                | Critical |
+| Hindi i18n foundation (i18next setup)                      | High     |
+| WhatsApp Business API proof of concept                     | High     |
+| Biometric device webhook skeleton                          | Medium   |
+| Fix/complete existing Slack integration                    | Medium   |
+| Set up Docker Compose for self-hosting                     | High     |
 
 **Output:** Clean, self-hostable codebase. No Supabase dependency.
 
@@ -34,6 +34,7 @@ and get value immediately.
 This company needs: employee records, attendance, leaves, payroll, WhatsApp approvals.
 
 ### 1A — People & Org (Month 2–3)
+
 - [ ] Department hierarchy (multi-level)
 - [ ] Designation / Job title management
 - [ ] Employment type (full-time, part-time, contractor, intern, daily wage)
@@ -47,6 +48,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] PAN, Aadhaar, bank account fields (masked, access-controlled)
 
 ### 1B — Attendance & Shifts (Month 3–4)
+
 - [ ] Shift definitions (Morning 9–5, Night 10pm–6am, etc.)
 - [ ] Shift assignment per employee / team
 - [ ] Daily attendance record (Present, Absent, Half-day, On Leave, Holiday, Week-off)
@@ -59,6 +61,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Attendance-based payroll integration
 
 ### 1C — Leave (Extend Existing) (Month 2–3)
+
 - [ ] Carry-forward with expiry date support
 - [ ] Leave encashment rules (configurable)
 - [ ] Compensatory off (comp-off) earned + redemption
@@ -69,6 +72,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] WhatsApp leave apply + approve (see integrations)
 
 ### 1D — Payroll & Statutory Compliance (Month 3–5)
+
 - [ ] Salary structure builder (Basic, HRA, Special Allowance, Conveyance, custom components)
 - [ ] Gross-to-net calculation engine
 - [ ] PF deduction (Employee 12% + Employer 12% + admin charges)
@@ -89,6 +93,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Bank transfer file (HDFC / ICICI / SBI format)
 
 ### 1E — WhatsApp Integration (Month 3–4)
+
 - [ ] Leave request via WhatsApp (employee messages bot → request created)
 - [ ] Leave approval via WhatsApp (manager gets notification, taps Approve/Reject)
 - [ ] Payslip delivery via WhatsApp (auto-sent on payroll finalization)
@@ -97,6 +102,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Hindi + English language support in bot
 
 ### 1F — Documents (Month 4–5)
+
 - [ ] Employee document vault (upload ID proofs, certificates, contracts)
 - [ ] Document categories and access control
 - [ ] Offer letter template builder (merge fields)
@@ -114,6 +120,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 **Goal:** Reduce churn. Give companies a reason to never leave.
 
 ### 2A — Onboarding & Offboarding
+
 - [ ] Onboarding checklist builder (per department/role)
 - [ ] Pre-boarding portal (new hire fills info before day 1)
 - [ ] IT asset tracking and assignment
@@ -123,6 +130,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Full & Final calculation (earned salary, leave encashment, gratuity)
 
 ### 2B — Performance Management
+
 - [ ] Goal setting (individual, team, org)
 - [ ] Check-in cadence (weekly/monthly self-updates)
 - [ ] Annual/quarterly performance review cycle
@@ -132,11 +140,13 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] PIP (Performance Improvement Plan) workflow
 
 ### 2C — Announcements & Policies
+
 - [ ] Company-wide announcements (shown on dashboard, WhatsApp push)
 - [ ] Policy document library (upload HR policy, code of conduct, etc.)
 - [ ] Employee acknowledgement tracking (did they read the policy?)
 
 ### 2D — Recruitment (Basic ATS)
+
 - [ ] Job opening creation (internal + external posting)
 - [ ] Application intake form (shareable link)
 - [ ] Kanban pipeline (Applied → Screening → Interview → Offer → Hired)
@@ -145,12 +155,14 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] One-click convert candidate → employee
 
 ### 2E — Multi-Location Support
+
 - [ ] Multiple offices per org with different holidays, PT slabs, leave policies
 - [ ] Location-based attendance (geo-fence check-in)
 - [ ] Location manager role
 - [ ] Consolidated reporting across locations
 
 ### 2F — Reporting & Analytics
+
 - [ ] Headcount dashboard (growth over time, by dept/location)
 - [ ] Attrition / turnover rate
 - [ ] Leave utilization heatmap by month
@@ -166,18 +178,21 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 **Goal:** Move upmarket to 200–1,000 employee companies. Build moat.
 
 ### 3A — Benefits Administration
+
 - [ ] Health insurance plan configuration
 - [ ] Enrollment workflow
 - [ ] Claim submission and tracking
 - [ ] Flexible benefits (meal vouchers, phone allowance)
 
 ### 3B — Advanced Compliance
+
 - [ ] Gratuity calculation and tracking
 - [ ] Maternity Benefit Act compliance
 - [ ] Shops & Establishments Act registers (Form-wise)
 - [ ] Labour law audit reports
 
 ### 3C — Integrations Ecosystem
+
 - [ ] Microsoft Teams (same as Slack)
 - [ ] Google Workspace (calendar, directory sync)
 - [ ] Zoho Books / QuickBooks integration
@@ -185,12 +200,14 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Public REST API with API keys
 
 ### 3D — Mobile App
+
 - [ ] React Native app (Android-first, given ICP)
 - [ ] Employee self-service on mobile
 - [ ] Manager approvals on mobile
 - [ ] Offline attendance marking (sync when online)
 
 ### 3E — SSO & Enterprise Security
+
 - [ ] Google SSO
 - [ ] Microsoft SSO
 - [ ] SAML 2.0
@@ -199,6 +216,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] Data export / GDPR controls
 
 ### 3F — Self-Hosted Packaging
+
 - [ ] One-click Docker Compose deploy
 - [ ] Helm chart for Kubernetes
 - [ ] Auto-update mechanism

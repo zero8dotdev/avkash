@@ -6,15 +6,15 @@ Complete step-by-step technical migration plan. No code can break in production 
 
 ## Migration Summary
 
-| What | From | To | Effort |
-|------|------|----|--------|
-| Database | Supabase PostgreSQL | Self-hosted / Neon PostgreSQL | Low — SQL is portable |
-| Auth | Supabase Auth | Better Auth | Medium |
-| DB client | `@supabase/supabase-js` | Drizzle ORM + `postgres` driver | High (131 query calls) |
-| Session handling | `@supabase/ssr` cookie pattern | Better Auth session cookies | Medium |
-| RLS policies | PostgreSQL RLS | Application-level org scoping | Medium |
-| File storage | Not used | New (Cloudflare R2) | N/A |
-| Realtime | Not used | N/A | N/A |
+| What             | From                           | To                              | Effort                 |
+| ---------------- | ------------------------------ | ------------------------------- | ---------------------- |
+| Database         | Supabase PostgreSQL            | Self-hosted / Neon PostgreSQL   | Low — SQL is portable  |
+| Auth             | Supabase Auth                  | Better Auth                     | Medium                 |
+| DB client        | `@supabase/supabase-js`        | Drizzle ORM + `postgres` driver | High (131 query calls) |
+| Session handling | `@supabase/ssr` cookie pattern | Better Auth session cookies     | Medium                 |
+| RLS policies     | PostgreSQL RLS                 | Application-level org scoping   | Medium                 |
+| File storage     | Not used                       | New (Cloudflare R2)             | N/A                    |
+| Realtime         | Not used                       | N/A                             | N/A                    |
 
 ---
 
@@ -75,9 +75,9 @@ bun add -d drizzle-kit @types/bun
 
 ```typescript
 // apps/api/src/auth.ts
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { db } from './db'
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { db } from './db';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -99,19 +99,19 @@ export const auth = betterAuth({
       // send via Resend
     },
   },
-})
+});
 ```
 
 ### Drizzle Setup
 
 ```typescript
 // apps/api/src/db/index.ts
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
-import * as schema from './schema'
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
 
-const client = postgres(process.env.DATABASE_URL!)
-export const db = drizzle(client, { schema })
+const client = postgres(process.env.DATABASE_URL!);
+export const db = drizzle(client, { schema });
 ```
 
 ---
@@ -133,19 +133,19 @@ curl https://[project].supabase.co/auth/v1/admin/users \
 
 ```typescript
 // scripts/migrate-users.ts
-import { users_export } from './users_export.json'
-import { db } from '../apps/api/src/db'
-import { user as userTable } from '../apps/api/src/db/schema/auth'
+import { users_export } from './users_export.json';
+import { db } from '../apps/api/src/db';
+import { user as userTable } from '../apps/api/src/db/schema/auth';
 
 for (const supabaseUser of users_export) {
   await db.insert(userTable).values({
-    id: supabaseUser.id,          // keep same UUIDs (critical for FK integrity)
+    id: supabaseUser.id, // keep same UUIDs (critical for FK integrity)
     email: supabaseUser.email,
     name: supabaseUser.user_metadata?.name ?? supabaseUser.email,
     emailVerified: supabaseUser.email_confirmed_at !== null,
     createdAt: new Date(supabaseUser.created_at),
     updatedAt: new Date(supabaseUser.updated_at),
-  })
+  });
 }
 ```
 
@@ -168,19 +168,19 @@ src/app/_utils/supabase/admin.ts
 
 ```typescript
 // apps/web/src/lib/api.ts
-import type { AppType } from '@avkash/api'
-import { hc } from 'hono/client'
+import type { AppType } from '@avkash/api';
+import { hc } from 'hono/client';
 
-export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!)
+export const api = hc<AppType>(process.env.NEXT_PUBLIC_API_URL!);
 ```
 
 ```typescript
 // apps/web/src/lib/auth-client.ts
-import { createAuthClient } from 'better-auth/react'
+import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_API_URL!,
-})
+});
 ```
 
 ---
@@ -191,9 +191,9 @@ export const authClient = createAuthClient({
 
 ```typescript
 // middleware.ts (current)
-import { updateSession } from '@/utils/supabase/middleware'
+import { updateSession } from '@/utils/supabase/middleware';
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  return await updateSession(request);
 }
 ```
 
@@ -201,32 +201,32 @@ export async function middleware(request: NextRequest) {
 
 ```typescript
 // middleware.ts (new)
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/dashboard', '/initialsetup']
+const PROTECTED_PATHS = ['/dashboard', '/initialsetup'];
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-  const isProtected = PROTECTED_PATHS.some(p => path.startsWith(p))
+  const path = request.nextUrl.pathname;
+  const isProtected = PROTECTED_PATHS.some((p) => path.startsWith(p));
 
-  if (!isProtected) return NextResponse.next()
+  if (!isProtected) return NextResponse.next();
 
   // Better Auth uses cookie-based session
-  const sessionCookie = request.cookies.get('better-auth.session_token')
+  const sessionCookie = request.cookies.get('better-auth.session_token');
   if (!sessionCookie) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Verify session via API (or use Better Auth server helper)
   const session = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`, {
     headers: { Cookie: request.headers.get('cookie') ?? '' },
-  }).then(r => r.json())
+  }).then((r) => r.json());
 
   if (!session?.user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 ```
 
@@ -240,16 +240,16 @@ This is the bulk of the work. Approach: **file by file, module by module**.
 
 ```typescript
 // Old: src/app/_actions/index.ts
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server';
 
 export async function getLeaves(orgId: string) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('Leave')
     .select('*, User(*), LeaveType(*)')
     .eq('orgId', orgId)
-    .order('createdAt', { ascending: false })
-  return data
+    .order('createdAt', { ascending: false });
+  return data;
 }
 ```
 
@@ -257,15 +257,15 @@ export async function getLeaves(orgId: string) {
 
 ```typescript
 // New: apps/web/src/app/_actions/leaves.ts
-import { api } from '@/lib/api'
-import { getSession } from '@/lib/auth-server'
+import { api } from '@/lib/api';
+import { getSession } from '@/lib/auth-server';
 
 export async function getLeaves() {
-  const session = await getSession()
+  const session = await getSession();
   const res = await api.leaves.$get({
-    query: { orgId: session.user.orgId }
-  })
-  return res.json()
+    query: { orgId: session.user.orgId },
+  });
+  return res.json();
 }
 ```
 
@@ -273,32 +273,33 @@ export async function getLeaves() {
 
 ```typescript
 // New: apps/api/src/routes/leaves.ts
-import { Hono } from 'hono'
-import { db } from '../db'
-import { leave, user, leaveType } from '../db/schema'
-import { eq, desc } from 'drizzle-orm'
-import { authMiddleware } from '../middleware/auth'
+import { Hono } from 'hono';
+import { db } from '../db';
+import { leave, user, leaveType } from '../db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { authMiddleware } from '../middleware/auth';
 
-const leaves = new Hono()
+const leaves = new Hono();
 
 leaves.get('/', authMiddleware, async (c) => {
-  const { orgId } = c.get('session')
+  const { orgId } = c.get('session');
   const data = await db
     .select()
     .from(leave)
     .leftJoin(user, eq(leave.userId, user.userId))
     .leftJoin(leaveType, eq(leave.leaveTypeId, leaveType.leaveTypeId))
     .where(eq(leave.orgId, orgId))
-    .orderBy(desc(leave.createdAt))
-  return c.json(data)
-})
+    .orderBy(desc(leave.createdAt));
+  return c.json(data);
+});
 
-export { leaves }
+export { leaves };
 ```
 
 ### Migration Order for Actions
 
 Migrate in this order (least to most complex):
+
 1. Read-only queries (select) — safe, no side effects
 2. Simple inserts/updates (create leave, update user)
 3. Complex workflows (payroll run, leave approval chain)
@@ -310,11 +311,13 @@ Migrate in this order (least to most complex):
 
 ```typescript
 // Current: gets user from Supabase auth
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 
 // New: gets from Better Auth session
-const session = await authClient.useSession()
-const user = session.data?.user
+const session = await authClient.useSession();
+const user = session.data?.user;
 ```
 
 AppContext state (orgId, userId, teamId, role) still comes from DB lookups,
@@ -358,6 +361,7 @@ SELECT COUNT(*) FROM "Team";
 ## Rollback Plan
 
 If migration fails:
+
 1. Keep Supabase running during migration (don't delete)
 2. Feature flag in middleware: `USE_NEW_AUTH=true/false`
 3. If new auth breaks, set `USE_NEW_AUTH=false` → routes through Supabase
@@ -367,13 +371,13 @@ If migration fails:
 
 ## Timeline
 
-| Week | Tasks |
-|------|-------|
+| Week   | Tasks                                                      |
+| ------ | ---------------------------------------------------------- |
 | Week 1 | Monorepo setup, Bun API scaffolding, Better Auth + Drizzle |
-| Week 2 | DB migration (schema + data), user import script |
-| Week 3 | Migrate read actions (all selects) |
-| Week 4 | Migrate write actions (inserts + updates) |
-| Week 5 | Middleware + session handling, auth flows |
-| Week 6 | QA full flow end-to-end, fix bugs |
-| Week 7 | Staging deploy, smoke test with real data |
-| Week 8 | Production cutover (maintenance window: 30 min) |
+| Week 2 | DB migration (schema + data), user import script           |
+| Week 3 | Migrate read actions (all selects)                         |
+| Week 4 | Migrate write actions (inserts + updates)                  |
+| Week 5 | Middleware + session handling, auth flows                  |
+| Week 6 | QA full flow end-to-end, fix bugs                          |
+| Week 7 | Staging deploy, smoke test with real data                  |
+| Week 8 | Production cutover (maintenance window: 30 min)            |

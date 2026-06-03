@@ -7,20 +7,23 @@ This is the highest-value feature for Indian SMEs. Getting this right is what ma
 ## Salary Structure
 
 ### Component Types
-| Type | Example | How Calculated |
-|------|---------|----------------|
-| FIXED | Basic | Fixed amount per month |
-| PCT_OF_GROSS | HRA (40% of gross) | % of total gross |
-| PCT_OF_BASIC | Special Allowance (20% of basic) | % of basic |
-| REIMBURSEMENT | Phone allowance | Fixed, non-taxable |
-| VARIABLE | Performance bonus | Manual input per run |
+
+| Type          | Example                          | How Calculated         |
+| ------------- | -------------------------------- | ---------------------- |
+| FIXED         | Basic                            | Fixed amount per month |
+| PCT_OF_GROSS  | HRA (40% of gross)               | % of total gross       |
+| PCT_OF_BASIC  | Special Allowance (20% of basic) | % of basic             |
+| REIMBURSEMENT | Phone allowance                  | Fixed, non-taxable     |
+| VARIABLE      | Performance bonus                | Manual input per run   |
 
 ### Pre-built Templates
+
 - **Manufacturing Worker**: Basic (60%), HRA (20%), Conveyance (₹1,600), Special (rest)
 - **Office Staff**: Basic (40%), HRA (40%), Conveyance, Medical (₹1,250), Special
 - **Management**: CTC-based, flexible components
 
 ### Salary Assignment
+
 - Assign structure to employee with CTC amount
 - System resolves all component amounts
 - Effective date (for mid-year revisions)
@@ -71,6 +74,7 @@ Net Payable = Gross - PF(emp) - ESI(emp) - PT - TDS - other_deductions
 ## Statutory Compliance (India)
 
 ### Provident Fund (PF / EPF)
+
 - Employee contribution: 12% of basic (capped at ₹15,000 basic)
 - Employer contribution: 12% (EPF 3.67% + EPS 8.33%)
 - Admin charges: 0.5% (EDLI 0.5%)
@@ -79,12 +83,14 @@ Net Payable = Gross - PF(emp) - ESI(emp) - PT - TDS - other_deductions
 - Employee UAN management
 
 ### Employee State Insurance (ESI)
+
 - Applicable if gross ≤ ₹21,000/month
 - Employee: 0.75%, Employer: 3.25%
 - **ESI Return file generation** (half-yearly)
 - IP registration tracking
 
 ### Professional Tax (PT)
+
 State-wise slab support:
 | State | Slab (monthly) |
 |-------|---------------|
@@ -94,6 +100,7 @@ State-wise slab support:
 | ... (all 10 PT states) | ... |
 
 ### TDS / Income Tax
+
 - Old regime vs new regime per employee
 - Tax declaration from employee (section 80C, HRA, LTA, etc.)
 - Monthly TDS deduction spread evenly across year
@@ -102,12 +109,14 @@ State-wise slab support:
 - Form 24Q data export
 
 ### Gratuity
+
 - Eligible after 5 years of continuous service
 - Formula: (Last drawn basic / 26) × 15 × years of service
 - Track gratuity liability per employee
 - Show in FnF settlement
 
 ### Labour Welfare Fund (LWF)
+
 - State-specific (Maharashtra, Karnataka, etc.)
 - Half-yearly / annual deduction
 - Employer + employee contribution
@@ -117,6 +126,7 @@ State-wise slab support:
 ## Payslip
 
 ### Content
+
 - Company logo + name + address + GSTIN
 - Employee: name, code, designation, department
 - Month/year, working days, paid days, LOP days
@@ -127,12 +137,14 @@ State-wise slab support:
 - PF number, UAN, ESI IP number
 
 ### Delivery
+
 - PDF stored in Cloudflare R2
 - WhatsApp: "Here is your payslip for [Month YYYY]: [link]"
 - Email with PDF attachment
 - Employee can download anytime from self-service portal
 
 ### Format
+
 - A4, print-friendly
 - Hindi and English supported (configurable per org)
 - Custom logo and colors (org branding)
@@ -140,6 +152,7 @@ State-wise slab support:
 ---
 
 ## Reimbursements
+
 - Employee submits claim: category, amount, bill date, description, photo of bill
 - Manager approves
 - Approved claims added to next payroll run automatically
@@ -153,6 +166,7 @@ State-wise slab support:
 Many Indian SME accountants use Tally ERP / Tally Prime. After payroll finalization:
 
 **Export: Salary Journal Entry (Tally XML)**
+
 ```
 Dr. Salary A/c (Gross)
   Cr. PF Payable A/c
@@ -165,6 +179,7 @@ Dr. Salary A/c (Gross)
 Import this XML directly into Tally with one click.
 
 Also export:
+
 - PF liability journal
 - ESI liability journal
 - Department-wise cost allocation
@@ -172,21 +187,23 @@ Also export:
 ---
 
 ## Bank Transfer File
+
 After payroll finalization, generate bank file for bulk salary transfer:
 
-| Bank | Format |
-|------|--------|
-| HDFC | NetBanking bulk upload (CSV) |
-| ICICI | CorpBanking format |
-| SBI | SFTP/CINB format |
-| Axis | Bulk payment CSV |
-| Any bank | NEFT/RTGS format |
+| Bank     | Format                       |
+| -------- | ---------------------------- |
+| HDFC     | NetBanking bulk upload (CSV) |
+| ICICI    | CorpBanking format           |
+| SBI      | SFTP/CINB format             |
+| Axis     | Bulk payment CSV             |
+| Any bank | NEFT/RTGS format             |
 
 File contains: employee name, account number, IFSC, amount, narration (Salary Month Year).
 
 ---
 
 ## Full & Final Settlement (FnF)
+
 On employee exit:
 
 1. Calculate earned salary for last month (pro-rated to last working day)

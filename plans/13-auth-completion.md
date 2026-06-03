@@ -4,27 +4,27 @@ Locked scope (2026-06-01). Four authN methods feeding one `AuthContext`; authz u
 
 ## Decisions
 
-| # | Decision |
-|---|----------|
+| #        | Decision                                                                                                                   |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Delivery | Email + SMS are **`console.log` stubs** for now (`@avkash/notifications`). Swap for Resend/MSG91 later, no caller changes. |
-| Slack | **Dropped for now** — Slack social provider + `authFromSlackUser` removed. |
-| Google | **Workspace `hd`-domains only**, enforced **server-side** (the `hd` URL param is a hint, not security). |
-| Signup | **Invite-only** — no public registration on any method. |
+| Slack    | **Dropped for now** — Slack social provider + `authFromSlackUser` removed.                                                 |
+| Google   | **Workspace `hd`-domains only**, enforced **server-side** (the `hd` URL param is a hint, not security).                    |
+| Signup   | **Invite-only** — no public registration on any method.                                                                    |
 
 ## Methods → mechanism / assurance
 
-| Method | Better Auth | Assurance |
-|--------|-------------|-----------|
-| Email + password | `emailAndPassword` (`disableSignUp: true`, `requireEmailVerification`) | medium |
-| Phone + OTP | `phoneNumber` plugin (`sendOTP` → console) | medium |
-| Google Workspace | `google` social provider + server-side hd check | high |
+| Method           | Better Auth                                                            | Assurance |
+| ---------------- | ---------------------------------------------------------------------- | --------- |
+| Email + password | `emailAndPassword` (`disableSignUp: true`, `requireEmailVerification`) | medium    |
+| Phone + OTP      | `phoneNumber` plugin (`sendOTP` → console)                             | medium    |
+| Google Workspace | `google` social provider + server-side hd check                        | high      |
 
 Assurance is now 3 levels (`low | medium | high`). `requireAssurance('high')` gates sensitive
 HR actions and steps up medium sessions.
 
 ## The one gate: `databaseHooks.user.create.before`
 
-A single hook enforces **invite-only + provisioning + hd-domain** for *every* method:
+A single hook enforces **invite-only + provisioning + hd-domain** for _every_ method:
 
 1. Look up a `PENDING` `Invitation` by email. None → reject (invite-only).
 2. For Google sign-ins, assert the email domain ∈ `OrgDomain` for that org (hd enforcement).

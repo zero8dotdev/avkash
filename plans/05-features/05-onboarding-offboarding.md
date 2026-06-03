@@ -7,6 +7,7 @@ The first and last impression of an employee's journey. Critical for small compa
 ## Onboarding
 
 ### Pre-boarding (Before Day 1)
+
 - System sends email/WhatsApp to new hire with a pre-boarding link
 - New hire fills in their profile (address, emergency contact, PAN, bank details, tax declaration)
 - No account needed yet — anonymous form with one-time token
@@ -14,6 +15,7 @@ The first and last impression of an employee's journey. Critical for small compa
 - Document upload: ID proof, address proof, educational certificates
 
 ### Onboarding Templates
+
 - HR creates templates per department/designation
 - Template = ordered list of tasks with:
   - Task title
@@ -22,6 +24,7 @@ The first and last impression of an employee's journey. Critical for small compa
   - Category: IT Setup, Admin, HR, Finance, Buddy
 
 **Example: Manufacturing Floor Supervisor**
+
 ```
 Day 0 (HR)     : Create ID card
 Day 0 (IT)     : Create email account
@@ -36,6 +39,7 @@ Day 30 (Manager): First 30-day check-in
 ```
 
 ### Onboarding Checklist (Live Instance)
+
 - When new employee created with joining date → system spawns checklist from template
 - Each task assignee gets notification (web + WhatsApp)
 - Real-time completion tracking
@@ -43,6 +47,7 @@ Day 30 (Manager): First 30-day check-in
 - Overdue tasks flagged in red
 
 ### IT Asset Assignment
+
 - Define asset types: laptop, mobile, access card, locker key, safety equipment
 - Assign to employee with serial number + date
 - Asset list on employee profile
@@ -54,13 +59,16 @@ Day 30 (Manager): First 30-day check-in
 ## Offboarding
 
 ### Resignation Flow
+
 1. Employee submits resignation (web or WhatsApp)
 2. Manager acknowledges, sets last working day (notice period calculated)
 3. Status changes to ON_NOTICE
 4. Offboarding checklist auto-generated
 
 ### Offboarding Checklist
+
 **Example:**
+
 ```
 IT:      Revoke all system access
 IT:      Collect laptop, access card
@@ -73,11 +81,13 @@ Manager: Update team structure
 ```
 
 ### Exit Interview
+
 - Simple form: reason for leaving, feedback on company/manager/culture
 - Confidential (only OWNER/ADMIN can see)
 - Aggregated exit reasons report (trends over time)
 
 ### Full & Final Settlement
+
 See [payroll](./03-payroll-compliance.md) for calculation details.
 
 - FnF payslip generated
@@ -86,13 +96,16 @@ See [payroll](./03-payroll-compliance.md) for calculation details.
 - One-click bank transfer file
 
 ### Clearance Certificate
+
 After all checklist tasks complete:
+
 - System generates clearance certificate
 - Required for PF withdrawal, background verification, etc.
 
 ---
 
 ## Probation Management
+
 - Probation end date tracked on employee profile
 - Alert to manager 7 days before expiry: "Complete probation review"
 - After review, manager confirms: Regularize / Extend / Terminate
@@ -101,6 +114,7 @@ After all checklist tasks complete:
 ---
 
 ## Analytics
+
 - Average time to complete onboarding (by department)
 - Onboarding task completion rates
 - Early attrition (exits within 6 months of joining) — red flag
