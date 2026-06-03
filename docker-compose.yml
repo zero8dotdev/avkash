@@ -39,6 +39,8 @@ services:
       SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
       # Cron token for the /internal endpoints (scheduler must send X-Internal-Token).
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-cron-token}
+      # Browser origins allowed to call the API with credentials (comma-separated).
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     ports:
       - '3001:3001'
     healthcheck:

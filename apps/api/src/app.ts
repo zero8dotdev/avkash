@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { auth } from '@avkash/auth';
 import { DomainError, mapDatabaseError } from '@avkash/shared';
@@ -24,11 +25,17 @@ import { internal } from './routes/internal';
 const EXPOSE_ERRORS =
   process.env.EXPOSE_ERRORS != null ? process.env.EXPOSE_ERRORS === 'true' : process.env.NODE_ENV !== 'production';
 
+// Browser clients on these origins may call the API with credentials (Better Auth
+// cookies). Comma-separated allow-list; defaults to the local web app. Never '*'
+// with credentials, so the origin must be explicit.
+const CORS_ORIGINS = (process.env.CORS_ORIGIN ?? 'http://localhost:3000').split(',');
+
 // The wiring layer. Each route group is thin: parse request -> call a domain
 // function with ctx -> return json. The exported AppType is the type-safe
 // contract the web client consumes (no codegen).
 export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }>()
   .use('*', requestIdMw)
+  .use('*', cors({ origin: CORS_ORIGINS, credentials: true }))
   .use('*', localeMw)
   .get('/health', (c) => c.json({ ok: true, service: 'api' }))
   // Better Auth owns /api/auth/* (sign-in, sign-up, OAuth callbacks, OTP, …).
