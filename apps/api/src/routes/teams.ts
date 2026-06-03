@@ -1,9 +1,26 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { serialize } from '@avkash/shared';
+import { createTeam, listTeams, getTeam, updateTeam } from '@avkash/users';
 import { setTeamEscalation } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
+import { teamDto } from '../dto';
 
+const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as const;
+const createTeamSchema = z.object({
+  name: z.string().min(1).max(255),
+  managers: z.array(z.string()).optional(),
+  location: z.string().max(255).optional(),
+  workweek: z.array(z.enum(DAYS)).optional(),
+});
+const updateTeamSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  managers: z.array(z.string()).optional(),
+  location: z.string().max(255).nullable().optional(),
+  workweek: z.array(z.enum(DAYS)).optional(),
+  isActive: z.boolean().optional(),
+});
 const teamEscalationSchema = z.object({
   escalateAfterDays: z.number().int().min(0).max(365).nullable().optional(),
   escalatesTo: z.string().nullable().optional(),
@@ -11,6 +28,14 @@ const teamEscalationSchema = z.object({
 
 export const teams = new Hono<AppEnv>()
   .use(requireAuth)
+  .get('/', async (c) => c.json({ data: serialize(z.array(teamDto), await listTeams(c.get('auth'))) }))
+  .post('/', validateBody(createTeamSchema), async (c) =>
+    c.json(serialize(teamDto, await createTeam(c.get('auth'), c.get('body'))), 201)
+  )
+  .get('/:id', async (c) => c.json(serialize(teamDto, await getTeam(c.get('auth'), c.req.param('id')))))
+  .patch('/:id', validateBody(updateTeamSchema), async (c) =>
+    c.json(serialize(teamDto, await updateTeam(c.get('auth'), c.req.param('id'), c.get('body'))))
+  )
   // HR: a team's escalation routing — when (escalateAfterDays, 0 = off) and who (escalatesTo).
   .patch('/:id/escalation', validateBody(teamEscalationSchema), async (c) => {
     await setTeamEscalation(c.get('auth'), c.req.param('id'), c.get('body'));

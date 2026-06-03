@@ -2,3 +2,4 @@
 // (Organisation lifecycle lives in @avkash/org.)
 export * from './workweek'; // setUserWorkweek
 export * from './join-date'; // setUserJoinedOn
+export * from './teams'; // createTeam, listTeams, getTeam, updateTeam

@@ -23,12 +23,15 @@ export async function createOrganization(
       .insert(schema.organisation)
       .values({ name: input.orgName, status: 'PROVISIONAL', verifyBy })
       .returning();
+    // A default team so the founder is functional from day one (no USER_NO_TEAM).
+    const [team] = await tx.insert(schema.team).values({ name: 'General', orgId: org.orgId, managers: [] }).returning();
     const [invite] = await tx
       .insert(schema.invitation)
       .values({
         email,
         orgId: org.orgId,
         role: 'OWNER',
+        teamId: team.teamId,
         token: randomUUID(),
         status: 'PENDING',
         expiresAt: verifyBy,
