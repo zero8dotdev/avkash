@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { auth } from '@avkash/auth';
+import { ping } from '@avkash/db';
 import { DomainError, mapDatabaseError } from '@avkash/shared';
 import { translate, type Locale } from '@avkash/i18n';
 import { requestIdMw } from './middleware/request-id';
@@ -37,7 +38,17 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .use('*', requestIdMw)
   .use('*', cors({ origin: CORS_ORIGINS, credentials: true }))
   .use('*', localeMw)
-  .get('/health', (c) => c.json({ ok: true, service: 'api' }))
+  // Liveness: the process is up. Readiness: dependencies (the DB) are reachable —
+  // an orchestrator routes traffic only when ready, and pulls it on 503.
+  .get('/health', (c) => c.json({ status: 'live', service: 'api' }))
+  .get('/health/ready', async (c) => {
+    try {
+      await ping();
+      return c.json({ status: 'ready' });
+    } catch {
+      return c.json({ status: 'unavailable' }, 503);
+    }
+  })
   // Better Auth owns /api/auth/* (sign-in, sign-up, OAuth callbacks, OTP, …).
   .on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw))
   .route('/orgs', orgs)
