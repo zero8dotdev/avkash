@@ -3,6 +3,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { auth } from '@avkash/auth';
 import { DomainError, mapDatabaseError } from '@avkash/shared';
 import { translate, type Locale } from '@avkash/i18n';
+import { requestIdMw } from './middleware/request-id';
 import { localeMw } from './middleware/locale';
 import { leaves } from './routes/leave';
 import { leaveTypes } from './routes/leave-types';
@@ -26,7 +27,8 @@ const EXPOSE_ERRORS =
 // The wiring layer. Each route group is thin: parse request -> call a domain
 // function with ctx -> return json. The exported AppType is the type-safe
 // contract the web client consumes (no codegen).
-export const app = new Hono<{ Variables: { locale: Locale } }>()
+export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }>()
+  .use('*', requestIdMw)
   .use('*', localeMw)
   .get('/health', (c) => c.json({ ok: true, service: 'api' }))
   // Better Auth owns /api/auth/* (sign-in, sign-up, OAuth callbacks, OTP, …).
@@ -47,7 +49,7 @@ export const app = new Hono<{ Variables: { locale: Locale } }>()
   // Single error envelope. DomainError carries its own status + code + params;
   // anything else is a system error (500), logged fully, internals hidden in prod.
   .onError((err, c) => {
-    const requestId = crypto.randomUUID();
+    const requestId = c.get('requestId') ?? crypto.randomUUID();
     const locale = c.get('locale') ?? 'en';
     // Known DomainError, or a translatable DB constraint violation → typed envelope.
     const domainErr = err instanceof DomainError ? err : mapDatabaseError(err);

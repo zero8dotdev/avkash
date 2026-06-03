@@ -4,7 +4,7 @@ import { getAuthContext } from '@avkash/auth';
 import { resolveLocale, type Locale } from '@avkash/i18n';
 
 // Typed Hono env so handlers can read c.get('auth') and c.get('locale').
-export type AppEnv = { Variables: { auth: AuthContext; locale: Locale } };
+export type AppEnv = { Variables: { auth: AuthContext; locale: Locale; requestId: string } };
 
 // Resolve the session → ctx at the edge. No session → throw, so onError emits the
 // single error envelope. The user's stored language overrides the header locale.

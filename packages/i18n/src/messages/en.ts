@@ -3,6 +3,7 @@
 export const en: Record<string, string> = {
   // auth / authz
   UNAUTHENTICATED: 'Not authenticated.',
+  INTERNAL_AUTH: 'Invalid or missing internal token.',
   FORBIDDEN: 'You do not have permission to do that.',
   FORBIDDEN_ROLE: 'This action requires the {role} role.',
   FORBIDDEN_SCOPE: 'Missing required scope: {scope}.',

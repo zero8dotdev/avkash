@@ -37,6 +37,8 @@ services:
       # Slack login (leave blank until you have credentials).
       SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
       SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
+      # Cron token for the /internal endpoints (scheduler must send X-Internal-Token).
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-cron-token}
     ports:
       - '3001:3001'
     healthcheck:
