@@ -1,0 +1,17 @@
+# The root .eslintrc.json is the legacy Next/Airbnb config for the old Supabase
+# app being migrated. Keep it from linting the v2 monorepo (apps/* + packages/*):
+# it applies Next-only rules to backend code, and its plugin:prettier/recommended
+# fires prettier/prettier errors at a width that conflicts with .prettierrc.json
+# (120) — un-fixable on save, since prettier-on-save already considers them clean.
+#
+# v2 has its own flat config (@avkash/eslint-config, typescript-eslint, no prettier
+# rule); wiring it per-package is a follow-up. Until then v2 relies on prettier +
+# tsc for formatting/type-safety, and this legacy linter stays out of its way.
+apps/
+packages/
+
+# Build artifacts / vendored
+**/.next
+**/.turbo
+**/dist
+node_modules
