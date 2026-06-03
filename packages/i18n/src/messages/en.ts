@@ -57,6 +57,7 @@ export const en: Record<string, string> = {
   NOT_ENCASHABLE: 'This leave type is not encashable.',
   ENCASH_LIMIT: 'At most {max} days can be encashed.',
   DAYS_POSITIVE: 'Days must be a positive number.',
+  AMOUNT_NONZERO: 'Amount must be a non-zero number.',
   // users
   NOT_TEAM_MANAGER: 'You are not a manager of this team.',
   WORKWEEK_EMPTY: 'A workweek must include at least one day.',

@@ -3,6 +3,7 @@ export * from './ledger'; // postLedger, ledgerBalance, takenDays, plannedDays, 
 export * from './leave-type'; // create/list/update leave types
 export * from './leave-policy'; // create/update/getEffective policy
 export * from './balance'; // getBalance, getBalances (year-scoped)
+export * from './adjustment'; // adjustBalance, setOpeningBalance
 export * from './leave'; // apply/approve/reject/cancel/list/get
 export * from './accrual'; // runAccruals (scheduled)
 export * from './rollover'; // runRollover (scheduled)
