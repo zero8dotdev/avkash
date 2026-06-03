@@ -1,9 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
+import { resolveHolidays } from '@avkash/holidays';
 
 const DAY_NAMES = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const;
 export type DayName = (typeof DAY_NAMES)[number];
 export type Duration = 'FULL_DAY' | 'HALF_DAY';
+const DEFAULT_WORKWEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'] as DayName[];
 
 export interface HolidayLite {
   date: string;
@@ -35,8 +37,9 @@ export function calculateWorkingDays(
   return duration === 'HALF_DAY' ? count / 2 : count;
 }
 
-// DB wrapper: resolve the person's EFFECTIVE workweek (own override → team → Mon–Fri),
-// load the org's holidays, then compute.
+// DB wrapper: resolve the person's EFFECTIVE workweek (own override → team → Mon–Fri)
+// and the holidays that apply to THEM (team's country → org's first location), then
+// compute. Holidays are scoped by location so a German employee doesn't get India's.
 export async function computeWorkingDays(
   orgId: string,
   userId: string,
@@ -49,20 +52,31 @@ export async function computeWorkingDays(
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .limit(1);
-  let resolved = u?.workweek && u.workweek.length > 0 ? (u.workweek as DayName[]) : null;
-  if (!resolved && u?.teamId) {
+
+  let teamWorkweek: DayName[] | null = null;
+  let location: string | null = null;
+  if (u?.teamId) {
     const [team] = await db
-      .select({ workweek: schema.team.workweek })
+      .select({ workweek: schema.team.workweek, location: schema.team.location })
       .from(schema.team)
       .where(eq(schema.team.teamId, u.teamId))
       .limit(1);
-    resolved = (team?.workweek ?? null) as DayName[] | null;
+    teamWorkweek = (team?.workweek ?? null) as DayName[] | null;
+    location = team?.location ?? null;
   }
-  const workweek = resolved ?? (['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'] as DayName[]);
-  const holidays = await db
-    .select({ date: schema.holiday.date, isRecurring: schema.holiday.isRecurring })
-    .from(schema.holiday)
-    .where(eq(schema.holiday.orgId, orgId));
-  const hl: HolidayLite[] = holidays.map((h) => ({ date: String(h.date), isRecurring: h.isRecurring }));
-  return calculateWorkingDays(workweek, hl, startDate, endDate, duration);
+  const userWorkweek = u?.workweek && u.workweek.length > 0 ? (u.workweek as DayName[]) : null;
+  const workweek = userWorkweek ?? teamWorkweek ?? DEFAULT_WORKWEEK;
+
+  // No team location → fall back to the org's first declared location (country).
+  if (!location) {
+    const [org] = await db
+      .select({ location: schema.organisation.location })
+      .from(schema.organisation)
+      .where(eq(schema.organisation.orgId, orgId))
+      .limit(1);
+    location = org?.location?.[0] ?? null;
+  }
+
+  const holidays = await resolveHolidays(orgId, location, Number(startDate.slice(0, 4)), Number(endDate.slice(0, 4)));
+  return calculateWorkingDays(workweek, holidays, startDate, endDate, duration);
 }

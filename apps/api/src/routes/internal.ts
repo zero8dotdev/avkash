@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { restrictExpiredOrgs } from '@avkash/org';
 import { runAccruals, runRollover } from '@avkash/leave';
+import { materializeHolidays } from '@avkash/holidays';
 import { requireInternalToken } from '../middleware/internal-auth';
 
 // Cron-triggered maintenance. Protected by a cron token (X-Internal-Token via
@@ -16,4 +17,9 @@ export const internal = new Hono()
   .post('/leave-rollover', async (c) => {
     const yr = c.req.query('year');
     return c.json(await runRollover(yr ? Number(yr) : undefined));
+  })
+  // Roll movable holidays forward into the target year (default: next year).
+  .post('/holiday-materialize', async (c) => {
+    const yr = c.req.query('year');
+    return c.json(await materializeHolidays(yr ? Number(yr) : new Date().getFullYear() + 1));
   });

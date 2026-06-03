@@ -17,7 +17,8 @@
     "@avkash/shared": "workspace:*",
     "@avkash/auth": "workspace:*",
     "@avkash/notifications": "workspace:*",
-    "drizzle-orm": "^0.38.0"
+    "drizzle-orm": "^0.38.0",
+    "@avkash/holidays": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

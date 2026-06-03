@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { createOrganization, addOrgDomain, verifyOrgDomain } from '@avkash/org';
+import { createOrganization, addOrgDomain, verifyOrgDomain, setOrgLocations } from '@avkash/org';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 
@@ -10,6 +10,7 @@ const createOrgSchema = z.object({
 });
 
 const addDomainSchema = z.object({ domain: z.string().min(1).max(253) });
+const setLocationsSchema = z.object({ locations: z.array(z.string().min(2).max(50)) });
 
 // Org creation + ownership-validation (DNS TXT). Logic lives in @avkash/org;
 // these are thin transport handlers.
@@ -45,4 +46,9 @@ export const orgs = new Hono<AppEnv>()
   .post('/domains/:id/verify', requireAuth, async (c) => {
     const { verified } = await verifyOrgDomain(c.get('auth'), c.req.param('id'));
     return c.json({ verified });
+  })
+  // HR: set the countries the org operates in (drives holiday resolution).
+  .patch('/locations', requireAuth, validateBody(setLocationsSchema), async (c) => {
+    const org = await setOrgLocations(c.get('auth'), c.get('body').locations);
+    return c.json({ data: { orgId: org.orgId, location: org.location } });
   });

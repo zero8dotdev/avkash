@@ -458,6 +458,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/holidays':
+        specifier: workspace:*
+        version: link:../holidays
       '@avkash/notifications':
         specifier: workspace:*
         version: link:../notifications

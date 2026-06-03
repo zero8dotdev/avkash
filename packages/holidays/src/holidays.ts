@@ -1,7 +1,8 @@
-import { and, eq, or, gte, lt } from 'drizzle-orm';
+import { and, eq, or, gte, lt, isNull } from 'drizzle-orm';
 import { db, schema, type Holiday } from '@avkash/db';
 import { type AuthContext, NotFoundError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { suggestHolidays } from './source';
 
 const toDate = (ymd: string) => new Date(`${ymd}T00:00:00Z`);
 const yearStart = (year: number) => new Date(`${year}-01-01T00:00:00Z`);
@@ -112,4 +113,91 @@ export async function deleteHoliday(ctx: AuthContext, holidayId: string): Promis
     .where(and(eq(schema.holiday.holidayId, holidayId), eq(schema.holiday.orgId, ctx.orgId)))
     .returning({ id: schema.holiday.holidayId });
   if (!row) throw new NotFoundError('HOLIDAY_NOT_FOUND');
+}
+
+// The holidays in effect for a person, used by the working-day engine. Returns the
+// set for `location` across [fromYear..toYear]: recurring (fixed) holidays plus that
+// span's observed (movable) ones. A holiday with no location is org-wide (custom) and
+// always applies; a location additionally pulls in that country's holidays. No orgId
+// scoping is done by the caller's ctx here — this is an internal resolver, so it takes
+// orgId explicitly.
+export async function resolveHolidays(
+  orgId: string,
+  location: string | null,
+  fromYear: number,
+  toYear: number
+): Promise<{ date: string; isRecurring: boolean }[]> {
+  const span = and(gte(schema.holiday.date, yearStart(fromYear)), lt(schema.holiday.date, nextYearStart(toYear)));
+  const locationMatch = location
+    ? or(eq(schema.holiday.location, location), isNull(schema.holiday.location))
+    : isNull(schema.holiday.location);
+  const rows = await db
+    .select({ date: schema.holiday.date, isRecurring: schema.holiday.isRecurring })
+    .from(schema.holiday)
+    .where(and(eq(schema.holiday.orgId, orgId), or(eq(schema.holiday.isRecurring, true), span), locationMatch));
+  // date is a timestamp (Date); the working-day engine wants a clean YYYY-MM-DD —
+  // String(Date) gives a locale string that breaks its slice(0,10), so normalise here.
+  return rows.map((h) => ({ date: new Date(h.date).toISOString().slice(0, 10), isRecurring: h.isRecurring }));
+}
+
+// Year-end job: movable (observed) holidays are stored per-year, so next year's dates
+// must be materialised. For every (org, location) that has chosen movable holidays,
+// recompute those same holidays' dates for `year` from date-holidays and insert the
+// missing ones. Idempotent — skips names already present for the year. Cron-triggered.
+export async function materializeHolidays(year: number): Promise<{ inserted: number }> {
+  const chosen = await db
+    .selectDistinct({ orgId: schema.holiday.orgId, location: schema.holiday.location, name: schema.holiday.name })
+    .from(schema.holiday)
+    .where(and(eq(schema.holiday.isCustom, false), eq(schema.holiday.isRecurring, false)));
+
+  const byLocation = new Map<string, { orgId: string; location: string; names: Set<string> }>();
+  for (const c of chosen) {
+    if (!c.location) continue;
+    const key = `${c.orgId}|${c.location}`;
+    const entry = byLocation.get(key) ?? { orgId: c.orgId, location: c.location, names: new Set<string>() };
+    entry.names.add(c.name);
+    byLocation.set(key, entry);
+  }
+
+  const present = await db
+    .select({ orgId: schema.holiday.orgId, location: schema.holiday.location, name: schema.holiday.name })
+    .from(schema.holiday)
+    .where(
+      and(
+        eq(schema.holiday.isCustom, false),
+        eq(schema.holiday.isRecurring, false),
+        gte(schema.holiday.date, yearStart(year)),
+        lt(schema.holiday.date, nextYearStart(year))
+      )
+    );
+  const presentKeys = new Set(present.map((p) => `${p.orgId}|${p.location}|${p.name}`));
+
+  const rows: {
+    name: string;
+    date: Date;
+    location: string;
+    isRecurring: boolean;
+    isCustom: boolean;
+    orgId: string;
+    createdBy: string;
+  }[] = [];
+  for (const { orgId, location, names } of byLocation.values()) {
+    const computed = new Map(suggestHolidays(location, year).map((h) => [h.name, h]));
+    for (const name of names) {
+      if (presentKeys.has(`${orgId}|${location}|${name}`)) continue;
+      const hit = computed.get(name);
+      if (!hit || hit.fixed) continue; // not a movable public holiday this year
+      rows.push({
+        name,
+        date: toDate(hit.date),
+        location,
+        isRecurring: false,
+        isCustom: false,
+        orgId,
+        createdBy: 'system',
+      });
+    }
+  }
+  if (rows.length) await db.insert(schema.holiday).values(rows);
+  return { inserted: rows.length };
 }
