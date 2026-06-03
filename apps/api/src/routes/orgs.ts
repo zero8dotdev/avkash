@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { createOrganization, addOrgDomain, verifyOrgDomain, setOrgLocations } from '@avkash/org';
+import { setOrgEscalation } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 
@@ -11,6 +12,7 @@ const createOrgSchema = z.object({
 
 const addDomainSchema = z.object({ domain: z.string().min(1).max(253) });
 const setLocationsSchema = z.object({ locations: z.array(z.string().min(2).max(50)) });
+const setOrgEscalationSchema = z.object({ escalateAfterDays: z.number().int().min(0).max(365).nullable() });
 
 // Org creation + ownership-validation (DNS TXT). Logic lives in @avkash/org;
 // these are thin transport handlers.
@@ -51,4 +53,9 @@ export const orgs = new Hono<AppEnv>()
   .patch('/locations', requireAuth, validateBody(setLocationsSchema), async (c) => {
     const org = await setOrgLocations(c.get('auth'), c.get('body').locations);
     return c.json({ data: { orgId: org.orgId, location: org.location } });
+  })
+  // HR: org-wide escalation SLA default (null → system default of 3 days).
+  .patch('/escalation', requireAuth, validateBody(setOrgEscalationSchema), async (c) => {
+    await setOrgEscalation(c.get('auth'), c.get('body').escalateAfterDays);
+    return c.json({ data: { escalateAfterDays: c.get('body').escalateAfterDays } });
   });

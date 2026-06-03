@@ -10,6 +10,7 @@ import {
   getLeave,
   addLeaveComment,
   listLeaveComments,
+  escalateLeaveManual,
 } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
@@ -37,6 +38,8 @@ const listLeavesQuerySchema = z.object({
   userId: z.string().optional(),
 });
 
+const escalateSchema = z.object({ reason: z.string().max(500).optional() });
+
 // Thin transport adapter. Logic + authz live in @avkash/leave; this maps HTTP,
 // validates input (validateBody/validateQuery) and serializes output (leaveDto).
 export const leaves = new Hono<AppEnv>()
@@ -53,6 +56,10 @@ export const leaves = new Hono<AppEnv>()
   )
   .post('/:id/reject', validateBody(decisionSchema), async (c) =>
     c.json(serialize(leaveDto, await rejectLeave(c.get('auth'), c.req.param('id'), c.get('body').comment)))
+  )
+  // Manual escalation — applicant or approver pushes a stuck leave to HR.
+  .post('/:id/escalate', validateBody(escalateSchema), async (c) =>
+    c.json(serialize(leaveDto, await escalateLeaveManual(c.get('auth'), c.req.param('id'), c.get('body').reason)))
   )
   .delete('/:id', async (c) => {
     await cancelLeave(c.get('auth'), c.req.param('id'));

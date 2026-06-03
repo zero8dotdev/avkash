@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, integer, index } from 'drizzle-orm/pg-core';
 import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums';
 
 // ── Organisation ──────────────────────────────────────────────────────────
@@ -13,6 +13,7 @@ export const organisation = pgTable(
     visibility: visibilityEnum('visibility').notNull().default('SELF'),
     ownerId: uuid('ownerId'),
     halfDayLeave: boolean('halfDayLeave').notNull().default(false),
+    escalateAfterDays: integer('escalateAfterDays'), // org-wide SLA: PENDING > N days → escalate (null → system default 3)
     initialSetup: varchar('initialSetup', { length: 1 }).default('0'),
     isSetupCompleted: boolean('isSetupCompleted').default(false),
     // Ownership-validation lifecycle (plans/13): PROVISIONAL → VERIFIED via DNS TXT,
@@ -44,6 +45,8 @@ export const team = pgTable(
     isActive: boolean('isActive').notNull().default(true),
     managers: uuid('managers').array(),
     location: varchar('location', { length: 255 }),
+    escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
+    escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
     startOfWorkWeek: daysOfWeekEnum('startOfWorkWeek').default('MONDAY'),
     workweek: daysOfWeekEnum('workweek')
       .array()

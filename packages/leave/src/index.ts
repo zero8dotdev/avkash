@@ -11,7 +11,8 @@ export * from './proration'; // proratedEntitlement
 export * from './comp-off'; // earn/approve/reject/list comp-off
 export * from './encashment'; // request/approve/pay/reject encashment
 export * from './delegation'; // set/clear/list approval delegations
-export * from './approver'; // canApprove
+export * from './approver'; // canApprove, resolveManagedTeams
+export * from './escalation'; // escalation triggers, target, cron, manual, config
 export * from './comment'; // addLeaveComment, listLeaveComments
 export * from './calendar'; // getCalendar (leaves + holidays)
 export * from './reports'; // balanceSummary, utilization

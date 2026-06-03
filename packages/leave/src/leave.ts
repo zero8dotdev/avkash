@@ -16,6 +16,7 @@ import { getBalance } from './balance';
 import { postLedger, todayStr } from './ledger';
 import { writeAudit } from './audit';
 import { canApprove, resolveManagedTeams } from './approver';
+import { resolveEscalation, escalateLeave } from './escalation';
 import { addLeaveComment } from './comment';
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
@@ -146,6 +147,23 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
       leaveId: leave.leaveId,
       createdBy: ctx.userId,
     });
+  }
+  // Inline escalation: a leave born severe (length) or of an always-escalate type
+  // goes to HR immediately.
+  if (
+    status === 'PENDING' &&
+    (lt.alwaysEscalate || (policy?.escalateOverDays != null && workingDays > policy.escalateOverDays))
+  ) {
+    const { targetUserId: escalateTo } = await resolveEscalation(ctx.orgId, u.teamId);
+    await escalateLeave(
+      leave,
+      escalateTo,
+      lt.alwaysEscalate
+        ? `${lt.name} always requires HR approval`
+        : `${workingDays} working days exceeds the ${policy?.escalateOverDays}-day threshold`
+    );
+    leave.escalatedAt = new Date(); // reflect the escalation on the returned row
+    leave.escalatedTo = escalateTo;
   }
   await audit(ctx, leave, 'leave_apply', { status, workingDays });
   return leave;

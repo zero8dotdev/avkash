@@ -44,6 +44,7 @@ export const leaveType = pgTable(
     statusMsg: varchar('statusMsg', { length: 255 }),
     kind: leaveTypeKindEnum('kind').notNull().default('LEAVE'),
     isPaid: boolean('isPaid').notNull().default(true),
+    alwaysEscalate: boolean('alwaysEscalate').notNull().default(false), // this type always routes to HR (e.g. unpaid/sabbatical)
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),
@@ -77,6 +78,8 @@ export const leave = pgTable(
       .notNull()
       .references(() => organisation.orgId),
     workingDays: numeric('workingDays', { precision: 5, scale: 2 }).notNull(),
+    escalatedAt: timestamp('escalatedAt', { precision: 6 }), // when escalated to HR (null = not escalated)
+    escalatedTo: uuid('escalatedTo'), // the HR user it was escalated to
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),
@@ -120,6 +123,7 @@ export const leavePolicy = pgTable(
     compOffExpiryDays: integer('compOffExpiryDays').default(90),
     prorateOnJoin: boolean('prorateOnJoin').notNull().default(true), // mid-year joiners get a partial-year entitlement
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
+    escalateOverDays: integer('escalateOverDays'), // leaves longer than N working days escalate on apply (null = off)
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),

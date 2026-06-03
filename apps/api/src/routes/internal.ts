@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { restrictExpiredOrgs } from '@avkash/org';
-import { runAccruals, runRollover } from '@avkash/leave';
+import { runAccruals, runRollover, runEscalations } from '@avkash/leave';
 import { materializeHolidays } from '@avkash/holidays';
 import { requireInternalToken } from '../middleware/internal-auth';
 
@@ -22,4 +22,6 @@ export const internal = new Hono()
   .post('/holiday-materialize', async (c) => {
     const yr = c.req.query('year');
     return c.json(await materializeHolidays(yr ? Number(yr) : new Date().getFullYear() + 1));
-  });
+  })
+  // Escalate PENDING leaves past their SLA to HR.
+  .post('/escalations', async (c) => c.json(await runEscalations()));
