@@ -64,6 +64,14 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   const u = await loadUser(targetUserId);
   if (!u || u.orgId !== ctx.orgId) throw new NotFoundError('USER_NOT_FOUND');
   if (!u.teamId) throw new BusinessRuleError('USER_NO_TEAM');
+  // Exited employees can't apply leave (offboarding).
+  const [emp] = await db
+    .select({ status: schema.employeeProfile.employmentStatus })
+    .from(schema.employeeProfile)
+    .where(eq(schema.employeeProfile.userId, targetUserId))
+    .limit(1);
+  if (emp && (emp.status === 'TERMINATED' || emp.status === 'RESIGNED'))
+    throw new BusinessRuleError('EMPLOYEE_INACTIVE');
 
   const duration: Duration = input.duration ?? 'FULL_DAY';
   const shift: Shift = input.shift ?? 'NONE';

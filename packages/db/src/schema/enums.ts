@@ -53,3 +53,14 @@ export const encashmentStatusEnum = pgEnum('encashment_status', ['PENDING', 'APP
 
 // INTERNAL = approvers only (manager ↔ HR); SHARED = visible to the applicant too.
 export const commentVisibilityEnum = pgEnum('comment_visibility', ['INTERNAL', 'SHARED']);
+
+export const employmentTypeEnum = pgEnum('employment_type', ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']);
+// Employment status — distinct from auth role; drives leave eligibility + offboarding.
+export const employmentStatusEnum = pgEnum('employment_status', [
+  'ACTIVE',
+  'PROBATION',
+  'NOTICE_PERIOD',
+  'RESIGNED',
+  'TERMINATED',
+  'ON_LONG_LEAVE',
+]);

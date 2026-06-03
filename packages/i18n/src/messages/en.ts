@@ -61,6 +61,7 @@ export const en: Record<string, string> = {
   // users
   NOT_TEAM_MANAGER: 'You are not a manager of this team.',
   TEAM_NOT_FOUND: 'Team not found.',
+  EMPLOYEE_INACTIVE: 'This employee is no longer active.',
   WORKWEEK_EMPTY: 'A workweek must include at least one day.',
   WORKWEEK_INVALID_DAY: 'The workweek contains an invalid day.',
   INVALID_DATE: 'Invalid date — expected YYYY-MM-DD.',

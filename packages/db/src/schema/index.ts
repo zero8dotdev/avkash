@@ -5,6 +5,7 @@ export * from './core';
 export * from './auth';
 export * from './membership';
 export * from './leave';
+export * from './employee';
 export * from './idempotency';
 export * from './holiday';
 export * from './audit';

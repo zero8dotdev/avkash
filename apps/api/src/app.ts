@@ -19,6 +19,7 @@ import { reports } from './routes/reports';
 import { holidays } from './routes/holidays';
 import { teams } from './routes/teams';
 import { me } from './routes/me';
+import { employees } from './routes/employees';
 import { orgs } from './routes/orgs';
 import { invitations } from './routes/invitations';
 import { users } from './routes/users';
@@ -69,6 +70,7 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .route('/holidays', holidays)
   .route('/teams', teams)
   .route('/me', me)
+  .route('/employees', employees)
   .route('/internal', internal)
   // Single error envelope. DomainError carries its own status + code + params;
   // anything else is a system error (500), logged fully, internals hidden in prod.
