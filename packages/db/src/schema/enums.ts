@@ -68,3 +68,7 @@ export const employmentStatusEnum = pgEnum('employment_status', [
 export const attendancePunchTypeEnum = pgEnum('attendance_punch_type', ['IN', 'OUT']);
 // Where a punch came from. DEVICE/REGULARIZATION are wired later; WEB/SLACK for now.
 export const attendanceSourceEnum = pgEnum('attendance_source', ['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION']);
+
+// Notification delivery: which transport, and the outbox row's lifecycle.
+export const notificationChannelEnum = pgEnum('notification_channel', ['EMAIL', 'SMS', 'SLACK', 'IN_APP']);
+export const notificationStatusEnum = pgEnum('notification_status', ['PENDING', 'SENT', 'FAILED']);

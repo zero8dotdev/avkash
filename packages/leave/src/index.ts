@@ -7,6 +7,7 @@ export * from './adjustment'; // adjustBalance, setOpeningBalance
 export * from './leave'; // apply/approve/reject/cancel/list/get
 export * from './accrual'; // runAccrualTick (daily cron), upcomingAccruals (dashboard)
 export * from './accrual-schedule'; // accrualOccursOn, nextAccrualOn (pure timing)
+export * from './accrual-notify'; // notifyAccrualCredits (credits → notifications)
 export * from './rollover'; // runRollover (scheduled)
 export * from './proration'; // proratedEntitlement
 export * from './comp-off'; // earn/approve/reject/list comp-off

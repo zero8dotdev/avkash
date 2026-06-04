@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { restrictExpiredOrgs } from '@avkash/org';
-import { runAccrualTick, runRollover, runEscalations } from '@avkash/leave';
+import { runAccrualTick, notifyAccrualCredits, runRollover, runEscalations } from '@avkash/leave';
 import { materializeHolidays } from '@avkash/holidays';
 import { requireInternalToken } from '../middleware/internal-auth';
 
@@ -14,8 +14,11 @@ export const internal = new Hono()
   // (YYYY-MM-DD) overrides "today" for testing/backfill. Idempotent per period.
   .post('/accrual-tick', async (c) => {
     const date = c.req.query('date');
-    const { date: ran, posted } = await runAccrualTick(date ? new Date(`${date}T00:00:00Z`) : undefined);
-    return c.json({ date: ran, posted });
+    const { date: ran, posted, credits } = await runAccrualTick(date ? new Date(`${date}T00:00:00Z`) : undefined);
+    // Notify the newly-credited users. notify-once via the outbox dedupe key, so a
+    // retried tick re-posts nothing and re-notifies nobody.
+    const notified = await notifyAccrualCredits(credits);
+    return c.json({ date: ran, posted, notified });
   })
   .post('/leave-rollover', async (c) => {
     const yr = c.req.query('year');
