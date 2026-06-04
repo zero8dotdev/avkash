@@ -24,6 +24,28 @@ export interface SmsProvider {
   send(to: string, text: string): Promise<void>;
 }
 
+// Providers throw this so the dispatcher can classify the failure. status is the
+// HTTP status when there was a response; absent means a network/transport error.
+export class ProviderError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number
+  ) {
+    super(message);
+    this.name = 'ProviderError';
+  }
+}
+
+// Transient = worth retrying: rate-limit (429), request-timeout (408), too-early
+// (425), or any 5xx; and network errors (no status). Everything else (4xx
+// validation: bad address, bad request) is permanent — retrying only wastes budget.
+export function isTransient(err: unknown): boolean {
+  if (err instanceof ProviderError && err.status != null) {
+    return err.status === 408 || err.status === 425 || err.status === 429 || err.status >= 500;
+  }
+  return true; // unknown / network error → transient (still capped by max attempts)
+}
+
 // ── Console (dev fallback) ──────────────────────────────────────────────────
 class ConsoleEmailProvider implements EmailProvider {
   readonly name = 'console';
@@ -64,7 +86,7 @@ class ResendEmailProvider implements EmailProvider {
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      throw new Error(`resend ${res.status}: ${body.slice(0, 200)}`);
+      throw new ProviderError(`resend ${res.status}: ${body.slice(0, 200)}`, res.status);
     }
   }
 }
@@ -94,7 +116,7 @@ class Msg91SmsProvider implements SmsProvider {
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      throw new Error(`msg91 ${res.status}: ${body.slice(0, 200)}`);
+      throw new ProviderError(`msg91 ${res.status}: ${body.slice(0, 200)}`, res.status);
     }
   }
 }

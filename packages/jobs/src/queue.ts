@@ -19,7 +19,19 @@ export async function registerSchedules(): Promise<void> {
   const q = getQueue();
   await Promise.all(
     SCHEDULE.map((job) =>
-      q.add(job.name, {}, { repeat: { pattern: job.cron }, removeOnComplete: 50, removeOnFail: 100 })
+      q.add(
+        job.name,
+        {},
+        {
+          repeat: { pattern: job.cron },
+          // Job-level retries with exponential backoff for a job that throws
+          // outright; removeOnFail keeps exhausted jobs as the dead-letter set.
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 30_000 },
+          removeOnComplete: 50,
+          removeOnFail: { count: 1000 },
+        }
+      )
     )
   );
 }

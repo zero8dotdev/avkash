@@ -4,8 +4,9 @@ Concepts you've actually shipped in Avkash's "Activate" path (scheduled accruals
 notifications), framed for interviews. Each section: **the concept**, **how it shows
 up in Avkash** (with files), and a likely **follow-up Q&A**.
 
-> Status: Phases 1–3b are implemented. Phase 3c (retries / DLQ / reconciliation
-> sweep) is the resilience layer being added — noted inline where relevant.
+> Status: Phases 1–3c are implemented. Items marked (3c) are the resilience layer —
+> retries, exponential backoff, transient/permanent classification, dead-letter, and
+> the reconciliation sweep — all shipped and verified end-to-end.
 
 The one-breath summary to anchor everything:
 

@@ -71,4 +71,6 @@ export const attendanceSourceEnum = pgEnum('attendance_source', ['WEB', 'SLACK',
 
 // Notification delivery: which transport, and the outbox row's lifecycle.
 export const notificationChannelEnum = pgEnum('notification_channel', ['EMAIL', 'SMS', 'SLACK', 'IN_APP']);
-export const notificationStatusEnum = pgEnum('notification_status', ['PENDING', 'SENT', 'FAILED']);
+// PENDING → SENT (delivered) | FAILED (transient, will be retried) | DEAD (gave up:
+// permanent error or retry budget exhausted — a dead-letter, not retried).
+export const notificationStatusEnum = pgEnum('notification_status', ['PENDING', 'SENT', 'FAILED', 'DEAD']);

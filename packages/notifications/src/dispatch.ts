@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray, lte } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
-import { sendEmail, sendSMS, smsConfigured } from './providers';
+import { sendEmail, sendSMS, smsConfigured, isTransient } from './providers';
 
 // The notification spine: generic, domain-agnostic. A caller hands it intents
 // (recipients with contacts + an event + payload); dispatch resolves channels,
@@ -71,9 +71,62 @@ async function deliver(channel: Channel, to: string, rendered: Rendered, idempot
   // SLACK / IN_APP providers arrive in a later phase.
 }
 
+// Retry policy. Exponential backoff with jitter, capped — so a recovering provider
+// isn't hammered and a fleet of failures doesn't retry in lockstep (thundering herd).
+const MAX_ATTEMPTS = 5;
+const RETRY_BASE_MS = 60_000; // 1 minute
+const RETRY_CAP_MS = 60 * 60_000; // 1 hour
+
+function backoffMs(attempts: number): number {
+  const base = Math.min(RETRY_BASE_MS * 2 ** (attempts - 1), RETRY_CAP_MS);
+  return Math.round(base + base * 0.2 * Math.random()); // +0–20% jitter
+}
+
+// One outbox row, enough to (re)attempt delivery without re-resolving anything.
+interface OutboxRow {
+  id: string;
+  channel: Channel;
+  to: string;
+  subject: string | null;
+  body: string | null;
+  dedupeKey: string;
+  attempts: number;
+}
+
+type Outcome = 'sent' | 'retry' | 'dead';
+
+// Attempt delivery of a single outbox row and record the result. Shared by the
+// initial dispatch and the retry sweep, so the classification lives in one place:
+// success → SENT; transient failure within budget → FAILED + a backoff nextAttemptAt;
+// permanent failure or exhausted budget → DEAD (dead-letter, never retried).
+async function attemptDelivery(row: OutboxRow): Promise<Outcome> {
+  const attempts = row.attempts + 1;
+  try {
+    await deliver(row.channel, row.to, { subject: row.subject ?? '', body: row.body ?? '' }, row.dedupeKey);
+    await db
+      .update(schema.notification)
+      .set({ status: 'SENT', attempts, sentAt: new Date(), nextAttemptAt: null, error: null })
+      .where(eq(schema.notification.id, row.id));
+    return 'sent';
+  } catch (err) {
+    const retry = isTransient(err) && attempts < MAX_ATTEMPTS;
+    await db
+      .update(schema.notification)
+      .set({
+        status: retry ? 'FAILED' : 'DEAD',
+        attempts,
+        error: err instanceof Error ? err.message : String(err),
+        nextAttemptAt: retry ? new Date(Date.now() + backoffMs(attempts)) : null,
+      })
+      .where(eq(schema.notification.id, row.id));
+    return retry ? 'retry' : 'dead';
+  }
+}
+
 // Fan each intent across its resolved channels. The outbox insert is the idempotency
 // gate: onConflictDoNothing on dedupeKey means an already-emitted notification is
-// skipped, so re-running the trigger never double-sends.
+// skipped, so re-running the trigger never double-sends. First delivery is attempted
+// inline; transient failures are left FAILED for the sweep to retry.
 export async function dispatch(intents: NotificationIntent[]): Promise<DispatchResult> {
   const tasks = intents.flatMap((intent) =>
     resolveChannels(intent.event, intent.recipient).map((channel) => ({ intent, channel }))
@@ -95,6 +148,7 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
           channel,
           event: intent.event,
           dedupeKey,
+          to,
           payload: intent.payload,
           subject: rendered.subject || null,
           body: rendered.body,
@@ -105,20 +159,16 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
 
       if (!row) return 'skipped'; // already emitted — idempotent no-op
 
-      try {
-        await deliver(channel, to, rendered, dedupeKey);
-        await db
-          .update(schema.notification)
-          .set({ status: 'SENT', attempts: 1, sentAt: new Date() })
-          .where(eq(schema.notification.id, row.id));
-        return 'sent';
-      } catch (err) {
-        await db
-          .update(schema.notification)
-          .set({ status: 'FAILED', attempts: 1, error: err instanceof Error ? err.message : String(err) })
-          .where(eq(schema.notification.id, row.id));
-        return 'failed';
-      }
+      const outcome = await attemptDelivery({
+        id: row.id,
+        channel,
+        to,
+        subject: rendered.subject,
+        body: rendered.body,
+        dedupeKey,
+        attempts: 0,
+      });
+      return outcome === 'sent' ? 'sent' : 'failed';
     })
   );
 
@@ -126,5 +176,61 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
     sent: outcomes.filter((o) => o === 'sent').length,
     skipped: outcomes.filter((o) => o === 'skipped').length,
     failed: outcomes.filter((o) => o === 'failed').length,
+  };
+}
+
+export interface SweepResult {
+  claimed: number;
+  sent: number;
+  stillFailing: number;
+  dead: number;
+}
+
+// Reconciliation sweep (the janitor): re-deliver FAILED rows whose backoff has
+// elapsed. Rows are claimed by leasing nextAttemptAt forward, and the lease UPDATE
+// re-checks `nextAttemptAt <= now`, so two concurrent sweeps can't grab the same row
+// (a compare-and-set). Bounded per run; the provider Idempotency-Key keeps even a
+// rare double-attempt safe.
+const SWEEP_BATCH = 200;
+const LEASE_MS = 5 * 60_000;
+
+export async function retryFailedNotifications(now: Date = new Date()): Promise<SweepResult> {
+  const due = await db
+    .select({ id: schema.notification.id })
+    .from(schema.notification)
+    .where(and(eq(schema.notification.status, 'FAILED'), lte(schema.notification.nextAttemptAt, now)))
+    .orderBy(schema.notification.nextAttemptAt)
+    .limit(SWEEP_BATCH);
+  if (!due.length) return { claimed: 0, sent: 0, stillFailing: 0, dead: 0 };
+
+  const claimed = await db
+    .update(schema.notification)
+    .set({ nextAttemptAt: new Date(now.getTime() + LEASE_MS) })
+    .where(
+      and(
+        inArray(
+          schema.notification.id,
+          due.map((d) => d.id)
+        ),
+        eq(schema.notification.status, 'FAILED'),
+        lte(schema.notification.nextAttemptAt, now)
+      )
+    )
+    .returning({
+      id: schema.notification.id,
+      channel: schema.notification.channel,
+      to: schema.notification.to,
+      subject: schema.notification.subject,
+      body: schema.notification.body,
+      dedupeKey: schema.notification.dedupeKey,
+      attempts: schema.notification.attempts,
+    });
+
+  const outcomes = await Promise.all(claimed.map((row) => attemptDelivery(row)));
+  return {
+    claimed: claimed.length,
+    sent: outcomes.filter((o) => o === 'sent').length,
+    stillFailing: outcomes.filter((o) => o === 'retry').length,
+    dead: outcomes.filter((o) => o === 'dead').length,
   };
 }

@@ -19,18 +19,21 @@ export const notification = pgTable(
     channel: notificationChannelEnum('channel').notNull(),
     event: varchar('event', { length: 64 }).notNull(), // e.g. "leave.balance.credited"
     dedupeKey: varchar('dedupeKey', { length: 255 }).notNull(),
+    to: varchar('to', { length: 255 }).notNull(), // resolved destination — keeps the row self-contained for retry
     payload: jsonb('payload'),
     subject: varchar('subject', { length: 255 }),
     body: text('body'),
     status: notificationStatusEnum('status').notNull().default('PENDING'),
     error: text('error'),
     attempts: integer('attempts').notNull().default(0),
+    nextAttemptAt: timestamp('nextAttemptAt', { precision: 6 }), // when the retry sweep may try again (backoff)
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
     sentAt: timestamp('sentAt', { precision: 6 }),
   },
   (t) => [
     uniqueIndex('uq_notification_dedupe').on(t.dedupeKey),
     index('idx_notification_user').on(t.userId),
-    index('idx_notification_status').on(t.status),
+    // The retry sweep scans by (status, nextAttemptAt) — index it.
+    index('idx_notification_retry').on(t.status, t.nextAttemptAt),
   ]
 );

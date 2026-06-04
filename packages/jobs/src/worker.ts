@@ -16,7 +16,9 @@ export function startWorker(): Worker {
       if (!handler) throw new Error(`no handler for job "${job.name}"`);
       return handler();
     },
-    { connection, concurrency: 4 }
+    // concurrency bounds parallel jobs; limiter caps throughput so downstream
+    // providers (Resend/MSG91) aren't overrun — backpressure at the queue edge.
+    { connection, concurrency: 4, limiter: { max: 50, duration: 1000 } }
   );
   worker.on('completed', (job, result) => console.log(`[job ✓] ${job.name}`, JSON.stringify(result)));
   worker.on('failed', (job, err) => console.error(`[job ✗] ${job?.name}: ${err?.message}`));

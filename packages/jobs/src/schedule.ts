@@ -1,6 +1,7 @@
 import { runAccrualCycle, runEscalations, runRollover } from '@avkash/leave';
 import { restrictExpiredOrgs } from '@avkash/org';
 import { materializeHolidays } from '@avkash/holidays';
+import { retryFailedNotifications } from '@avkash/notifications';
 
 export interface ScheduledJob {
   name: string;
@@ -13,6 +14,7 @@ export interface ScheduledJob {
 // safe — add a job here and the worker picks it up.
 export const SCHEDULE: ScheduledJob[] = [
   { name: 'accrual-tick', cron: '0 1 * * *', run: () => runAccrualCycle() }, // daily 01:00 — credit + notify
+  { name: 'notification-retry', cron: '*/15 * * * *', run: () => retryFailedNotifications() }, // re-deliver FAILED
   { name: 'escalations', cron: '0 * * * *', run: () => runEscalations() }, // hourly — PENDING past SLA → HR
   { name: 'grace-sweep', cron: '30 1 * * *', run: () => restrictExpiredOrgs() }, // daily 01:30 — expire grace orgs
   { name: 'leave-rollover', cron: '0 2 1 1 *', run: () => runRollover() }, // Jan 1 02:00 — year-end rollover
