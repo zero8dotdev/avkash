@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { restrictExpiredOrgs } from '@avkash/org';
-import { runAccruals, runRollover, runEscalations } from '@avkash/leave';
+import { runAccrualTick, runRollover, runEscalations } from '@avkash/leave';
 import { materializeHolidays } from '@avkash/holidays';
 import { requireInternalToken } from '../middleware/internal-auth';
 
@@ -10,9 +10,12 @@ import { requireInternalToken } from '../middleware/internal-auth';
 export const internal = new Hono()
   .use(requireInternalToken)
   .post('/grace-sweep', async (c) => c.json({ restricted: await restrictExpiredOrgs() }))
-  .post('/leave-accrual', async (c) => {
-    const freq = c.req.query('frequency') === 'QUARTERLY' ? 'QUARTERLY' : 'MONTHLY';
-    return c.json(await runAccruals(freq));
+  // Daily accrual tick — each policy decides if today is its credit day. `?date=`
+  // (YYYY-MM-DD) overrides "today" for testing/backfill. Idempotent per period.
+  .post('/accrual-tick', async (c) => {
+    const date = c.req.query('date');
+    const { date: ran, posted } = await runAccrualTick(date ? new Date(`${date}T00:00:00Z`) : undefined);
+    return c.json({ date: ran, posted });
   })
   .post('/leave-rollover', async (c) => {
     const yr = c.req.query('year');

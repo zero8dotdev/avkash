@@ -1,74 +1,141 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
+import { type AuthContext } from '@avkash/shared';
+import { requireRole } from '@avkash/auth';
 import { currentYear, todayStr } from './ledger';
 import { writeAudit } from './audit';
+import { accrualOccursOn, nextAccrualOn, periodKeyFor } from './accrual-schedule';
 
-type Frequency = 'MONTHLY' | 'QUARTERLY';
-
-function periodLabel(freq: Frequency, now: Date): string {
-  const y = now.getUTCFullYear();
-  if (freq === 'MONTHLY') return `${y}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-  return `${y}-Q${Math.floor(now.getUTCMonth() / 3) + 1}`;
+// One credited ledger row, surfaced so the caller (Phase 2: the notification
+// dispatcher) knows exactly who to tell and how much landed.
+export interface AccrualCredit {
+  orgId: string;
+  userId: string;
+  leaveTypeId: string;
+  amount: number;
+  periodKey: string;
 }
 
-// Platform job (no ctx — runs across all orgs). For every active accrual policy of
-// this frequency, credit maxLeaves/12 (monthly) or /4 (quarterly) to each team
-// member. Idempotent per (user, type, period) via onConflictDoNothing.
-export async function runAccruals(freq: Frequency, now: Date = new Date()): Promise<{ posted: number }> {
-  const periodKey = `accrual:${periodLabel(freq, now)}`;
+export interface AccrualTickResult {
+  date: string; // YYYY-MM-DD
+  posted: number;
+  credits: AccrualCredit[];
+}
+
+// Daily accrual tick (platform job, no ctx — runs across every org). Credits each
+// active accrual policy whose cadence lands on `now` (accrual-schedule decides).
+// Each post is idempotent per (user, type, periodKey) via the ledger's unique
+// index, so re-running a day — or resuming a half-failed run — never double-credits.
+export async function runAccrualTick(now: Date = new Date()): Promise<AccrualTickResult> {
   const policies = await db
     .select({ policy: schema.leavePolicy, orgId: schema.leaveType.orgId })
     .from(schema.leavePolicy)
     .innerJoin(schema.leaveType, eq(schema.leavePolicy.leaveTypeId, schema.leaveType.leaveTypeId))
-    .where(
-      and(
-        eq(schema.leavePolicy.accruals, true),
-        eq(schema.leavePolicy.isActive, true),
-        eq(schema.leavePolicy.accrualFrequency, freq)
-      )
-    );
+    .where(and(eq(schema.leavePolicy.accruals, true), eq(schema.leavePolicy.isActive, true)));
 
-  let posted = 0;
-  const byOrg: Record<string, number> = {};
-  for (const { policy, orgId } of policies) {
-    if (policy.unlimited || !policy.maxLeaves) continue;
-    const amount = freq === 'MONTHLY' ? policy.maxLeaves / 12 : policy.maxLeaves / 4;
-    const members = await db
-      .select({ id: schema.user.id })
-      .from(schema.user)
-      .where(eq(schema.user.teamId, policy.teamId));
-    for (const m of members) {
-      const res = await db
+  const due = policies.filter(({ policy }) => accrualOccursOn(policy, now));
+
+  const perPolicy = await Promise.all(
+    due.map(async ({ policy, orgId }): Promise<AccrualCredit[]> => {
+      if (policy.unlimited || !policy.maxLeaves || !policy.accrualFrequency) return [];
+      const amount = policy.accrualFrequency === 'MONTHLY' ? policy.maxLeaves / 12 : policy.maxLeaves / 4;
+      const periodKey = periodKeyFor(policy.accrualFrequency, now);
+      const members = await db
+        .select({ id: schema.user.id })
+        .from(schema.user)
+        .where(eq(schema.user.teamId, policy.teamId));
+      if (!members.length) return [];
+      // One batched insert per policy; onConflictDoNothing returns only the rows
+      // actually credited (period not already posted for that member).
+      const inserted = await db
         .insert(schema.leaveLedger)
-        .values({
-          orgId,
-          userId: m.id,
-          leaveTypeId: policy.leaveTypeId,
-          kind: 'ACCRUAL',
-          amount: String(amount),
-          effectiveOn: todayStr(now),
-          periodKey,
-          note: `${freq.toLowerCase()} accrual`,
-          createdBy: 'system',
-        })
+        .values(
+          members.map((m) => ({
+            orgId,
+            userId: m.id,
+            leaveTypeId: policy.leaveTypeId,
+            kind: 'ACCRUAL' as const,
+            amount: String(amount),
+            effectiveOn: todayStr(now),
+            periodKey,
+            note: `${policy.accrualFrequency!.toLowerCase()} accrual`,
+            createdBy: 'system',
+          }))
+        )
         .onConflictDoNothing({
           target: [schema.leaveLedger.userId, schema.leaveLedger.leaveTypeId, schema.leaveLedger.periodKey],
         })
-        .returning({ id: schema.leaveLedger.id });
-      posted += res.length;
-      if (res.length) byOrg[orgId] = (byOrg[orgId] ?? 0) + res.length;
-    }
-  }
-  for (const [auditOrgId, count] of Object.entries(byOrg)) {
-    await writeAudit({
-      orgId: auditOrgId,
-      tableName: 'LeaveLedger',
-      keyword: 'leave_accrual',
-      changed: { frequency: freq, periodKey, posted: count },
-      changedBy: 'system',
-    });
-  }
-  return { posted };
+        .returning({ userId: schema.leaveLedger.userId });
+      return inserted.map((r) => ({ orgId, userId: r.userId, leaveTypeId: policy.leaveTypeId, amount, periodKey }));
+    })
+  );
+
+  const credits = perPolicy.flat();
+  const byOrg = credits.reduce<Record<string, number>>(
+    (acc, c) => ({ ...acc, [c.orgId]: (acc[c.orgId] ?? 0) + 1 }),
+    {}
+  );
+  await Promise.all(
+    Object.entries(byOrg).map(([auditOrgId, count]) =>
+      writeAudit({
+        orgId: auditOrgId,
+        tableName: 'LeaveLedger',
+        keyword: 'leave_accrual',
+        changed: { date: todayStr(now), posted: count },
+        changedBy: 'system',
+      })
+    )
+  );
+  return { date: todayStr(now), posted: credits.length, credits };
+}
+
+// HR/Admin view: every active accrual policy in the org with its next credit date,
+// per-member amount, and headcount it credits. Powers the dashboard's "next leave
+// balance credit", computed with the same nextAccrualOn the tick uses.
+export interface UpcomingAccrual {
+  leavePolicyId: string;
+  leaveTypeId: string;
+  teamId: string;
+  frequency: 'MONTHLY' | 'QUARTERLY';
+  accrueOn: 'BEGINNING' | 'END';
+  nextCreditOn: string | null;
+  amountPerMember: number;
+  members: number;
+}
+
+export async function upcomingAccruals(ctx: AuthContext, from: Date = new Date()): Promise<UpcomingAccrual[]> {
+  requireRole(ctx, 'ADMIN');
+  const rows = await db
+    .select({ policy: schema.leavePolicy, members: sql<number>`count(${schema.user.id})::int` })
+    .from(schema.leavePolicy)
+    .innerJoin(schema.leaveType, eq(schema.leavePolicy.leaveTypeId, schema.leaveType.leaveTypeId))
+    .leftJoin(schema.user, eq(schema.user.teamId, schema.leavePolicy.teamId))
+    .where(
+      and(
+        eq(schema.leaveType.orgId, ctx.orgId),
+        eq(schema.leavePolicy.accruals, true),
+        eq(schema.leavePolicy.isActive, true)
+      )
+    )
+    .groupBy(schema.leavePolicy.leavePolicyId);
+
+  return rows
+    .filter((r) => r.policy.accrualFrequency && !r.policy.unlimited && r.policy.maxLeaves)
+    .map((r) => {
+      const frequency = r.policy.accrualFrequency!;
+      const next = nextAccrualOn(r.policy, from);
+      return {
+        leavePolicyId: r.policy.leavePolicyId,
+        leaveTypeId: r.policy.leaveTypeId,
+        teamId: r.policy.teamId,
+        frequency,
+        accrueOn: r.policy.accrueOn ?? 'BEGINNING',
+        nextCreditOn: next ? next.toISOString().slice(0, 10) : null,
+        amountPerMember: frequency === 'MONTHLY' ? r.policy.maxLeaves! / 12 : r.policy.maxLeaves! / 4,
+        members: r.members,
+      };
+    })
+    .sort((a, b) => (a.nextCreditOn ?? '').localeCompare(b.nextCreditOn ?? ''));
 }
 
 export { currentYear };
