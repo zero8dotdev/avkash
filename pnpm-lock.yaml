@@ -440,6 +440,9 @@ importers:
       '@avkash/auth':
         specifier: workspace:*
         version: link:../auth
+      '@avkash/config':
+        specifier: workspace:*
+        version: link:../config
       '@avkash/db':
         specifier: workspace:*
         version: link:../db

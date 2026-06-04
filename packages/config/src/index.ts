@@ -8,6 +8,8 @@ const schema = z.object({
   REDIS_URL: z.string().url().default('redis://localhost:6379'),
   BETTER_AUTH_SECRET: z.string().default('dev-secret-change-me'),
   BETTER_AUTH_URL: z.string().url().default('http://localhost:3001'),
+  // Public web app URL — used to build user-facing links (e.g. invitation accept).
+  APP_URL: z.string().url().default('http://localhost:3000'),
   // Google Workspace OAuth (hd-restricted). Optional until configured.
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),

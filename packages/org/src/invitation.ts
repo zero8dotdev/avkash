@@ -10,7 +10,8 @@ import {
   BusinessRuleError,
 } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
-import { sendEmail } from '@avkash/notifications';
+import { dispatch } from '@avkash/notifications';
+import { env } from '@avkash/config';
 import { PROVISIONAL_INVITE_CAP } from './organization';
 
 const INVITE_TTL_DAYS = 7;
@@ -92,13 +93,26 @@ export async function inviteTeammate(ctx: AuthContext, input: InviteTeammateInpu
     })
     .returning();
 
-  // Notify (console stub). Accept = sign up with this email; the auth create-hook
-  // provisions the role/org from this invitation.
-  void sendEmail({
-    to: email,
-    subject: `You're invited to ${org.name ?? 'a team'} on Avkash`,
-    text: `You've been invited as ${role}. Sign up with ${email} to join.`,
-  });
+  // Notify through the outbox pipeline (retried, audited, idempotent). The invitee
+  // has no account yet, so this is an email-only recipient (no userId). Accept = sign
+  // up with this email; the auth create-hook provisions role/org from this invitation.
+  const [inviter] = ctx.userId
+    ? await db.select({ name: schema.user.name }).from(schema.user).where(eq(schema.user.id, ctx.userId)).limit(1)
+    : [];
+  await dispatch([
+    {
+      event: 'org.invitation.sent',
+      recipient: { orgId: ctx.orgId, email },
+      dedupeKey: `org.invitation.sent:${invite.id}`,
+      payload: {
+        orgName: org.name ?? 'a team',
+        inviterName: inviter?.name,
+        role,
+        acceptUrl: `${env.APP_URL}/invite/accept?token=${invite.token}`,
+        expiresOn: invite.expiresAt.toISOString().slice(0, 10),
+      },
+    },
+  ]);
 
   return invite;
 }

@@ -46,6 +46,8 @@ services:
       # Better Auth — set a strong secret in real use; this default is dev-only.
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      # Public web app URL — used to build invitation accept links.
+      APP_URL: ${APP_URL:-http://localhost:3000}
       # Slack login (leave blank until you have credentials).
       SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
       SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}

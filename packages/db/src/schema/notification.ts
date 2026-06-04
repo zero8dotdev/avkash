@@ -13,9 +13,9 @@ export const notification = pgTable(
     orgId: uuid('orgId')
       .notNull()
       .references(() => organisation.orgId),
-    userId: uuid('userId')
-      .notNull()
-      .references(() => user.id),
+    // Nullable: some notifications target an email with no account yet (invitations).
+    // The `to` column is always the real destination.
+    userId: uuid('userId').references(() => user.id),
     channel: notificationChannelEnum('channel').notNull(),
     event: varchar('event', { length: 64 }).notNull(), // e.g. "leave.balance.credited"
     dedupeKey: varchar('dedupeKey', { length: 255 }).notNull(),

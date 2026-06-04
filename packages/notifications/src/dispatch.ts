@@ -11,7 +11,7 @@ export type Channel = 'EMAIL' | 'SMS' | 'SLACK' | 'IN_APP';
 
 export interface NotificationRecipient {
   orgId: string;
-  userId: string;
+  userId?: string | null; // absent for email-only recipients (e.g. invitations)
   email?: string | null;
   phone?: string | null;
   locale?: string | null;
@@ -46,6 +46,12 @@ const TEMPLATES: Record<string, Partial<Record<Channel, Template>>> = {
     SMS: (p) => ({
       subject: '',
       body: `Avkash: ${p.amount} day(s) of ${p.leaveType} leave credited for ${humanPeriod(String(p.period))}.`,
+    }),
+  },
+  'org.invitation.sent': {
+    EMAIL: (p) => ({
+      subject: `You're invited to ${p.orgName} on Avkash`,
+      body: `Hi,\n\n${p.inviterName ?? 'A teammate'} invited you to join ${p.orgName} on Avkash as ${p.role}.\n\nAccept your invitation:\n${p.acceptUrl}\n\nThis invite expires on ${p.expiresOn}. If you didn't expect this, you can ignore it.\n\n— Avkash`,
     }),
   },
 };
@@ -144,7 +150,7 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
         .insert(schema.notification)
         .values({
           orgId: intent.recipient.orgId,
-          userId: intent.recipient.userId,
+          userId: intent.recipient.userId ?? null,
           channel,
           event: intent.event,
           dedupeKey,
