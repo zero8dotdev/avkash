@@ -4,6 +4,8 @@ import { z } from 'zod';
 // request. Auth providers are optional so the app boots without them configured.
 const schema = z.object({
   DATABASE_URL: z.string().url(),
+  // Redis for BullMQ (the worker). Defaults to local; the worker container sets it.
+  REDIS_URL: z.string().url().default('redis://localhost:6379'),
   BETTER_AUTH_SECRET: z.string().default('dev-secret-change-me'),
   BETTER_AUTH_URL: z.string().url().default('http://localhost:3001'),
   // Google Workspace OAuth (hd-restricted). Optional until configured.

@@ -1,0 +1,27 @@
+{
+  "name": "@avkash/worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "App: Bun process running the BullMQ maintenance worker + schedule.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/jobs": "workspace:*",
+    "@avkash/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.8.2"
+  }
+}

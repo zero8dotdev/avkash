@@ -13,10 +13,13 @@
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
+    "@avkash/config": "workspace:*",
     "@avkash/payroll": "workspace:*",
     "@avkash/notifications": "workspace:*",
     "@avkash/documents": "workspace:*",
     "@avkash/leave": "workspace:*",
+    "@avkash/org": "workspace:*",
+    "@avkash/holidays": "workspace:*",
     "@avkash/shared": "workspace:*",
     "bullmq": "^5.0.0"
   },

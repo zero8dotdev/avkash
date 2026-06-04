@@ -19,6 +19,18 @@ services:
       timeout: 5s
       retries: 10
 
+  # ── Redis — BullMQ broker for the maintenance worker ────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # ── API — strictly Bun (Hono server) ────────────────────────────────────────
   api:
     build:
@@ -71,6 +83,23 @@ services:
       - .env.local
     ports:
       - '3000:3000'
+
+  # ── Worker — Bun process running BullMQ scheduler + maintenance jobs ─────────
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/${POSTGRES_DB:-avkash}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
 
 volumes:
   postgres_data:

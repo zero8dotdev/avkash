@@ -1,7 +1,7 @@
 import { inArray } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
 import { dispatch, type DispatchResult, type NotificationIntent } from '@avkash/notifications';
-import type { AccrualCredit } from './accrual';
+import { runAccrualTick, type AccrualCredit } from './accrual';
 
 // Bridge accrual credits → notifications. Leave owns "who got what" (it resolves the
 // recipient's contact + locale and the leave type's display name); the notifications
@@ -41,4 +41,13 @@ export async function notifyAccrualCredits(credits: AccrualCredit[]): Promise<Di
     };
   });
   return dispatch(intents);
+}
+
+// The full daily accrual cycle: credit the ledger, then notify whoever was credited.
+// One definition shared by the scheduler (the worker) and the manual /internal
+// trigger, so they can't drift. Idempotent end-to-end (ledger + outbox dedupe).
+export async function runAccrualCycle(now?: Date): Promise<{ date: string; posted: number; notified: DispatchResult }> {
+  const { date, posted, credits } = await runAccrualTick(now);
+  const notified = await notifyAccrualCredits(credits);
+  return { date, posted, notified };
 }

@@ -1,0 +1,5 @@
+{
+  "extends": "@avkash/tsconfig/base.json",
+  "compilerOptions": { "types": ["bun"] },
+  "include": ["src"]
+}
