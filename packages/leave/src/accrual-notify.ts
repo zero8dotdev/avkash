@@ -15,7 +15,14 @@ export async function notifyAccrualCredits(credits: AccrualCredit[]): Promise<Di
   const typeIds = [...new Set(credits.map((c) => c.leaveTypeId))];
   const [users, types] = await Promise.all([
     db
-      .select({ id: schema.user.id, name: schema.user.name, email: schema.user.email, language: schema.user.language })
+      .select({
+        id: schema.user.id,
+        name: schema.user.name,
+        email: schema.user.email,
+        language: schema.user.language,
+        phone: schema.user.phoneNumber,
+        phoneVerified: schema.user.phoneNumberVerified,
+      })
       .from(schema.user)
       .where(inArray(schema.user.id, userIds)),
     db
@@ -30,7 +37,13 @@ export async function notifyAccrualCredits(credits: AccrualCredit[]): Promise<Di
     const u = userMap.get(c.userId);
     return {
       event: 'leave.balance.credited',
-      recipient: { orgId: c.orgId, userId: c.userId, email: u?.email, locale: u?.language },
+      recipient: {
+        orgId: c.orgId,
+        userId: c.userId,
+        email: u?.email,
+        phone: u?.phoneVerified ? u?.phone : null, // only message verified numbers
+        locale: u?.language,
+      },
       dedupeKey: `leave.balance.credited:${c.periodKey}:${c.userId}:${c.leaveTypeId}`,
       payload: {
         name: u?.name,

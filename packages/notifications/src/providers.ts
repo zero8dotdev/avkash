@@ -1,7 +1,10 @@
-// Delivery providers. For now everything is console.log — swap the bodies for
-// Resend (email) and MSG91 (SMS) later without changing any caller. Auth wires
-// these as its sendVerificationEmail / sendResetPassword / sendOTP callbacks, and
-// the dispatcher calls them per resolved channel.
+import { env } from '@avkash/config';
+
+// Delivery providers behind a stable interface (the adapter/driver pattern). The
+// dispatcher and auth callbacks call sendEmail/sendSMS and never know which concrete
+// provider runs — that's chosen once at boot from env. Absent keys fall back to the
+// console provider, so the whole app works end-to-end with zero provider config; set
+// the keys to go live without touching a single caller.
 
 export interface EmailMessage {
   to: string;
@@ -9,10 +12,110 @@ export interface EmailMessage {
   text: string;
 }
 
-export async function sendEmail(msg: EmailMessage): Promise<void> {
-  console.log(`\n📧 [email → ${msg.to}] ${msg.subject}\n${msg.text}\n`);
+export interface EmailProvider {
+  readonly name: string;
+  // idempotencyKey (when the provider supports it, e.g. Resend) makes a retried send
+  // a no-op on their side too — layered on top of our outbox dedupe.
+  send(msg: EmailMessage, opts?: { idempotencyKey?: string }): Promise<void>;
 }
 
-export async function sendSMS(to: string, text: string): Promise<void> {
-  console.log(`\n📱 [sms → ${to}] ${text}\n`);
+export interface SmsProvider {
+  readonly name: string;
+  send(to: string, text: string): Promise<void>;
 }
+
+// ── Console (dev fallback) ──────────────────────────────────────────────────
+class ConsoleEmailProvider implements EmailProvider {
+  readonly name = 'console';
+
+  async send(msg: EmailMessage): Promise<void> {
+    console.log(`\n📧 [email → ${msg.to}] ${msg.subject}\n${msg.text}\n`);
+  }
+}
+
+class ConsoleSmsProvider implements SmsProvider {
+  readonly name = 'console';
+
+  async send(to: string, text: string): Promise<void> {
+    console.log(`\n📱 [sms → ${to}] ${text}\n`);
+  }
+}
+
+// ── Resend (email) ──────────────────────────────────────────────────────────
+// Thin REST call over Bun/Node fetch — no SDK dependency. Throws on a non-2xx so
+// the dispatcher records FAILED with the provider's message (sets up retry in 3c).
+class ResendEmailProvider implements EmailProvider {
+  readonly name = 'resend';
+
+  constructor(
+    private readonly apiKey: string,
+    private readonly from: string
+  ) {}
+
+  async send(msg: EmailMessage, opts?: { idempotencyKey?: string }): Promise<void> {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        ...(opts?.idempotencyKey ? { 'Idempotency-Key': opts.idempotencyKey } : {}),
+      },
+      body: JSON.stringify({ from: this.from, to: [msg.to], subject: msg.subject, text: msg.text }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`resend ${res.status}: ${body.slice(0, 200)}`);
+    }
+  }
+}
+
+// ── MSG91 (SMS) ─────────────────────────────────────────────────────────────
+// Skeleton for the MSG91 v5 flow API. In India SMS is template-bound (DLT): the
+// body is delivered as a template variable, not free text. Finish the variable
+// mapping (`var1` below) to match your registered DLT template when you have it.
+class Msg91SmsProvider implements SmsProvider {
+  readonly name = 'msg91';
+
+  constructor(
+    private readonly authKey: string,
+    private readonly senderId: string,
+    private readonly templateId: string
+  ) {}
+
+  async send(to: string, text: string): Promise<void> {
+    const res = await fetch('https://control.msg91.com/api/v5/flow/', {
+      method: 'POST',
+      headers: { authkey: this.authKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        template_id: this.templateId,
+        sender: this.senderId,
+        recipients: [{ mobiles: to.replace(/[^\d]/g, ''), var1: text }],
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`msg91 ${res.status}: ${body.slice(0, 200)}`);
+    }
+  }
+}
+
+// ── Selection (once, at boot) ───────────────────────────────────────────────
+const emailProvider: EmailProvider =
+  env.RESEND_API_KEY && env.RESEND_FROM
+    ? new ResendEmailProvider(env.RESEND_API_KEY, env.RESEND_FROM)
+    : new ConsoleEmailProvider();
+
+// SMS falls back to console so auth OTP still works in dev, but smsConfigured()
+// reports false unless a REAL provider is wired — the dispatcher uses that to avoid
+// auto-selecting SMS (and console-spamming) for every notification.
+const smsProvider: SmsProvider =
+  env.MSG91_AUTH_KEY && env.MSG91_SENDER_ID && env.MSG91_TEMPLATE_ID
+    ? new Msg91SmsProvider(env.MSG91_AUTH_KEY, env.MSG91_SENDER_ID, env.MSG91_TEMPLATE_ID)
+    : new ConsoleSmsProvider();
+
+export const sendEmail = (msg: EmailMessage, opts?: { idempotencyKey?: string }) => emailProvider.send(msg, opts);
+export const sendSMS = (to: string, text: string) => smsProvider.send(to, text);
+
+// True only when a real SMS transport is configured. Channel resolution uses this
+// to decide whether SMS is a deliverable channel.
+export const smsConfigured = () => smsProvider.name !== 'console';

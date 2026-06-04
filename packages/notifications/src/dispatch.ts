@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
-import { sendEmail, sendSMS } from './providers';
+import { sendEmail, sendSMS, smsConfigured } from './providers';
 
 // The notification spine: generic, domain-agnostic. A caller hands it intents
 // (recipients with contacts + an event + payload); dispatch resolves channels,
@@ -50,21 +50,23 @@ const TEMPLATES: Record<string, Partial<Record<Channel, Template>>> = {
   },
 };
 
-// Which channels a recipient should receive this event on. Today: EMAIL when an
-// email exists. SMS/SLACK/IN_APP land when their providers + per-user preferences
-// exist (later phase) — the structure is ready, the selection is intentionally
-// conservative so we don't promise a channel we can't deliver.
+// Which channels a recipient gets this event on. EMAIL whenever an email exists;
+// SMS only when the recipient has a (verified) phone AND a real SMS provider is
+// configured — so we never auto-select a channel we can't actually deliver, and
+// never console-spam SMS in dev. SLACK/IN_APP land in a later phase. This is the
+// minimal channel-preference policy; a per-user/per-event override slots in here.
 function resolveChannels(_event: string, r: NotificationRecipient): Channel[] {
   const channels: Channel[] = [];
   if (r.email) channels.push('EMAIL');
+  if (r.phone && smsConfigured()) channels.push('SMS');
   return channels;
 }
 
 const contactFor = (channel: Channel, r: NotificationRecipient): string | null =>
   channel === 'EMAIL' ? (r.email ?? null) : channel === 'SMS' ? (r.phone ?? null) : null;
 
-async function deliver(channel: Channel, to: string, rendered: Rendered): Promise<void> {
-  if (channel === 'EMAIL') return sendEmail({ to, subject: rendered.subject, text: rendered.body });
+async function deliver(channel: Channel, to: string, rendered: Rendered, idempotencyKey: string): Promise<void> {
+  if (channel === 'EMAIL') return sendEmail({ to, subject: rendered.subject, text: rendered.body }, { idempotencyKey });
   if (channel === 'SMS') return sendSMS(to, rendered.body);
   // SLACK / IN_APP providers arrive in a later phase.
 }
@@ -84,6 +86,7 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
       if (!template || !to) return 'skipped';
 
       const rendered = template(intent.payload, intent.recipient.locale ?? 'en');
+      const dedupeKey = `${intent.dedupeKey}:${channel}`;
       const [row] = await db
         .insert(schema.notification)
         .values({
@@ -91,7 +94,7 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
           userId: intent.recipient.userId,
           channel,
           event: intent.event,
-          dedupeKey: `${intent.dedupeKey}:${channel}`,
+          dedupeKey,
           payload: intent.payload,
           subject: rendered.subject || null,
           body: rendered.body,
@@ -103,7 +106,7 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
       if (!row) return 'skipped'; // already emitted — idempotent no-op
 
       try {
-        await deliver(channel, to, rendered);
+        await deliver(channel, to, rendered, dedupeKey);
         await db
           .update(schema.notification)
           .set({ status: 'SENT', attempts: 1, sentAt: new Date() })

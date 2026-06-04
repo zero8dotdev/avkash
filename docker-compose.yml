@@ -53,6 +53,12 @@ services:
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-cron-token}
       # Browser origins allowed to call the API with credentials (comma-separated).
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      # Notification providers (blank = console fallback).
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      MSG91_AUTH_KEY: ${MSG91_AUTH_KEY:-}
+      MSG91_SENDER_ID: ${MSG91_SENDER_ID:-}
+      MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID:-}
     ports:
       - '3001:3001'
     healthcheck:
@@ -100,6 +106,13 @@ services:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      # Notification providers (blank = console fallback). The worker sends accrual
+      # notifications, so it needs these to deliver for real.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      MSG91_AUTH_KEY: ${MSG91_AUTH_KEY:-}
+      MSG91_SENDER_ID: ${MSG91_SENDER_ID:-}
+      MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID:-}
 
 volumes:
   postgres_data:

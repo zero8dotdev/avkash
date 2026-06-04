@@ -21,6 +21,7 @@
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",
     "@avkash/eslint-config": "workspace:*",
+    "@types/node": "^20.17.27",
     "typescript": "^5.8.2"
   }
 }

@@ -11,6 +11,15 @@ const schema = z.object({
   // Google Workspace OAuth (hd-restricted). Optional until configured.
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Notification providers. All optional — absent keys fall back to the console
+  // provider, so the app runs end-to-end without any of them configured.
+  // Email (Resend): both key and a verified from-address are needed to go live.
+  RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM: z.string().optional(), // e.g. "Avkash <noreply@yourdomain.com>"
+  // SMS (MSG91): auth key + sender ID + a DLT-registered flow template id.
+  MSG91_AUTH_KEY: z.string().optional(),
+  MSG91_SENDER_ID: z.string().optional(),
+  MSG91_TEMPLATE_ID: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);
