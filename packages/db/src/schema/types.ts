@@ -14,6 +14,7 @@ import type {
   approvalDelegation,
   leaveComment,
 } from './leave';
+import type { device, deviceEnrollment } from './device';
 import type { holiday, publicHolidays } from './holiday';
 import type { activityLog } from './audit';
 import type { subscription, paySubMap } from './billing';
@@ -57,6 +58,11 @@ export type ApprovalDelegation = typeof approvalDelegation.$inferSelect;
 export type NewApprovalDelegation = typeof approvalDelegation.$inferInsert;
 export type LeaveComment = typeof leaveComment.$inferSelect;
 export type NewLeaveComment = typeof leaveComment.$inferInsert;
+
+export type Device = typeof device.$inferSelect;
+export type NewDevice = typeof device.$inferInsert;
+export type DeviceEnrollment = typeof deviceEnrollment.$inferSelect;
+export type NewDeviceEnrollment = typeof deviceEnrollment.$inferInsert;
 
 export type Holiday = typeof holiday.$inferSelect;
 export type NewHoliday = typeof holiday.$inferInsert;

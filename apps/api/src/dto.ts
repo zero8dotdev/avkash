@@ -70,6 +70,19 @@ export const punchDto = createSelectSchema(schema.attendancePunch).omit({
   createdBy: true,
 });
 
+// Device never exposes its secret hash.
+export const deviceDto = createSelectSchema(schema.device).omit({
+  orgId: true,
+  secretHash: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const enrollmentDto = createSelectSchema(schema.deviceEnrollment).omit({
+  orgId: true,
+  createdBy: true,
+});
+
 // User leaks the most, so allowlist via omit of everything internal/sensitive:
 // org wiring, audit, and the internal JSON accumulators.
 export const userDto = createSelectSchema(schema.user).omit({

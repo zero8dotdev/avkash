@@ -69,6 +69,10 @@ export const attendancePunchTypeEnum = pgEnum('attendance_punch_type', ['IN', 'O
 // Where a punch came from. DEVICE/REGULARIZATION are wired later; WEB/SLACK for now.
 export const attendanceSourceEnum = pgEnum('attendance_source', ['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION']);
 
+// Attendance machines: the kind of reader and its lifecycle.
+export const deviceKindEnum = pgEnum('device_kind', ['BIOMETRIC', 'RFID', 'FACE', 'KIOSK', 'MOBILE']);
+export const deviceStatusEnum = pgEnum('device_status', ['ACTIVE', 'INACTIVE']);
+
 // Notification delivery: which transport, and the outbox row's lifecycle.
 export const notificationChannelEnum = pgEnum('notification_channel', ['EMAIL', 'SMS', 'SLACK', 'IN_APP']);
 // PENDING → SENT (delivered) | FAILED (transient, will be retried) | DEAD (gave up:
