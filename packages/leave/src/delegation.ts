@@ -2,6 +2,7 @@ import { and, eq, gte, lte } from 'drizzle-orm';
 import { db, schema, type ApprovalDelegation } from '@avkash/db';
 import { type AuthContext, NotFoundError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { notifyDelegationAssigned } from './leave-notify';
 import { todayStr } from './ledger';
 import { writeAudit } from './audit';
 
@@ -32,6 +33,29 @@ export async function setDelegation(ctx: AuthContext, input: SetDelegationInput)
     changed: { toUserId: input.toUserId, startsOn: input.startsOn, endsOn: input.endsOn },
     changedBy: ctx.userId,
   });
+  // Tell the delegate they're now covering approvals.
+  const [from] = await db
+    .select({ name: schema.user.name })
+    .from(schema.user)
+    .where(eq(schema.user.id, ctx.userId ?? ''))
+    .limit(1);
+  let scope = 'all their teams';
+  if (input.teamId) {
+    const [t] = await db
+      .select({ name: schema.team.name })
+      .from(schema.team)
+      .where(eq(schema.team.teamId, input.teamId))
+      .limit(1);
+    scope = t?.name ?? 'a team';
+  }
+  await notifyDelegationAssigned(
+    ctx.orgId,
+    input.toUserId,
+    from?.name ?? 'A manager',
+    scope,
+    input.startsOn,
+    input.endsOn
+  );
   return row;
 }
 

@@ -139,3 +139,118 @@ export async function notifyLeaveEscalated(leave: Leave, recipientIds: string[],
     }));
   await safeDispatch(intents, 'leave.escalated');
 }
+
+// A cancelled leave → tell the approvers (the team's managers), who may have planned
+// around it. Mirrors notifyLeaveRequested's audience.
+export async function notifyLeaveCancelled(leave: Leave): Promise<void> {
+  if (!leave.teamId) return;
+  const [team] = await db
+    .select({ managers: schema.team.managers })
+    .from(schema.team)
+    .where(eq(schema.team.teamId, leave.teamId))
+    .limit(1);
+  const approverIds = (team?.managers ?? []).filter((id): id is string => !!id && id !== leave.userId);
+  if (!approverIds.length) return;
+  const [type, approvers, requesters] = await Promise.all([
+    leaveTypeName(leave.leaveTypeId),
+    usersByIds(approverIds),
+    usersByIds([leave.userId]),
+  ]);
+  const requester = requesters.get(leave.userId)?.name ?? 'A teammate';
+  const intents = approverIds
+    .map((id) => approvers.get(id))
+    .filter((u): u is UserLite => !!u)
+    .map<NotificationIntent>((u) => ({
+      event: 'leave.cancelled',
+      recipient: recipientOf(leave.orgId, u),
+      dedupeKey: `leave.cancelled:${leave.leaveId}:${u.id}`,
+      payload: { requester, ...facts(leave, type) },
+    }));
+  await safeDispatch(intents, 'leave.cancelled');
+}
+
+// Single-recipient helper for the per-user leave notices below.
+async function notifyOne(
+  orgId: string,
+  userId: string,
+  event: string,
+  dedupeKey: string,
+  payload: Record<string, unknown>
+): Promise<void> {
+  const u = (await usersByIds([userId])).get(userId);
+  if (!u) return;
+  await safeDispatch(
+    [{ event, recipient: recipientOf(orgId, u), dedupeKey, payload: { name: u.name, ...payload } }],
+    event
+  );
+}
+
+// Approvals delegated to you → tell the delegate they're now covering approvals.
+export async function notifyDelegationAssigned(
+  orgId: string,
+  toUserId: string,
+  delegator: string,
+  scope: string,
+  startsOn: string,
+  endsOn: string
+): Promise<void> {
+  await notifyOne(
+    orgId,
+    toUserId,
+    'leave.delegation.assigned',
+    `leave.delegation.assigned:${toUserId}:${startsOn}:${endsOn}`,
+    {
+      delegator,
+      scope,
+      startsOn,
+      endsOn,
+    }
+  );
+}
+
+// A manual balance adjustment / opening balance → tell the user.
+export async function notifyBalanceAdjusted(
+  orgId: string,
+  userId: string,
+  leaveTypeId: string,
+  amount: number,
+  note?: string
+): Promise<void> {
+  const type = await leaveTypeName(leaveTypeId);
+  await notifyOne(
+    orgId,
+    userId,
+    'leave.balance.adjusted',
+    `leave.balance.adjusted:${userId}:${leaveTypeId}:${Date.now()}`,
+    {
+      leaveType: type,
+      amount,
+      note: note ?? '',
+    }
+  );
+}
+
+// Comp-off approved + credited → tell the user.
+export async function notifyCompOffApproved(
+  orgId: string,
+  userId: string,
+  days: number,
+  workedOn: string,
+  expiresOn?: string | null
+): Promise<void> {
+  await notifyOne(orgId, userId, 'leave.compoff.approved', `leave.compoff.approved:${userId}:${workedOn}`, {
+    days,
+    workedOn,
+    expiresOn: expiresOn ?? '',
+  });
+}
+
+// Encashment paid out → tell the user.
+export async function notifyEncashmentPaid(
+  orgId: string,
+  userId: string,
+  encashmentId: string,
+  days: number
+): Promise<void> {
+  await notifyOne(orgId, userId, 'leave.encashment.paid', `leave.encashment.paid:${encashmentId}`, { days });
+}

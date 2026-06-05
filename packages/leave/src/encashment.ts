@@ -5,6 +5,7 @@ import { requireRole } from '@avkash/auth';
 import { postLedger, todayStr } from './ledger';
 import { getEffectivePolicy } from './leave-policy';
 import { getBalance } from './balance';
+import { notifyEncashmentPaid } from './leave-notify';
 import { writeAudit } from './audit';
 
 export interface RequestEncashmentInput {
@@ -117,6 +118,7 @@ export async function markEncashmentPaid(ctx: AuthContext, id: string): Promise<
     changedBy: ctx.userId,
     userId: updated.userId,
   });
+  await notifyEncashmentPaid(ctx.orgId, updated.userId, updated.id, Number(updated.days));
   return updated;
 }
 

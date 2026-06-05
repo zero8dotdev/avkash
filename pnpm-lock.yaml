@@ -604,6 +604,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/notifications':
+        specifier: workspace:*
+        version: link:../notifications
       '@avkash/shared':
         specifier: workspace:*
         version: link:../shared

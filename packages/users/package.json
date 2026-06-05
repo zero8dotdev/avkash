@@ -16,6 +16,7 @@
     "@avkash/db": "workspace:*",
     "@avkash/shared": "workspace:*",
     "@avkash/auth": "workspace:*",
+    "@avkash/notifications": "workspace:*",
     "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {

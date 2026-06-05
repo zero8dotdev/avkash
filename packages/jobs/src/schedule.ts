@@ -1,5 +1,5 @@
 import { runAccrualCycle, runEscalations, runRollover } from '@avkash/leave';
-import { restrictExpiredOrgs } from '@avkash/org';
+import { restrictExpiredOrgs, notifyExpiringOrgs } from '@avkash/org';
 import { materializeHolidays } from '@avkash/holidays';
 import { retryFailedNotifications } from '@avkash/notifications';
 
@@ -17,6 +17,7 @@ export const SCHEDULE: ScheduledJob[] = [
   { name: 'notification-retry', cron: '*/15 * * * *', run: () => retryFailedNotifications() }, // re-deliver FAILED
   { name: 'escalations', cron: '0 * * * *', run: () => runEscalations() }, // hourly — PENDING past SLA → HR
   { name: 'grace-sweep', cron: '30 1 * * *', run: () => restrictExpiredOrgs() }, // daily 01:30 — expire grace orgs
+  { name: 'grace-expiring', cron: '0 8 * * *', run: () => notifyExpiringOrgs() }, // daily 08:00 — nudge soon-to-expire orgs
   { name: 'leave-rollover', cron: '0 2 1 1 *', run: () => runRollover() }, // Jan 1 02:00 — year-end rollover
   {
     name: 'holiday-materialize',

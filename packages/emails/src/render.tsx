@@ -6,6 +6,15 @@ import LeaveRequested from '../emails/LeaveRequested';
 import LeaveApproved from '../emails/LeaveApproved';
 import LeaveRejected from '../emails/LeaveRejected';
 import LeaveEscalated from '../emails/LeaveEscalated';
+import LeaveCancelled from '../emails/LeaveCancelled';
+import DelegationAssigned from '../emails/DelegationAssigned';
+import BalanceAdjusted from '../emails/BalanceAdjusted';
+import CompOffApproved from '../emails/CompOffApproved';
+import EncashmentPaid from '../emails/EncashmentPaid';
+import RoleChanged from '../emails/RoleChanged';
+import InvitationAccepted from '../emails/InvitationAccepted';
+import OrgGraceExpiring from '../emails/OrgGraceExpiring';
+import OrgRestricted from '../emails/OrgRestricted';
 
 // Maps a notification event + payload to a rendered email. The notifications
 // dispatcher calls renderEmail for the EMAIL channel; the same components power the
@@ -93,6 +102,90 @@ const REGISTRY: Record<string, (p: Payload) => Built> = {
         days={num(p.days)}
       />
     ),
+  }),
+  'leave.cancelled': (p) => ({
+    subject: `${str(p.requester, 'A teammate')} cancelled their leave`,
+    element: (
+      <LeaveCancelled
+        requester={str(p.requester, 'A teammate')}
+        leaveType={str(p.leaveType, 'leave')}
+        from={str(p.from)}
+        to={str(p.to)}
+        days={num(p.days)}
+      />
+    ),
+  }),
+  'leave.delegation.assigned': (p) => ({
+    subject: `${str(p.delegator, 'A manager')} delegated leave approvals to you`,
+    element: (
+      <DelegationAssigned
+        delegator={str(p.delegator, 'A manager')}
+        scope={str(p.scope, 'all their teams')}
+        startsOn={str(p.startsOn)}
+        endsOn={str(p.endsOn)}
+      />
+    ),
+  }),
+  'leave.balance.adjusted': (p) => ({
+    subject: `Your ${str(p.leaveType, 'leave')} balance was adjusted`,
+    element: (
+      <BalanceAdjusted
+        name={str(p.name, 'there')}
+        leaveType={str(p.leaveType, 'leave')}
+        amount={num(p.amount)}
+        note={str(p.note)}
+      />
+    ),
+  }),
+  'leave.compoff.approved': (p) => ({
+    subject: 'Your comp-off was approved',
+    element: (
+      <CompOffApproved
+        name={str(p.name, 'there')}
+        days={num(p.days)}
+        workedOn={str(p.workedOn)}
+        expiresOn={str(p.expiresOn)}
+      />
+    ),
+  }),
+  'leave.encashment.paid': (p) => ({
+    subject: 'Your leave encashment has been paid',
+    element: <EncashmentPaid name={str(p.name, 'there')} days={num(p.days)} />,
+  }),
+  'org.member.role_changed': (p) => ({
+    subject: `Your role is now ${str(p.role)}`,
+    element: (
+      <RoleChanged
+        name={str(p.name, 'there')}
+        orgName={str(p.orgName, 'your organization')}
+        role={str(p.role)}
+        previousRole={str(p.previousRole)}
+      />
+    ),
+  }),
+  'org.invitation.accepted': (p) => ({
+    subject: `${str(p.newMember, 'A new teammate')} joined ${str(p.orgName)}`,
+    element: (
+      <InvitationAccepted
+        newMember={str(p.newMember, 'A new teammate')}
+        email={str(p.email)}
+        orgName={str(p.orgName, 'your organization')}
+      />
+    ),
+  }),
+  'org.grace.expiring': (p) => ({
+    subject: 'Verify your organization on Avkash',
+    element: (
+      <OrgGraceExpiring
+        orgName={str(p.orgName, 'your organization')}
+        verifyBy={str(p.verifyBy)}
+        appUrl={str(p.appUrl)}
+      />
+    ),
+  }),
+  'org.restricted': (p) => ({
+    subject: 'Your Avkash organization is restricted',
+    element: <OrgRestricted orgName={str(p.orgName, 'your organization')} appUrl={str(p.appUrl)} />,
   }),
 };
 

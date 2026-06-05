@@ -4,6 +4,7 @@ import { type AuthContext, NotFoundError, ValidationError, ConflictError } from 
 import { requireRole } from '@avkash/auth';
 import { postLedger, todayStr } from './ledger';
 import { getEffectivePolicy } from './leave-policy';
+import { notifyCompOffApproved } from './leave-notify';
 import { writeAudit } from './audit';
 
 function addDays(dateStr: string, days: number): string {
@@ -101,6 +102,7 @@ export async function approveCompOff(ctx: AuthContext, compOffId: string): Promi
     changedBy: ctx.userId,
     userId: co.userId,
   });
+  await notifyCompOffApproved(ctx.orgId, co.userId, Number(co.days), co.workedOn, expiresOn);
   return updated;
 }
 

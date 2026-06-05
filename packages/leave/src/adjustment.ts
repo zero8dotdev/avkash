@@ -3,6 +3,7 @@ import { type AuthContext, ValidationError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { postLedger, todayStr, currentYear, yearStart } from './ledger';
 import { getBalance, type LeaveBalance } from './balance';
+import { notifyBalanceAdjusted } from './leave-notify';
 import { writeAudit } from './audit';
 
 export interface AdjustBalanceInput {
@@ -34,6 +35,7 @@ export async function adjustBalance(ctx: AuthContext, input: AdjustBalanceInput)
     changed: { userId: input.userId, leaveTypeId: input.leaveTypeId, amount: input.amount, note: input.note },
     changedBy: ctx.userId,
   });
+  await notifyBalanceAdjusted(ctx.orgId, input.userId, input.leaveTypeId, input.amount, input.note);
   return getBalance(ctx, input.userId, input.leaveTypeId);
 }
 
@@ -76,5 +78,12 @@ export async function setOpeningBalance(ctx: AuthContext, input: OpeningBalanceI
     changed: { userId: input.userId, leaveTypeId: input.leaveTypeId, amount: input.amount, year },
     changedBy: ctx.userId,
   });
+  await notifyBalanceAdjusted(
+    ctx.orgId,
+    input.userId,
+    input.leaveTypeId,
+    input.amount,
+    input.note ?? 'opening balance'
+  );
   return getBalance(ctx, input.userId, input.leaveTypeId, year);
 }

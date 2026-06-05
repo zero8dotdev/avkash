@@ -3,6 +3,7 @@ import { and, eq, lt, sql } from 'drizzle-orm';
 import { db, schema, type Organisation, type Invitation } from '@avkash/db';
 import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { notifyOrgRestricted } from './org-notify';
 
 export const GRACE_DAYS = 14;
 export const PROVISIONAL_INVITE_CAP = 10;
@@ -51,6 +52,7 @@ export async function restrictExpiredOrgs(now = new Date()): Promise<number> {
     .set({ status: 'RESTRICTED', updatedOn: now })
     .where(and(eq(schema.organisation.status, 'PROVISIONAL'), lt(schema.organisation.verifyBy, now)))
     .returning({ id: schema.organisation.orgId });
+  await notifyOrgRestricted(rows.map((r) => r.id)); // tell the owners their org is restricted
   return rows.length;
 }
 

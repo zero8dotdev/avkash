@@ -2,6 +2,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { db, schema, type User } from '@avkash/db';
 import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { dispatch, resolveUsers } from '@avkash/notifications';
 
 // Session context — the web app's first call after login: who am I, my org, my team.
 export async function getMe(ctx: AuthContext) {
@@ -100,6 +101,34 @@ export async function updateUserAdmin(
         throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
     }
     throw new NotFoundError('USER_NOT_FOUND');
+  }
+  // Tell the member their role changed (best-effort; never blocks the update).
+  if (patch.role !== undefined && patch.role !== target.role) {
+    const [recipient] = await resolveUsers(ctx.orgId, [userId]);
+    const [org] = await db
+      .select({ name: schema.organisation.name })
+      .from(schema.organisation)
+      .where(eq(schema.organisation.orgId, ctx.orgId))
+      .limit(1);
+    if (recipient) {
+      try {
+        await dispatch([
+          {
+            event: 'org.member.role_changed',
+            recipient,
+            dedupeKey: `org.member.role_changed:${userId}:${target.role}->${patch.role}`,
+            payload: {
+              name: recipient.name,
+              orgName: org?.name ?? 'your organization',
+              role: patch.role,
+              previousRole: target.role,
+            },
+          },
+        ]);
+      } catch (err) {
+        console.error('notify role_changed failed:', err instanceof Error ? err.message : err);
+      }
+    }
   }
   return row;
 }

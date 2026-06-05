@@ -4,7 +4,7 @@ import { phoneNumber } from 'better-auth/plugins';
 import { APIError } from 'better-auth/api';
 import { and, eq } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
-import { sendEmail, sendSMS } from '@avkash/notifications';
+import { sendEmail, sendSMS, dispatch, resolveUsers } from '@avkash/notifications';
 import { env } from '@avkash/config';
 
 // ── Invite-only gate (shared by every login method) ──────────────────────────
@@ -117,11 +117,41 @@ export const auth = betterAuth({
           };
         },
         after: async (createdUser) => {
-          const email = (createdUser as { email: string }).email;
+          const cu = createdUser as { email: string; name?: string };
+          const email = cu.email;
+          // Capture the inviter before flipping the invite to ACCEPTED.
+          const [invite] = await db
+            .select({ invitedBy: schema.invitation.invitedBy, orgId: schema.invitation.orgId })
+            .from(schema.invitation)
+            .where(and(eq(schema.invitation.email, email), eq(schema.invitation.status, 'PENDING')))
+            .limit(1);
           await db
             .update(schema.invitation)
             .set({ status: 'ACCEPTED', updatedAt: new Date() })
             .where(and(eq(schema.invitation.email, email), eq(schema.invitation.status, 'PENDING')));
+          // Tell the inviter their invite was accepted (best-effort).
+          if (invite?.invitedBy) {
+            const [org] = await db
+              .select({ name: schema.organisation.name })
+              .from(schema.organisation)
+              .where(eq(schema.organisation.orgId, invite.orgId))
+              .limit(1);
+            const [recipient] = await resolveUsers(invite.orgId, [invite.invitedBy]);
+            if (recipient) {
+              try {
+                await dispatch([
+                  {
+                    event: 'org.invitation.accepted',
+                    recipient,
+                    dedupeKey: `org.invitation.accepted:${invite.orgId}:${email}`,
+                    payload: { newMember: cu.name ?? email, email, orgName: org?.name ?? 'your organization' },
+                  },
+                ]);
+              } catch (err) {
+                console.error('notify invitation.accepted failed:', err instanceof Error ? err.message : err);
+              }
+            }
+          }
         },
       },
     },

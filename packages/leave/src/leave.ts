@@ -17,7 +17,7 @@ import { postLedger, todayStr } from './ledger';
 import { writeAudit } from './audit';
 import { canApprove, resolveManagedTeams } from './approver';
 import { resolveEscalation, escalateLeave } from './escalation';
-import { notifyLeaveRequested, notifyLeaveDecision } from './leave-notify';
+import { notifyLeaveRequested, notifyLeaveDecision, notifyLeaveCancelled } from './leave-notify';
 import { addLeaveComment } from './comment';
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
@@ -252,6 +252,7 @@ export async function cancelLeave(ctx: AuthContext, leaveId: string): Promise<vo
     });
   }
   await audit(ctx, lv, 'leave_status', { isApproved: { old: lv.isApproved, new: 'DELETED' } });
+  await notifyLeaveCancelled(lv); // tell the approvers (they may have planned around it)
 }
 
 export interface ListLeavesFilter {
