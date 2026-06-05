@@ -20,6 +20,7 @@ export const shift = pgTable(
     fullDayHours: numeric('fullDayHours', { precision: 4, scale: 2 }).notNull().default('8'),
     halfDayHours: numeric('halfDayHours', { precision: 4, scale: 2 }).notNull().default('4'),
     isFlexible: boolean('isFlexible').notNull().default(false), // no fixed start → no LATE/EARLY marks
+    minStaff: integer('minStaff').notNull().default(1), // coverage target — gaps flag below this
     version: integer('version').notNull().default(0), // optimistic concurrency
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),

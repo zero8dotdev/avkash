@@ -33,6 +33,13 @@ export function shiftLengthMinutes(shift: { startTime: string; endTime: string; 
   return end - start;
 }
 
+// Rest between a shift on day D and a shift on day D+1: minutes from the first's end
+// to the second's start. Overnight-aware (a night shift ends the next morning).
+export function restMinutes(prev: { endTime: string; crossesMidnight: boolean }, next: { startTime: string }): number {
+  const prevEnd = toMinutes(prev.endTime) + (prev.crossesMidnight ? 1440 : 0);
+  return 1440 + toMinutes(next.startTime) - prevEnd;
+}
+
 export interface PunchLite {
   ts: Date;
   type: 'IN' | 'OUT';

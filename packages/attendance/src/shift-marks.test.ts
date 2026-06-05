@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { computeMarks, minutesIntoShift, pairSessions, type ShiftLite } from './shift-marks';
+import { computeMarks, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
 
 const day: ShiftLite = {
   startTime: '09:00',
@@ -56,6 +56,19 @@ describe('computeMarks — overnight + flexible', () => {
     const flex: ShiftLite = { ...day, isFlexible: true };
     expect(computeMarks(flex, '11:00', '15:00', 4)).toEqual(['ON_TIME']);
     expect(computeMarks(flex, '11:00', '22:00', 10)).toEqual(['OVERTIME']);
+  });
+});
+
+describe('restMinutes', () => {
+  it('evening (15–23) → next morning (08:00) = 9h', () => {
+    expect(restMinutes({ endTime: '23:00', crossesMidnight: false }, { startTime: '08:00' })).toBe(540);
+  });
+  it('a night shift ending next morning leaves little rest before a morning start', () => {
+    // night 22:00–06:00 ends 06:00 (next day); morning starts 08:00 → 2h rest
+    expect(restMinutes({ endTime: '06:00', crossesMidnight: true }, { startTime: '08:00' })).toBe(120);
+  });
+  it('back-to-back close→open is short rest', () => {
+    expect(restMinutes({ endTime: '23:00', crossesMidnight: false }, { startTime: '08:00' })).toBeLessThan(11 * 60);
   });
 });
 

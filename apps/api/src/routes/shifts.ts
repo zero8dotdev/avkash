@@ -7,8 +7,10 @@ import {
   getShift,
   updateShift,
   assignShift,
+  validateAssignment,
   listAssignments,
   clearAssignment,
+  coverage,
 } from '@avkash/attendance';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
@@ -30,6 +32,7 @@ const createShiftSchema = z.object({
   fullDayHours: NUM.optional(),
   halfDayHours: NUM.optional(),
   isFlexible: z.boolean().optional(),
+  minStaff: z.number().int().min(0).optional(),
 });
 const updateShiftSchema = createShiftSchema.partial();
 const assignSchema = z.object({
@@ -39,6 +42,7 @@ const assignSchema = z.object({
   toDate: DATE.nullish(),
 });
 const assignQuery = z.object({ userId: z.string().optional() });
+const coverageQuery = z.object({ locationId: z.string().min(1), from: DATE, to: DATE });
 
 // Shift definitions + the roster (effective-dated assignments). ADMIN write, MANAGER
 // read. Assignment routes are static (declared before /:id).
@@ -48,9 +52,15 @@ export const shifts = new Hono<AppEnv>()
     c.json(serialize(shiftDto, await createShift(c.get('auth'), c.get('body'))), 201)
   )
   .get('/', async (c) => c.json({ data: serialize(z.array(shiftDto), await listShifts(c.get('auth'))) }))
-  .post('/assignments', idempotency, validateBody(assignSchema), async (c) =>
-    c.json(serialize(shiftAssignmentDto, await assignShift(c.get('auth'), c.get('body'))), 201)
+  // Validate-only (dry-run) — the UI calls this while building the roster.
+  .post('/assignments/validate', validateBody(assignSchema), async (c) =>
+    c.json(await validateAssignment(c.get('auth'), c.get('body')))
   )
+  // Assign. Hard conflicts (leave, double-booking) block with 409 unless ?force=true.
+  .post('/assignments', idempotency, validateBody(assignSchema), async (c) => {
+    const force = c.req.query('force') === 'true';
+    return c.json(serialize(shiftAssignmentDto, await assignShift(c.get('auth'), c.get('body'), force)), 201);
+  })
   .get('/assignments', validateQuery(assignQuery), async (c) =>
     c.json({
       data: serialize(z.array(shiftAssignmentDto), await listAssignments(c.get('auth'), c.get('query').userId)),
@@ -59,6 +69,11 @@ export const shifts = new Hono<AppEnv>()
   .delete('/assignments/:id', async (c) => {
     await clearAssignment(c.get('auth'), c.req.param('id'));
     return c.json({ deleted: true });
+  })
+  // Coverage / gap view for a location over a date range.
+  .get('/coverage', validateQuery(coverageQuery), async (c) => {
+    const q = c.get('query');
+    return c.json({ data: await coverage(c.get('auth'), q.locationId, q.from, q.to) });
   })
   .get('/:id', async (c) => {
     const s = await getShift(c.get('auth'), c.req.param('id'));
