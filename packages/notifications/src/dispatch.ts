@@ -54,6 +54,31 @@ const TEMPLATES: Record<string, Partial<Record<Channel, Template>>> = {
       body: `Hi,\n\n${p.inviterName ?? 'A teammate'} invited you to join ${p.orgName} on Avkash as ${p.role}.\n\nAccept your invitation:\n${p.acceptUrl}\n\nThis invite expires on ${p.expiresOn}. If you didn't expect this, you can ignore it.\n\n— Avkash`,
     }),
   },
+  // ── Leave approval loop ──────────────────────────────────────────────────
+  'leave.requested': {
+    EMAIL: (p) => ({
+      subject: `Leave request from ${p.requester}`,
+      body: `Hi,\n\n${p.requester} requested ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)).\n\nReview and approve it in Avkash.\n\n— Avkash`,
+    }),
+  },
+  'leave.approved': {
+    EMAIL: (p) => ({
+      subject: `Your ${p.leaveType} leave was approved`,
+      body: `Hi ${p.name ?? 'there'},\n\nYour ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)) has been approved. Enjoy!\n\n— Avkash`,
+    }),
+  },
+  'leave.rejected': {
+    EMAIL: (p) => ({
+      subject: `Your ${p.leaveType} leave was declined`,
+      body: `Hi ${p.name ?? 'there'},\n\nYour ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)) was declined. Reach out to your manager if you have questions.\n\n— Avkash`,
+    }),
+  },
+  'leave.escalated': {
+    EMAIL: (p) => ({
+      subject: `Leave needs HR review`,
+      body: `Hi,\n\nA ${p.leaveType} leave for ${p.requester} (${p.from} → ${p.to}, ${p.days} day(s)) needs HR attention.\nReason: ${p.reason}\n\nReview it in Avkash.\n\n— Avkash`,
+    }),
+  },
 };
 
 // Which channels a recipient gets this event on. EMAIL whenever an email exists;

@@ -29,10 +29,10 @@ Default channel is EMAIL; SMS/Slack/in-app layer on per the provider seam + pref
 
 | Event                        | Trigger                         | Recipient                     | Pri | Status |
 | ---------------------------- | ------------------------------- | ----------------------------- | --- | ------ |
-| `leave.requested`            | employee applies                | approver(s) — manager / chain | 🔴  | ◻      |
-| `leave.approved`             | approver approves               | requester                     | 🔴  | ◻      |
-| `leave.rejected`             | approver rejects                | requester                     | 🔴  | ◻      |
-| `leave.escalated`            | PENDING past SLA                | HR / escalation target        | 🔴  | ◻      |
+| `leave.requested`            | employee applies                | approver(s) — manager / chain | 🔴  | ✅     |
+| `leave.approved`             | approver approves               | requester                     | 🔴  | ✅     |
+| `leave.rejected`             | approver rejects                | requester                     | 🔴  | ✅     |
+| `leave.escalated`            | inline / SLA / manual           | HR / escalation target        | 🔴  | ✅     |
 | `leave.cancelled`            | requester cancels               | approver                      | 🟡  | ◻      |
 | `leave.balance.credited`     | accrual tick                    | user                          | 🔴  | ✅     |
 | `leave.balance.adjusted`     | manual adjust / opening balance | user                          | 🟡  | ◻      |

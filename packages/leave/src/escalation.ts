@@ -2,8 +2,8 @@ import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { db, schema, type Leave } from '@avkash/db';
 import { type AuthContext, NotFoundError, ForbiddenError, ConflictError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
-import { sendEmail } from '@avkash/notifications';
 import { canApprove } from './approver';
+import { notifyLeaveEscalated } from './leave-notify';
 
 const DEFAULT_ESCALATE_AFTER_DAYS = 3;
 
@@ -39,21 +39,16 @@ export async function escalateLeave(leave: Leave, targetUserId: string | null, r
     .update(schema.leave)
     .set({ escalatedAt: new Date(), escalatedTo: targetUserId })
     .where(eq(schema.leave.leaveId, leave.leaveId));
-  const recipients = targetUserId
-    ? await db.select({ email: schema.user.email }).from(schema.user).where(eq(schema.user.id, targetUserId))
-    : await db
-        .select({ email: schema.user.email })
-        .from(schema.user)
-        .where(and(eq(schema.user.orgId, leave.orgId), inArray(schema.user.role, ['ADMIN', 'OWNER'])));
-  await Promise.all(
-    recipients.map((r) =>
-      sendEmail({
-        to: r.email,
-        subject: 'Leave escalated for HR review',
-        text: `A leave (${leave.startDate} → ${leave.endDate}) needs HR attention.\nReason: ${reason}`,
-      })
-    )
-  );
+  // Recipients: the designated HR user, or every ADMIN/OWNER when none is set.
+  const recipientIds = targetUserId
+    ? [targetUserId]
+    : (
+        await db
+          .select({ id: schema.user.id })
+          .from(schema.user)
+          .where(and(eq(schema.user.orgId, leave.orgId), inArray(schema.user.role, ['ADMIN', 'OWNER'])))
+      ).map((r) => r.id);
+  await notifyLeaveEscalated(leave, recipientIds, reason);
 }
 
 // Cron: escalate PENDING leaves that have sat past their resolved SLA (calendar days).

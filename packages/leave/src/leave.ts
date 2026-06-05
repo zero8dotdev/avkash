@@ -17,6 +17,7 @@ import { postLedger, todayStr } from './ledger';
 import { writeAudit } from './audit';
 import { canApprove, resolveManagedTeams } from './approver';
 import { resolveEscalation, escalateLeave } from './escalation';
+import { notifyLeaveRequested, notifyLeaveDecision } from './leave-notify';
 import { addLeaveComment } from './comment';
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
@@ -174,6 +175,9 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
     leave.escalatedTo = escalateTo;
   }
   await audit(ctx, leave, 'leave_apply', { status, workingDays });
+  // A request awaiting a decision → notify the approvers. (Escalation, if any, already
+  // notified HR above. Auto-approved leaves need no approver notification.)
+  if (status === 'PENDING') await notifyLeaveRequested(leave);
   return leave;
 }
 
@@ -211,6 +215,7 @@ async function setStatus(
   await audit(ctx, lv, 'leave_status', { isApproved: { old: 'PENDING', new: status } });
   // The decision note lives in the comment thread (single source of truth), SHARED with the applicant.
   if (comment?.trim()) await addLeaveComment(ctx, leaveId, { body: comment, visibility: 'SHARED' });
+  await notifyLeaveDecision(updated, status); // tell the requester
   return updated;
 }
 
