@@ -1,5 +1,6 @@
 import { and, eq, inArray, lte } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
+import { renderEmail } from '@avkash/emails';
 import { sendEmail, sendSMS, smsConfigured, isTransient } from './providers';
 
 // The notification spine: generic, domain-agnostic. A caller hands it intents
@@ -30,55 +31,13 @@ export interface DispatchResult {
   failed: number;
 }
 
-type Rendered = { subject: string; body: string };
-type Template = (payload: Record<string, unknown>, locale: string) => Rendered;
+const humanPeriod = (key: unknown) => String(key ?? '').replace(/^accrual:/, '');
 
-const humanPeriod = (key: string) => String(key).replace(/^accrual:/, '');
-
-// event → channel → render. Add events/channels here; absence = "don't send on
-// that channel". Locale is threaded through for future i18n (English for now).
-const TEMPLATES: Record<string, Partial<Record<Channel, Template>>> = {
-  'leave.balance.credited': {
-    EMAIL: (p) => ({
-      subject: `${p.amount} day(s) of ${p.leaveType} leave credited`,
-      body: `Hi ${p.name ?? 'there'},\n\n${p.amount} day(s) of ${p.leaveType} leave have been credited to your balance for ${humanPeriod(String(p.period))}.\n\n— Avkash`,
-    }),
-    SMS: (p) => ({
-      subject: '',
-      body: `Avkash: ${p.amount} day(s) of ${p.leaveType} leave credited for ${humanPeriod(String(p.period))}.`,
-    }),
-  },
-  'org.invitation.sent': {
-    EMAIL: (p) => ({
-      subject: `You're invited to ${p.orgName} on Avkash`,
-      body: `Hi,\n\n${p.inviterName ?? 'A teammate'} invited you to join ${p.orgName} on Avkash as ${p.role}.\n\nAccept your invitation:\n${p.acceptUrl}\n\nThis invite expires on ${p.expiresOn}. If you didn't expect this, you can ignore it.\n\n— Avkash`,
-    }),
-  },
-  // ── Leave approval loop ──────────────────────────────────────────────────
-  'leave.requested': {
-    EMAIL: (p) => ({
-      subject: `Leave request from ${p.requester}`,
-      body: `Hi,\n\n${p.requester} requested ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)).\n\nReview and approve it in Avkash.\n\n— Avkash`,
-    }),
-  },
-  'leave.approved': {
-    EMAIL: (p) => ({
-      subject: `Your ${p.leaveType} leave was approved`,
-      body: `Hi ${p.name ?? 'there'},\n\nYour ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)) has been approved. Enjoy!\n\n— Avkash`,
-    }),
-  },
-  'leave.rejected': {
-    EMAIL: (p) => ({
-      subject: `Your ${p.leaveType} leave was declined`,
-      body: `Hi ${p.name ?? 'there'},\n\nYour ${p.leaveType} leave from ${p.from} to ${p.to} (${p.days} day(s)) was declined. Reach out to your manager if you have questions.\n\n— Avkash`,
-    }),
-  },
-  'leave.escalated': {
-    EMAIL: (p) => ({
-      subject: `Leave needs HR review`,
-      body: `Hi,\n\nA ${p.leaveType} leave for ${p.requester} (${p.from} → ${p.to}, ${p.days} day(s)) needs HR attention.\nReason: ${p.reason}\n\nReview it in Avkash.\n\n— Avkash`,
-    }),
-  },
+// EMAIL content is React Email (see @avkash/emails). SMS stays plain text here —
+// short, no markup. event → SMS body; absence = don't send an SMS for that event.
+const SMS_TEMPLATES: Record<string, (p: Record<string, unknown>) => string> = {
+  'leave.balance.credited': (p) =>
+    `Avkash: ${p.amount} day(s) of ${p.leaveType} leave credited for ${humanPeriod(p.period)}.`,
 };
 
 // Which channels a recipient gets this event on. EMAIL whenever an email exists;
@@ -96,9 +55,37 @@ function resolveChannels(_event: string, r: NotificationRecipient): Channel[] {
 const contactFor = (channel: Channel, r: NotificationRecipient): string | null =>
   channel === 'EMAIL' ? (r.email ?? null) : channel === 'SMS' ? (r.phone ?? null) : null;
 
-async function deliver(channel: Channel, to: string, rendered: Rendered, idempotencyKey: string): Promise<void> {
-  if (channel === 'EMAIL') return sendEmail({ to, subject: rendered.subject, text: rendered.body }, { idempotencyKey });
-  if (channel === 'SMS') return sendSMS(to, rendered.body);
+// One outbox row, enough to (re)attempt delivery without re-resolving anything.
+interface OutboxRow {
+  id: string;
+  channel: Channel;
+  to: string;
+  subject: string | null;
+  body: string | null; // plain-text part (EMAIL) or the SMS text
+  event: string;
+  payload: Record<string, unknown>;
+  dedupeKey: string;
+  attempts: number;
+}
+
+// Deliver one outbox row. EMAIL renders its HTML fresh from the stored event +
+// payload — so the body column stays human-readable plain text (clean console/audit)
+// and a retry renders byte-identically; the stored body is the plain-text part. SMS
+// sends the stored text as-is.
+async function deliver(row: OutboxRow, idempotencyKey: string): Promise<void> {
+  if (row.channel === 'EMAIL') {
+    const email = await renderEmail(row.event, row.payload);
+    return sendEmail(
+      {
+        to: row.to,
+        subject: email?.subject ?? row.subject ?? '',
+        html: email?.html,
+        text: email?.text ?? row.body ?? '',
+      },
+      { idempotencyKey }
+    );
+  }
+  if (row.channel === 'SMS') return sendSMS(row.to, row.body ?? '');
   // SLACK / IN_APP providers arrive in a later phase.
 }
 
@@ -113,17 +100,6 @@ function backoffMs(attempts: number): number {
   return Math.round(base + base * 0.2 * Math.random()); // +0–20% jitter
 }
 
-// One outbox row, enough to (re)attempt delivery without re-resolving anything.
-interface OutboxRow {
-  id: string;
-  channel: Channel;
-  to: string;
-  subject: string | null;
-  body: string | null;
-  dedupeKey: string;
-  attempts: number;
-}
-
 type Outcome = 'sent' | 'retry' | 'dead';
 
 // Attempt delivery of a single outbox row and record the result. Shared by the
@@ -133,7 +109,7 @@ type Outcome = 'sent' | 'retry' | 'dead';
 async function attemptDelivery(row: OutboxRow): Promise<Outcome> {
   const attempts = row.attempts + 1;
   try {
-    await deliver(row.channel, row.to, { subject: row.subject ?? '', body: row.body ?? '' }, row.dedupeKey);
+    await deliver(row, row.dedupeKey);
     await db
       .update(schema.notification)
       .set({ status: 'SENT', attempts, sentAt: new Date(), nextAttemptAt: null, error: null })
@@ -165,11 +141,27 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
 
   const outcomes = await Promise.all(
     tasks.map(async ({ intent, channel }): Promise<keyof DispatchResult> => {
-      const template = TEMPLATES[intent.event]?.[channel];
       const to = contactFor(channel, intent.recipient);
-      if (!template || !to) return 'skipped';
+      if (!to) return 'skipped';
 
-      const rendered = template(intent.payload, intent.recipient.locale ?? 'en');
+      // Content for the channel. EMAIL → React Email (subject + plain-text stored in
+      // the outbox; HTML is rendered at delivery). SMS → inline text. No template for
+      // this event+channel → skip.
+      let subject: string | null = null;
+      let body: string;
+      if (channel === 'EMAIL') {
+        const email = await renderEmail(intent.event, intent.payload);
+        if (!email) return 'skipped';
+        subject = email.subject;
+        body = email.text;
+      } else if (channel === 'SMS') {
+        const sms = SMS_TEMPLATES[intent.event];
+        if (!sms) return 'skipped';
+        body = sms(intent.payload);
+      } else {
+        return 'skipped';
+      }
+
       const dedupeKey = `${intent.dedupeKey}:${channel}`;
       const [row] = await db
         .insert(schema.notification)
@@ -181,8 +173,8 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
           dedupeKey,
           to,
           payload: intent.payload,
-          subject: rendered.subject || null,
-          body: rendered.body,
+          subject: subject || null,
+          body,
           status: 'PENDING',
         })
         .onConflictDoNothing({ target: schema.notification.dedupeKey })
@@ -194,8 +186,10 @@ export async function dispatch(intents: NotificationIntent[]): Promise<DispatchR
         id: row.id,
         channel,
         to,
-        subject: rendered.subject,
-        body: rendered.body,
+        subject,
+        body,
+        event: intent.event,
+        payload: intent.payload,
         dedupeKey,
         attempts: 0,
       });
@@ -253,11 +247,15 @@ export async function retryFailedNotifications(now: Date = new Date()): Promise<
       to: schema.notification.to,
       subject: schema.notification.subject,
       body: schema.notification.body,
+      event: schema.notification.event,
+      payload: schema.notification.payload,
       dedupeKey: schema.notification.dedupeKey,
       attempts: schema.notification.attempts,
     });
 
-  const outcomes = await Promise.all(claimed.map((row) => attemptDelivery(row)));
+  const outcomes = await Promise.all(
+    claimed.map((row) => attemptDelivery({ ...row, payload: (row.payload ?? {}) as Record<string, unknown> }))
+  );
   return {
     claimed: claimed.length,
     sent: outcomes.filter((o) => o === 'sent').length,

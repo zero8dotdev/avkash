@@ -1,0 +1,33 @@
+{
+  "name": "@avkash/emails",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React Email templates + renderer. Local preview via `email dev`.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "dev": "email dev --dir emails --port 3030",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist .react-email"
+  },
+  "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@avkash/eslint-config": "workspace:*",
+    "@avkash/tsconfig": "workspace:*",
+    "@react-email/ui": "^6.5.0",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "react-email": "^6.5.0",
+    "typescript": "^5.8.2"
+  }
+}

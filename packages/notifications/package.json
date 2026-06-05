@@ -16,6 +16,7 @@
     "@avkash/config": "workspace:*",
     "@avkash/shared": "workspace:*",
     "@avkash/db": "workspace:*",
+    "@avkash/emails": "workspace:*",
     "drizzle-orm": "^0.38.0"
   },
   "devDependencies": {

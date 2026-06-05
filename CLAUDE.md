@@ -47,7 +47,7 @@ docker compose logs -f api
 
 Packages form a strict graph. A package may only import from layers below it:
 
-1. **Foundation** (zero internal deps): `shared` (enums, errors, `AuthContext`, primitives), `config` (Zod-validated env, fails fast at boot), `db` (Drizzle schema — the single source of schema truth — client, `db:push`), `i18n` (message/error catalogs + locale), `tsconfig`, `eslint-config`.
+1. **Foundation** (zero internal deps): `shared` (enums, errors, `AuthContext`, primitives), `config` (Zod-validated env, fails fast at boot), `db` (Drizzle schema — the single source of schema truth — client, `db:push`), `i18n` (message/error catalogs + locale), `emails` (React Email templates → `renderEmail`; preview via `pnpm email:dev`), `tsconfig`, `eslint-config`.
 2. **Identity:** `auth` — Better Auth + API keys; authN resolvers (one per transport) and authz guards.
 3. **Domain:** `org` (the Organisation tenant + lifecycle + invitations), `users` (people, teams, roles, profiles), `leave`, `attendance`, `holidays`, `policy`, `documents`. Domains own their tables and business rules.
 4. **Orchestration** (top of graph): `jobs` (BullMQ workers), `payroll`, `notifications`, `slack`. These reach **through** domain packages, **never** into `db` directly.

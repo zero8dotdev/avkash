@@ -9,7 +9,8 @@ import { env } from '@avkash/config';
 export interface EmailMessage {
   to: string;
   subject: string;
-  text: string;
+  text: string; // plain-text part (also the dev console body)
+  html?: string; // rich part (React Email); when present, providers send both
 }
 
 export interface EmailProvider {
@@ -82,7 +83,7 @@ class ResendEmailProvider implements EmailProvider {
         'Content-Type': 'application/json',
         ...(opts?.idempotencyKey ? { 'Idempotency-Key': opts.idempotencyKey } : {}),
       },
-      body: JSON.stringify({ from: this.from, to: [msg.to], subject: msg.subject, text: msg.text }),
+      body: JSON.stringify({ from: this.from, to: [msg.to], subject: msg.subject, html: msg.html, text: msg.text }),
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
