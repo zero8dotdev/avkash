@@ -12,9 +12,13 @@ const punchSchema = z.object({
   direction: z.enum(['IN', 'OUT']).optional(), // omit → inferred by toggle
 });
 
-export const deviceIngest = new Hono<DeviceEnv>()
-  .use(requireDevice)
-  .post('/punch', validateBody(punchSchema), async (c) => {
+// requireDevice is route-scoped (NOT .use) so it only guards /punch — a wildcard
+// would intercept the user attendance router's /me, /today, etc. mounted alongside.
+export const deviceIngest = new Hono<DeviceEnv>().post(
+  '/punch',
+  requireDevice,
+  validateBody(punchSchema),
+  async (c) => {
     const body = c.get('body');
     const result = await ingestPunch(c.get('device'), {
       externalId: body.externalId,
@@ -22,4 +26,5 @@ export const deviceIngest = new Hono<DeviceEnv>()
       direction: body.direction,
     });
     return c.json(result, result.duplicate ? 200 : 201);
-  });
+  }
+);

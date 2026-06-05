@@ -4,3 +4,5 @@ export * from './attendance';
 export * from './tz'; // pickTimezone, effectiveTimezone (location-aware, plan 23)
 export * from './window'; // inWindow, localTimeHHMM (pure, tested)
 export * from './device'; // device CRUD + enrollment + ingestPunch + DeviceContext + sha256
+export * from './shift'; // shift CRUD + roster + shiftForDate
+export * from './shift-marks'; // pure: pairSessions, computeMarks (tested)

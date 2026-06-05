@@ -94,6 +94,7 @@ export const team = pgTable(
     locationId: uuid('locationId').references(() => location.id),
     escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
+    defaultShiftId: uuid('defaultShiftId'), // soft ref to Shift — the roster cascade baseline (null = no shift)
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     startOfWorkWeek: daysOfWeekEnum('startOfWorkWeek').default('MONDAY'),
     workweek: daysOfWeekEnum('workweek')

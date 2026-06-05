@@ -83,6 +83,17 @@ export const enrollmentDto = createSelectSchema(schema.deviceEnrollment).omit({
   createdBy: true,
 });
 
+export const shiftDto = createSelectSchema(schema.shift).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const shiftAssignmentDto = createSelectSchema(schema.shiftAssignment).omit({
+  orgId: true,
+  createdBy: true,
+});
+
 // User leaks the most, so allowlist via omit of everything internal/sensitive:
 // org wiring, audit, and the internal JSON accumulators.
 export const userDto = createSelectSchema(schema.user).omit({

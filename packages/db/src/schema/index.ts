@@ -7,6 +7,7 @@ export * from './membership';
 export * from './leave';
 export * from './employee';
 export * from './device';
+export * from './shift';
 export * from './attendance';
 export * from './notification';
 export * from './idempotency';

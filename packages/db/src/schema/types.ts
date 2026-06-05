@@ -15,6 +15,7 @@ import type {
   leaveComment,
 } from './leave';
 import type { device, deviceEnrollment } from './device';
+import type { shift, shiftAssignment } from './shift';
 import type { holiday, publicHolidays } from './holiday';
 import type { activityLog } from './audit';
 import type { subscription, paySubMap } from './billing';
@@ -63,6 +64,10 @@ export type Device = typeof device.$inferSelect;
 export type NewDevice = typeof device.$inferInsert;
 export type DeviceEnrollment = typeof deviceEnrollment.$inferSelect;
 export type NewDeviceEnrollment = typeof deviceEnrollment.$inferInsert;
+export type Shift = typeof shift.$inferSelect;
+export type NewShift = typeof shift.$inferInsert;
+export type ShiftAssignment = typeof shiftAssignment.$inferSelect;
+export type NewShiftAssignment = typeof shiftAssignment.$inferInsert;
 
 export type Holiday = typeof holiday.$inferSelect;
 export type NewHoliday = typeof holiday.$inferInsert;

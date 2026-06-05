@@ -1,8 +1,12 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
-import { db, schema } from '@avkash/db';
+import { db, schema, type Shift } from '@avkash/db';
 import { type AuthContext } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { resolveHolidays } from '@avkash/holidays';
+import { effectiveTimezone } from './tz';
+import { localTimeHHMM } from './window';
+import { shiftForDate } from './shift';
+import { computeMarks, pairSessions, type PunchLite, type Session, type ShiftLite } from './shift-marks';
 
 type AttendancePunch = typeof schema.attendancePunch.$inferSelect;
 
@@ -12,46 +16,68 @@ const DEFAULT_WORKWEEK: DayName[] = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY
 
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'WFH' | 'ON_LEAVE' | 'HOLIDAY' | 'WEEKLY_OFF';
 export interface DayAttendance {
-  date: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD (location-local)
   status: AttendanceStatus;
-  firstIn: string | null;
+  marks: string[]; // LATE / EARLY_DEPARTURE / HALF_DAY / OVERTIME / ON_TIME (shift-aware)
+  firstIn: string | null; // ISO
   lastOut: string | null;
-  hours: number;
+  hours: number; // worked hours = Σ paired sessions
+  overtimeHours: number;
   wfh: boolean;
 }
 
 const toUtc = (ymd: string) => new Date(`${ymd.slice(0, 10)}T00:00:00Z`);
 const sameMonthDay = (a: Date, b: Date) => a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate();
+// Local calendar date "YYYY-MM-DD" for a UTC instant in a timezone (en-CA → ISO order).
+const localDateStr = (ts: Date, tz: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(ts);
 
-interface PunchLite {
-  ts: Date;
-  type: 'IN' | 'OUT';
-  wfh: boolean;
-}
+const shiftLite = (s: Shift): ShiftLite => ({
+  startTime: s.startTime,
+  endTime: s.endTime,
+  crossesMidnight: s.crossesMidnight,
+  graceMinutes: s.graceMinutes,
+  fullDayHours: Number(s.fullDayHours),
+  halfDayHours: Number(s.halfDayHours),
+  isFlexible: s.isFlexible,
+});
 
-// The keystone: what a day actually was, resolved against the calendar we already
-// model. Precedence HOLIDAY > WEEKLY_OFF > ON_LEAVE > PRESENT/WFH > ABSENT.
+// The keystone (v2): what a day actually was. Precedence unchanged at the top
+// (HOLIDAY > WEEKLY_OFF > ON_LEAVE > worked > ABSENT); under "worked" we now compute
+// hours from paired sessions and shift-aware marks, all in the location timezone.
 function resolveDay(
   date: string,
+  tz: string,
   workweek: DayName[],
   holidays: { date: string; isRecurring: boolean }[],
   leaves: { startDate: string; endDate: string }[],
-  punches: PunchLite[]
+  shift: Shift | null,
+  sessions: Session[],
+  wfh: boolean
 ): DayAttendance {
-  const d = toUtc(date);
-  const ins = punches
-    .filter((p) => p.type === 'IN')
-    .map((p) => p.ts.getTime())
-    .sort((a, b) => a - b);
-  const outs = punches
-    .filter((p) => p.type === 'OUT')
-    .map((p) => p.ts.getTime())
-    .sort((a, b) => a - b);
-  const firstIn = ins.length ? new Date(ins[0]).toISOString() : null;
-  const lastOut = outs.length ? new Date(outs[outs.length - 1]).toISOString() : null;
-  const hours = ins.length && outs.length ? Math.round(((outs[outs.length - 1] - ins[0]) / 3_600_000) * 100) / 100 : 0;
-  const wfh = punches.some((p) => p.wfh);
+  const closed = sessions.filter((s) => s.outTs);
+  const workedMin = closed.reduce((sum, s) => sum + s.minutes, 0);
+  const hours = Math.round((workedMin / 60) * 100) / 100;
+  const firstInTs = sessions.length ? sessions[0].inTs : null;
+  const lastOutTs = closed.length ? closed[closed.length - 1].outTs : null;
+  const firstIn = firstInTs ? firstInTs.toISOString() : null;
+  const lastOut = lastOutTs ? lastOutTs.toISOString() : null;
 
+  let marks: string[] = [];
+  let overtimeHours = 0;
+  if (shift && sessions.length) {
+    const lite = shiftLite(shift);
+    marks = computeMarks(
+      lite,
+      firstInTs ? localTimeHHMM(firstInTs, tz) : null,
+      lastOutTs ? localTimeHHMM(lastOutTs, tz) : null,
+      hours
+    );
+    overtimeHours = Math.max(0, Math.round((hours - lite.fullDayHours) * 100) / 100);
+  }
+
+  // The calendar checks (holiday/weekly-off/leave) use the local date.
+  const d = toUtc(date);
   let status: AttendanceStatus;
   const isHoliday = holidays.some((h) => {
     const hd = toUtc(h.date);
@@ -60,11 +86,13 @@ function resolveDay(
   if (isHoliday) status = 'HOLIDAY';
   else if (!workweek.includes(DAY_NAMES[d.getUTCDay()])) status = 'WEEKLY_OFF';
   else if (leaves.some((l) => l.startDate <= date && l.endDate >= date)) status = 'ON_LEAVE';
-  else status = punches.length ? (wfh ? 'WFH' : 'PRESENT') : 'ABSENT';
-  return { date, status, firstIn, lastOut, hours, wfh };
+  else status = sessions.length ? (wfh ? 'WFH' : 'PRESENT') : 'ABSENT';
+
+  return { date, status, marks, firstIn, lastOut, hours, overtimeHours, wfh };
 }
 
-// The person's effective workweek + location (user → team → default), reused by the resolver.
+// The person's effective workweek (user → team → default). Timezone comes from
+// effectiveTimezone (location-aware); the holiday set keeps the legacy location string.
 async function loadCalendar(orgId: string, userId: string): Promise<{ workweek: DayName[]; location: string | null }> {
   const [u] = await db
     .select({ workweek: schema.user.workweek, teamId: schema.user.teamId })
@@ -108,7 +136,7 @@ export interface RecordPunchInput {
   location?: string;
 }
 
-// Self check-in/out. (Device/manager-on-behalf is a later source.)
+// Self check-in/out. (Device ingest is @avkash/attendance/device; both feed the same log.)
 export async function recordPunch(ctx: AuthContext, input: RecordPunchInput): Promise<AttendancePunch> {
   const [row] = await db
     .insert(schema.attendancePunch)
@@ -126,8 +154,10 @@ export async function recordPunch(ctx: AuthContext, input: RecordPunchInput): Pr
   return row;
 }
 
-// Resolved daily attendance over [from,to]. Self, or MANAGER+ for others. Loads the
-// calendar + leaves + punches once and resolves each date in memory.
+// Resolved daily attendance over [from,to]. Self, or MANAGER+ for others. Punches are
+// paired into sessions globally, then each session is attributed to the LOCAL date of
+// its IN (so an overnight session counts on the day it started); each date is then
+// resolved against its shift in the location timezone.
 export async function listAttendance(
   ctx: AuthContext,
   userId: string,
@@ -135,6 +165,7 @@ export async function listAttendance(
   to: string
 ): Promise<DayAttendance[]> {
   if (userId !== ctx.userId) requireRole(ctx, 'MANAGER');
+  const tz = await effectiveTimezone(userId);
   const { workweek, location } = await loadCalendar(ctx.orgId, userId);
   const holidays = await resolveHolidays(ctx.orgId, location, Number(from.slice(0, 4)), Number(to.slice(0, 4)));
   const leaves = await db
@@ -148,24 +179,35 @@ export async function listAttendance(
         gte(schema.leave.endDate, from)
       )
     );
+  // Widen the punch window a day each side so overnight sessions at the edges pair.
   const punchRows = await db
     .select({ ts: schema.attendancePunch.ts, type: schema.attendancePunch.type, wfh: schema.attendancePunch.wfh })
     .from(schema.attendancePunch)
     .where(
       and(
         eq(schema.attendancePunch.userId, userId),
-        gte(schema.attendancePunch.ts, toUtc(from)),
-        lte(schema.attendancePunch.ts, new Date(toUtc(to).getTime() + 86_400_000))
+        gte(schema.attendancePunch.ts, new Date(toUtc(from).getTime() - 86_400_000)),
+        lte(schema.attendancePunch.ts, new Date(toUtc(to).getTime() + 2 * 86_400_000))
       )
     );
-  const byDate = new Map<string, PunchLite[]>();
-  for (const p of punchRows) {
-    const key = p.ts.toISOString().slice(0, 10);
-    const arr = byDate.get(key) ?? [];
-    arr.push({ ts: p.ts, type: p.type as 'IN' | 'OUT', wfh: p.wfh });
-    byDate.set(key, arr);
+
+  const sessions = pairSessions(punchRows.map((p): PunchLite => ({ ts: p.ts, type: p.type as 'IN' | 'OUT' })));
+  // Attribute each session + wfh to the local date of its IN punch.
+  const byDate = new Map<string, Session[]>();
+  const wfhByDate = new Map<string, boolean>();
+  for (const s of sessions) {
+    const key = localDateStr(s.inTs, tz);
+    (byDate.get(key) ?? byDate.set(key, []).get(key)!).push(s);
   }
-  return eachDate(from, to).map((date) => resolveDay(date, workweek, holidays, leaves, byDate.get(date) ?? []));
+  for (const p of punchRows) {
+    if (p.wfh) wfhByDate.set(localDateStr(p.ts, tz), true);
+  }
+
+  const dates = eachDate(from, to);
+  const shifts = await Promise.all(dates.map((date) => shiftForDate(ctx.orgId, userId, date)));
+  return dates.map((date, i) =>
+    resolveDay(date, tz, workweek, holidays, leaves, shifts[i], byDate.get(date) ?? [], wfhByDate.get(date) ?? false)
+  );
 }
 
 // A manager's team, with each member's status today.
@@ -173,7 +215,14 @@ export async function teamToday(
   ctx: AuthContext,
   teamId: string
 ): Promise<
-  { userId: string; name: string; status: AttendanceStatus; firstIn: string | null; lastOut: string | null }[]
+  {
+    userId: string;
+    name: string;
+    status: AttendanceStatus;
+    marks: string[];
+    firstIn: string | null;
+    lastOut: string | null;
+  }[]
 > {
   requireRole(ctx, 'MANAGER');
   const members = await db
@@ -184,7 +233,14 @@ export async function teamToday(
   return Promise.all(
     members.map(async (m) => {
       const [day] = await listAttendance(ctx, m.id, today, today);
-      return { userId: m.id, name: m.name, status: day.status, firstIn: day.firstIn, lastOut: day.lastOut };
+      return {
+        userId: m.id,
+        name: m.name,
+        status: day.status,
+        marks: day.marks,
+        firstIn: day.firstIn,
+        lastOut: day.lastOut,
+      };
     })
   );
 }

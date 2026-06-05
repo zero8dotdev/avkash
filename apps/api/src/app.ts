@@ -25,6 +25,7 @@ import { deviceIngest } from './routes/device-ingest';
 import { accruals } from './routes/accruals';
 import { locations } from './routes/locations';
 import { devices } from './routes/devices';
+import { shifts } from './routes/shifts';
 import { orgs } from './routes/orgs';
 import { invitations } from './routes/invitations';
 import { users } from './routes/users';
@@ -81,6 +82,7 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .route('/accruals', accruals)
   .route('/locations', locations)
   .route('/devices', devices)
+  .route('/shifts', shifts)
   .route('/internal', internal)
   // Single error envelope. DomainError carries its own status + code + params;
   // anything else is a system error (500), logged fully, internals hidden in prod.
