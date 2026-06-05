@@ -7,3 +7,5 @@ export * from './device'; // device CRUD + enrollment + ingestPunch + DeviceCont
 export * from './shift'; // shift CRUD + roster + shiftForDate
 export * from './shift-marks'; // pure: pairSessions, computeMarks (tested)
 export * from './regularization'; // request/approve/reject attendance fixes
+export * from './summary'; // pure: summarize → AttendanceSummary (tested, no DB)
+export * from './muster'; // muster report (read-only rollups)
