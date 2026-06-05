@@ -9,6 +9,7 @@ export * from './employee';
 export * from './device';
 export * from './shift';
 export * from './attendance';
+export * from './regularization';
 export * from './notification';
 export * from './idempotency';
 export * from './holiday';

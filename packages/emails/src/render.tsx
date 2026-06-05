@@ -15,6 +15,8 @@ import RoleChanged from '../emails/RoleChanged';
 import InvitationAccepted from '../emails/InvitationAccepted';
 import OrgGraceExpiring from '../emails/OrgGraceExpiring';
 import OrgRestricted from '../emails/OrgRestricted';
+import RegularizationRequested from '../emails/RegularizationRequested';
+import RegularizationResolved from '../emails/RegularizationResolved';
 
 // Maps a notification event + payload to a rendered email. The notifications
 // dispatcher calls renderEmail for the EMAIL channel; the same components power the
@@ -186,6 +188,23 @@ const REGISTRY: Record<string, (p: Payload) => Built> = {
   'org.restricted': (p) => ({
     subject: 'Your Avkash organization is restricted',
     element: <OrgRestricted orgName={str(p.orgName, 'your organization')} appUrl={str(p.appUrl)} />,
+  }),
+  'attendance.regularization.requested': (p) => ({
+    subject: `Attendance fix from ${str(p.requester, 'a teammate')}`,
+    element: (
+      <RegularizationRequested requester={str(p.requester, 'A teammate')} date={str(p.date)} reason={str(p.reason)} />
+    ),
+  }),
+  'attendance.regularization.resolved': (p) => ({
+    subject: `Your attendance fix was ${str(p.decision, 'reviewed')}`,
+    element: (
+      <RegularizationResolved
+        name={str(p.name, 'there')}
+        date={str(p.date)}
+        decision={str(p.decision, 'reviewed')}
+        note={str(p.note)}
+      />
+    ),
   }),
 };
 

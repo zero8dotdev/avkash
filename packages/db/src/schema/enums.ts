@@ -69,6 +69,9 @@ export const attendancePunchTypeEnum = pgEnum('attendance_punch_type', ['IN', 'O
 // Where a punch came from. DEVICE/REGULARIZATION are wired later; WEB/SLACK for now.
 export const attendanceSourceEnum = pgEnum('attendance_source', ['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION']);
 
+// A request to correct a day's attendance (forgot to punch) → manager decision.
+export const regularizationStatusEnum = pgEnum('regularization_status', ['PENDING', 'APPROVED', 'REJECTED']);
+
 // Attendance machines: the kind of reader and its lifecycle.
 export const deviceKindEnum = pgEnum('device_kind', ['BIOMETRIC', 'RFID', 'FACE', 'KIOSK', 'MOBILE']);
 export const deviceStatusEnum = pgEnum('device_status', ['ACTIVE', 'INACTIVE']);
