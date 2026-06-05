@@ -1,8 +1,17 @@
-import { and, desc, eq, gte, isNull, lte, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { db, schema, type Shift, type ShiftAssignment } from '@avkash/db';
-import { type AuthContext, NotFoundError, PreconditionFailedError, ConflictError } from '@avkash/shared';
+import {
+  type AuthContext,
+  NotFoundError,
+  PreconditionFailedError,
+  ConflictError,
+  ValidationError,
+} from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { restMinutes } from './shift-marks';
+
+const DAY_NAMES = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const;
+const DEFAULT_WORKWEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
 
 // ── Shift CRUD (ADMIN) ───────────────────────────────────────────────────────
 export interface ShiftInput {
@@ -315,4 +324,167 @@ export async function coverage(
     }
   }
   return cells;
+}
+
+// ── Roster generator (the planner that builds the schedule) ──────────────────
+export interface GenerateRosterInput {
+  userIds?: string[]; // the people to rotate (or derive from a location)
+  locationId?: string;
+  shiftIds: string[]; // the shifts to rotate them through
+  from: string;
+  to: string;
+  replace?: boolean; // default true — clear in-range day assignments for these users first
+}
+export interface RosterResult {
+  created: number;
+  skipped: { userId: string; date: string; reason: string }[]; // ON_LEAVE / WEEKLY_OFF / NO_RESTFUL_SHIFT
+  gaps: CoverageCell[]; // shift-days left under minStaff (not enough people)
+}
+
+// Build a fair, constraint-aware rotation and persist it. Each person rotates through
+// the shifts day to day; a day they're on approved leave or their weekly-off is
+// skipped (and resets their rest clock); if the next rotation step would break the
+// min-rest gap, the next restful shift is chosen instead. Best-effort on coverage —
+// it can't conjure staff, so under-min-staff shift-days are returned as gaps.
+export async function generateRoster(ctx: AuthContext, input: GenerateRosterInput): Promise<RosterResult> {
+  requireRole(ctx, 'ADMIN');
+
+  let userIds = input.userIds ?? [];
+  if (input.locationId) {
+    const us = await db
+      .select({ id: schema.user.id })
+      .from(schema.user)
+      .where(and(eq(schema.user.orgId, ctx.orgId), eq(schema.user.locationId, input.locationId)));
+    userIds = us.map((u) => u.id);
+  }
+  userIds = [...new Set(userIds)];
+  const shifts = (
+    await db
+      .select()
+      .from(schema.shift)
+      .where(and(eq(schema.shift.orgId, ctx.orgId), inArray(schema.shift.id, input.shiftIds)))
+  ).sort((a, b) => a.startTime.localeCompare(b.startTime));
+  if (!userIds.length || !shifts.length)
+    throw new ValidationError('ROSTER_INPUT', { users: userIds.length, shifts: shifts.length });
+
+  // effective workweek per user (user → team → default)
+  const users = await db
+    .select({ id: schema.user.id, workweek: schema.user.workweek, teamId: schema.user.teamId })
+    .from(schema.user)
+    .where(inArray(schema.user.id, userIds));
+  const teamIds = [...new Set(users.map((u) => u.teamId).filter((t): t is string => !!t))];
+  const teams = teamIds.length
+    ? await db
+        .select({ teamId: schema.team.teamId, workweek: schema.team.workweek })
+        .from(schema.team)
+        .where(inArray(schema.team.teamId, teamIds))
+    : [];
+  const teamWeek = new Map(teams.map((t) => [t.teamId, (t.workweek ?? null) as string[] | null]));
+  const workweekOf = (u: (typeof users)[number]): string[] =>
+    u.workweek?.length
+      ? (u.workweek as string[])
+      : u.teamId
+        ? (teamWeek.get(u.teamId) ?? DEFAULT_WORKWEEK)
+        : DEFAULT_WORKWEEK;
+
+  // approved leaves overlapping the range
+  const leaveRows = await db
+    .select({ userId: schema.leave.userId, startDate: schema.leave.startDate, endDate: schema.leave.endDate })
+    .from(schema.leave)
+    .where(
+      and(
+        inArray(schema.leave.userId, userIds),
+        eq(schema.leave.isApproved, 'APPROVED'),
+        lte(schema.leave.startDate, input.to),
+        gte(schema.leave.endDate, input.from)
+      )
+    );
+  const leaveByUser = new Map<string, { startDate: string; endDate: string }[]>();
+  for (const l of leaveRows) {
+    const arr = leaveByUser.get(l.userId) ?? [];
+    arr.push(l);
+    leaveByUser.set(l.userId, arr);
+  }
+
+  if (input.replace !== false) {
+    await db
+      .delete(schema.shiftAssignment)
+      .where(
+        and(
+          eq(schema.shiftAssignment.orgId, ctx.orgId),
+          inArray(schema.shiftAssignment.userId, userIds),
+          gte(schema.shiftAssignment.fromDate, input.from),
+          lte(schema.shiftAssignment.fromDate, input.to)
+        )
+      );
+  }
+
+  const dates: string[] = [];
+  for (let d = input.from; d <= input.to; d = addDays(d, 1)) dates.push(d);
+  const N = shifts.length;
+  const offset = new Map(userIds.map((id, i) => [id, i % N])); // stagger starting shifts → coverage
+  const lastShift = new Map<string, Shift>();
+  const skipped: RosterResult['skipped'] = [];
+  const toInsert: (typeof schema.shiftAssignment.$inferInsert)[] = [];
+
+  for (let di = 0; di < dates.length; di++) {
+    const date = dates[di];
+    const weekday = DAY_NAMES[new Date(`${date}T00:00:00Z`).getUTCDay()];
+    for (const u of users) {
+      if (leaveByUser.get(u.id)?.some((l) => l.startDate <= date && l.endDate >= date)) {
+        skipped.push({ userId: u.id, date, reason: 'ON_LEAVE' });
+        lastShift.delete(u.id);
+        continue;
+      }
+      if (!workweekOf(u).includes(weekday)) {
+        skipped.push({ userId: u.id, date, reason: 'WEEKLY_OFF' });
+        lastShift.delete(u.id);
+        continue;
+      }
+      const desired = (offset.get(u.id)! + di) % N;
+      let chosen: Shift | null = null;
+      for (let k = 0; k < N; k++) {
+        const s = shifts[(desired + k) % N];
+        const last = lastShift.get(u.id);
+        if (last && restMinutes(last, s) < MIN_REST_MINUTES) continue; // rotate past a too-tight pairing
+        chosen = s;
+        break;
+      }
+      if (!chosen) {
+        skipped.push({ userId: u.id, date, reason: 'NO_RESTFUL_SHIFT' });
+        continue;
+      }
+      toInsert.push({
+        orgId: ctx.orgId,
+        userId: u.id,
+        shiftId: chosen.id,
+        fromDate: date,
+        toDate: date,
+        createdBy: ctx.userId,
+      });
+      lastShift.set(u.id, chosen);
+    }
+  }
+  if (toInsert.length) await db.insert(schema.shiftAssignment).values(toInsert);
+
+  // gaps in the generated plan
+  const counts = new Map<string, number>();
+  for (const a of toInsert)
+    counts.set(`${a.fromDate}|${a.shiftId}`, (counts.get(`${a.fromDate}|${a.shiftId}`) ?? 0) + 1);
+  const gaps: CoverageCell[] = [];
+  for (const date of dates) {
+    for (const s of shifts) {
+      const assigned = counts.get(`${date}|${s.id}`) ?? 0;
+      if (assigned < s.minStaff)
+        gaps.push({
+          date,
+          shiftId: s.id,
+          shiftName: s.name,
+          assigned,
+          minStaff: s.minStaff,
+          gap: s.minStaff - assigned,
+        });
+    }
+  }
+  return { created: toInsert.length, skipped, gaps };
 }

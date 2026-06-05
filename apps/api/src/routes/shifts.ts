@@ -11,6 +11,7 @@ import {
   listAssignments,
   clearAssignment,
   coverage,
+  generateRoster,
 } from '@avkash/attendance';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
@@ -43,6 +44,16 @@ const assignSchema = z.object({
 });
 const assignQuery = z.object({ userId: z.string().optional() });
 const coverageQuery = z.object({ locationId: z.string().min(1), from: DATE, to: DATE });
+const generateSchema = z
+  .object({
+    userIds: z.array(z.string()).optional(),
+    locationId: z.string().optional(),
+    shiftIds: z.array(z.string()).min(1),
+    from: DATE,
+    to: DATE,
+    replace: z.boolean().optional(),
+  })
+  .refine((b) => b.userIds?.length || b.locationId, { message: 'userIds or locationId required' });
 
 // Shift definitions + the roster (effective-dated assignments). ADMIN write, MANAGER
 // read. Assignment routes are static (declared before /:id).
@@ -75,6 +86,10 @@ export const shifts = new Hono<AppEnv>()
     const q = c.get('query');
     return c.json({ data: await coverage(c.get('auth'), q.locationId, q.from, q.to) });
   })
+  // Generate a fair, constraint-aware rotation and persist it (replaces in-range days).
+  .post('/roster/generate', idempotency, validateBody(generateSchema), async (c) =>
+    c.json(await generateRoster(c.get('auth'), c.get('body')), 201)
+  )
   .get('/:id', async (c) => {
     const s = await getShift(c.get('auth'), c.req.param('id'));
     c.header('ETag', etag(s.version));
