@@ -1,7 +1,7 @@
 // Row types inferred straight from the schema. `Select` = a row read from the
 // DB; `Insert` = the shape accepted by .insert() (optional/defaulted columns
 // become optional). Import these in domain packages instead of re-declaring.
-import type { organisation, team, user, orgAccessData } from './core';
+import type { organisation, team, user, orgAccessData, location } from './core';
 import type { session, account, verification } from './auth';
 import type { invitation, orgDomain } from './membership';
 import type {
@@ -25,6 +25,8 @@ export type Team = typeof team.$inferSelect;
 export type NewTeam = typeof team.$inferInsert;
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
+export type Location = typeof location.$inferSelect;
+export type NewLocation = typeof location.$inferInsert;
 export type OrgAccessData = typeof orgAccessData.$inferSelect;
 export type NewOrgAccessData = typeof orgAccessData.$inferInsert;
 

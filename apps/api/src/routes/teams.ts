@@ -20,6 +20,7 @@ const updateTeamSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   managers: z.array(z.string()).optional(),
   location: z.string().max(255).nullable().optional(),
+  locationId: z.string().nullable().optional(),
   workweek: z.array(z.enum(DAYS)).optional(),
   isActive: z.boolean().optional(),
 });

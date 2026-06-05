@@ -66,6 +66,7 @@ export interface UpdateTeamInput {
   name?: string;
   managers?: string[];
   location?: string | null;
+  locationId?: string | null;
   workweek?: string[];
   isActive?: boolean;
 }
@@ -85,6 +86,7 @@ export async function updateTeam(
       ...(patch.name !== undefined && { name: patch.name }),
       ...(patch.managers !== undefined && { managers: patch.managers }),
       ...(patch.location !== undefined && { location: patch.location }),
+      ...(patch.locationId !== undefined && { locationId: patch.locationId }),
       ...(patch.workweek !== undefined && { workweek: normaliseWeek(patch.workweek) }),
       ...(patch.isActive !== undefined && { isActive: patch.isActive }),
       version: sql`${schema.team.version} + 1`,

@@ -13,6 +13,7 @@ const listUsersQuery = z.object({ teamId: z.string().optional() });
 const updateUserSchema = z.object({
   role: z.enum(['ADMIN', 'MANAGER', 'USER']).optional(),
   teamId: z.string().nullable().optional(),
+  locationId: z.string().nullable().optional(),
 });
 
 export const users = new Hono<AppEnv>()

@@ -53,6 +53,12 @@ export const teamDto = createSelectSchema(schema.team).omit({
   updatedBy: true,
 });
 
+export const locationDto = createSelectSchema(schema.location).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
 export const orgDto = createSelectSchema(schema.organisation).omit({
   createdBy: true,
   updatedBy: true,

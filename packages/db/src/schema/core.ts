@@ -1,4 +1,18 @@
-import { pgTable, uuid, varchar, text, boolean, jsonb, timestamp, date, integer, index } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  boolean,
+  jsonb,
+  timestamp,
+  date,
+  integer,
+  numeric,
+  time,
+  index,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums';
 
 // ── Organisation ──────────────────────────────────────────────────────────
@@ -34,6 +48,37 @@ export const organisation = pgTable(
   ]
 );
 
+// ── Location ────────────────────────────────────────────────────────────────
+// A first-class site (plan 23). Owns the timezone (all shift/window/"today" math runs
+// in it — never server-local), plus geofence + the allowed punch window for machines.
+// Defined here (not its own file) so user/team can FK it without a core⇄location import
+// cycle. The legacy string `location` columns stay during transition.
+export const location = pgTable(
+  'Location',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    name: varchar('name', { length: 255 }).notNull(),
+    timezone: varchar('timezone', { length: 64 }).notNull().default('UTC'), // IANA, e.g. Asia/Kolkata
+    address: varchar('address', { length: 500 }),
+    latitude: numeric('latitude', { precision: 10, scale: 7 }),
+    longitude: numeric('longitude', { precision: 10, scale: 7 }),
+    geofenceRadiusM: integer('geofenceRadiusM'),
+    ipAllowlist: varchar('ipAllowlist', { length: 64 }).array(),
+    punchWindowStart: time('punchWindowStart'), // local; null = always open
+    punchWindowEnd: time('punchWindowEnd'),
+    isActive: boolean('isActive').notNull().default(true),
+    version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+    updatedBy: varchar('updatedBy', { length: 255 }),
+    updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('uq_location_org_name').on(t.orgId, t.name), index('idx_location_org').on(t.orgId)]
+);
+
 // ── Team ──────────────────────────────────────────────────────────────────
 export const team = pgTable(
   'Team',
@@ -45,7 +90,8 @@ export const team = pgTable(
       .references(() => organisation.orgId),
     isActive: boolean('isActive').notNull().default(true),
     managers: uuid('managers').array(),
-    location: varchar('location', { length: 255 }),
+    location: varchar('location', { length: 255 }), // legacy string label (transitioning to locationId)
+    locationId: uuid('locationId').references(() => location.id),
     escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
@@ -92,6 +138,7 @@ export const user = pgTable(
     role: roleEnum('role').notNull().default('USER'),
     orgId: uuid('orgId').references(() => organisation.orgId),
     teamId: uuid('teamId').references(() => team.teamId, { onDelete: 'restrict' }),
+    locationId: uuid('locationId').references(() => location.id), // home location (→ timezone)
     accruedLeave: jsonb('accruedLeave').$type<Record<string, unknown>>().default({}),
     usedLeave: jsonb('usedLeave').$type<Record<string, unknown>>().default({}),
     overrides: jsonb('overrides').$type<Record<string, unknown>>().default({}),

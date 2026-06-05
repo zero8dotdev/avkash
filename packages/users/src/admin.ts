@@ -59,6 +59,7 @@ export async function getUser(ctx: AuthContext, userId: string): Promise<User> {
 export interface UpdateUserInput {
   role?: 'ADMIN' | 'MANAGER' | 'USER';
   teamId?: string | null;
+  locationId?: string | null;
 }
 
 // HR changes a person's role or team (promote to manager via team.managers separately).
@@ -84,6 +85,7 @@ export async function updateUserAdmin(
     .set({
       ...(patch.role !== undefined && { role: patch.role }),
       ...(patch.teamId !== undefined && { teamId: patch.teamId }),
+      ...(patch.locationId !== undefined && { locationId: patch.locationId }),
       version: sql`${schema.user.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),
