@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --target bun --outdir dist",
+    "test": "bun test src/test",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .turbo node_modules dist"
@@ -37,6 +38,7 @@
     "@avkash/tsconfig": "workspace:*",
     "@avkash/eslint-config": "workspace:*",
     "@types/bun": "^1.1.0",
+    "drizzle-orm": "^0.38.0",
     "typescript": "^5.8.2"
   }
 }
