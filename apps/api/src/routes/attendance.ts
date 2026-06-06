@@ -20,7 +20,18 @@ import { idempotency } from '../middleware/idempotency';
 import { punchDto, regularizationDto } from '../dto';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
-const punchBody = z.object({ wfh: z.boolean().optional(), location: z.string().max(255).optional() });
+// Plan 46: remote context for factory visits, client sites, and field work.
+const remoteContextSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('WFH') }),
+  z.object({ type: z.literal('FACTORY_VISIT'), locationId: z.string().uuid() }),
+  z.object({ type: z.literal('CLIENT_SITE'), clientName: z.string(), city: z.string().optional(), country: z.string().optional() }),
+  z.object({ type: z.literal('FIELD'), city: z.string().optional(), country: z.string().optional() }),
+]);
+const punchBody = z.object({
+  wfh: z.boolean().optional(),
+  location: z.string().max(255).optional(),
+  remoteContext: remoteContextSchema.optional(),
+});
 const rangeQuery = z.object({ from: DATE, to: DATE });
 const todayQuery = z.object({ teamId: z.string() });
 const regBody = z.object({

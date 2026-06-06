@@ -1,6 +1,3 @@
-import type { AuthContext } from '@avkash/shared';
-
-// policy domain — pure logic, ctx-first. Wire HTTP in apps/api, never here.
-export async function placeholder(_ctx: AuthContext): Promise<void> {
-  throw new Error('not implemented');
-}
+export * from './applicability'; // isPolicyApplicable (pure, tested)
+export * from './policies';      // CRUD + lifecycle (publish/unpublish/archive)
+export * from './acknowledgements'; // acknowledge, pending, compliance report

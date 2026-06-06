@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { applyOvertime, computeMarks, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
+import { applyOvertime, computeMarks, halfDayWindow, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
 
 const day: ShiftLite = {
   startTime: '09:00',
@@ -71,6 +71,43 @@ describe('restMinutes', () => {
   });
   it('back-to-back close→open is short rest', () => {
     expect(restMinutes({ endTime: '23:00', crossesMidnight: false }, { startTime: '08:00' })).toBeLessThan(11 * 60);
+  });
+});
+
+describe('halfDayWindow — Plan 45', () => {
+  const morning = { startTime: '06:00', endTime: '14:00', crossesMidnight: false };
+  const night = { startTime: '22:00', endTime: '06:00', crossesMidnight: true };
+  const general = { startTime: '10:30', endTime: '18:30', crossesMidnight: false };
+
+  it('returns null for NONE', () => {
+    expect(halfDayWindow(morning, 'NONE')).toBeNull();
+  });
+
+  it('FIRST_HALF of morning shift (06:00–14:00) → 06:00 to 10:00', () => {
+    const w = halfDayWindow(morning, 'FIRST_HALF');
+    expect(w).toEqual({ from: '06:00', to: '10:00' });
+  });
+
+  it('SECOND_HALF of morning shift (06:00–14:00) → 10:00 to 14:00', () => {
+    const w = halfDayWindow(morning, 'SECOND_HALF');
+    expect(w).toEqual({ from: '10:00', to: '14:00' });
+  });
+
+  it('FIRST_HALF of general shift (10:30–18:30) → 10:30 to 14:30', () => {
+    const w = halfDayWindow(general, 'FIRST_HALF');
+    expect(w).toEqual({ from: '10:30', to: '14:30' });
+  });
+
+  it('SECOND_HALF of general shift (10:30–18:30) → 14:30 to 18:30', () => {
+    const w = halfDayWindow(general, 'SECOND_HALF');
+    expect(w).toEqual({ from: '14:30', to: '18:30' });
+  });
+
+  it('night shift (22:00–06:00 crossing midnight) — FIRST_HALF midpoint is 02:00', () => {
+    // 22:00 = 1320 min; 06:00 + 1440 = 1800 min; midpoint = 1560 min = 26:00 → 02:00 next day
+    const w = halfDayWindow(night, 'FIRST_HALF');
+    expect(w?.from).toBe('22:00');
+    expect(w?.to).toBe('02:00');
   });
 });
 

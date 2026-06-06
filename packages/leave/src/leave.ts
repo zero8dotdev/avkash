@@ -21,14 +21,15 @@ import { notifyLeaveRequested, notifyLeaveDecision, notifyLeaveCancelled } from 
 import { addLeaveComment } from './comment';
 import { assertNoBlackout } from './blackout';
 
-type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
+// Plan 45: FIRST_HALF/SECOND_HALF relative to shift boundaries (replaces MORNING/AFTERNOON).
+type HalfDayPart = 'FIRST_HALF' | 'SECOND_HALF' | 'NONE';
 
 export interface ApplyLeaveInput {
   leaveTypeId: string;
   startDate: string; // YYYY-MM-DD
   endDate: string;
   duration?: Duration;
-  shift?: Shift;
+  halfDayPart?: HalfDayPart;
   reason?: string;
   userId?: string; // MANAGER+ applying on behalf of a teammate
 }
@@ -76,10 +77,10 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
     throw new BusinessRuleError('EMPLOYEE_INACTIVE');
 
   const duration: Duration = input.duration ?? 'FULL_DAY';
-  const shift: Shift = input.shift ?? 'NONE';
+  const halfDayPart: HalfDayPart = input.halfDayPart ?? 'NONE';
   if (duration === 'HALF_DAY') {
     if (input.startDate !== input.endDate) throw new ValidationError('HALF_DAY_SINGLE_DAY');
-    if (shift !== 'MORNING' && shift !== 'AFTERNOON') throw new ValidationError('HALF_DAY_NEEDS_SHIFT');
+    if (halfDayPart !== 'FIRST_HALF' && halfDayPart !== 'SECOND_HALF') throw new ValidationError('HALF_DAY_NEEDS_SHIFT');
   }
 
   const [lt] = await db
@@ -102,7 +103,7 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   // Overlap guard (ported from the DB trigger): block if a non-rejected leave
   // overlaps and (either is FULL_DAY, or both HALF_DAY with the same shift).
   const existing = await db
-    .select({ duration: schema.leave.duration, shift: schema.leave.shift })
+    .select({ duration: schema.leave.duration, halfDayPart: schema.leave.halfDayPart })
     .from(schema.leave)
     .where(
       and(
@@ -114,7 +115,10 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
       )
     );
   const conflict = existing.some(
-    (o) => duration === 'FULL_DAY' || o.duration === 'FULL_DAY' || (o.duration === 'HALF_DAY' && o.shift === shift)
+    (o) =>
+      duration === 'FULL_DAY' ||
+      o.duration === 'FULL_DAY' ||
+      (o.duration === 'HALF_DAY' && o.halfDayPart === halfDayPart)
   );
   if (conflict) throw new ConflictError('LEAVE_OVERLAP');
 
@@ -143,7 +147,7 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
       startDate: input.startDate,
       endDate: input.endDate,
       duration,
-      shift,
+      halfDayPart,
       isApproved: status,
       userId: targetUserId,
       teamId: u.teamId,

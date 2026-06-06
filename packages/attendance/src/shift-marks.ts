@@ -70,6 +70,31 @@ export function pairSessions(punches: PunchLite[]): Session[] {
   return sessions;
 }
 
+// Plan 45: compute the clock-time window of each shift half for half-day leave logic.
+// FIRST_HALF = shift-start to midpoint; SECOND_HALF = midpoint to shift-end.
+// This is a pure function (no DB, no Date.now) — usable anywhere (resolver, UI, overlap checks).
+export type HalfDayPart = 'FIRST_HALF' | 'SECOND_HALF' | 'NONE';
+export interface HalfDayWindow {
+  from: string; // HH:MM
+  to: string;
+}
+
+export function halfDayWindow(
+  shift: { startTime: string; endTime: string; crossesMidnight: boolean },
+  part: HalfDayPart
+): HalfDayWindow | null {
+  if (part === 'NONE') return null;
+  const startMin = toMinutes(shift.startTime);
+  let endMin = toMinutes(shift.endTime);
+  if (shift.crossesMidnight) endMin += 1440;
+  const midMin = Math.floor((startMin + endMin) / 2);
+  const midNorm = midMin % 1440;
+  const midHHMM = `${String(Math.floor(midNorm / 60)).padStart(2, '0')}:${String(midNorm % 60).padStart(2, '0')}`;
+  return part === 'FIRST_HALF'
+    ? { from: shift.startTime.slice(0, 5), to: midHHMM }
+    : { from: midHHMM, to: shift.endTime.slice(0, 5) };
+}
+
 // Plan 39 + Plan 38: compute overtime mark and hours from worked hours.
 // trackOvertime=false → no OVERTIME mark, 0 overtimeHours (executive/management shifts).
 // overtimeThresholdHours overrides fullDayHours when set (SEZ higher threshold, Plan 38).

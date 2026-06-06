@@ -23,7 +23,8 @@ import type { transfer } from './transfer';
 import type { device, deviceEnrollment } from './device';
 import type { shift, shiftAssignment } from './shift';
 import type { attendanceRegularization } from './regularization';
-import type { attendanceSourcePolicy } from './attendance';
+import type { attendanceSourcePolicy, shiftSupervisor } from './attendance';
+import type { policy, policyVersionHistory, policyAcknowledgement } from './policy';
 import type { holiday, publicHolidays } from './holiday';
 import type { orgLevel } from './org-level';
 import type { shiftLevelRestriction } from './shift-level-restriction';
@@ -99,6 +100,15 @@ export type AttendanceRegularization = typeof attendanceRegularization.$inferSel
 export type NewAttendanceRegularization = typeof attendanceRegularization.$inferInsert;
 export type AttendanceSourcePolicy = typeof attendanceSourcePolicy.$inferSelect;
 export type NewAttendanceSourcePolicy = typeof attendanceSourcePolicy.$inferInsert;
+export type ShiftSupervisor = typeof shiftSupervisor.$inferSelect;
+export type NewShiftSupervisor = typeof shiftSupervisor.$inferInsert;
+
+export type Policy = typeof policy.$inferSelect;
+export type NewPolicy = typeof policy.$inferInsert;
+export type PolicyVersionHistory = typeof policyVersionHistory.$inferSelect;
+export type NewPolicyVersionHistory = typeof policyVersionHistory.$inferInsert;
+export type PolicyAcknowledgement = typeof policyAcknowledgement.$inferSelect;
+export type NewPolicyAcknowledgement = typeof policyAcknowledgement.$inferInsert;
 
 export type Holiday = typeof holiday.$inferSelect;
 export type NewHoliday = typeof holiday.$inferInsert;

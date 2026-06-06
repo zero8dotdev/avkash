@@ -1,6 +1,6 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import { db, schema, type Shift } from '@avkash/db';
-import { type AuthContext } from '@avkash/shared';
+import { type AuthContext, NotFoundError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { resolveHolidays } from '@avkash/holidays';
 import { getEmployeeLevel } from '@avkash/users';
@@ -134,11 +134,19 @@ function eachDate(from: string, to: string): string[] {
   return out;
 }
 
+// Plan 46: structured context for remote workers (factories, client sites, field).
+export type RemoteContext =
+  | { type: 'WFH' }
+  | { type: 'FACTORY_VISIT'; locationId: string }
+  | { type: 'CLIENT_SITE'; clientName: string; city?: string; country?: string }
+  | { type: 'FIELD'; city?: string; country?: string };
+
 export interface RecordPunchInput {
   type: 'IN' | 'OUT';
   ts?: string; // defaults to now
   wfh?: boolean;
   location?: string;
+  remoteContext?: RemoteContext;
 }
 
 // Self check-in/out. (Device ingest is @avkash/attendance/device; both feed the same log.)
@@ -152,6 +160,17 @@ export async function recordPunch(
   await assertSourceAllowed(ctx.orgId, level?.id ?? null, source);
   // Plan 40: WEB punches from confirmation-required levels are held pending manager review.
   const needsConfirmation = source === 'WEB' && (level?.requiresPunchConfirmation ?? false);
+  // Plan 46: remoteContext forces wfh=true and validates FACTORY_VISIT locationId belongs to the org.
+  let remoteContext = input.remoteContext ?? null;
+  const isRemote = remoteContext !== null;
+  if (remoteContext?.type === 'FACTORY_VISIT') {
+    const [loc] = await db
+      .select({ id: schema.location.id })
+      .from(schema.location)
+      .where(and(eq(schema.location.id, remoteContext.locationId), eq(schema.location.orgId, ctx.orgId)))
+      .limit(1);
+    if (!loc) throw new NotFoundError('LOCATION_NOT_FOUND');
+  }
   const [row] = await db
     .insert(schema.attendancePunch)
     .values({
@@ -160,8 +179,9 @@ export async function recordPunch(
       ts: input.ts ? new Date(input.ts) : new Date(),
       type: input.type,
       source,
-      wfh: input.wfh ?? false,
+      wfh: isRemote || (input.wfh ?? false),
       location: input.location ?? null,
+      remoteContext,
       confirmationStatus: needsConfirmation ? 'PENDING_CONFIRMATION' : null,
       createdBy: ctx.userId,
     })

@@ -23,7 +23,9 @@ export const accrueOnEnum = pgEnum('accrue_on', ['BEGINNING', 'END']);
 
 export const leaveDurationEnum = pgEnum('leave_duration', ['FULL_DAY', 'HALF_DAY']);
 
-export const shiftEnum = pgEnum('shift', ['MORNING', 'AFTERNOON', 'NONE']);
+// Plan 45: shift-aware half-day. FIRST_HALF/SECOND_HALF are relative to the employee's
+// shift boundaries, not clock time (replaces the old MORNING/AFTERNOON/NONE enum).
+export const halfDayPartEnum = pgEnum('half_day_part', ['FIRST_HALF', 'SECOND_HALF', 'NONE']);
 
 export const leaveStatusEnum = pgEnum('leave_status', ['PENDING', 'APPROVED', 'REJECTED', 'DELETED']);
 
@@ -93,6 +95,9 @@ export const deviceContextEnum = pgEnum('device_context', ['ENTRY_EXIT', 'DEPART
 // Labour regime for a Location — SEZ factories operate under different rules
 // (female night-shift ban, mandatory 6-day week, different OT threshold).
 export const laborRegimeEnum = pgEnum('labor_regime', ['STANDARD', 'SEZ', 'SHOP_ESTABLISHMENT', 'OTHER']);
+
+// Plan 47: policy document lifecycle.
+export const policyStatusEnum = pgEnum('policy_status', ['DRAFT', 'ACTIVE', 'ARCHIVED']);
 
 // Notification delivery: which transport, and the outbox row's lifecycle.
 export const notificationChannelEnum = pgEnum('notification_channel', ['EMAIL', 'SMS', 'SLACK', 'IN_APP']);

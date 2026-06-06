@@ -17,7 +17,7 @@ import { sql } from 'drizzle-orm';
 import { organisation, team, user } from './core';
 import {
   leaveDurationEnum,
-  shiftEnum,
+  halfDayPartEnum,
   leaveStatusEnum,
   accrualFrequencyEnum,
   accrueOnEnum,
@@ -64,7 +64,8 @@ export const leave = pgTable(
     startDate: date('startDate').notNull(),
     endDate: date('endDate').notNull(),
     duration: leaveDurationEnum('duration').notNull().default('FULL_DAY'),
-    shift: shiftEnum('shift').notNull().default('NONE'),
+    // Plan 45: FIRST_HALF/SECOND_HALF are relative to the employee's shift boundaries.
+    halfDayPart: halfDayPartEnum('halfDayPart').notNull().default('NONE'),
     isApproved: leaveStatusEnum('isApproved').notNull().default('PENDING'),
     userId: uuid('userId')
       .notNull()

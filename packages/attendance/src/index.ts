@@ -13,3 +13,4 @@ export * from './source-policy'; // Plan 31: per-level attendance source enforce
 export * from './workweek-pattern'; // Plan 32: rotating workweek patterns (alternate Saturdays)
 export * from './workweek-pure'; // effectiveWorkdays, isWorkday, countWorkdays (pure, tested)
 export * from './confirmation'; // Plan 40: confirmPunches, listPendingConfirmations
+export * from './supervisor';   // Plan 44: shift supervisor assignment + guards
