@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { computeMarks, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
+import { applyOvertime, computeMarks, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
 
 const day: ShiftLite = {
   startTime: '09:00',
@@ -35,13 +35,14 @@ describe('computeMarks — day shift', () => {
   it('HALF_DAY when worked below the half-day threshold', () => {
     expect(computeMarks(day, '09:00', '12:00', 3)).toContain('HALF_DAY');
   });
-  it('OVERTIME when worked beyond full hours', () => {
-    expect(computeMarks(day, '09:00', '19:00', 10)).toContain('OVERTIME');
+  it('does not mark OVERTIME — that is resolveDay responsibility (Plan 39)', () => {
+    // OVERTIME is emitted by resolveDay, which respects shift.trackOvertime.
+    expect(computeMarks(day, '09:00', '19:00', 10)).not.toContain('OVERTIME');
   });
-  it('can stack LATE + OVERTIME', () => {
+  it('LATE only when arrived late, even if also worked long hours', () => {
     const m = computeMarks(day, '09:30', '20:00', 10);
     expect(m).toContain('LATE');
-    expect(m).toContain('OVERTIME');
+    expect(m).not.toContain('OVERTIME');
   });
 });
 
@@ -52,10 +53,11 @@ describe('computeMarks — overnight + flexible', () => {
   it('night shift: leaving at 23:00 is EARLY_DEPARTURE', () => {
     expect(computeMarks(night, '22:00', '23:00', 1)).toContain('EARLY_DEPARTURE');
   });
-  it('flexible shift: no LATE/EARLY, only OVERTIME by hours', () => {
+  it('flexible shift: no LATE/EARLY marks, ON_TIME when worked; no OVERTIME from computeMarks', () => {
     const flex: ShiftLite = { ...day, isFlexible: true };
     expect(computeMarks(flex, '11:00', '15:00', 4)).toEqual(['ON_TIME']);
-    expect(computeMarks(flex, '11:00', '22:00', 10)).toEqual(['OVERTIME']);
+    // resolveDay adds OVERTIME when trackOvertime=true; computeMarks only returns ON_TIME here
+    expect(computeMarks(flex, '11:00', '22:00', 10)).toEqual(['ON_TIME']);
   });
 });
 
@@ -69,6 +71,46 @@ describe('restMinutes', () => {
   });
   it('back-to-back close→open is short rest', () => {
     expect(restMinutes({ endTime: '23:00', crossesMidnight: false }, { startTime: '08:00' })).toBeLessThan(11 * 60);
+  });
+});
+
+describe('applyOvertime — Plan 39 + Plan 38', () => {
+  it('adds OVERTIME mark and computes overtimeHours when trackOvertime=true', () => {
+    const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 10, true, 8);
+    expect(marks).toContain('OVERTIME');
+    expect(overtimeHours).toBe(2);
+  });
+
+  it('does NOT mark OVERTIME and returns overtimeHours=0 when trackOvertime=false (executive shifts)', () => {
+    const withOT = applyOvertime(['ON_TIME'], 10, true, 8);
+    const withoutOT = applyOvertime(['ON_TIME'], 10, false, 8);
+    expect(withOT.marks).toContain('OVERTIME');
+    expect(withoutOT.marks).not.toContain('OVERTIME');
+    expect(withoutOT.overtimeHours).toBe(0);
+  });
+
+  it('uses overtimeThresholdHours (SEZ Plan 38) instead of fullDayHours when provided', () => {
+    // SEZ threshold = 10h; worked 10.5h — only 0.5h OT
+    const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 10.5, true, 8, 10);
+    expect(marks).toContain('OVERTIME');
+    expect(overtimeHours).toBe(0.5);
+  });
+
+  it('does not add OVERTIME when hours do not exceed threshold', () => {
+    const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 8, true, 8);
+    expect(marks).not.toContain('OVERTIME');
+    expect(overtimeHours).toBe(0);
+  });
+
+  it('handles null overtimeThresholdHours as fallback to fullDayHours', () => {
+    const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 9, true, 8, null);
+    expect(marks).toContain('OVERTIME');
+    expect(overtimeHours).toBe(1);
+  });
+
+  it('preserves existing marks and does not duplicate OVERTIME', () => {
+    const { marks } = applyOvertime(['LATE'], 10, true, 8);
+    expect(marks).toEqual(['LATE', 'OVERTIME']);
   });
 });
 

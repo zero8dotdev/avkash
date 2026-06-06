@@ -10,6 +10,14 @@ import { leavePolicyDto, levelLeavePolicyDto } from '../dto';
 // ETag for a policy is just its version, quoted (a strong validator).
 const etag = (version: number) => `"${version}"`;
 
+// Plan 43: probation overlay fields (null = inherit base policy value).
+const probationFields = {
+  probationMaxLeaves: z.number().int().nonnegative().nullish(),
+  probationAccruals: z.boolean().nullish(),
+  probationAccrualRate: z.string().regex(/^\d+(\.\d+)?$/).nullish(),
+  probationEncashable: z.boolean().nullish(),
+};
+
 const createLeavePolicySchema = z.object({
   leaveTypeId: z.string().min(1),
   teamId: z.string().min(1),
@@ -30,6 +38,7 @@ const createLeavePolicySchema = z.object({
   encashmentMaxDays: z.number().nonnegative().optional(),
   compOffExpiryDays: z.number().nonnegative().optional(),
   prorateOnJoin: z.boolean().optional(),
+  ...probationFields,
 });
 
 const updateLeavePolicySchema = createLeavePolicySchema
@@ -71,6 +80,7 @@ const levelPolicySchema = z.object({
   maxLeaves: z.number().nonnegative().nullish(),
   accrualPerMonth: z.string().regex(/^\d+(\.\d+)?$/).nullish(),
   rollOverLimit: z.number().nonnegative().nullish(),
+  ...probationFields,
 });
 const levelListQuery = z.object({ leaveTypeId: z.string().min(1).optional() });
 

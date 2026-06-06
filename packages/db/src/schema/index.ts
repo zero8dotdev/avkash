@@ -18,6 +18,7 @@ export * from './org-level';
 export * from './shift-level-restriction';
 export * from './workweek-pattern';
 export * from './transfer';
+export * from './business-unit';
 export * from './audit';
 export * from './billing';
 export * from './contact';

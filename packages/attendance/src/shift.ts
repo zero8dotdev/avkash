@@ -63,6 +63,7 @@ export interface ShiftInput {
   isFlexible?: boolean;
   minStaff?: number;
   allowedGenders?: string[] | null;
+  trackOvertime?: boolean;
   // Level restrictions are now managed via setShiftLevelRestrictions() — not an inline field.
 }
 
@@ -83,6 +84,7 @@ export async function createShift(ctx: AuthContext, input: ShiftInput): Promise<
       isFlexible: input.isFlexible ?? false,
       minStaff: input.minStaff ?? 1,
       allowedGenders: input.allowedGenders ?? null,
+      trackOvertime: input.trackOvertime ?? true,
       createdBy: ctx.userId,
     })
     .returning();
@@ -153,6 +155,7 @@ export async function updateShift(
       ...(patch.isFlexible !== undefined && { isFlexible: patch.isFlexible }),
       ...(patch.minStaff !== undefined && { minStaff: patch.minStaff }),
       ...(patch.allowedGenders !== undefined && { allowedGenders: patch.allowedGenders }),
+      ...(patch.trackOvertime !== undefined && { trackOvertime: patch.trackOvertime }),
       version: sql`${schema.shift.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),

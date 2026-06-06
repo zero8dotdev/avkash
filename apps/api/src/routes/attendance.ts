@@ -11,6 +11,8 @@ import {
   rejectRegularization,
   listSourcePolicies,
   upsertSourcePolicy,
+  confirmPunches,
+  listPendingConfirmations,
 } from '@avkash/attendance';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
@@ -70,6 +72,24 @@ export const attendance = new Hono<AppEnv>()
     c.json({ data: await listAttendance(c.get('auth'), c.req.param('userId'), c.get('query').from, c.get('query').to) })
   )
   // Plan 31: source policy management (ADMIN).
+  // Plan 40: manager confirms or rejects FIELD employees' pending WEB punches.
+  .post(
+    '/confirm',
+    validateBody(
+      z.object({
+        punchIds: z.array(z.string().min(1)).min(1).max(100),
+        action: z.enum(['CONFIRM', 'REJECT']),
+      })
+    ),
+    async (c) => {
+      const { punchIds, action } = c.get('body');
+      const result = await confirmPunches(c.get('auth'), punchIds, action);
+      return c.json(result);
+    }
+  )
+  .get('/pending-confirmation', validateQuery(z.object({ teamId: z.string().min(1) })), async (c) =>
+    c.json({ data: await listPendingConfirmations(c.get('auth'), c.get('query').teamId) })
+  )
   .get('/source-policy', async (c) => c.json({ data: await listSourcePolicies(c.get('auth')) }))
   .put(
     '/source-policy/:levelId',

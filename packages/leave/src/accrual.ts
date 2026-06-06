@@ -5,6 +5,7 @@ import { requireRole } from '@avkash/auth';
 import { currentYear, todayStr } from './ledger';
 import { writeAudit } from './audit';
 import { accrualOccursOn, nextAccrualOn, periodKeyFor } from './accrual-schedule';
+import { effectiveAccrualRate, probationAccrualsEnabled, type EmploymentStatus } from './probation-pure';
 
 // One credited ledger row, surfaced so the caller (Phase 2: the notification
 // dispatcher) knows exactly who to tell and how much landed.
@@ -40,33 +41,47 @@ export async function runAccrualTick(now: Date = new Date()): Promise<AccrualTic
       if (policy.unlimited || !policy.maxLeaves || !policy.accrualFrequency) return [];
       const amount = policy.accrualFrequency === 'MONTHLY' ? policy.maxLeaves / 12 : policy.maxLeaves / 4;
       const periodKey = periodKeyFor(policy.accrualFrequency, now);
+      // Plan 43: fetch member status to apply probation overlay per-member.
       const members = await db
-        .select({ id: schema.user.id })
+        .select({ id: schema.user.id, employmentStatus: schema.employeeProfile.employmentStatus })
         .from(schema.user)
+        .leftJoin(schema.employeeProfile, eq(schema.employeeProfile.userId, schema.user.id))
         .where(eq(schema.user.teamId, policy.teamId));
       if (!members.length) return [];
-      // One batched insert per policy; onConflictDoNothing returns only the rows
-      // actually credited (period not already posted for that member).
+      // Build per-member ledger rows — probationers may have a different rate or no accrual.
+      const rows = members.flatMap((m) => {
+        const status = (m.employmentStatus ?? 'ACTIVE') as EmploymentStatus;
+        if (!probationAccrualsEnabled(policy, status)) return [];
+        const effectiveRateStr = effectiveAccrualRate(String(amount), policy, status);
+        const effectiveAmount = effectiveRateStr ? Number(effectiveRateStr) : amount;
+        return [{
+          orgId,
+          userId: m.id,
+          leaveTypeId: policy.leaveTypeId,
+          kind: 'ACCRUAL' as const,
+          amount: String(effectiveAmount),
+          effectiveOn: todayStr(now),
+          periodKey,
+          note: `${policy.accrualFrequency!.toLowerCase()} accrual`,
+          createdBy: 'system',
+        }];
+      });
+      if (!rows.length) return [];
+      // onConflictDoNothing: re-running a day never double-credits.
       const inserted = await db
         .insert(schema.leaveLedger)
-        .values(
-          members.map((m) => ({
-            orgId,
-            userId: m.id,
-            leaveTypeId: policy.leaveTypeId,
-            kind: 'ACCRUAL' as const,
-            amount: String(amount),
-            effectiveOn: todayStr(now),
-            periodKey,
-            note: `${policy.accrualFrequency!.toLowerCase()} accrual`,
-            createdBy: 'system',
-          }))
-        )
+        .values(rows)
         .onConflictDoNothing({
           target: [schema.leaveLedger.userId, schema.leaveLedger.leaveTypeId, schema.leaveLedger.periodKey],
         })
-        .returning({ userId: schema.leaveLedger.userId });
-      return inserted.map((r) => ({ orgId, userId: r.userId, leaveTypeId: policy.leaveTypeId, amount, periodKey }));
+        .returning({ userId: schema.leaveLedger.userId, amount: schema.leaveLedger.amount });
+      return inserted.map((r) => ({
+        orgId,
+        userId: r.userId,
+        leaveTypeId: policy.leaveTypeId,
+        amount: Number(r.amount),
+        periodKey,
+      }));
     })
   );
 

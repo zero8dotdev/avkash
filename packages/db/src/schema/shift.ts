@@ -25,6 +25,8 @@ export const shift = pgTable(
     allowedGenders: varchar('allowedGenders', { length: 32 }).array(),
     // Plan 37 (revised): level eligibility now lives in ShiftLevelRestriction (join table).
     // Removed allowedLevels array — FK into OrgLevel can't be an array column.
+    // Plan 39: when false, resolveDay produces overtimeHours = 0 and no OVERTIME mark.
+    trackOvertime: boolean('trackOvertime').notNull().default(true),
     version: integer('version').notNull().default(0), // optimistic concurrency
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),

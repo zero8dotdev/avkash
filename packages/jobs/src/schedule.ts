@@ -1,4 +1,4 @@
-import { runAccrualCycle, runEscalations, runRollover } from '@avkash/leave';
+import { runAccrualCycle, runEscalations, runRollover, runProbationCompletion } from '@avkash/leave';
 import { restrictExpiredOrgs, notifyExpiringOrgs } from '@avkash/org';
 import { materializeHolidays } from '@avkash/holidays';
 import { retryFailedNotifications } from '@avkash/notifications';
@@ -23,5 +23,10 @@ export const SCHEDULE: ScheduledJob[] = [
     name: 'holiday-materialize',
     cron: '0 3 1 12 *', // Dec 1 03:00 — roll movable holidays into next year
     run: () => materializeHolidays(new Date().getUTCFullYear() + 1),
+  },
+  {
+    name: 'probation-completion',
+    cron: '0 2 * * *', // daily 02:00 — graduate employees past probationEndsOn
+    run: () => runProbationCompletion(),
   },
 ];

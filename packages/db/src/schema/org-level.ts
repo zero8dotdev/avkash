@@ -23,6 +23,8 @@ export const orgLevel = pgTable(
     description: varchar('description', { length: 500 }),
     rank: integer('rank').notNull().default(0), // org-controlled ordinal; ties broken by name
     isFloating: boolean('isFloating').notNull().default(false),
+    // Plan 40: WEB punches from employees at this level require manager confirmation.
+    requiresPunchConfirmation: boolean('requiresPunchConfirmation').notNull().default(false),
     isActive: boolean('isActive').notNull().default(true),
     version: integer('version').notNull().default(0),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),

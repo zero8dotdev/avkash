@@ -84,6 +84,12 @@ export const deviceStatusEnum = pgEnum('device_status', ['ACTIVE', 'INACTIVE']);
 export const transferTypeEnum = pgEnum('transfer_type', ['TEMPORARY', 'PERMANENT']);
 export const transferStatusEnum = pgEnum('transfer_status', ['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED']);
 
+// Plan 40: WEB punches from levels that require confirmation are held until a manager approves.
+export const punchConfirmationEnum = pgEnum('punch_confirmation', ['PENDING_CONFIRMATION', 'CONFIRMED', 'REJECTED']);
+
+// Plan 42: distinguishes gate punches (hours calculation) from department/floor punches (presence only).
+export const deviceContextEnum = pgEnum('device_context', ['ENTRY_EXIT', 'DEPARTMENT', 'FLOOR', 'OTHER']);
+
 // Labour regime for a Location — SEZ factories operate under different rules
 // (female night-shift ban, mandatory 6-day week, different OT threshold).
 export const laborRegimeEnum = pgEnum('labor_regime', ['STANDARD', 'SEZ', 'SHOP_ESTABLISHMENT', 'OTHER']);

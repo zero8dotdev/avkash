@@ -7,7 +7,7 @@ import { getEmployeeLevel } from '@avkash/users';
 import { effectiveTimezone } from './tz';
 import { localTimeHHMM } from './window';
 import { shiftForDate } from './shift';
-import { computeMarks, pairSessions, type PunchLite, type Session, type ShiftLite } from './shift-marks';
+import { applyOvertime, computeMarks, pairSessions, type PunchLite, type Session, type ShiftLite } from './shift-marks';
 import { assertSourceAllowed } from './source-policy';
 
 type AttendancePunch = typeof schema.attendancePunch.$inferSelect;
@@ -55,7 +55,9 @@ function resolveDay(
   leaves: { startDate: string; endDate: string }[],
   shift: Shift | null,
   sessions: Session[],
-  wfh: boolean
+  wfh: boolean,
+  // Plan 38: SEZ locations may have a higher OT threshold (null = use shift.fullDayHours).
+  overtimeThresholdHours?: number | null
 ): DayAttendance {
   const closed = sessions.filter((s) => s.outTs);
   const workedMin = closed.reduce((sum, s) => sum + s.minutes, 0);
@@ -75,7 +77,8 @@ function resolveDay(
       lastOutTs ? localTimeHHMM(lastOutTs, tz) : null,
       hours
     );
-    overtimeHours = Math.max(0, Math.round((hours - lite.fullDayHours) * 100) / 100);
+    // Plan 39 + 38: applyOvertime respects trackOvertime flag and SEZ threshold.
+    ({ marks, overtimeHours } = applyOvertime(marks, hours, shift.trackOvertime, lite.fullDayHours, overtimeThresholdHours));
   }
 
   // The calendar checks (holiday/weekly-off/leave) use the local date.
@@ -147,6 +150,8 @@ export async function recordPunch(
   // Plan 31: enforce source eligibility based on org-defined level.
   const level = await getEmployeeLevel(ctx.orgId, ctx.userId ?? '');
   await assertSourceAllowed(ctx.orgId, level?.id ?? null, source);
+  // Plan 40: WEB punches from confirmation-required levels are held pending manager review.
+  const needsConfirmation = source === 'WEB' && (level?.requiresPunchConfirmation ?? false);
   const [row] = await db
     .insert(schema.attendancePunch)
     .values({
@@ -157,6 +162,7 @@ export async function recordPunch(
       source,
       wfh: input.wfh ?? false,
       location: input.location ?? null,
+      confirmationStatus: needsConfirmation ? 'PENDING_CONFIRMATION' : null,
       createdBy: ctx.userId,
     })
     .returning();
@@ -188,10 +194,35 @@ export async function listAttendance(
         gte(schema.leave.endDate, from)
       )
     );
+  // Fetch location's SEZ overtime threshold (Plan 38 + 39).
+  const [userLoc] = await db
+    .select({ locationId: schema.user.locationId })
+    .from(schema.user)
+    .where(eq(schema.user.id, userId))
+    .limit(1);
+  let otThreshold: number | null = null;
+  if (userLoc?.locationId) {
+    const [loc] = await db
+      .select({ t: schema.location.overtimeThresholdHours })
+      .from(schema.location)
+      .where(eq(schema.location.id, userLoc.locationId))
+      .limit(1);
+    otThreshold = loc?.t != null ? Number(loc.t) : null;
+  }
+
   // Widen the punch window a day each side so overnight sessions at the edges pair.
+  // Plan 42: join device to get context; WEB/SLACK punches (no deviceId) → ENTRY_EXIT.
+  // Plan 40: exclude PENDING_CONFIRMATION and REJECTED punches from session pairing.
   const punchRows = await db
-    .select({ ts: schema.attendancePunch.ts, type: schema.attendancePunch.type, wfh: schema.attendancePunch.wfh })
+    .select({
+      ts: schema.attendancePunch.ts,
+      type: schema.attendancePunch.type,
+      wfh: schema.attendancePunch.wfh,
+      confirmationStatus: schema.attendancePunch.confirmationStatus,
+      deviceContext: schema.device.context,
+    })
     .from(schema.attendancePunch)
+    .leftJoin(schema.device, eq(schema.device.id, schema.attendancePunch.deviceId))
     .where(
       and(
         eq(schema.attendancePunch.userId, userId),
@@ -200,7 +231,14 @@ export async function listAttendance(
       )
     );
 
-  const sessions = pairSessions(punchRows.map((p): PunchLite => ({ ts: p.ts, type: p.type as 'IN' | 'OUT' })));
+  // Only ENTRY_EXIT-context punches that are not pending/rejected feed into session pairing.
+  const sessionablePunches = punchRows.filter(
+    (p) =>
+      (p.deviceContext === null || p.deviceContext === 'ENTRY_EXIT') &&
+      p.confirmationStatus !== 'PENDING_CONFIRMATION' &&
+      p.confirmationStatus !== 'REJECTED'
+  );
+  const sessions = pairSessions(sessionablePunches.map((p): PunchLite => ({ ts: p.ts, type: p.type as 'IN' | 'OUT' })));
   // Attribute each session + wfh to the local date of its IN punch.
   const byDate = new Map<string, Session[]>();
   const wfhByDate = new Map<string, boolean>();
@@ -211,12 +249,35 @@ export async function listAttendance(
   for (const p of punchRows) {
     if (p.wfh) wfhByDate.set(localDateStr(p.ts, tz), true);
   }
+  // Inform caller about pending punches per date (Plan 40 informational mark).
+  const pendingByDate = new Map<string, number>();
+  for (const p of punchRows) {
+    if (p.confirmationStatus === 'PENDING_CONFIRMATION') {
+      const k = localDateStr(p.ts, tz);
+      pendingByDate.set(k, (pendingByDate.get(k) ?? 0) + 1);
+    }
+  }
 
   const dates = eachDate(from, to);
   const shifts = await Promise.all(dates.map((date) => shiftForDate(ctx.orgId, userId, date)));
-  return dates.map((date, i) =>
-    resolveDay(date, tz, workweek, holidays, leaves, shifts[i], byDate.get(date) ?? [], wfhByDate.get(date) ?? false)
-  );
+  return dates.map((date, i) => {
+    const day = resolveDay(
+      date,
+      tz,
+      workweek,
+      holidays,
+      leaves,
+      shifts[i],
+      byDate.get(date) ?? [],
+      wfhByDate.get(date) ?? false,
+      otThreshold
+    );
+    const pending = pendingByDate.get(date) ?? 0;
+    if (pending > 0) {
+      day.marks = [...day.marks, 'PUNCH_PENDING_CONFIRMATION'];
+    }
+    return day;
+  });
 }
 
 // A manager's team, with each member's status today.

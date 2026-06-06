@@ -70,7 +70,26 @@ export function pairSessions(punches: PunchLite[]): Session[] {
   return sessions;
 }
 
-// Grade a worked day: marks layered on PRESENT. A flexible shift only earns OVERTIME.
+// Plan 39 + Plan 38: compute overtime mark and hours from worked hours.
+// trackOvertime=false → no OVERTIME mark, 0 overtimeHours (executive/management shifts).
+// overtimeThresholdHours overrides fullDayHours when set (SEZ higher threshold, Plan 38).
+export function applyOvertime(
+  marks: string[],
+  hours: number,
+  trackOvertime: boolean,
+  fullDayHours: number,
+  overtimeThresholdHours?: number | null
+): { marks: string[]; overtimeHours: number } {
+  if (!trackOvertime) return { marks, overtimeHours: 0 };
+  const threshold = overtimeThresholdHours ?? fullDayHours;
+  const newMarks = hours > threshold ? [...marks, 'OVERTIME'] : marks;
+  const overtimeHours = Math.max(0, Math.round((hours - threshold) * 100) / 100);
+  return { marks: newMarks, overtimeHours };
+}
+
+// Grade a worked day: marks layered on PRESENT. OVERTIME is intentionally NOT computed
+// here — it's the caller's (resolveDay's) responsibility so it can apply the
+// trackOvertime flag (Plan 39) and the location-level SEZ threshold (Plan 38).
 export function computeMarks(
   shift: ShiftLite,
   firstInLocal: string | null,
@@ -78,7 +97,6 @@ export function computeMarks(
   workedHours: number
 ): string[] {
   const marks: string[] = [];
-  if (workedHours > shift.fullDayHours) marks.push('OVERTIME');
   if (workedHours > 0 && workedHours < shift.halfDayHours) marks.push('HALF_DAY');
   if (!shift.isFlexible) {
     if (firstInLocal && minutesIntoShift(firstInLocal, shift) > shift.graceMinutes) marks.push('LATE');

@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, timestamp, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation, location, user } from './core';
-import { deviceKindEnum, deviceStatusEnum } from './enums';
+import { deviceKindEnum, deviceStatusEnum, deviceContextEnum } from './enums';
 
 // An attendance machine at a location (plan 23). Authenticates to the punch-ingest
 // endpoint with a per-device secret (stored hashed; presented as a bearer, verified
@@ -20,6 +20,8 @@ export const device = pgTable(
     serial: varchar('serial', { length: 255 }),
     secretHash: varchar('secretHash', { length: 64 }).notNull(), // sha256 hex of the device secret
     status: deviceStatusEnum('status').notNull().default('ACTIVE'),
+    // Plan 42: gate readers → ENTRY_EXIT (used for hours); department readers → DEPARTMENT (presence only).
+    context: deviceContextEnum('context').notNull().default('ENTRY_EXIT'),
     lastSeenAt: timestamp('lastSeenAt', { precision: 6 }),
     version: integer('version').notNull().default(0), // optimistic concurrency
     createdBy: varchar('createdBy', { length: 255 }),

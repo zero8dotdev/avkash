@@ -5,4 +5,5 @@ export * from './invitation'; // inviteTeammate, listInvitations, revokeInvitati
 export * from './locations'; // setOrgLocations, createLocation, isSEZ
 export * from './departments'; // createDepartment, listDepartments, getDepartmentHead, isDepartmentHead…
 export * from './org-levels'; // createOrgLevel, listOrgLevels, getOrgLevel, updateOrgLevel, archiveOrgLevel
+export * from './business-units'; // createBusinessUnit, listBusinessUnits, updateBusinessUnit, resolveOrgBrand
 export * from './org-notify'; // notifyOrgRestricted, notifyExpiringOrgs

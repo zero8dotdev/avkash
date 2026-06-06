@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, boolean, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { user, organisation, location } from './core';
 import { device } from './device';
-import { attendancePunchTypeEnum, attendanceSourceEnum } from './enums';
+import { attendancePunchTypeEnum, attendanceSourceEnum, punchConfirmationEnum } from './enums';
 
 // Raw punch events. The daily attendance record is *derived* from these (combined
 // with workweek + holidays + leave) — see @avkash/attendance. Keeping punches as an
@@ -26,6 +26,10 @@ export const attendancePunch = pgTable(
     flagged: boolean('flagged').notNull().default(false), // e.g. punched outside the allowed window
     flagReason: varchar('flagReason', { length: 255 }),
     receivedAt: timestamp('receivedAt', { precision: 6 }), // server arrival (offline batches arrive late)
+    // Plan 40: null = no confirmation required; PENDING_CONFIRMATION = awaiting manager approval.
+    confirmationStatus: punchConfirmationEnum('confirmationStatus'),
+    confirmedBy: uuid('confirmedBy'), // soft FK → User
+    confirmedAt: timestamp('confirmedAt', { precision: 6 }),
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
   },

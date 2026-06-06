@@ -2,6 +2,7 @@
 // DB; `Insert` = the shape accepted by .insert() (optional/defaulted columns
 // become optional). Import these in domain packages instead of re-declaring.
 import type { organisation, team, user, orgAccessData, location } from './core';
+import type { businessUnit } from './business-unit';
 import type { department, departmentLocation } from './department';
 import type { session, account, verification } from './auth';
 import type { invitation, orgDomain } from './membership';
@@ -29,6 +30,9 @@ import type { shiftLevelRestriction } from './shift-level-restriction';
 import type { activityLog } from './audit';
 import type { subscription, paySubMap } from './billing';
 import type { contactEmail } from './contact';
+
+export type BusinessUnit = typeof businessUnit.$inferSelect;
+export type NewBusinessUnit = typeof businessUnit.$inferInsert;
 
 export type Organisation = typeof organisation.$inferSelect;
 export type NewOrganisation = typeof organisation.$inferInsert;

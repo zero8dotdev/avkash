@@ -18,11 +18,13 @@ import { etag, requireIfMatch } from '../concurrency';
 import { deviceDto, enrollmentDto } from '../dto';
 
 const KIND = z.enum(['BIOMETRIC', 'RFID', 'FACE', 'KIOSK', 'MOBILE']);
+const CONTEXT = z.enum(['ENTRY_EXIT', 'DEPARTMENT', 'FLOOR', 'OTHER']);
 const createDeviceSchema = z.object({
   locationId: z.string().min(1),
   name: z.string().min(1).max(255),
   kind: KIND.optional(),
   serial: z.string().max(255).optional(),
+  context: CONTEXT.optional(),
 });
 const updateDeviceSchema = z.object({
   name: z.string().min(1).max(255).optional(),
@@ -30,6 +32,7 @@ const updateDeviceSchema = z.object({
   serial: z.string().max(255).nullable().optional(),
   locationId: z.string().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+  context: CONTEXT.optional(),
 });
 const enrollSchema = z.object({
   userId: z.string().min(1),

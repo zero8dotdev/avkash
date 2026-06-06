@@ -18,11 +18,14 @@ export interface DeviceContext {
 }
 
 // ── Device CRUD (ADMIN) ──────────────────────────────────────────────────────
+type DevicePunchContext = 'ENTRY_EXIT' | 'DEPARTMENT' | 'FLOOR' | 'OTHER';
+
 export interface CreateDeviceInput {
   locationId: string;
   name: string;
   kind?: DeviceKind;
   serial?: string;
+  context?: DevicePunchContext;
 }
 
 // Returns the raw secret ONCE — only its sha256 is stored. The caller surfaces it
@@ -47,6 +50,7 @@ export async function createDevice(
       name: input.name,
       kind: input.kind ?? 'BIOMETRIC',
       serial: input.serial ?? null,
+      context: input.context ?? 'ENTRY_EXIT',
       secretHash: sha256(secret),
       createdBy: ctx.userId,
     })
@@ -75,6 +79,7 @@ export interface UpdateDeviceInput {
   serial?: string | null;
   locationId?: string;
   status?: 'ACTIVE' | 'INACTIVE';
+  context?: DevicePunchContext;
 }
 
 export async function updateDevice(
@@ -94,6 +99,7 @@ export async function updateDevice(
       ...(patch.serial !== undefined && { serial: patch.serial }),
       ...(patch.locationId !== undefined && { locationId: patch.locationId }),
       ...(patch.status !== undefined && { status: patch.status }),
+      ...(patch.context !== undefined && { context: patch.context }),
       version: sql`${schema.device.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),

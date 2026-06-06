@@ -124,6 +124,11 @@ export const leavePolicy = pgTable(
     prorateOnJoin: boolean('prorateOnJoin').notNull().default(true), // mid-year joiners get a partial-year entitlement
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     escalateOverDays: integer('escalateOverDays'), // leaves longer than N working days escalate on apply (null = off)
+    // Plan 43: probation overlay — applied when employmentStatus = 'PROBATION'. null = inherit base value.
+    probationMaxLeaves: integer('probationMaxLeaves'),
+    probationAccruals: boolean('probationAccruals'),
+    probationAccrualRate: numeric('probationAccrualRate', { precision: 5, scale: 2 }),
+    probationEncashable: boolean('probationEncashable'),
     createdBy: varchar('createdBy', { length: 255 }),
     createdOn: timestamp('createdOn', { precision: 6 }).defaultNow(),
     updatedBy: varchar('updatedBy', { length: 255 }),
@@ -315,6 +320,11 @@ export const levelLeavePolicy = pgTable(
     maxLeaves: integer('maxLeaves'), // null = inherit from team policy
     accrualPerMonth: numeric('accrualPerMonth', { precision: 5, scale: 2 }), // null = inherit
     rollOverLimit: integer('rollOverLimit'), // null = inherit
+    // Plan 43: probation overlay (same semantics as in LeavePolicy).
+    probationMaxLeaves: integer('probationMaxLeaves'),
+    probationAccruals: boolean('probationAccruals'),
+    probationAccrualRate: numeric('probationAccrualRate', { precision: 5, scale: 2 }),
+    probationEncashable: boolean('probationEncashable'),
     version: integer('version').notNull().default(0),
     createdBy: varchar('createdBy', { length: 255 }),
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),

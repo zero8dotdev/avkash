@@ -42,6 +42,7 @@ const listQuery = z.object({
   teamId: z.string().optional(),
   departmentId: z.string().optional(),
   levelId: z.string().optional(),
+  businessUnitId: z.string().optional(),
   status: z.string().optional(),
 });
 const bulkLevelSchema = z.object({

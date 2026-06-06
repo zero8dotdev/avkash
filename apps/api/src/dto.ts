@@ -128,6 +128,12 @@ export const orgLevelDto = createSelectSchema(schema.orgLevel).omit({
   updatedBy: true,
 });
 
+export const businessUnitDto = createSelectSchema(schema.businessUnit).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
 export const workweekPatternDto = createSelectSchema(schema.workweekPattern).omit({
   orgId: true,
   createdBy: true,

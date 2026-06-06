@@ -163,6 +163,8 @@ export const user = pgTable(
     // Floating-manager flag (Plan 35). Auto-set when employmentLevel = MANAGEMENT.
     // When true, ingestPunch routes to the punch location's shift supervisor, not the user's team manager.
     isFloating: boolean('isFloating').notNull().default(false),
+    // Plan 41: subsidiary brand overlay (null = use parent org branding).
+    businessUnitId: uuid('businessUnitId'), // soft FK → BusinessUnit
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },

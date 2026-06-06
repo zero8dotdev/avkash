@@ -12,3 +12,4 @@ export * from './muster'; // muster report (read-only rollups)
 export * from './source-policy'; // Plan 31: per-level attendance source enforcement
 export * from './workweek-pattern'; // Plan 32: rotating workweek patterns (alternate Saturdays)
 export * from './workweek-pure'; // effectiveWorkdays, isWorkday, countWorkdays (pure, tested)
+export * from './confirmation'; // Plan 40: confirmPunches, listPendingConfirmations

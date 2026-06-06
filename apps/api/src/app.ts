@@ -32,6 +32,7 @@ import { users } from './routes/users';
 import { internal } from './routes/internal';
 import { departments } from './routes/departments';
 import { orgLevels, shiftLevelRestrictions } from './routes/org-levels';
+import { businessUnits, employeeBusinessUnit } from './routes/business-units';
 import { workweekPatterns } from './routes/workweek-patterns';
 import { blackouts } from './routes/blackouts';
 import { transfers } from './routes/transfers';
@@ -92,6 +93,8 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .route('/shifts', shifts)
   .route('/org-levels', orgLevels)
   .route('/shifts/:shiftId/levels', shiftLevelRestrictions)
+  .route('/business-units', businessUnits)
+  .route('/employees/:userId/business-unit', employeeBusinessUnit)
   .route('/workweek-patterns', workweekPatterns)
   .route('/blackouts', blackouts)
   .route('/transfers', transfers)

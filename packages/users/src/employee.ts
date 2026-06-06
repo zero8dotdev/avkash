@@ -4,7 +4,14 @@ import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedErro
 import { requireRole } from '@avkash/auth';
 
 // OrgLevel type — returned by getEmployeeLevel for downstream guards.
-export type OrgLevelInfo = { id: string; name: string; code: string; rank: number; isFloating: boolean };
+export type OrgLevelInfo = {
+  id: string;
+  name: string;
+  code: string;
+  rank: number;
+  isFloating: boolean;
+  requiresPunchConfirmation: boolean;
+};
 
 type EmployeeProfile = typeof schema.employeeProfile.$inferSelect;
 type Relationship = 'HR' | 'SELF' | 'MANAGER' | 'PEER';
@@ -174,13 +181,14 @@ export async function updateProfile(
 // Roster — identity + org-chart fields, MANAGER+ only. Detailed PII is per-record.
 export async function listEmployees(
   ctx: AuthContext,
-  opts?: { teamId?: string; departmentId?: string; levelId?: string; status?: string }
+  opts?: { teamId?: string; departmentId?: string; levelId?: string; status?: string; businessUnitId?: string }
 ): Promise<Record<string, unknown>[]> {
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.user.orgId, ctx.orgId)];
   if (opts?.teamId) conds.push(eq(schema.user.teamId, opts.teamId));
   if (opts?.departmentId) conds.push(eq(schema.user.departmentId, opts.departmentId));
   if (opts?.levelId) conds.push(eq(schema.employeeProfile.levelId, opts.levelId));
+  if (opts?.businessUnitId) conds.push(eq(schema.user.businessUnitId, opts.businessUnitId));
   const rows = await db
     .select({
       userId: schema.user.id,
@@ -215,7 +223,7 @@ export async function getEmployeeLevel(_orgId: string, userId: string): Promise<
     .limit(1);
   if (!profile?.levelId) return null;
   const [level] = await db
-    .select({ id: schema.orgLevel.id, name: schema.orgLevel.name, code: schema.orgLevel.code, rank: schema.orgLevel.rank, isFloating: schema.orgLevel.isFloating })
+    .select({ id: schema.orgLevel.id, name: schema.orgLevel.name, code: schema.orgLevel.code, rank: schema.orgLevel.rank, isFloating: schema.orgLevel.isFloating, requiresPunchConfirmation: schema.orgLevel.requiresPunchConfirmation })
     .from(schema.orgLevel)
     .where(eq(schema.orgLevel.id, profile.levelId))
     .limit(1);
@@ -275,6 +283,19 @@ export async function setFloating(ctx: AuthContext, userId: string, isFloating: 
   await db
     .update(schema.user)
     .set({ isFloating, updatedBy: ctx.userId })
+    .where(and(eq(schema.user.id, userId), eq(schema.user.orgId, ctx.orgId)));
+}
+
+// Plan 41: assign a user to a business unit (branding overlay). null = revert to org branding.
+export async function setUserBusinessUnit(
+  ctx: AuthContext,
+  userId: string,
+  businessUnitId: string | null
+): Promise<void> {
+  requireRole(ctx, 'ADMIN');
+  await db
+    .update(schema.user)
+    .set({ businessUnitId, updatedBy: ctx.userId })
     .where(and(eq(schema.user.id, userId), eq(schema.user.orgId, ctx.orgId)));
 }
 

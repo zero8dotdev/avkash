@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { organisation, team, user, location } from './core';
+import { businessUnit } from './business-unit';
 import { session, account } from './auth';
 import { invitation, orgDomain } from './membership';
 import { leaveType, leave, leavePolicy, leaveBlackout, levelLeavePolicy } from './leave';
@@ -45,9 +46,15 @@ export const userRelations = relations(user, ({ one, many }) => ({
   organisation: one(organisation, { fields: [user.orgId], references: [organisation.orgId] }),
   team: one(team, { fields: [user.teamId], references: [team.teamId] }),
   department: one(department, { fields: [user.departmentId], references: [department.id] }),
+  businessUnit: one(businessUnit, { fields: [user.businessUnitId], references: [businessUnit.id] }),
   leaves: many(leave),
   sessions: many(session),
   accounts: many(account),
+}));
+
+export const businessUnitRelations = relations(businessUnit, ({ one, many }) => ({
+  organisation: one(organisation, { fields: [businessUnit.orgId], references: [organisation.orgId] }),
+  users: many(user),
 }));
 
 export const departmentRelations = relations(department, ({ one, many }) => ({

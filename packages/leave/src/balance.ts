@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
 import type { AuthContext } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
@@ -6,6 +6,7 @@ import { currentYear, ledgerBalance, plannedDays, takenDays, todayStr, yearEnd, 
 import { getEffectivePolicy } from './leave-policy';
 import { listLeaveTypes } from './leave-type';
 import { proratedEntitlement } from './proration';
+import { applyProbationOverlay, type EmploymentStatus } from './probation-pure';
 
 export interface LeaveBalance {
   leaveTypeId: string;
@@ -17,15 +18,28 @@ export interface LeaveBalance {
   planned: number;
 }
 
-async function userInfo(userId: string): Promise<{ teamId: string | null; joinedOn: string }> {
+async function userInfo(userId: string): Promise<{
+  teamId: string | null;
+  joinedOn: string;
+  employmentStatus: EmploymentStatus;
+}> {
   const [u] = await db
-    .select({ teamId: schema.user.teamId, joinedOn: schema.user.joinedOn, createdAt: schema.user.createdAt })
+    .select({
+      teamId: schema.user.teamId,
+      joinedOn: schema.user.joinedOn,
+      createdAt: schema.user.createdAt,
+      employmentStatus: schema.employeeProfile.employmentStatus,
+    })
     .from(schema.user)
+    .leftJoin(schema.employeeProfile, and(eq(schema.employeeProfile.userId, schema.user.id)))
     .where(eq(schema.user.id, userId))
     .limit(1);
-  // Effective join date: explicit joinedOn, else account-creation date, else today.
   const joinedOn = u?.joinedOn ?? (u?.createdAt ? new Date(u.createdAt).toISOString().slice(0, 10) : todayStr());
-  return { teamId: u?.teamId ?? null, joinedOn };
+  return {
+    teamId: u?.teamId ?? null,
+    joinedOn,
+    employmentStatus: (u?.employmentStatus as EmploymentStatus | null) ?? 'ACTIVE',
+  };
 }
 
 // Balance is scoped to a leave YEAR (calendar). entitlement = maxLeaves (implicit,
@@ -38,8 +52,10 @@ export async function getBalance(
   leaveTypeId: string,
   year: number = currentYear()
 ): Promise<LeaveBalance> {
-  const { teamId, joinedOn } = await userInfo(userId);
-  const policy = teamId ? await getEffectivePolicy(ctx.orgId, teamId, leaveTypeId) : null;
+  const { teamId, joinedOn, employmentStatus } = await userInfo(userId);
+  const rawPolicy = teamId ? await getEffectivePolicy(ctx.orgId, teamId, leaveTypeId) : null;
+  // Plan 43: probation overlay — adjusts maxLeaves, accruals, encashable for probationers.
+  const policy = rawPolicy ? applyProbationOverlay(rawPolicy, employmentStatus) : null;
   const from = yearStart(year);
   const windowEnd = year === currentYear() ? todayStr() : yearEnd(year);
   const taken = await takenDays(ctx.orgId, userId, leaveTypeId, from, yearEnd(year));

@@ -15,6 +15,7 @@ const createSchema = z.object({
   description: z.string().max(500).nullish(),
   rank: z.number().int(),
   isFloating: z.boolean().optional(),
+  requiresPunchConfirmation: z.boolean().optional(),
 });
 const patchSchema = createSchema.partial();
 const listQuery = z.object({ includeInactive: z.coerce.boolean().optional() });
