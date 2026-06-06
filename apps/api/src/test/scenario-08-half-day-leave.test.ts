@@ -41,11 +41,13 @@ describe('Half-day leave — FIRST_HALF / SECOND_HALF', () => {
     expect(w).toEqual({ from: '10:00', to: '14:00' });
   });
 
+  // 2026-06-10 is a Wednesday — working day for corporate 5-day team.
   it('applies FIRST_HALF CL on 2026-06-10', async () => {
     const leave = await applyLeave(userCtx(fx.orgId, employee.userId), {
       leaveTypeId: fx.lt.cl,
       startDate: '2026-06-10',
       endDate: '2026-06-10',
+      duration: 'HALF_DAY',
       halfDayPart: 'FIRST_HALF',
     });
     expect(leave.isApproved).toBe('PENDING');
@@ -57,6 +59,7 @@ describe('Half-day leave — FIRST_HALF / SECOND_HALF', () => {
       leaveTypeId: fx.lt.cl,
       startDate: '2026-06-10',
       endDate: '2026-06-10',
+      duration: 'HALF_DAY',
       halfDayPart: 'SECOND_HALF',
     });
     expect(leave.isApproved).toBe('PENDING');
@@ -68,9 +71,10 @@ describe('Half-day leave — FIRST_HALF / SECOND_HALF', () => {
         leaveTypeId: fx.lt.cl,
         startDate: '2026-06-10',
         endDate: '2026-06-10',
+        duration: 'HALF_DAY',
         halfDayPart: 'FIRST_HALF',
       })
-    ).rejects.toMatchObject({ code: 'OVERLAP_LEAVE' });
+    ).rejects.toMatchObject({ code: 'LEAVE_OVERLAP' });
   });
 
   it('a full-day application on 2026-06-11 (different day) is allowed', async () => {
@@ -82,9 +86,10 @@ describe('Half-day leave — FIRST_HALF / SECOND_HALF', () => {
     expect(leave.isApproved).toBe('PENDING');
   });
 
-  it('balance.taken includes 1 full day worth of half-days taken', async () => {
+  it('balance.planned includes all pending half-day and full-day leaves', async () => {
     const bal = await getBalance(adminCtx(fx.orgId, employee.userId), employee.userId, fx.lt.cl);
-    // Two half-days = 1 working day deducted. Full-day on 11th = 1 more.
-    expect(bal.taken).toBeGreaterThanOrEqual(1);
+    // Two half-days (FIRST_HALF + SECOND_HALF on 10th) = 1 working day planned.
+    // Full-day on 11th = 1 more. All are PENDING, so they show in planned, not taken.
+    expect(bal.planned).toBeGreaterThanOrEqual(1);
   });
 });

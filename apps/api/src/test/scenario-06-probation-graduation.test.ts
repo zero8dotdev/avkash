@@ -6,8 +6,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { db, schema } from '@avkash/db';
 import { eq } from 'drizzle-orm';
-import { runProbationCompletion } from '@avkash/leave';
-import { getBalance, setOpeningBalance } from '@avkash/leave';
+import { runProbationCompletion, getBalance, setOpeningBalance } from '@avkash/leave';
 import {
   createMahalaxmiOrg, createEmployee, cleanupOrg,
   adminCtx, type OrgFixture, type TestEmployee,
@@ -42,15 +41,9 @@ beforeAll(async () => {
     joinedOn: '2026-06-01',
   });
 
-  // Give both employees EL opening balance to test probation cap.
-  for (const w of [probationary, stillOnProbation]) {
-    await setOpeningBalance(adminCtx(fx.orgId, w.userId), {
-      userId: w.userId,
-      leaveTypeId: fx.lt.el,
-      amount: 10,
-      year: 2026,
-    });
-  }
+  // NOTE: we deliberately do NOT seed any opening balance for probationary workers.
+  // In real usage, the accrual cron skips PROBATION employees (probationAccruals=false),
+  // so their ledger starts empty and probationMaxLeaves=0 means available=0.
 });
 afterAll(async () => { await cleanupOrg(fx.orgId); });
 
@@ -82,9 +75,16 @@ describe('Probation overlay and graduation', () => {
     expect(profile?.status).toBe('PROBATION');
   });
 
-  it('after graduation, EL balance is no longer capped at 0', async () => {
+  it('after graduation, opening balance becomes accessible (overlay removed)', async () => {
+    // Seed 10 EL days now that the employee is ACTIVE.
+    await setOpeningBalance(adminCtx(fx.orgId, probationary.userId), {
+      userId: probationary.userId,
+      leaveTypeId: fx.lt.el,
+      amount: 10,
+      year: 2026,
+    });
     const bal = await getBalance(adminCtx(fx.orgId, probationary.userId), probationary.userId, fx.lt.el);
-    // Now ACTIVE → probation overlay does not apply → available = 10
+    // Status is now ACTIVE — probation overlay does not apply — available = 10.
     expect(typeof bal.available === 'number' ? bal.available : -1).toBeGreaterThan(0);
   });
 });

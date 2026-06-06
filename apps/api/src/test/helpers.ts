@@ -4,7 +4,7 @@
 // DATABASE_URL must point at the dev/test DB (same as db:push uses).
 
 import { db, schema } from '@avkash/db';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import type { AuthContext } from '@avkash/shared';
 
 // ─── Auth context factories ──────────────────────────────────────────────────
@@ -341,8 +341,41 @@ export async function insertPunch(
 
 // ─── Cleanup ─────────────────────────────────────────────────────────────────
 
-// Cascade-delete the test org. All child tables have FK → organisation.orgId
-// so Postgres handles it.
+// Ordered delete for test isolation. Most orgId FKs lack ON DELETE CASCADE, and
+// User.teamId → Team has RESTRICT, so we delete in strict dependency order.
 export async function cleanupOrg(orgId: string) {
+  // leavePolicy has no orgId column — look up by teamId first.
+  const teamRows = await db.select({ teamId: schema.team.teamId }).from(schema.team).where(eq(schema.team.orgId, orgId));
+  const teamIds = teamRows.map((t) => t.teamId);
+
+  // Leaf records (nothing else references them by PK)
+  await db.delete(schema.activityLog).where(eq(schema.activityLog.orgId, orgId));
+  await db.delete(schema.notification).where(eq(schema.notification.orgId, orgId));
+  await db.delete(schema.attendancePunch).where(eq(schema.attendancePunch.orgId, orgId));
+  await db.delete(schema.shiftSupervisor).where(eq(schema.shiftSupervisor.orgId, orgId));
+  await db.delete(schema.attendanceSourcePolicy).where(eq(schema.attendanceSourcePolicy.orgId, orgId));
+  await db.delete(schema.shiftAssignment).where(eq(schema.shiftAssignment.orgId, orgId));
+  await db.delete(schema.leaveLedger).where(eq(schema.leaveLedger.orgId, orgId));
+  await db.delete(schema.leaveComment).where(eq(schema.leaveComment.orgId, orgId));
+  await db.delete(schema.leaveBlackout).where(eq(schema.leaveBlackout.orgId, orgId));
+  await db.delete(schema.approvalDelegation).where(eq(schema.approvalDelegation.orgId, orgId));
+  await db.delete(schema.compOff).where(eq(schema.compOff.orgId, orgId));
+  await db.delete(schema.encashment).where(eq(schema.encashment.orgId, orgId));
+  await db.delete(schema.leave).where(eq(schema.leave.orgId, orgId));
+  await db.delete(schema.levelLeavePolicy).where(eq(schema.levelLeavePolicy.orgId, orgId));
+  // leavePolicy keyed by teamId — delete via the org's team list
+  if (teamIds.length > 0) {
+    await db.delete(schema.leavePolicy).where(inArray(schema.leavePolicy.teamId, teamIds));
+  }
+  await db.delete(schema.employeeProfile).where(eq(schema.employeeProfile.orgId, orgId));
+  // Null out teamId first — User.teamId → Team FK is RESTRICT (not CASCADE)
+  await db.update(schema.user).set({ teamId: null }).where(eq(schema.user.orgId, orgId));
+  await db.delete(schema.user).where(eq(schema.user.orgId, orgId));
+  await db.delete(schema.team).where(eq(schema.team.orgId, orgId));
+  await db.delete(schema.shift).where(eq(schema.shift.orgId, orgId));
+  await db.delete(schema.leaveType).where(eq(schema.leaveType.orgId, orgId));
+  await db.delete(schema.orgLevel).where(eq(schema.orgLevel.orgId, orgId));
+  await db.delete(schema.location).where(eq(schema.location.orgId, orgId));
+  await db.delete(schema.businessUnit).where(eq(schema.businessUnit.orgId, orgId));
   await db.delete(schema.organisation).where(eq(schema.organisation.orgId, orgId));
 }

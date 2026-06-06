@@ -65,14 +65,15 @@ describe('Leave lifecycle — Corporate team', () => {
         startDate: '2026-06-16',
         endDate: '2026-06-18',
       })
-    ).rejects.toMatchObject({ code: 'OVERLAP_LEAVE' });
+    ).rejects.toMatchObject({ code: 'LEAVE_OVERLAP' });
   });
 
   it('allows application on non-overlapping dates', async () => {
+    // 2026-06-22 is a Monday — a working day for the 5-day corporate team.
     const l = await applyLeave(userCtx(fx.orgId, employee.userId), {
       leaveTypeId: fx.lt.el,
-      startDate: '2026-06-20',
-      endDate: '2026-06-20',
+      startDate: '2026-06-22',
+      endDate: '2026-06-22',
     });
     expect(l.isApproved).toBe('PENDING');
   });
