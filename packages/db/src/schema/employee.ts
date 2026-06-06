@@ -26,6 +26,9 @@ export const employeeProfile = pgTable(
     workLocation: varchar('workLocation', { length: 255 }),
     reportingManagerId: uuid('reportingManagerId').references(() => user.id),
     employmentStatus: employmentStatusEnum('employmentStatus').notNull().default('ACTIVE'),
+    // OrgLevel FK (Plan 29 revised) — org-defined hierarchy level (soft FK → OrgLevel).
+    // null = not yet classified; all downstream guards treat null as permissive.
+    levelId: uuid('levelId'),
     probationEndsOn: date('probationEndsOn'),
     confirmedOn: date('confirmedOn'),
 

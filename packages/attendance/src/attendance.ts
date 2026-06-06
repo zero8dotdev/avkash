@@ -3,10 +3,12 @@ import { db, schema, type Shift } from '@avkash/db';
 import { type AuthContext } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { resolveHolidays } from '@avkash/holidays';
+import { getEmployeeLevel } from '@avkash/users';
 import { effectiveTimezone } from './tz';
 import { localTimeHHMM } from './window';
 import { shiftForDate } from './shift';
 import { computeMarks, pairSessions, type PunchLite, type Session, type ShiftLite } from './shift-marks';
+import { assertSourceAllowed } from './source-policy';
 
 type AttendancePunch = typeof schema.attendancePunch.$inferSelect;
 
@@ -137,7 +139,14 @@ export interface RecordPunchInput {
 }
 
 // Self check-in/out. (Device ingest is @avkash/attendance/device; both feed the same log.)
-export async function recordPunch(ctx: AuthContext, input: RecordPunchInput): Promise<AttendancePunch> {
+export async function recordPunch(
+  ctx: AuthContext,
+  input: RecordPunchInput,
+  source: 'WEB' | 'SLACK' = 'WEB'
+): Promise<AttendancePunch> {
+  // Plan 31: enforce source eligibility based on org-defined level.
+  const level = await getEmployeeLevel(ctx.orgId, ctx.userId ?? '');
+  await assertSourceAllowed(ctx.orgId, level?.id ?? null, source);
   const [row] = await db
     .insert(schema.attendancePunch)
     .values({
@@ -145,7 +154,7 @@ export async function recordPunch(ctx: AuthContext, input: RecordPunchInput): Pr
       userId: ctx.userId ?? '',
       ts: input.ts ? new Date(input.ts) : new Date(),
       type: input.type,
-      source: 'WEB',
+      source,
       wfh: input.wfh ?? false,
       location: input.location ?? null,
       createdBy: ctx.userId,

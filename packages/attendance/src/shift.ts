@@ -6,12 +6,49 @@ import {
   PreconditionFailedError,
   ConflictError,
   ValidationError,
+  BusinessRuleError,
 } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { getEmployeeLevel } from '@avkash/users';
 import { restMinutes } from './shift-marks';
 
 const DAY_NAMES = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const;
 const DEFAULT_WORKWEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
+
+// ── Shift CRUD (ADMIN) ───────────────────────────────────────────────────────
+// ── Eligibility helpers ──────────────────────────────────────────────────────
+
+// Load gender for Plan 30 gender-restriction checks.
+async function loadGender(userId: string): Promise<string | null> {
+  const [prof] = await db
+    .select({ gender: schema.employeeProfile.gender })
+    .from(schema.employeeProfile)
+    .where(eq(schema.employeeProfile.userId, userId))
+    .limit(1);
+  return prof?.gender ?? null;
+}
+
+// Check if a shift has level restrictions and whether userId is eligible.
+// Returns true when: no restrictions exist, user has no level, or user's level is in the allowed set.
+async function isLevelEligible(orgId: string, shiftId: string, userId: string): Promise<boolean> {
+  const restrictions = await db
+    .select({ levelId: schema.shiftLevelRestriction.levelId })
+    .from(schema.shiftLevelRestriction)
+    .where(and(eq(schema.shiftLevelRestriction.orgId, orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
+  if (restrictions.length === 0) return true; // no restrictions = open to all
+  const userLevel = await getEmployeeLevel(orgId, userId);
+  if (!userLevel) return true; // unclassified = permissive
+  return restrictions.some((r) => r.levelId === userLevel.id);
+}
+
+// For roster generation: return the set of levelIds allowed for a shift (empty = unrestricted).
+async function shiftAllowedLevelIds(orgId: string, shiftId: string): Promise<Set<string>> {
+  const rows = await db
+    .select({ levelId: schema.shiftLevelRestriction.levelId })
+    .from(schema.shiftLevelRestriction)
+    .where(and(eq(schema.shiftLevelRestriction.orgId, orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
+  return new Set(rows.map((r) => r.levelId));
+}
 
 // ── Shift CRUD (ADMIN) ───────────────────────────────────────────────────────
 export interface ShiftInput {
@@ -25,6 +62,8 @@ export interface ShiftInput {
   halfDayHours?: string;
   isFlexible?: boolean;
   minStaff?: number;
+  allowedGenders?: string[] | null;
+  // Level restrictions are now managed via setShiftLevelRestrictions() — not an inline field.
 }
 
 export async function createShift(ctx: AuthContext, input: ShiftInput): Promise<Shift> {
@@ -43,10 +82,37 @@ export async function createShift(ctx: AuthContext, input: ShiftInput): Promise<
       halfDayHours: input.halfDayHours ?? '4',
       isFlexible: input.isFlexible ?? false,
       minStaff: input.minStaff ?? 1,
+      allowedGenders: input.allowedGenders ?? null,
       createdBy: ctx.userId,
     })
     .returning();
   return row;
+}
+
+// Replace the full set of level restrictions for a shift. Empty array = open to all.
+export async function setShiftLevelRestrictions(
+  ctx: AuthContext,
+  shiftId: string,
+  levelIds: string[]
+): Promise<void> {
+  requireRole(ctx, 'ADMIN');
+  await db
+    .delete(schema.shiftLevelRestriction)
+    .where(and(eq(schema.shiftLevelRestriction.orgId, ctx.orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
+  if (levelIds.length === 0) return;
+  await db.insert(schema.shiftLevelRestriction).values(
+    levelIds.map((levelId) => ({ orgId: ctx.orgId, shiftId, levelId, createdBy: ctx.userId }))
+  );
+}
+
+// Read the current level restrictions for a shift.
+export async function getShiftLevelRestrictions(ctx: AuthContext, shiftId: string) {
+  requireRole(ctx, 'MANAGER');
+  return db
+    .select({ id: schema.shiftLevelRestriction.id, levelId: schema.shiftLevelRestriction.levelId, levelName: schema.orgLevel.name })
+    .from(schema.shiftLevelRestriction)
+    .leftJoin(schema.orgLevel, eq(schema.orgLevel.id, schema.shiftLevelRestriction.levelId))
+    .where(and(eq(schema.shiftLevelRestriction.orgId, ctx.orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
 }
 
 export async function listShifts(ctx: AuthContext): Promise<Shift[]> {
@@ -86,6 +152,7 @@ export async function updateShift(
       ...(patch.halfDayHours !== undefined && { halfDayHours: patch.halfDayHours }),
       ...(patch.isFlexible !== undefined && { isFlexible: patch.isFlexible }),
       ...(patch.minStaff !== undefined && { minStaff: patch.minStaff }),
+      ...(patch.allowedGenders !== undefined && { allowedGenders: patch.allowedGenders }),
       version: sql`${schema.shift.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),
@@ -148,6 +215,21 @@ export async function validateAssignment(ctx: AuthContext, input: AssignShiftInp
     .limit(1);
   if (!shift) throw new NotFoundError('SHIFT_NOT_FOUND');
 
+  // Plan 30 — gender restriction (hard conflict; always enforced, force cannot override).
+  if (shift.allowedGenders && shift.allowedGenders.length > 0) {
+    const gender = await loadGender(input.userId);
+    if (gender !== null && !shift.allowedGenders.includes(gender)) {
+      conflicts.push({ code: 'GENDER_RESTRICTED', detail: { allowedGenders: shift.allowedGenders, gender } });
+    }
+  }
+
+  // Plan 37 (revised) — level restriction via ShiftLevelRestriction join table.
+  const levelOk = await isLevelEligible(ctx.orgId, input.shiftId, input.userId);
+  if (!levelOk) {
+    const userLevel = await getEmployeeLevel(ctx.orgId, input.userId);
+    warnings.push({ code: 'LEVEL_RESTRICTED', detail: { shiftId: input.shiftId, levelId: userLevel?.id } });
+  }
+
   // Hard: approved leave overlapping the window.
   const leaves = await db
     .select({ startDate: schema.leave.startDate, endDate: schema.leave.endDate })
@@ -201,7 +283,18 @@ export async function validateAssignment(ctx: AuthContext, input: AssignShiftInp
 export async function assignShift(ctx: AuthContext, input: AssignShiftInput, force = false): Promise<ShiftAssignment> {
   requireRole(ctx, 'ADMIN');
   const { conflicts, warnings } = await validateAssignment(ctx, input);
-  if (conflicts.length && !force) throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts, warnings });
+
+  // Gender conflicts are statutory — never bypassable, even with force=true.
+  const genderConflicts = conflicts.filter((c) => c.code === 'GENDER_RESTRICTED');
+  if (genderConflicts.length) {
+    throw new BusinessRuleError('SHIFT_GENDER_RESTRICTED', genderConflicts[0].detail);
+  }
+
+  // Level warnings can be forced (policy, not law).
+  const levelConflicts = warnings.filter((w) => w.code === 'LEVEL_RESTRICTED');
+  const hardConflicts = conflicts.filter((c) => c.code !== 'GENDER_RESTRICTED');
+  if (hardConflicts.length && !force) throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: hardConflicts, warnings });
+  if (levelConflicts.length && !force) throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: levelConflicts, warnings });
   const [row] = await db
     .insert(schema.shiftAssignment)
     .values({
@@ -369,7 +462,11 @@ export async function generateRoster(ctx: AuthContext, input: GenerateRosterInpu
 
   // effective workweek per user (user → team → default)
   const users = await db
-    .select({ id: schema.user.id, workweek: schema.user.workweek, teamId: schema.user.teamId })
+    .select({
+      id: schema.user.id,
+      workweek: schema.user.workweek,
+      teamId: schema.user.teamId,
+    })
     .from(schema.user)
     .where(inArray(schema.user.id, userIds));
   const teamIds = [...new Set(users.map((u) => u.teamId).filter((t): t is string => !!t))];
@@ -441,10 +538,25 @@ export async function generateRoster(ctx: AuthContext, input: GenerateRosterInpu
         lastShift.delete(u.id);
         continue;
       }
-      const desired = (offset.get(u.id)! + di) % N;
+      // Level eligibility (Plan 37 revised): filter shifts by ShiftLevelRestriction.
+      const userLevel = await getEmployeeLevel(ctx.orgId, u.id);
+      const eligibleShifts = await Promise.all(
+        shifts.map(async (s) => {
+          const allowedIds = await shiftAllowedLevelIds(ctx.orgId, s.id);
+          if (allowedIds.size === 0) return s; // unrestricted
+          if (!userLevel) return s; // unclassified = permissive
+          return allowedIds.has(userLevel.id) ? s : null;
+        })
+      ).then((results) => results.filter((s): s is Shift => s !== null));
+      if (eligibleShifts.length === 0) {
+        skipped.push({ userId: u.id, date, reason: 'NO_ELIGIBLE_SHIFT' });
+        continue;
+      }
+      const eligibleN = eligibleShifts.length;
+      const eligibleDesired = (offset.get(u.id)! + di) % eligibleN;
       let chosen: Shift | null = null;
-      for (let k = 0; k < N; k++) {
-        const s = shifts[(desired + k) % N];
+      for (let k = 0; k < eligibleN; k++) {
+        const s = eligibleShifts[(eligibleDesired + k) % eligibleN];
         const last = lastShift.get(u.id);
         if (last && restMinutes(last, s) < MIN_REST_MINUTES) continue; // rotate past a too-tight pairing
         chosen = s;

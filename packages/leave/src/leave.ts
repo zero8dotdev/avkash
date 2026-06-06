@@ -19,6 +19,7 @@ import { canApprove, resolveManagedTeams } from './approver';
 import { resolveEscalation, escalateLeave } from './escalation';
 import { notifyLeaveRequested, notifyLeaveDecision, notifyLeaveCancelled } from './leave-notify';
 import { addLeaveComment } from './comment';
+import { assertNoBlackout } from './blackout';
 
 type Shift = 'MORNING' | 'AFTERNOON' | 'NONE';
 
@@ -116,6 +117,14 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
     (o) => duration === 'FULL_DAY' || o.duration === 'FULL_DAY' || (o.duration === 'HALF_DAY' && o.shift === shift)
   );
   if (conflict) throw new ConflictError('LEAVE_OVERLAP');
+
+  // Blackout period guard (Plan 33). Fetch the user's current location for scoped blackouts.
+  const [userLoc] = await db
+    .select({ locationId: schema.user.locationId })
+    .from(schema.user)
+    .where(eq(schema.user.id, targetUserId))
+    .limit(1);
+  await assertNoBlackout(ctx.orgId, targetUserId, input.startDate, input.endDate, input.leaveTypeId, userLoc?.locationId ?? null);
 
   // Balance check (bounded policies). Accrual policies now have a real accrued
   // balance in the ledger, so they're enforced too — you can't take un-accrued days.

@@ -13,7 +13,7 @@ import {
   index,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum } from './enums';
+import { visibilityEnum, roleEnum, daysOfWeekEnum, orgStatusEnum, laborRegimeEnum } from './enums';
 
 // ── Organisation ──────────────────────────────────────────────────────────
 export const organisation = pgTable(
@@ -69,6 +69,11 @@ export const location = pgTable(
     ipAllowlist: varchar('ipAllowlist', { length: 64 }).array(),
     punchWindowStart: time('punchWindowStart'), // local; null = always open
     punchWindowEnd: time('punchWindowEnd'),
+    // SEZ / labour regime flag (Plan 38). STANDARD = Factories Act / Shops & Est.
+    // SEZ factories get additional compliance rules (night-shift ban, 6-day week, OT threshold).
+    laborRegime: laborRegimeEnum('laborRegime').notNull().default('STANDARD'),
+    // When set, overrides shift.fullDayHours for OT calculation at this location (e.g. SEZ = 9h).
+    overtimeThresholdHours: numeric('overtimeThresholdHours', { precision: 4, scale: 2 }),
     isActive: boolean('isActive').notNull().default(true),
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     createdBy: varchar('createdBy', { length: 255 }),
@@ -95,6 +100,7 @@ export const team = pgTable(
     escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
     defaultShiftId: uuid('defaultShiftId'), // soft ref to Shift — the roster cascade baseline (null = no shift)
+    workweekPatternId: uuid('workweekPatternId'), // soft FK → WorkweekPattern (Plan 32; null = use team.workweek)
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     startOfWorkWeek: daysOfWeekEnum('startOfWorkWeek').default('MONDAY'),
     workweek: daysOfWeekEnum('workweek')
@@ -149,6 +155,14 @@ export const user = pgTable(
     workweek: daysOfWeekEnum('workweek').array(),
     joinedOn: date('joinedOn'), // employment start; drives mid-year proration (falls back to createdAt)
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
+    // Structural/org-chart unit (Plan 28). Soft FK → Department — constraint managed by db:push.
+    // Approval routing stays on teamId; departmentId is for org-chart / reporting / compliance.
+    departmentId: uuid('departmentId'),
+    // Soft FK → WorkweekPattern (Plan 32). null = inherit from team; team null = fixed workweek.
+    workweekPatternId: uuid('workweekPatternId'),
+    // Floating-manager flag (Plan 35). Auto-set when employmentLevel = MANAGEMENT.
+    // When true, ingestPunch routes to the punch location's shift supervisor, not the user's team manager.
+    isFloating: boolean('isFloating').notNull().default(false),
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },
@@ -156,6 +170,7 @@ export const user = pgTable(
     index('idx_user_org_id').on(t.orgId),
     index('idx_user_team_id').on(t.teamId),
     index('idx_user_email').on(t.email),
+    index('idx_user_department_id').on(t.departmentId),
   ]
 );
 

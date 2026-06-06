@@ -1,7 +1,10 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
 import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+
+// OrgLevel type — returned by getEmployeeLevel for downstream guards.
+export type OrgLevelInfo = { id: string; name: string; code: string; rank: number; isFloating: boolean };
 
 type EmployeeProfile = typeof schema.employeeProfile.$inferSelect;
 type Relationship = 'HR' | 'SELF' | 'MANAGER' | 'PEER';
@@ -15,6 +18,8 @@ const FIELD_TIERS: Record<string, { read: ReadTier; write: WriteTier }> = {
   employeeCode: { read: 'PUBLIC', write: 'HR' },
   designation: { read: 'PUBLIC', write: 'HR' },
   employmentType: { read: 'MANAGER', write: 'HR' },
+  // Plan 29 (revised): organisational level (OrgLevel FK) — HR-write, MANAGER-read.
+  levelId: { read: 'MANAGER', write: 'HR' },
   workLocation: { read: 'MANAGER', write: 'HR' },
   reportingManagerId: { read: 'MANAGER', write: 'HR' },
   employmentStatus: { read: 'MANAGER', write: 'HR' },
@@ -166,14 +171,16 @@ export async function updateProfile(
   return { profile: projectProfile(row, rel), version: row.version };
 }
 
-// Roster — identity + the org-chart-ish fields, MANAGER+ only. Detailed PII is per-record.
+// Roster — identity + org-chart fields, MANAGER+ only. Detailed PII is per-record.
 export async function listEmployees(
   ctx: AuthContext,
-  opts?: { teamId?: string; status?: string }
+  opts?: { teamId?: string; departmentId?: string; levelId?: string; status?: string }
 ): Promise<Record<string, unknown>[]> {
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.user.orgId, ctx.orgId)];
   if (opts?.teamId) conds.push(eq(schema.user.teamId, opts.teamId));
+  if (opts?.departmentId) conds.push(eq(schema.user.departmentId, opts.departmentId));
+  if (opts?.levelId) conds.push(eq(schema.employeeProfile.levelId, opts.levelId));
   const rows = await db
     .select({
       userId: schema.user.id,
@@ -181,9 +188,13 @@ export async function listEmployees(
       email: schema.user.email,
       role: schema.user.role,
       teamId: schema.user.teamId,
+      departmentId: schema.user.departmentId,
+      locationId: schema.user.locationId,
+      isFloating: schema.user.isFloating,
       employeeCode: schema.employeeProfile.employeeCode,
       designation: schema.employeeProfile.designation,
       employmentType: schema.employeeProfile.employmentType,
+      levelId: schema.employeeProfile.levelId,
       employmentStatus: schema.employeeProfile.employmentStatus,
       workLocation: schema.employeeProfile.workLocation,
     })
@@ -192,4 +203,98 @@ export async function listEmployees(
     .where(and(...conds))
     .orderBy(schema.user.name);
   return opts?.status ? rows.filter((r) => r.employmentStatus === opts.status) : rows;
+}
+
+// Fetch the employee's OrgLevel record (or null if unclassified).
+// Callers use .id for policy lookups and .isFloating for routing.
+export async function getEmployeeLevel(_orgId: string, userId: string): Promise<OrgLevelInfo | null> {
+  const [profile] = await db
+    .select({ levelId: schema.employeeProfile.levelId })
+    .from(schema.employeeProfile)
+    .where(eq(schema.employeeProfile.userId, userId))
+    .limit(1);
+  if (!profile?.levelId) return null;
+  const [level] = await db
+    .select({ id: schema.orgLevel.id, name: schema.orgLevel.name, code: schema.orgLevel.code, rank: schema.orgLevel.rank, isFloating: schema.orgLevel.isFloating })
+    .from(schema.orgLevel)
+    .where(eq(schema.orgLevel.id, profile.levelId))
+    .limit(1);
+  return level ?? null;
+}
+
+// Bulk-assign an OrgLevel to multiple users (ADMIN only). Idempotent.
+// Auto-syncs user.isFloating from the level's isFloating flag.
+export async function bulkSetLevel(
+  ctx: AuthContext,
+  userIds: string[],
+  levelId: string
+): Promise<void> {
+  requireRole(ctx, 'ADMIN');
+  if (userIds.length === 0) return;
+  // Look up the OrgLevel to determine isFloating.
+  const [lvl] = await db
+    .select({ isFloating: schema.orgLevel.isFloating })
+    .from(schema.orgLevel)
+    .where(and(eq(schema.orgLevel.id, levelId), eq(schema.orgLevel.orgId, ctx.orgId)))
+    .limit(1);
+  const isFloating = lvl?.isFloating ?? false;
+  // Ensure profile rows exist for all targets, then bulk-update.
+  const existing = await db
+    .select({ userId: schema.employeeProfile.userId })
+    .from(schema.employeeProfile)
+    .where(inArray(schema.employeeProfile.userId, userIds));
+  const existingIds = new Set(existing.map((r) => r.userId));
+  const missing = userIds.filter((id) => !existingIds.has(id));
+  if (missing.length > 0) {
+    await db.insert(schema.employeeProfile).values(
+      missing.map((id) => ({ userId: id, orgId: ctx.orgId, createdBy: ctx.userId }))
+    );
+  }
+  await db
+    .update(schema.employeeProfile)
+    .set({ levelId, updatedBy: ctx.userId, updatedOn: new Date() })
+    .where(inArray(schema.employeeProfile.userId, userIds));
+  await db
+    .update(schema.user)
+    .set({ isFloating, updatedBy: ctx.userId })
+    .where(and(eq(schema.user.orgId, ctx.orgId), inArray(schema.user.id, userIds)));
+  await db.insert(schema.activityLog).values({
+    orgId: ctx.orgId,
+    tableName: 'EmployeeProfile',
+    userId: ctx.userId,
+    changedColumns: { levelId, userIds },
+    changedBy: ctx.userId,
+    keyword: 'bulk_level_update',
+  });
+}
+
+// Set or clear the floating-manager flag explicitly (ADMIN). The flag is also
+// auto-set to true when employmentLevel is promoted to MANAGEMENT via bulkSetLevel.
+export async function setFloating(ctx: AuthContext, userId: string, isFloating: boolean): Promise<void> {
+  requireRole(ctx, 'ADMIN');
+  await db
+    .update(schema.user)
+    .set({ isFloating, updatedBy: ctx.userId })
+    .where(and(eq(schema.user.id, userId), eq(schema.user.orgId, ctx.orgId)));
+}
+
+// Set a user's department (structural assignment — does not affect team/leave routing).
+export async function setUserDepartment(
+  ctx: AuthContext,
+  userId: string,
+  departmentId: string | null
+): Promise<void> {
+  requireRole(ctx, 'ADMIN');
+  await db
+    .update(schema.user)
+    .set({ departmentId, updatedBy: ctx.userId })
+    .where(and(eq(schema.user.id, userId), eq(schema.user.orgId, ctx.orgId)));
+  await db.insert(schema.activityLog).values({
+    orgId: ctx.orgId,
+    tableName: 'User',
+    userId,
+    changedColumns: { departmentId },
+    changedBy: ctx.userId,
+    keyword: 'user_department_update',
+  });
 }

@@ -4,4 +4,5 @@ export * from './workweek'; // setUserWorkweek
 export * from './join-date'; // setUserJoinedOn
 export * from './teams'; // createTeam, listTeams, getTeam, updateTeam
 export * from './admin'; // getMe, listUsers, getUser, updateUserAdmin
-export * from './employee'; // getEmployeeProfile, updateProfile, listEmployees (field-level access)
+export * from './employee'; // getEmployeeProfile, updateProfile, listEmployees, getEmployeeLevel, bulkSetLevel, setUserDepartment, setFloating
+export * from './transfers'; // initiateTransfer, approveTransfer, cancelTransfer, listTransfers, resolveEffectiveLocation, sweepExpiredTransfers

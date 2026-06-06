@@ -37,3 +37,23 @@ export const attendancePunch = pgTable(
     uniqueIndex('uq_punch_device_user_ts').on(t.deviceId, t.userId, t.ts),
   ]
 );
+
+// Plan 31 (revised): per-level source policy keyed by OrgLevel.id instead of enum.
+// If no row for a levelId → all sources allowed (permissive default).
+export const attendanceSourcePolicy = pgTable(
+  'AttendanceSourcePolicy',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    levelId: uuid('levelId').notNull(), // soft FK → OrgLevel
+    allowedSources: attendanceSourceEnum('allowedSources').array().notNull(),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+    createdBy: varchar('createdBy', { length: 255 }),
+  },
+  (t) => [
+    uniqueIndex('uq_source_policy_org_level').on(t.orgId, t.levelId),
+    index('idx_source_policy_org').on(t.orgId),
+  ]
+);

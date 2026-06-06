@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { getEmployeeProfile, updateProfile, listEmployees } from '@avkash/users';
+import { getEmployeeProfile, updateProfile, listEmployees, bulkSetLevel, setUserDepartment } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { etag, requireIfMatch } from '../concurrency';
@@ -27,6 +27,7 @@ const hrPatchSchema = selfPatchSchema.extend({
   employeeCode: z.string().max(64).nullable().optional(),
   designation: z.string().max(255).nullable().optional(),
   employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']).nullable().optional(),
+  levelId: z.string().min(1).nullable().optional(),
   workLocation: z.string().max(255).nullable().optional(),
   reportingManagerId: z.string().nullable().optional(),
   employmentStatus: z
@@ -37,12 +38,27 @@ const hrPatchSchema = selfPatchSchema.extend({
   exitDate: DATE.nullable().optional(),
   exitReason: z.string().max(500).nullable().optional(),
 });
-const listQuery = z.object({ teamId: z.string().optional(), status: z.string().optional() });
+const listQuery = z.object({
+  teamId: z.string().optional(),
+  departmentId: z.string().optional(),
+  levelId: z.string().optional(),
+  status: z.string().optional(),
+});
+const bulkLevelSchema = z.object({
+  userIds: z.array(z.string().min(1)).min(1).max(500),
+  levelId: z.string().min(1),
+});
+const departmentSchema = z.object({ departmentId: z.string().min(1).nullable() });
 
 // /me before /:id so "me" isn't captured as an id.
 export const employees = new Hono<AppEnv>()
   .use(requireAuth)
   .get('/', validateQuery(listQuery), async (c) => c.json({ data: await listEmployees(c.get('auth'), c.get('query')) }))
+  .post('/bulk-level', validateBody(bulkLevelSchema), async (c) => {
+    const { userIds, levelId } = c.get('body');
+    await bulkSetLevel(c.get('auth'), userIds, levelId);
+    return c.json({ updated: userIds.length }, 200);
+  })
   .get('/me', async (c) => {
     const { profile, version } = await getEmployeeProfile(c.get('auth'), c.get('auth').userId ?? '');
     c.header('ETag', etag(version));
@@ -72,4 +88,8 @@ export const employees = new Hono<AppEnv>()
     );
     c.header('ETag', etag(version));
     return c.json({ data: profile });
+  })
+  .patch('/:id/department', validateBody(departmentSchema), async (c) => {
+    await setUserDepartment(c.get('auth'), c.req.param('id'), c.get('body').departmentId);
+    return c.json({ updated: true });
   });

@@ -20,6 +20,8 @@ export async function setOrgLocations(ctx: AuthContext, locations: string[]): Pr
 // A first-class site: timezone (the load-bearing field), geofence, allowed punch
 // window. ADMIN-managed; optimistic-concurrency on edits like our other resources.
 
+export { isSEZ } from './sez';
+
 export interface CreateLocationInput {
   name: string;
   timezone: string;
@@ -30,6 +32,8 @@ export interface CreateLocationInput {
   ipAllowlist?: string[] | null;
   punchWindowStart?: string | null;
   punchWindowEnd?: string | null;
+  laborRegime?: 'STANDARD' | 'SEZ' | 'SHOP_ESTABLISHMENT' | 'OTHER';
+  overtimeThresholdHours?: string | null;
 }
 
 export async function createLocation(ctx: AuthContext, input: CreateLocationInput): Promise<Location> {
@@ -47,6 +51,8 @@ export async function createLocation(ctx: AuthContext, input: CreateLocationInpu
       ipAllowlist: input.ipAllowlist ?? null,
       punchWindowStart: input.punchWindowStart ?? null,
       punchWindowEnd: input.punchWindowEnd ?? null,
+      laborRegime: input.laborRegime ?? 'STANDARD',
+      overtimeThresholdHours: input.overtimeThresholdHours ?? null,
       createdBy: ctx.userId,
     })
     .returning();
@@ -70,6 +76,8 @@ export async function getLocation(ctx: AuthContext, id: string): Promise<Locatio
 
 export interface UpdateLocationInput extends Partial<CreateLocationInput> {
   isActive?: boolean;
+  laborRegime?: 'STANDARD' | 'SEZ' | 'SHOP_ESTABLISHMENT' | 'OTHER';
+  overtimeThresholdHours?: string | null;
 }
 
 export async function updateLocation(
@@ -94,6 +102,8 @@ export async function updateLocation(
       ...(patch.punchWindowStart !== undefined && { punchWindowStart: patch.punchWindowStart }),
       ...(patch.punchWindowEnd !== undefined && { punchWindowEnd: patch.punchWindowEnd }),
       ...(patch.isActive !== undefined && { isActive: patch.isActive }),
+      ...(patch.laborRegime !== undefined && { laborRegime: patch.laborRegime }),
+      ...(patch.overtimeThresholdHours !== undefined && { overtimeThresholdHours: patch.overtimeThresholdHours }),
       version: sql`${schema.location.version} + 1`,
       updatedBy: ctx.userId,
       updatedAt: new Date(),

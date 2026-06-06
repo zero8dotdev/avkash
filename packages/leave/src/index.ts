@@ -18,3 +18,5 @@ export * from './escalation'; // escalation triggers, target, cron, manual, conf
 export * from './comment'; // addLeaveComment, listLeaveComments
 export * from './calendar'; // getCalendar (leaves + holidays)
 export * from './reports'; // balanceSummary, utilization
+export * from './blackout'; // createBlackout, listBlackouts, assertNoBlackout
+export * from './level-leave-policy'; // upsertLevelPolicy, getEffectiveLevelPolicy

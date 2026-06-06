@@ -9,6 +9,8 @@ import {
   listRegularizations,
   approveRegularization,
   rejectRegularization,
+  listSourcePolicies,
+  upsertSourcePolicy,
 } from '@avkash/attendance';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
@@ -66,4 +68,17 @@ export const attendance = new Hono<AppEnv>()
   )
   .get('/:userId', validateQuery(rangeQuery), async (c) =>
     c.json({ data: await listAttendance(c.get('auth'), c.req.param('userId'), c.get('query').from, c.get('query').to) })
+  )
+  // Plan 31: source policy management (ADMIN).
+  .get('/source-policy', async (c) => c.json({ data: await listSourcePolicies(c.get('auth')) }))
+  .put(
+    '/source-policy/:levelId',
+    validateBody(
+      z.object({ allowedSources: z.array(z.enum(['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION'])).min(1) })
+    ),
+    async (c) => {
+      const levelId = c.req.param('levelId');
+      await upsertSourcePolicy(c.get('auth'), levelId, c.get('body').allowedSources);
+      return c.json({ updated: true });
+    }
   );

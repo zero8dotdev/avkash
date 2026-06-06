@@ -2,6 +2,7 @@
 // DB; `Insert` = the shape accepted by .insert() (optional/defaulted columns
 // become optional). Import these in domain packages instead of re-declaring.
 import type { organisation, team, user, orgAccessData, location } from './core';
+import type { department, departmentLocation } from './department';
 import type { session, account, verification } from './auth';
 import type { invitation, orgDomain } from './membership';
 import type {
@@ -13,11 +14,18 @@ import type {
   encashment,
   approvalDelegation,
   leaveComment,
+  leaveBlackout,
+  levelLeavePolicy,
 } from './leave';
+import type { workweekPattern } from './workweek-pattern';
+import type { transfer } from './transfer';
 import type { device, deviceEnrollment } from './device';
 import type { shift, shiftAssignment } from './shift';
 import type { attendanceRegularization } from './regularization';
+import type { attendanceSourcePolicy } from './attendance';
 import type { holiday, publicHolidays } from './holiday';
+import type { orgLevel } from './org-level';
+import type { shiftLevelRestriction } from './shift-level-restriction';
 import type { activityLog } from './audit';
 import type { subscription, paySubMap } from './billing';
 import type { contactEmail } from './contact';
@@ -31,6 +39,11 @@ export type NewUser = typeof user.$inferInsert;
 export type Location = typeof location.$inferSelect;
 export type NewLocation = typeof location.$inferInsert;
 export type OrgAccessData = typeof orgAccessData.$inferSelect;
+
+export type Department = typeof department.$inferSelect;
+export type NewDepartment = typeof department.$inferInsert;
+export type DepartmentLocation = typeof departmentLocation.$inferSelect;
+export type NewDepartmentLocation = typeof departmentLocation.$inferInsert;
 export type NewOrgAccessData = typeof orgAccessData.$inferInsert;
 
 export type Session = typeof session.$inferSelect;
@@ -60,6 +73,15 @@ export type ApprovalDelegation = typeof approvalDelegation.$inferSelect;
 export type NewApprovalDelegation = typeof approvalDelegation.$inferInsert;
 export type LeaveComment = typeof leaveComment.$inferSelect;
 export type NewLeaveComment = typeof leaveComment.$inferInsert;
+export type LeaveBlackout = typeof leaveBlackout.$inferSelect;
+export type NewLeaveBlackout = typeof leaveBlackout.$inferInsert;
+export type LevelLeavePolicy = typeof levelLeavePolicy.$inferSelect;
+export type NewLevelLeavePolicy = typeof levelLeavePolicy.$inferInsert;
+
+export type WorkweekPattern = typeof workweekPattern.$inferSelect;
+export type NewWorkweekPattern = typeof workweekPattern.$inferInsert;
+export type Transfer = typeof transfer.$inferSelect;
+export type NewTransfer = typeof transfer.$inferInsert;
 
 export type Device = typeof device.$inferSelect;
 export type NewDevice = typeof device.$inferInsert;
@@ -71,11 +93,18 @@ export type ShiftAssignment = typeof shiftAssignment.$inferSelect;
 export type NewShiftAssignment = typeof shiftAssignment.$inferInsert;
 export type AttendanceRegularization = typeof attendanceRegularization.$inferSelect;
 export type NewAttendanceRegularization = typeof attendanceRegularization.$inferInsert;
+export type AttendanceSourcePolicy = typeof attendanceSourcePolicy.$inferSelect;
+export type NewAttendanceSourcePolicy = typeof attendanceSourcePolicy.$inferInsert;
 
 export type Holiday = typeof holiday.$inferSelect;
 export type NewHoliday = typeof holiday.$inferInsert;
 export type PublicHoliday = typeof publicHolidays.$inferSelect;
 export type NewPublicHoliday = typeof publicHolidays.$inferInsert;
+
+export type OrgLevel = typeof orgLevel.$inferSelect;
+export type NewOrgLevel = typeof orgLevel.$inferInsert;
+export type ShiftLevelRestriction = typeof shiftLevelRestriction.$inferSelect;
+export type NewShiftLevelRestriction = typeof shiftLevelRestriction.$inferInsert;
 
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type NewActivityLog = typeof activityLog.$inferInsert;

@@ -9,6 +9,7 @@ import { etag, requireIfMatch } from '../concurrency';
 import { locationDto } from '../dto';
 
 const TIME = z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'expected HH:MM');
+const LABOR_REGIME = z.enum(['STANDARD', 'SEZ', 'SHOP_ESTABLISHMENT', 'OTHER']);
 const createSchema = z.object({
   name: z.string().min(1).max(255),
   timezone: z.string().min(1).max(64), // IANA, e.g. Asia/Kolkata
@@ -19,6 +20,8 @@ const createSchema = z.object({
   ipAllowlist: z.array(z.string()).nullish(),
   punchWindowStart: TIME.nullish(),
   punchWindowEnd: TIME.nullish(),
+  laborRegime: LABOR_REGIME.optional(),
+  overtimeThresholdHours: z.string().regex(/^\d+(\.\d{1,2})?$/).nullish(),
 });
 const updateSchema = createSchema.partial().extend({ isActive: z.boolean().optional() });
 

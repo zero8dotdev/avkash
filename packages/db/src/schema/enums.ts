@@ -76,6 +76,18 @@ export const regularizationStatusEnum = pgEnum('regularization_status', ['PENDIN
 export const deviceKindEnum = pgEnum('device_kind', ['BIOMETRIC', 'RFID', 'FACE', 'KIOSK', 'MOBILE']);
 export const deviceStatusEnum = pgEnum('device_status', ['ACTIVE', 'INACTIVE']);
 
+// NOTE: The old `employmentLevelEnum` (WORKER/EXECUTIVE/MANAGEMENT/FIELD) has been
+// replaced by the `OrgLevel` table so each organisation can define its own hierarchy.
+// The PG enum type 'employment_level' was dropped via drizzle-kit push.
+
+// Transfer lifecycle (Plan 34).
+export const transferTypeEnum = pgEnum('transfer_type', ['TEMPORARY', 'PERMANENT']);
+export const transferStatusEnum = pgEnum('transfer_status', ['PENDING', 'ACTIVE', 'COMPLETED', 'CANCELLED']);
+
+// Labour regime for a Location — SEZ factories operate under different rules
+// (female night-shift ban, mandatory 6-day week, different OT threshold).
+export const laborRegimeEnum = pgEnum('labor_regime', ['STANDARD', 'SEZ', 'SHOP_ESTABLISHMENT', 'OTHER']);
+
 // Notification delivery: which transport, and the outbox row's lifecycle.
 export const notificationChannelEnum = pgEnum('notification_channel', ['EMAIL', 'SMS', 'SLACK', 'IN_APP']);
 // PENDING → SENT (delivered) | FAILED (transient, will be retried) | DEAD (gave up:

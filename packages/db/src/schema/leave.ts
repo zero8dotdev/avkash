@@ -269,6 +269,64 @@ export const leaveComment = pgTable(
   (t) => [index('idx_leavecomment_leave').on(t.leaveId)]
 );
 
+// ── LeaveBlackout (Plan 33) ──────────────────────────────────────────────────
+// Org-wide date ranges during which no leave is approved (e.g. year-end crunch,
+// peak production season). `leaveTypeId = null` → all leave types blocked.
+export const leaveBlackout = pgTable(
+  'LeaveBlackout',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    name: varchar('name', { length: 255 }).notNull(),
+    startDate: date('startDate').notNull(),
+    endDate: date('endDate').notNull(),
+    leaveTypeId: uuid('leaveTypeId').references(() => leaveType.leaveTypeId, { onDelete: 'cascade' }),
+    // Scope: if null → all locations; if set → only that location.
+    locationId: uuid('locationId'), // soft FK → Location (avoids core↔leave import cycle)
+    isActive: boolean('isActive').notNull().default(true),
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+    updatedBy: varchar('updatedBy', { length: 255 }),
+    updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_leave_blackout_org').on(t.orgId),
+    index('idx_leave_blackout_dates').on(t.orgId, t.startDate, t.endDate),
+  ]
+);
+
+// ── LevelLeavePolicy (Plan 36) ───────────────────────────────────────────────
+// Override leave entitlement per employment level. Resolves below team policy;
+// null level = no override (use team policy directly).
+// Example: WORKER gets 18 EL + 12 SL; MANAGEMENT gets 24 EL.
+export const levelLeavePolicy = pgTable(
+  'LevelLeavePolicy',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => organisation.orgId),
+    leaveTypeId: uuid('leaveTypeId')
+      .notNull()
+      .references(() => leaveType.leaveTypeId, { onDelete: 'cascade' }),
+    levelId: uuid('levelId').notNull(), // soft FK → OrgLevel
+    maxLeaves: integer('maxLeaves'), // null = inherit from team policy
+    accrualPerMonth: numeric('accrualPerMonth', { precision: 5, scale: 2 }), // null = inherit
+    rollOverLimit: integer('rollOverLimit'), // null = inherit
+    version: integer('version').notNull().default(0),
+    createdBy: varchar('createdBy', { length: 255 }),
+    createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
+    updatedBy: varchar('updatedBy', { length: 255 }),
+    updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('uq_level_leave_policy').on(t.orgId, t.leaveTypeId, t.levelId),
+    index('idx_level_leave_policy_org').on(t.orgId),
+  ]
+);
+
 // ── leave_summary (aggregate view) ───────────────────────────────────────────
 export const leaveSummary = pgView('leave_summary', {
   userId: uuid('userId'),

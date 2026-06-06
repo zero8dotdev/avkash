@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { serialize, PreconditionRequiredError } from '@avkash/shared';
-import { getLeavePolicy, listLeavePolicies, createLeavePolicy, updateLeavePolicy } from '@avkash/leave';
+import { getLeavePolicy, listLeavePolicies, createLeavePolicy, updateLeavePolicy, upsertLevelPolicy, listLevelPolicies } from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
-import { leavePolicyDto } from '../dto';
+import { leavePolicyDto, levelLeavePolicyDto } from '../dto';
 
 // ETag for a policy is just its version, quoted (a strong validator).
 const etag = (version: number) => `"${version}"`;
@@ -61,4 +61,26 @@ export const leavePolicies = new Hono<AppEnv>()
     const updated = await updateLeavePolicy(c.get('auth'), c.req.param('id'), c.get('body'), expectedVersion);
     c.header('ETag', etag(updated.version));
     return c.json(serialize(leavePolicyDto, updated));
+  });
+
+// ── Level-leave-policy overrides (Plan 36) ───────────────────────────────────
+// Separate router; mounted at /leave-policies/levels in app.ts.
+const levelPolicySchema = z.object({
+  leaveTypeId: z.string().min(1),
+  levelId: z.string().min(1),
+  maxLeaves: z.number().nonnegative().nullish(),
+  accrualPerMonth: z.string().regex(/^\d+(\.\d+)?$/).nullish(),
+  rollOverLimit: z.number().nonnegative().nullish(),
+});
+const levelListQuery = z.object({ leaveTypeId: z.string().min(1).optional() });
+
+export const levelPolicies = new Hono<AppEnv>()
+  .use(requireAuth)
+  .get('/', validateQuery(levelListQuery), async (c) => {
+    const q = c.get('query');
+    return c.json({ data: serialize(levelLeavePolicyDto.array(), await listLevelPolicies(c.get('auth'), q.leaveTypeId)) });
+  })
+  .put('/', idempotency, validateBody(levelPolicySchema), async (c) => {
+    const row = await upsertLevelPolicy(c.get('auth'), c.get('body'));
+    return c.json(serialize(levelLeavePolicyDto, row), 200);
   });

@@ -34,6 +34,8 @@ const createShiftSchema = z.object({
   halfDayHours: NUM.optional(),
   isFlexible: z.boolean().optional(),
   minStaff: z.number().int().min(0).optional(),
+  // Plan 30: gender restriction (SEZ). Level restrictions managed via /shifts/:id/levels.
+  allowedGenders: z.array(z.string().max(32)).nullish(),
 });
 const updateShiftSchema = createShiftSchema.partial();
 const assignSchema = z.object({

@@ -30,6 +30,12 @@ import { orgs } from './routes/orgs';
 import { invitations } from './routes/invitations';
 import { users } from './routes/users';
 import { internal } from './routes/internal';
+import { departments } from './routes/departments';
+import { orgLevels, shiftLevelRestrictions } from './routes/org-levels';
+import { workweekPatterns } from './routes/workweek-patterns';
+import { blackouts } from './routes/blackouts';
+import { transfers } from './routes/transfers';
+import { levelPolicies } from './routes/leave-policies';
 
 // Expose real error internals only in lower environments. Explicit flag wins;
 // otherwise derive from NODE_ENV (anything but production is exposed). See plans/15.
@@ -81,8 +87,15 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .route('/attendance', attendance)
   .route('/accruals', accruals)
   .route('/locations', locations)
+  .route('/departments', departments)
   .route('/devices', devices)
   .route('/shifts', shifts)
+  .route('/org-levels', orgLevels)
+  .route('/shifts/:shiftId/levels', shiftLevelRestrictions)
+  .route('/workweek-patterns', workweekPatterns)
+  .route('/blackouts', blackouts)
+  .route('/transfers', transfers)
+  .route('/leave-policies/levels', levelPolicies)
   .route('/internal', internal)
   // Single error envelope. DomainError carries its own status + code + params;
   // anything else is a system error (500), logged fully, internals hidden in prod.

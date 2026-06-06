@@ -110,3 +110,44 @@ export const userDto = createSelectSchema(schema.user).omit({
   overrides: true,
   keyword: true,
 });
+
+export const departmentDto = createSelectSchema(schema.department).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const departmentLocationDto = createSelectSchema(schema.departmentLocation).omit({
+  orgId: true,
+  createdBy: true,
+});
+
+export const orgLevelDto = createSelectSchema(schema.orgLevel).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const workweekPatternDto = createSelectSchema(schema.workweekPattern).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const leaveBlackoutDto = createSelectSchema(schema.leaveBlackout).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const levelLeavePolicyDto = createSelectSchema(schema.levelLeavePolicy).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export const transferDto = createSelectSchema(schema.transfer).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});

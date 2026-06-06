@@ -9,3 +9,6 @@ export * from './shift-marks'; // pure: pairSessions, computeMarks (tested)
 export * from './regularization'; // request/approve/reject attendance fixes
 export * from './summary'; // pure: summarize → AttendanceSummary (tested, no DB)
 export * from './muster'; // muster report (read-only rollups)
+export * from './source-policy'; // Plan 31: per-level attendance source enforcement
+export * from './workweek-pattern'; // Plan 32: rotating workweek patterns (alternate Saturdays)
+export * from './workweek-pure'; // effectiveWorkdays, isWorkday, countWorkdays (pure, tested)
