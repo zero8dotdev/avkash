@@ -9,6 +9,7 @@ import { localTimeHHMM } from './window';
 import { shiftForDate } from './shift';
 import { applyOvertime, computeMarks, pairSessions, type PunchLite, type Session, type ShiftLite } from './shift-marks';
 import { assertSourceAllowed } from './source-policy';
+import { isWorkday, type WorkweekPatternRecord } from './workweek-pure';
 
 type AttendancePunch = typeof schema.attendancePunch.$inferSelect;
 
@@ -57,7 +58,9 @@ function resolveDay(
   sessions: Session[],
   wfh: boolean,
   // Plan 38: SEZ locations may have a higher OT threshold (null = use shift.fullDayHours).
-  overtimeThresholdHours?: number | null
+  overtimeThresholdHours?: number | null,
+  // Plan 32: rotating workweek pattern (alternate Saturdays etc.). When set, overrides `workweek`.
+  pattern?: WorkweekPatternRecord | null
 ): DayAttendance {
   const closed = sessions.filter((s) => s.outTs);
   const workedMin = closed.reduce((sum, s) => sum + s.minutes, 0);
@@ -89,7 +92,7 @@ function resolveDay(
     return h.isRecurring ? sameMonthDay(hd, d) : hd.getTime() === d.getTime();
   });
   if (isHoliday) status = 'HOLIDAY';
-  else if (!workweek.includes(DAY_NAMES[d.getUTCDay()])) status = 'WEEKLY_OFF';
+  else if (pattern ? !isWorkday(pattern, date) : !workweek.includes(DAY_NAMES[d.getUTCDay()])) status = 'WEEKLY_OFF';
   else if (leaves.some((l) => l.startDate <= date && l.endDate >= date)) status = 'ON_LEAVE';
   else status = sessions.length ? (wfh ? 'WFH' : 'PRESENT') : 'ABSENT';
 
@@ -98,25 +101,44 @@ function resolveDay(
 
 // The person's effective workweek (user → team → default). Timezone comes from
 // effectiveTimezone (location-aware); the holiday set keeps the legacy location string.
-async function loadCalendar(orgId: string, userId: string): Promise<{ workweek: DayName[]; location: string | null }> {
+// Plan 32: also resolves workweekPattern (user → team → null); pattern takes precedence over workweek array.
+async function loadCalendar(
+  orgId: string,
+  userId: string
+): Promise<{ workweek: DayName[]; pattern: WorkweekPatternRecord | null; location: string | null }> {
   const [u] = await db
-    .select({ workweek: schema.user.workweek, teamId: schema.user.teamId })
+    .select({ workweek: schema.user.workweek, teamId: schema.user.teamId, workweekPatternId: schema.user.workweekPatternId })
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .limit(1);
   let teamWorkweek: DayName[] | null = null;
+  let teamPatternId: string | null = null;
   let location: string | null = null;
   if (u?.teamId) {
     const [t] = await db
-      .select({ workweek: schema.team.workweek, location: schema.team.location })
+      .select({ workweek: schema.team.workweek, location: schema.team.location, workweekPatternId: schema.team.workweekPatternId })
       .from(schema.team)
       .where(eq(schema.team.teamId, u.teamId))
       .limit(1);
     teamWorkweek = (t?.workweek ?? null) as DayName[] | null;
+    teamPatternId = t?.workweekPatternId ?? null;
     location = t?.location ?? null;
   }
   const workweek =
     u?.workweek && u.workweek.length > 0 ? (u.workweek as DayName[]) : (teamWorkweek ?? DEFAULT_WORKWEEK);
+
+  // Resolve pattern: user-level override → team-level → none.
+  const patternId = u?.workweekPatternId ?? teamPatternId ?? null;
+  let pattern: WorkweekPatternRecord | null = null;
+  if (patternId) {
+    const [p] = await db
+      .select({ cycleLength: schema.workweekPattern.cycleLength, weeks: schema.workweekPattern.weeks, referenceDate: schema.workweekPattern.referenceDate })
+      .from(schema.workweekPattern)
+      .where(and(eq(schema.workweekPattern.id, patternId), eq(schema.workweekPattern.isActive, true)))
+      .limit(1);
+    if (p) pattern = { cycleLength: p.cycleLength, weeks: p.weeks as string[][], referenceDate: p.referenceDate };
+  }
+
   if (!location) {
     const [o] = await db
       .select({ location: schema.organisation.location })
@@ -125,7 +147,7 @@ async function loadCalendar(orgId: string, userId: string): Promise<{ workweek: 
       .limit(1);
     location = o?.location?.[0] ?? null;
   }
-  return { workweek, location };
+  return { workweek, pattern, location };
 }
 
 function eachDate(from: string, to: string): string[] {
@@ -201,7 +223,7 @@ export async function listAttendance(
 ): Promise<DayAttendance[]> {
   if (userId !== ctx.userId) requireRole(ctx, 'MANAGER');
   const tz = await effectiveTimezone(userId);
-  const { workweek, location } = await loadCalendar(ctx.orgId, userId);
+  const { workweek, pattern, location } = await loadCalendar(ctx.orgId, userId);
   const holidays = await resolveHolidays(ctx.orgId, location, Number(from.slice(0, 4)), Number(to.slice(0, 4)));
   const leaves = await db
     .select({ startDate: schema.leave.startDate, endDate: schema.leave.endDate })
@@ -290,7 +312,8 @@ export async function listAttendance(
       shifts[i],
       byDate.get(date) ?? [],
       wfhByDate.get(date) ?? false,
-      otThreshold
+      otThreshold,
+      pattern
     );
     const pending = pendingByDate.get(date) ?? 0;
     if (pending > 0) {

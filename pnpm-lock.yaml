@@ -421,6 +421,9 @@ importers:
 
   packages/leave:
     dependencies:
+      '@avkash/attendance':
+        specifier: workspace:*
+        version: link:../attendance
       '@avkash/auth':
         specifier: workspace:*
         version: link:../auth

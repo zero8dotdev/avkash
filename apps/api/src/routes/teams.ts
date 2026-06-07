@@ -15,6 +15,7 @@ const createTeamSchema = z.object({
   managers: z.array(z.string()).optional(),
   location: z.string().max(255).optional(),
   workweek: z.array(z.enum(DAYS)).optional(),
+  departmentId: z.string().nullable().optional(),
 });
 const updateTeamSchema = z.object({
   name: z.string().min(1).max(255).optional(),
@@ -23,6 +24,7 @@ const updateTeamSchema = z.object({
   locationId: z.string().nullable().optional(),
   workweek: z.array(z.enum(DAYS)).optional(),
   isActive: z.boolean().optional(),
+  departmentId: z.string().nullable().optional(),
 });
 const teamEscalationSchema = z.object({
   escalateAfterDays: z.number().int().min(0).max(365).nullable().optional(),

@@ -12,11 +12,12 @@ import {
   setDepartmentHead,
   getDepartmentLocations,
 } from '@avkash/org';
+import { listTeamsByDepartment } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
 import { etag, requireIfMatch } from '../concurrency';
-import { departmentDto, departmentLocationDto } from '../dto';
+import { departmentDto, departmentLocationDto, teamDto } from '../dto';
 
 const createSchema = z.object({
   name: z.string().min(1).max(255),
@@ -81,4 +82,10 @@ export const departments = new Hono<AppEnv>()
       c.get('body').headUserId
     );
     return c.json(serialize(departmentLocationDto, dl));
+  })
+  // Org-chart: teams that belong to this department, each with member headcount.
+  .get('/:id/teams', async (c) => {
+    const teams = await listTeamsByDepartment(c.get('auth'), c.req.param('id'));
+    const teamWithCountDto = teamDto.extend({ memberCount: z.number() });
+    return c.json({ data: serialize(teamWithCountDto.array(), teams) });
   });

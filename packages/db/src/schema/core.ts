@@ -101,6 +101,9 @@ export const team = pgTable(
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
     defaultShiftId: uuid('defaultShiftId'), // soft ref to Shift — the roster cascade baseline (null = no shift)
     workweekPatternId: uuid('workweekPatternId'), // soft FK → WorkweekPattern (Plan 32; null = use team.workweek)
+    // Org-chart link: which department this team belongs to (null = ungrouped). Approval routing
+    // stays on teamId; departmentId here enables Department → Teams → Employees queries.
+    departmentId: uuid('departmentId'), // soft FK → Department
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     startOfWorkWeek: daysOfWeekEnum('startOfWorkWeek').default('MONDAY'),
     workweek: daysOfWeekEnum('workweek')

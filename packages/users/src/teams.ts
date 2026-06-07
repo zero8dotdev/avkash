@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import { db, schema, type Team } from '@avkash/db';
 import { type AuthContext, ValidationError, NotFoundError, PreconditionFailedError } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
@@ -26,6 +26,7 @@ export interface CreateTeamInput {
   managers?: string[];
   location?: string;
   workweek?: string[];
+  departmentId?: string | null;
 }
 
 // Teams = the org's structure (branches/departments). HR (ADMIN) only. Everything
@@ -41,6 +42,7 @@ export async function createTeam(ctx: AuthContext, input: CreateTeamInput): Prom
       managers: input.managers ?? [],
       location: input.location ?? null,
       workweek: normaliseWeek(input.workweek),
+      departmentId: input.departmentId ?? null,
     })
     .returning();
   return row;
@@ -69,6 +71,7 @@ export interface UpdateTeamInput {
   locationId?: string | null;
   workweek?: string[];
   isActive?: boolean;
+  departmentId?: string | null;
 }
 
 export async function updateTeam(
@@ -89,6 +92,7 @@ export async function updateTeam(
       ...(patch.locationId !== undefined && { locationId: patch.locationId }),
       ...(patch.workweek !== undefined && { workweek: normaliseWeek(patch.workweek) }),
       ...(patch.isActive !== undefined && { isActive: patch.isActive }),
+      ...(patch.departmentId !== undefined && { departmentId: patch.departmentId }),
       version: sql`${schema.team.version} + 1`,
       updatedBy: ctx.userId,
       updatedOn: new Date(),
@@ -108,4 +112,23 @@ export async function updateTeam(
     throw new NotFoundError('TEAM_NOT_FOUND');
   }
   return row;
+}
+
+export interface TeamWithMemberCount extends Team {
+  memberCount: number;
+}
+
+// Org-chart query: all teams in a department with their member headcount.
+export async function listTeamsByDepartment(ctx: AuthContext, departmentId: string): Promise<TeamWithMemberCount[]> {
+  requireRole(ctx, 'MANAGER');
+  const rows = await db
+    .select({
+      team: schema.team,
+      memberCount: count(schema.user.id),
+    })
+    .from(schema.team)
+    .leftJoin(schema.user, and(eq(schema.user.teamId, schema.team.teamId), eq(schema.user.orgId, ctx.orgId)))
+    .where(and(eq(schema.team.departmentId, departmentId), eq(schema.team.orgId, ctx.orgId)))
+    .groupBy(schema.team.teamId);
+  return rows.map((r) => ({ ...r.team, memberCount: r.memberCount }));
 }
