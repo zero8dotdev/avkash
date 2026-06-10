@@ -256,3 +256,65 @@ via docker but no CI pipeline step exists yet; item 8 now VERIFIED — beats exe
 **Lesson for the open-issues register:** the two highest-impact bugs (store-id, flattenTree)
 were invisible to stub tests and caught only by the live phase — keep "run the smoke against
 a real stack" as a release gate, not a demo-day activity.
+
+---
+
+# FINAL REPORT — full arc (platform → demos → web app)
+
+26 commits on `plan51/integration` (from `avkash-v2.0` @ 63383c3). All verified on the live stack
+2026-06-10/11. Repo decision (June 2026): everything ships to the PRIVATE `avkash-cloud` repo; the
+open-core split (Plan 50) is deferred to an end-of-2026 decision.
+
+## Workstream ledger
+
+| Phase | Commit | Verified |
+| --- | --- | --- |
+| Plans 49–51 | 171ceb6 | — |
+| P0 contracts (shared) | 61611fe | typecheck 20/20 |
+| P1 event bus + outbox + relay | d51bca9 | 10/10 vs live PG |
+| WS4 field visibility | 81b0e5c | 36/36 |
+| WS1 OpenFGA infra + authz client | 1d0141f | 14/14; live SERVING |
+| WS2 core FGA model + loader | 66277dc | 28/28; store tests 16/16 vs real engine |
+| WS3 tuple sync (crash-resumed) | ec8eb2a | 21/21; live sync 31 tuples |
+| WS5 route pilot | c7fec51 | scenario stubs + live beats |
+| WS6 admin/explain/audit | 6853188 | 30 tests |
+| WS7 Meridian demo + boot wiring | 9197285 | smoke 8/8 after live fixes |
+| Live-phase fixes (4 bugs) | 1210baa e873834 3055827 16ee964 b0289a5 ccf05f9 | fail-closed executed live |
+| India HR demo (seed + 9-ch runbook) | 07f7ccc a922b21 | idempotent ×3; SQL-verified |
+| W0 SvelteKit foundation + credentials | cf0b6f8 e2601d2 | sign-in curl 200 + cookie; tc graph fixed |
+| W1 dashboard/leave/attendance | 8416ea0 | SSR per persona; blackout 409 + 403 beats in UI |
+| W2 comp-off + admin config | ae1eff5 | SSR verified; demo state restored post-verify |
+| W3 directory/profiles/transfers/reports/field-policies | 259f866 | 🔒 locked groups live; flip-and-revert proven |
+| W4 guided demo player | a17ebce | ch 1/7/8/9 LIVE, console shows real API responses |
+
+## Consolidated open-items register (priority order)
+
+1. **`/employees/:id` DTO bug** — serializes EmployeeProfile through `userDto.partial()` → profile fields
+   come back empty. Fix in apps/api dto wiring. (W3 issue #3)
+2. **`hrbp` relation not consulted** — `resolveEmployeeRelations` (packages/users) never checks FGA hrbp;
+   Anita's HRBP visibility is not end-to-end despite correct tuples/policy/UI. (W3 issue #1)
+3. **`hrbpUserId` column missing** — Anita's HRBP tuple is manual; nightly reconciler deletes it.
+   Re-run `pnpm demo:seed:india` before demos. (WS7 caveat)
+4. **Compensation/identity/medical columns absent** on EmployeeProfile — field-group seam complete,
+   real sensitive fields pending schema addition + db:push.
+5. **kysely pin** — `@better-auth/kysely-adapter@1.6.12` incompatible with kysely 0.29 exports; only
+   bites the unused `bun build` artifact. Pin kysely or bump better-auth before anything consumes dist.
+6. **publish() not in-tx** in most domain mutations (post-write best-effort; reconciler is the net).
+7. Minor API gaps: `GET /encashments` absent; location-holidays endpoint returns local-only (UI unions);
+   leave approval lacks If-Match; org-levels/shifts/OT unseeded (demo player chapters 2/3/4/5 scripted).
+
+## Demo-day checklist
+
+1. `docker compose up -d` (incl. openfga chain) → `pnpm db:push` (if fresh DB)
+2. `pnpm demo:seed && pnpm demo:seed:india && pnpm demo:seed:credentials`
+   (order matters; re-seed restores the HRBP tuple + comp-off PENDING state)
+3. Logins: `<persona>@meridian-demo.example.com` / `AvkashDemo@2026`
+4. Surfaces: web app at :3000 (docker) or vite dev; `/demo` player; runbooks in docs/;
+   `pnpm demo:smoke` for the scripted 8-beat proof
+5. Do NOT run the reconciler between seed and beats 3/4/7 (HRBP tuple)
+
+## Verdict
+
+Platform DoD 7/8 verified (CI pipeline for FGA store tests pending a CI system). Both demo runbooks
+clickable end-to-end in the web app. Demo player: 4 live chapters, 5 honestly scripted pending seeds.
+Ready for enterprise walkthroughs.
