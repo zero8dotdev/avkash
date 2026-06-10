@@ -116,5 +116,61 @@ services:
       MSG91_SENDER_ID: ${MSG91_SENDER_ID:-}
       MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID:-}
 
+  # ── OpenFGA infrastructure ───────────────────────────────────────────────────
+  # Rationale: OpenFGA runs against the EXISTING postgres instance in a dedicated
+  # logical database ("openfga") so drizzle-kit push never sees FGA tables. This
+  # keeps self-host complexity to exactly one extra stateless container with zero
+  # new stateful infrastructure. Same PG = same backup/ops story; separate logical
+  # DB = zero tooling interference (drizzle-kit diffs only the app schema).
+
+  # One-shot: creates the "openfga" logical DB if it does not exist. Uses a
+  # SELECT/\gexec guard because CREATE DATABASE has no IF NOT EXISTS in Postgres.
+  openfga-db-init:
+    image: postgres:16-alpine
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-avkash}
+    command: >
+      psql -h postgres -U ${POSTGRES_USER:-avkash} -d ${POSTGRES_DB:-avkash} -c
+      "SELECT 'CREATE DATABASE openfga' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'openfga')\gexec"
+
+  # One-shot: runs OpenFGA schema migrations against the openfga logical DB.
+  # Must complete before the server starts (service_completed_successfully).
+  openfga-migrate:
+    image: openfga/openfga:v1.8
+    command: migrate
+    restart: 'no'
+    depends_on:
+      openfga-db-init:
+        condition: service_completed_successfully
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/openfga?sslmode=disable
+
+  # The OpenFGA authorization server. Stateless binary — all state is in postgres.
+  # Port 8080 is the HTTP API; 8081 gRPC (exposed if needed).
+  openfga:
+    image: openfga/openfga:v1.8
+    command: run
+    restart: unless-stopped
+    depends_on:
+      openfga-migrate:
+        condition: service_completed_successfully
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/openfga?sslmode=disable
+      OPENFGA_HTTP_ADDR: 0.0.0.0:8080
+    ports:
+      - '8080:8080' # HTTP API; 8081 gRPC if needed
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:8080/healthz || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
 volumes:
   postgres_data:

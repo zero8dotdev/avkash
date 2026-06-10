@@ -22,6 +22,11 @@ const schema = z.object({
   MSG91_AUTH_KEY: z.string().optional(),
   MSG91_SENDER_ID: z.string().optional(),
   MSG91_TEMPLATE_ID: z.string().optional(),
+  // OpenFGA (Seam 4 — granular authorization). FGA_API_URL defaults to the local
+  // openfga container. FGA_STORE_ID is empty until the store is created at first
+  // boot via ensureStore() in @avkash/authz; the API bootstraps and writes it back.
+  FGA_API_URL: z.string().url().default('http://localhost:8080'),
+  FGA_STORE_ID: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);

@@ -20,6 +20,7 @@
     "@avkash/i18n": "workspace:*",
     "@avkash/db": "workspace:*",
     "@avkash/auth": "workspace:*",
+    "@avkash/authz": "workspace:*",
     "@avkash/org": "workspace:*",
     "@avkash/users": "workspace:*",
     "@avkash/leave": "workspace:*",

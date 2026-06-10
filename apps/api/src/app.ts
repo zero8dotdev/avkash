@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { auth } from '@avkash/auth';
 import { ping } from '@avkash/db';
+import { authzHealthy } from '@avkash/authz';
 import { DomainError, mapDatabaseError } from '@avkash/shared';
 import { translate, type Locale } from '@avkash/i18n';
 import { requestIdMw } from './middleware/request-id';
@@ -57,12 +58,19 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .use('*', requestIdMw)
   .use('*', cors({ origin: CORS_ORIGINS, credentials: true }))
   .use('*', localeMw)
-  // Liveness: the process is up. Readiness: dependencies (the DB) are reachable —
+  // Liveness: the process is up. Readiness: dependencies (DB + FGA) are reachable —
   // an orchestrator routes traffic only when ready, and pulls it on 503.
+  // FGA is probed with the same timeout discipline as the DB ping. Both must pass.
   .get('/health', (c) => c.json({ status: 'live', service: 'api' }))
   .get('/health/ready', async (c) => {
     try {
-      await ping();
+      const [fgaOk] = await Promise.all([
+        authzHealthy(2000),
+        ping(), // throws on DB failure — caught below
+      ]);
+      if (!fgaOk) {
+        return c.json({ status: 'unavailable', reason: 'fga' }, 503);
+      }
       return c.json({ status: 'ready' });
     } catch {
       return c.json({ status: 'unavailable' }, 503);
