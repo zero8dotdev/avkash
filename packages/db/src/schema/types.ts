@@ -31,6 +31,8 @@ import type { shiftLevelRestriction } from './shift-level-restriction';
 import type { activityLog } from './audit';
 import type { subscription, paySubMap } from './billing';
 import type { contactEmail } from './contact';
+import type { fieldPolicy } from './field-policy';
+import type { eventOutbox } from './event-outbox';
 
 export type BusinessUnit = typeof businessUnit.$inferSelect;
 export type NewBusinessUnit = typeof businessUnit.$inferInsert;
@@ -131,6 +133,8 @@ export type NewPaySubMap = typeof paySubMap.$inferInsert;
 export type ContactEmail = typeof contactEmail.$inferSelect;
 export type NewContactEmail = typeof contactEmail.$inferInsert;
 
-import type { eventOutbox } from './event-outbox';
 export type EventOutbox = typeof eventOutbox.$inferSelect;
 export type NewEventOutbox = typeof eventOutbox.$inferInsert;
+
+export type FieldPolicy = typeof fieldPolicy.$inferSelect;
+export type NewFieldPolicy = typeof fieldPolicy.$inferInsert;

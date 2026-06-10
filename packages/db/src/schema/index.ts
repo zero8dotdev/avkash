@@ -23,6 +23,7 @@ export * from './policy';
 export * from './audit';
 export * from './billing';
 export * from './contact';
+export * from './field-policy';
 export * from './relations';
 export * from './types';
 export * from './event-outbox';
