@@ -34,6 +34,10 @@ const googleConfigured = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRE
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  // The web app lives on a different origin (:3000) than the API (:3001). Better
+  // Auth trusts only its own baseURL by default, so browser sign-ins arrive with
+  // an "untrusted" Origin header and die with "Invalid origin" — list the app.
+  trustedOrigins: [env.APP_URL],
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
