@@ -226,3 +226,33 @@ Evidence:
 | 8. SUMMARY.md + runbook end-to-end | **PARTIAL** (file exists; beat execution DEFERRED-TO-LIVE) |
 
 **Final DoD score: 5 VERIFIED / 3 PARTIAL**
+
+---
+
+## Orchestrator addendum — live-phase results (post-WS-R)
+
+The WS-R verification above predates the live run. Executing against the real stack
+surfaced and fixed four integration bugs, then the full smoke passed:
+
+| Fix | Commit | Bug |
+| --- | --- | --- |
+| openfga-db-init | `1210baa` | psql `\gexec` mangled by YAML — shell probe + createdb |
+| compose health/env | `e873834` | distroless image has no wget (healthcheck could never pass); api/worker lacked in-network `FGA_API_URL` |
+| FGA store-id resolution | `3055827` | authz-sync read client cached `env.FGA_STORE_ID` at construction → worker/seed/backfill always `AUTHZ_UNAVAILABLE` ("storeId is required"); fixed via call-time `getStoreId()` + `bootAuthz()` in worker/scripts |
+| explain flattenTree | `16ee964`, `b0289a5` | computed/ttu leaves recursed on the SAME node → infinite loop, API CPU-pegged (stub tests never exercised real Expand shapes) |
+
+**Live evidence (this stack, 2026-06-10):**
+- `pnpm db:push` applied `event_outbox` + `field_policy` cleanly
+- events integration tests vs live Postgres: **10/10**
+- FGA store tests vs real engine (openfga/cli docker): **16/16** (14 checks, 2 list_objects)
+- seed: `written=31 deleted=1 expected=31` (idempotent re-run: 0 drift)
+- **demo smoke: 8 PASS / 0 FAIL / 1 SKIPPED** (beat 6 API keys — out of scope by design)
+- fail-closed executed live: FGA stopped → `503 AUTHZ_UNAVAILABLE` envelope + readiness `unavailable/fga`; restart → `ready` in seconds
+- reconciler live: `written=0 deleted=0 repairs=0 expected=31` — FGA in sync with Postgres
+
+**Updated DoD score: 7 VERIFIED / 1 PARTIAL** (item 7 remains PARTIAL: store tests pass
+via docker but no CI pipeline step exists yet; item 8 now VERIFIED — beats executed).
+
+**Lesson for the open-issues register:** the two highest-impact bugs (store-id, flattenTree)
+were invisible to stub tests and caught only by the live phase — keep "run the smoke against
+a real stack" as a release gate, not a demo-day activity.
