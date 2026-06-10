@@ -39,15 +39,18 @@ function flattenTree(tree: unknown, path: string[] = []): string[] {
       const currentPath = path.join(' → ');
       return (leaf.users as unknown[]).map((u) => `${String(u)} ← ${currentPath}`);
     }
+    // computed / tupleToUserset leaves are TERMINAL in an Expand tree (Expand is
+    // single-level; FGA does not inline the referenced userset). Emit the pointer
+    // as a path — recursing on the same node here loops forever (CPU-pegged API).
     if ('computed' in leaf && typeof leaf.computed === 'object') {
       const computed = leaf.computed as Record<string, unknown>;
       const relation = typeof computed.userset === 'string' ? computed.userset : '(computed)';
-      return flattenTree(node, [...path, relation]);
+      return [`(via ${relation})${path.length ? ` ← ${path.join(' → ')}` : ''}`];
     }
     if ('tupleToUserset' in leaf && typeof leaf.tupleToUserset === 'object') {
       const ttu = leaf.tupleToUserset as Record<string, unknown>;
       const ttusetName = typeof ttu.userset === 'string' ? ttu.userset : '(ttu)';
-      return flattenTree(node, [...path, ttusetName]);
+      return [`(via ${ttusetName})${path.length ? ` ← ${path.join(' → ')}` : ''}`];
     }
   }
 
