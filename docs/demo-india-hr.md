@@ -10,6 +10,22 @@ The org is **Meridian Manufacturing**: a Coimbatore factory (Plants BU) and a Be
 Personas: Priya (HR admin, Bengaluru) · Rohan (shift manager, Assembly line) · Sara (operator, Assembly) ·
 Dev (manager, Logistics) · Anita (HRBP for the Plants BU).
 
+**Stable seeded IDs** (set these as env vars for the curl examples below):
+```bash
+export ORG_ID=6a5109da-bad7-4515-9b0c-7ecff8dc9448
+export TEAM_ASSEMBLY_ID=9829047a-23a6-4e8d-b431-1b516190a60e
+export PRIYA_ID=157a55a6-e7b5-4474-9f48-44fae5bb6814
+export ROHAN_ID=f45b7018-e4c0-4be4-aaed-25b7b65cd09f
+export SARA_ID=e208de76-cb76-4b2e-a562-318092def28f
+export LOC_COIMBATORE=4990b22b-3693-4bb5-8c22-2894d569b4a8
+export LOC_BENGALURU=9d87c34d-280d-4161-9616-a7c68fec052e
+export LT_EL=4889510e-e6b1-468e-a237-83a2256ed9c9
+export COMP_OFF_ID=1eb0cd13-2f49-4c77-9920-5e2f84fe85d9
+export BLACKOUT_ID=aebb7e03-bbeb-4653-9156-238b54e0ffcd
+export REG_ID=1dd9ede3-676c-44d1-94de-16fb395e7101
+export INTERNAL_API_TOKEN=dev-cron-token
+```
+
 Endpoints marked **[session]** need a logged-in user (cookie); endpoints marked **[internal]** use
 `-H 'X-Internal-Token: dev-cron-token'`. Where a session is required, the runbook shows the exact call and
 the verified server-side state instead — same honesty rule as the enterprise authz runbook
@@ -85,26 +101,33 @@ Rajyotsava** on November 1. Festival dates (Holi, Diwali) move with the lunar ca
 publishes the calendar per *location* at the start of the year — and gets it audited by everyone.
 
 **How Avkash models it.** Holidays are org-wide by default; setting a `location` scopes them to one site.
-One org, per-site calendars, no duplication of the national list.
+One org, per-site calendars, no duplication of the national list. The `location` field on the Holiday
+entity stores the Location UUID — `listHolidays` with `?location=<id>` returns the org-wide set plus
+that location's own holidays.
 
-**Show it.** Verified seeded calendar (2026):
+**Show it.** Verified seeded calendar (2026, from live database):
 
 ```
-Pongal                2026-01-14   Coimbatore Plant only
-Republic Day          2026-01-26   all locations
-Holi                  2026-03-03   all locations
-Tamil New Year        2026-04-14   Coimbatore Plant only
-Independence Day      2026-08-15   all locations
-Gandhi Jayanti        2026-10-02   all locations
-Diwali                2026-10-19   all locations
-Karnataka Rajyotsava  2026-11-01   Bengaluru HQ only
+Pongal                2026-01-14   4990b22b… (Coimbatore Plant only)
+Republic Day          2026-01-26   null      (all locations)
+Holi                  2026-03-03   null      (all locations)
+Tamil New Year        2026-04-14   4990b22b… (Coimbatore Plant only)
+Independence Day      2026-08-15   null      (all locations)
+Gandhi Jayanti        2026-10-02   null      (all locations)
+Diwali                2026-10-19   null      (all locations)
+Karnataka Rajyotsava  2026-11-01   9d87c34d… (Bengaluru HQ only)
 ```
 ```bash
 # [session] same org, two different answers:
-curl "http://localhost:3001/holidays?location=<coimbatore-location-id>"
-curl "http://localhost:3001/holidays?location=<bengaluru-location-id>"
+# Coimbatore: 7 holidays (national + Pongal + Tamil New Year)
+curl "http://localhost:3001/holidays?location=4990b22b-3693-4bb5-8c22-2894d569b4a8&year=2026" \
+  -H "Cookie: <priya-session>"
+# Bengaluru: 6 holidays (national + Karnataka Rajyotsava)
+curl "http://localhost:3001/holidays?location=9d87c34d-280d-4161-9616-a7c68fec052e&year=2026" \
+  -H "Cookie: <priya-session>"
 ```
 *Presenter note:* run both curls back to back — the differing lists land the point better than any slide.
+Bengaluru count: 6. Coimbatore count: 7 (Tamil Nadu has Pongal AND Tamil New Year as plant holidays).
 
 ---
 
@@ -122,14 +145,24 @@ the supervisor approves, the record is corrected *with an audit trail* — never
 2nd-Saturday leave day doesn't burn balance. Regularization requests carry requested in/out times, a
 reason, and a PENDING → approve/reject flow.
 
-**Show it.** Verified live: Assembly team runs **“Alternate Saturday (1st/3rd working)”** — a 2-week
-cycle `[Mon–Sat], [Mon–Fri]` anchored to 2026-01-05; HQ teams run Mon–Fri. And Sara has a pending
-regularization for 2026-06-05: *“Badge reader offline at factory gate — forgot to tap out”* (requested
-8:30am–5:30pm IST).
+**Show it.** Verified live: Assembly team (`9829047a…`) runs **”Alternate Saturday (1st/3rd working)”**
+(`fb9eced4…`) — a 2-week cycle `[Mon–Sat], [Mon–Fri]` anchored to 2026-01-05; HQ teams run Mon–Fri
+(`edb6bd87…`). Sara has a pending regularization for 2026-06-05: *”Badge reader offline at factory gate
+— forgot to tap out”* (`1dd9ede3…`, requested 08:30–17:30 IST).
 ```bash
-# [session] the patterns and the pending request
-curl http://localhost:3001/workweek-patterns
-curl "http://localhost:3001/attendance/regularizations?status=PENDING"   # Rohan's approval queue
+# [session: Priya or Rohan] the patterns
+curl http://localhost:3001/workweek-patterns -H “Cookie: <rohan-session>”
+# Expected: two patterns: “Alternate Saturday (1st/3rd working)” (cycleLength=2) + “Mon–Fri (HQ)” (cycleLength=1)
+
+# [session: Rohan] Rohan's approval queue — Sara's regularization
+curl “http://localhost:3001/attendance/regularizations?status=PENDING” -H “Cookie: <rohan-session>”
+# Expected: {id:”1dd9ede3…”, date:”2026-06-05”, reason:”Badge reader offline…”, status:”PENDING”}
+
+# [session: Rohan] approve it → writes REGULARIZATION-source punch, writes audit log
+curl -s -X POST “http://localhost:3001/attendance/regularizations/1dd9ede3-676c-44d1-94de-16fb395e7101/approve” \
+  -H “Cookie: <rohan-session>” \
+  -H “Content-Type: application/json” \
+  -d '{“note”:”Badge reader outage confirmed on maintenance log”}'
 ```
 *Presenter note:* open the calendar view for two consecutive Saturdays — one working, one off — that's
 the alternate-Saturday engine doing day-math the HR team otherwise does in Excel.
@@ -148,14 +181,21 @@ unused EL converted to pay, capped, typically at year-end or F&F.
 and on approval becomes usable balance with a policy-driven expiry (`compOffExpiryDays: 90` seeded).
 Encashment requests draw against the EL policy's `encashmentMaxDays`.
 
-**Show it.** Verified live: Sara has **1.00 day PENDING** for working Sunday **2026-06-07**.
+**Show it.** Verified live: Sara has **1.00 day PENDING** for working Sunday **2026-06-07**
+(comp-off ID `1eb0cd13…`). Comp-off leave type is `Compensatory Off` (`f89c7c8d…`, kind=COMP_OFF).
 ```bash
-# [session: Rohan] the pending grant, then approve it
-curl http://localhost:3001/comp-off
-curl -X POST http://localhost:3001/comp-off/<id>/approve -H 'If-Match: "<version>"'
+# [session: Rohan] list pending comp-offs
+curl "http://localhost:3001/comp-off" -H "Cookie: <rohan-session>"
+# Expected: [{id:"1eb0cd13…", userId:"e208de76…", workedOn:"2026-06-07", days:"1", status:"PENDING"}]
+
+# [session: Rohan] approve → posts COMP_OFF_CREDIT to leave ledger with expiresOn = workedOn + 90d
+curl -s -X POST "http://localhost:3001/comp-off/1eb0cd13-2f49-4c77-9920-5e2f84fe85d9/approve" \
+  -H "Cookie: <rohan-session>"
+# Expected: {status:"APPROVED", expiresOn:"2026-09-05", approvedBy:"f45b7018-…"}
 ```
 *Presenter note:* the 90-day expiry field is the compliance hook — say "no more comp-offs from 2019 on
-anyone's books."
+anyone's books." After approval, Sara's comp-off balance goes up by 1 in the ledger. She redeems it by
+applying a `Compensatory Off` leave type — which posts a LEAVE_TAKEN debit against the COMP_OFF_CREDIT.
 
 ---
 
@@ -170,15 +210,25 @@ of endless grievance. Making the freeze *explicit, scoped, and dated* is fairer 
 leave type; applications inside the window are rejected at submission with a clear error, not at the
 manager's discretion.
 
-**Show it.** Verified live: **“Q2 FY2027 Quarter-End Freeze”**, Sep 25–30 2026, Coimbatore Plant only,
-all leave types.
+**Show it.** Verified live: **”Q2 FY2027 Quarter-End Freeze”** (`aebb7e03…`), Sep 25–30 2026,
+`locationId = 4990b22b…` (Coimbatore Plant only), all leave types (leaveTypeId = null).
 ```bash
-# [session] list, then watch an application bounce
-curl http://localhost:3001/blackouts
-# Sara applies for Sep 28 → 422 with the blackout's name in the error envelope
+# [session: Rohan] list blackouts for the plant
+curl “http://localhost:3001/blackouts?locationId=4990b22b-3693-4bb5-8c22-2894d569b4a8” \
+  -H “Cookie: <rohan-session>”
+# Expected: [{id:”aebb7e03…”, name:”Q2 FY2027 Quarter-End Freeze”,
+#              startDate:”2026-09-25”, endDate:”2026-09-30”, leaveTypeId:null}]
+
+# [session: Sara] apply for leave inside the blackout → 409 LEAVE_BLACKOUT_PERIOD
+curl -s -X POST http://localhost:3001/leaves \
+  -H “Cookie: <sara-session>” \
+  -H “Content-Type: application/json” \
+  -d '{“leaveTypeId”:”4889510e-e6b1-468e-a237-83a2256ed9c9”,”startDate”:”2026-09-28”,”endDate”:”2026-09-28”,”reason”:”Personal work”}'
+# Expected: {“error”:{“code”:”LEAVE_BLACKOUT_PERIOD”,”details”:{“name”:”Q2 FY2027 Quarter-End Freeze”}}}
 ```
 *Presenter note:* Bengaluru HQ staff can still take leave that week — the freeze is scoped to the plant,
-which is exactly how the informal rule was always meant to work.
+which is exactly how the informal rule was always meant to work. Switch the same curl to a Bengaluru
+user and it succeeds.
 
 ---
 
