@@ -35,7 +35,8 @@
     "drizzle-zod": "^0.8.0",
     "@avkash/holidays": "workspace:*",
     "@avkash/field-policy": "workspace:*",
-    "@avkash/authz-sync": "workspace:*"
+    "@avkash/authz-sync": "workspace:*",
+    "@avkash/events": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

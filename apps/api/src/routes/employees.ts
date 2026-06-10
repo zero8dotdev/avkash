@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { getEmployeeProfile, updateProfile, listEmployees, bulkSetLevel, setUserDepartment } from '@avkash/users';
+import { getEmployeeProfile, updateProfile, listEmployees, bulkSetLevel, setUserDepartment, writeSensitiveReadAudit } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { etag, requireIfMatch } from '../concurrency';
@@ -218,6 +218,19 @@ export const employees = new Hono<AppEnv>()
     }
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, relations);
     c.header('ETag', etag(version));
+    // Sensitive-read audit (Plan 51 Piece 3): if the grant includes any audited
+    // group (identity / medical) and the caller is NOT the subject, emit one audit
+    // row per request — batched, never per field. Fire-and-forget (errors logged,
+    // must not fail the response).
+    const isSubject = relations.includes('subject');
+    if (!isSubject) {
+      const auditedGroupsRead = (EMPLOYEE_FIELD_GROUPS.auditedGroups ?? []).filter((g) => grant.read.has(g));
+      if (auditedGroupsRead.length > 0) {
+        writeSensitiveReadAudit(ctx, subjectUserId, auditedGroupsRead).catch((err) => {
+          console.error('[authz-audit] sensitive-read audit write failed:', err instanceof Error ? err.message : String(err));
+        });
+      }
+    }
     return c.json({ data: serialize(userDto.partial(), profile, { grant, groups: EMPLOYEE_FIELD_GROUPS.groups }) });
   })
   .patch('/:id', validateBody(hrPatchSchema), async (c) => {

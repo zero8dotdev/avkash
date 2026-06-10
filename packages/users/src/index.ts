@@ -6,3 +6,4 @@ export * from './teams'; // createTeam, listTeams, getTeam, updateTeam
 export * from './admin'; // getMe, listUsers, getUser, updateUserAdmin
 export * from './employee'; // getEmployeeProfile, updateProfile, listEmployees, getEmployeeLevel, bulkSetLevel, setUserDepartment, setFloating, setUserBusinessUnit
 export * from './transfers'; // initiateTransfer, approveTransfer, cancelTransfer, listTransfers, resolveEffectiveLocation, sweepExpiredTransfers
+export * from './audit'; // writeSensitiveReadAudit

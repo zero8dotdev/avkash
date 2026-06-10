@@ -157,3 +157,11 @@ export const transferDto = createSelectSchema(schema.transfer).omit({
   createdBy: true,
   updatedBy: true,
 });
+
+// Field-policy DTO — drops orgId and audit authors; version is exposed so the
+// client can supply If-Match on PATCH. createdAt/updatedAt remain for auditability.
+export const fieldPolicyDto = createSelectSchema(schema.fieldPolicy).omit({
+  orgId: true,
+  createdBy: true,
+  updatedBy: true,
+});

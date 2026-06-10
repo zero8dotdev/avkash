@@ -40,6 +40,7 @@ import { workweekPatterns } from './routes/workweek-patterns';
 import { blackouts } from './routes/blackouts';
 import { transfers } from './routes/transfers';
 import { levelPolicies } from './routes/leave-policies';
+import { fieldPolicies } from './routes/field-policies';
 
 // Expose real error internals only in lower environments. Explicit flag wins;
 // otherwise derive from NODE_ENV (anything but production is exposed). See plans/15.
@@ -111,6 +112,7 @@ export const app = new Hono<{ Variables: { locale: Locale; requestId: string } }
   .route('/blackouts', blackouts)
   .route('/transfers', transfers)
   .route('/leave-policies/levels', levelPolicies)
+  .route('/field-policies', fieldPolicies)
   .route('/internal', internal)
   // Single error envelope. DomainError carries its own status + code + params;
   // anything else is a system error (500), logged fully, internals hidden in prod.

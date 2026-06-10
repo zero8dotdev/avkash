@@ -59,6 +59,9 @@ importers:
       '@avkash/documents':
         specifier: workspace:*
         version: link:../../packages/documents
+      '@avkash/events':
+        specifier: workspace:*
+        version: link:../../packages/events
       '@avkash/field-policy':
         specifier: workspace:*
         version: link:../../packages/field-policy
