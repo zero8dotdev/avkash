@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@avkash/attendance':
+        specifier: workspace:*
+        version: link:packages/attendance
       '@avkash/authz':
         specifier: workspace:*
         version: link:packages/authz
@@ -17,6 +20,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:packages/db
+      '@avkash/holidays':
+        specifier: workspace:*
+        version: link:packages/holidays
       '@avkash/leave':
         specifier: workspace:*
         version: link:packages/leave

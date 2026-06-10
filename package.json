@@ -22,6 +22,7 @@
     "clean": "turbo run clean",
     "authz:backfill": "bun packages/authz-sync/src/backfill.ts",
     "demo:seed": "bun scripts/seed-meridian.ts",
+    "demo:seed:india": "bun scripts/seed-india.ts",
     "demo:smoke": "bun scripts/demo-smoke.ts"
   },
   "devDependencies": {
@@ -37,9 +38,11 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@avkash/attendance": "workspace:*",
     "@avkash/authz": "workspace:*",
     "@avkash/authz-sync": "workspace:*",
     "@avkash/db": "workspace:*",
+    "@avkash/holidays": "workspace:*",
     "@avkash/leave": "workspace:*",
     "@avkash/org": "workspace:*",
     "@avkash/shared": "workspace:*",
