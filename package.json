@@ -20,7 +20,9 @@
     "format:fix": "prettier --write .",
     "knip": "knip",
     "clean": "turbo run clean",
-    "authz:backfill": "bun packages/authz-sync/src/backfill.ts"
+    "authz:backfill": "bun packages/authz-sync/src/backfill.ts",
+    "demo:seed": "bun scripts/seed-meridian.ts",
+    "demo:smoke": "bun scripts/demo-smoke.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
