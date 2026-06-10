@@ -1,0 +1,128 @@
+# Avkash core authorization model (Plan 51 WS2).
+#
+# Object IDs are real row UUIDs. Because UUIDs are globally unique, cross-tenant
+# collisions are impossible — a check on org:<orgA> can never accidentally allow
+# a user from orgB even when both share the same FGA store.
+#
+# Hierarchy: org -> business_unit -> department -> team -> employee
+# Approval: leave_request.approver resolves transitively through employee -> team -> approver
+# Delegation: a time-windowed conditioned tuple; no code change required to enable/revoke.
+#
+# FGA 1.1 allows only single-hop "x from y" rewrites. Multi-hop chains (e.g.
+# hr_admin from org from team) are expressed by propagating the relation one level at
+# a time (team.hr_admin = hr_admin from org; employee.viewer uses hr_admin from team).
+#
+# Type names mirror FGA_TYPES in @avkash/shared/src/authz.ts — keep them in sync.
+
+model
+  schema 1.1
+
+# ── user ──────────────────────────────────────────────────────────────────────
+# Terminal principal — maps 1:1 to User.id (UUID). No relations of its own;
+# every other type references [user] as the leaf subject.
+type user
+
+# ── org ───────────────────────────────────────────────────────────────────────
+# The tenant root. All objects transitively chain back to an org, so every FGA
+# check implicitly scopes to a tenant (defence in depth — routes also call assertOrg).
+type org
+  relations
+    # Any active employee of this organisation (used for basic visibility checks).
+    define member: [user]
+    # An HR administrator who can see and manage all employees in the org.
+    define hr_admin: [user]
+    # The organisation owner (highest privilege; set once at org creation).
+    define owner: [user]
+
+# ── business_unit ─────────────────────────────────────────────────────────────
+# A subsidiary brand or division (Plan 41 / BusinessUnit table). Groups departments
+# for HRBP-scoped visibility without affecting leave approval routing.
+type business_unit
+  relations
+    # The org this business unit belongs to (enables org-level checks to flow down).
+    define org: [org]
+    # The executive BU leader who has approver authority over the whole unit.
+    define head: [user]
+    # The HR Business Partner for this BU — sees all employees in their BU only.
+    # Classic enterprise ask: "HRBP has HR authority for their slice of the org."
+    define hrbp: [user]
+    # hr_admin propagated down from org so department/team can inherit it.
+    define hr_admin: hr_admin from org
+
+# ── department ────────────────────────────────────────────────────────────────
+# An org-chart structural unit (Plan 28 / Department table). Distinct from Team:
+# departments group teams for reporting/headcount; leave approval routes via teamId.
+type department
+  relations
+    # Which business unit this department falls under.
+    define business_unit: [business_unit]
+    # The department head — inherits approver authority over all teams in this dept.
+    define head: [user]
+    # HRBP propagated down from business_unit for further inheritance into team.
+    define hrbp: hrbp from business_unit
+
+# ── team ──────────────────────────────────────────────────────────────────────
+# The primary leave-approval unit (Team.teamId). A user belongs to one team;
+# leave requests carry the teamId and approval is resolved here.
+type team
+  relations
+    # The org this team belongs to (used for hr_admin propagation).
+    define org: [org]
+    # Which department this team belongs to (Team.departmentId soft FK).
+    define department: [department]
+    # The permanent team manager (Team.managers array -> one tuple per manager).
+    define manager: [user]
+    # A temporary delegate: same authority as manager, but ONLY inside the
+    # active_window condition. ApprovalDelegation row -> one conditioned tuple.
+    define delegate: [user with active_window]
+    # Any direct member of this team (used for list filtering).
+    define member: [user]
+    # Effective approver = manager OR a currently-active delegate OR the department head.
+    # Written once; covers delegation and org-chart inheritance automatically.
+    define approver: manager or delegate or head from department
+    # hr_admin propagated down from org so employee.viewer can inherit it.
+    define hr_admin: hr_admin from org
+    # HRBP propagated down from department so employee.viewer can inherit it.
+    define hrbp: hrbp from department
+
+# ── employee ──────────────────────────────────────────────────────────────────
+# The HR record subject (EmployeeProfile.id). Viewer set resolves who may read
+# this employee's profile; the team link threads approval authority upward.
+type employee
+  relations
+    # The team this employee belongs to (User.teamId -> Team.teamId).
+    define team: [team]
+    # The user who IS this employee — can always see their own record (self-service).
+    define subject: [user]
+    # Effective approver for this employee = team approver (manager / delegate / dept head).
+    # Used by leave_request to resolve its own approver in a single hop.
+    define approver: approver from team
+    # Who may view this employee's profile:
+    #   - the employee themselves (subject)
+    #   - any approver of their team (manager, active delegate, department head)
+    #   - any hr_admin of the org their team belongs to
+    #   - the HRBP of the business_unit their team's department is in
+    define viewer: subject or approver from team or hr_admin from team or hrbp from team
+
+# ── leave_request ─────────────────────────────────────────────────────────────
+# A single leave application (Leave.leaveId). Subject and approver are derived
+# transitively so every approval check is one FGA call, never a SQL join.
+type leave_request
+  relations
+    # The employee who filed this request.
+    # Written as employee:<employeeProfileId> when the leave record is created.
+    define subject: [employee]
+    # Who can approve this request = the approver of the subject employee.
+    # Transitivity: leave_request.subject -> employee.approver -> team.approver
+    #               -> manager or delegate (with active_window) or dept head.
+    define approver: approver from subject
+
+# ── active_window condition ────────────────────────────────────────────────────
+# Used exclusively by team.delegate tuples (ApprovalDelegation.startsOn / endsOn).
+# The tuple-writer (WS3) encodes condition context = { now, starts, ends } where:
+#   now   = the timestamp at check time (passed by the caller)
+#   starts = ApprovalDelegation.startsOn (as an RFC 3339 timestamp at midnight)
+#   ends   = ApprovalDelegation.endsOn   (as an RFC 3339 timestamp at end-of-day)
+condition active_window(now: timestamp, starts: timestamp, ends: timestamp) {
+  now >= starts && now <= ends
+}

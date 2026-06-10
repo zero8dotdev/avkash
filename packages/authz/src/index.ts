@@ -14,3 +14,4 @@
 export { authzClient } from './client';
 export { ensureStore } from './store';
 export { authzHealthy } from './health';
+export { loadAuthzModel, buildCombinedDSL, dslToJSON, ensureModel, modelsEqual } from './model';

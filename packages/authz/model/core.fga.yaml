@@ -1,0 +1,277 @@
+# Avkash FGA store tests — core authorization model (Plan 51 WS2).
+#
+# Format: OpenFGA store-test format (model_file + tuples + tests).
+# Run with: bunx @openfga/cli model test --tests packages/authz/model/core.fga.yaml
+#
+# Personas (mirrors the Meridian Manufacturing demo seed):
+#   user:rohan      — manager of team:assembly
+#   user:dev        — manager of team:logistics
+#   user:anita      — hrbp of business_unit:plants
+#   user:priya      — hr_admin of org:meridian
+#   user:sara       — employee in team:assembly (subject of employee:sara-profile)
+#   user:leo        — employee in team:logistics
+#
+# Objects:
+#   org:meridian
+#   business_unit:plants    (under org:meridian, hrbp=anita)
+#   department:assembly-dept (under business_unit:plants, head=user:diana)
+#   team:assembly           (under department:assembly-dept, org:meridian, manager=rohan)
+#   team:logistics          (under department:assembly-dept, org:meridian, manager=dev)
+#   employee:sara-profile   (subject=sara, team=assembly)
+#   employee:leo-profile    (subject=leo, team=logistics)
+#   leave_request:sara-lr1  (subject=employee:sara-profile)
+
+name: core-model-tests
+model_file: ./core.fga
+
+tuples:
+  # Org membership
+  - user: user:priya
+    relation: hr_admin
+    object: org:meridian
+  - user: user:priya
+    relation: member
+    object: org:meridian
+  - user: user:rohan
+    relation: member
+    object: org:meridian
+  - user: user:sara
+    relation: member
+    object: org:meridian
+  - user: user:dev
+    relation: member
+    object: org:meridian
+  - user: user:leo
+    relation: member
+    object: org:meridian
+  - user: user:anita
+    relation: member
+    object: org:meridian
+
+  # Business unit
+  - user: org:meridian
+    relation: org
+    object: business_unit:plants
+  - user: user:anita
+    relation: hrbp
+    object: business_unit:plants
+
+  # Department
+  - user: business_unit:plants
+    relation: business_unit
+    object: department:assembly-dept
+  - user: user:diana
+    relation: head
+    object: department:assembly-dept
+
+  # Teams
+  - user: org:meridian
+    relation: org
+    object: team:assembly
+  - user: department:assembly-dept
+    relation: department
+    object: team:assembly
+  - user: user:rohan
+    relation: manager
+    object: team:assembly
+
+  - user: org:meridian
+    relation: org
+    object: team:logistics
+  - user: department:assembly-dept
+    relation: department
+    object: team:logistics
+  - user: user:dev
+    relation: manager
+    object: team:logistics
+
+  # Employees
+  - user: team:assembly
+    relation: team
+    object: employee:sara-profile
+  - user: user:sara
+    relation: subject
+    object: employee:sara-profile
+
+  - user: team:logistics
+    relation: team
+    object: employee:leo-profile
+  - user: user:leo
+    relation: subject
+    object: employee:leo-profile
+
+  # Leave requests
+  - user: employee:sara-profile
+    relation: subject
+    object: leave_request:sara-lr1
+
+  - user: employee:leo-profile
+    relation: subject
+    object: leave_request:leo-lr1
+
+tests:
+  # ── Beat 1: manager approves own team member's leave ──────────────────────────
+  - name: manager-approves-own-team-leave
+    description: Rohan (manager of assembly) can approve Sara's leave request.
+    check:
+      - user: user:rohan
+        object: leave_request:sara-lr1
+        assertions:
+          approver: true
+
+  # ── Beat 1b: manager cannot approve a different team's leave ─────────────────
+  - name: manager-cannot-approve-other-team-leave
+    description: Dev (manager of logistics) cannot approve Sara's leave request.
+    check:
+      - user: user:dev
+        object: leave_request:sara-lr1
+        assertions:
+          approver: false
+
+  # ── Beat 1c: manager approves their own team's leave ─────────────────────────
+  - name: manager-approves-own-team-leo-leave
+    description: Dev (manager of logistics) can approve Leo's leave request.
+    check:
+      - user: user:dev
+        object: leave_request:leo-lr1
+        assertions:
+          approver: true
+
+  # ── Beat 2a: department head inherits approver over teams in the department ───
+  - name: dept-head-approves-assembly-leave
+    description: Diana (head of assembly-dept) can approve Sara's leave request.
+    check:
+      - user: user:diana
+        object: leave_request:sara-lr1
+        assertions:
+          approver: true
+
+  - name: dept-head-approves-logistics-leave
+    description: Diana (head of assembly-dept) can approve Leo's leave too, since logistics is also in assembly-dept.
+    check:
+      - user: user:diana
+        object: leave_request:leo-lr1
+        assertions:
+          approver: true
+
+  # ── Beat 3a: delegate INSIDE active_window approves ──────────────────────────
+  - name: delegate-inside-active-window-can-approve
+    description: Dev as a delegate for team:assembly inside the time window can approve Sara's leave.
+    tuples:
+      - user: user:dev
+        relation: delegate
+        object: team:assembly
+        condition:
+          name: active_window
+          context:
+            starts: "2026-06-01T00:00:00Z"
+            ends: "2026-06-30T23:59:59Z"
+    check:
+      - user: user:dev
+        object: leave_request:sara-lr1
+        context:
+          now: "2026-06-10T09:00:00Z"
+        assertions:
+          approver: true
+
+  # ── Beat 3b: delegate OUTSIDE active_window is denied ────────────────────────
+  - name: delegate-outside-active-window-denied
+    description: Dev as a delegate for team:assembly outside the time window cannot approve Sara's leave.
+    tuples:
+      - user: user:dev
+        relation: delegate
+        object: team:assembly
+        condition:
+          name: active_window
+          context:
+            starts: "2026-06-01T00:00:00Z"
+            ends: "2026-06-30T23:59:59Z"
+    check:
+      - user: user:dev
+        object: leave_request:sara-lr1
+        context:
+          now: "2026-07-05T09:00:00Z"
+        assertions:
+          approver: false
+
+  # ── Beat 4: HRBP sees employees in their BU only ─────────────────────────────
+  - name: hrbp-views-employee-in-bu
+    description: Anita (hrbp of plants BU) can view Sara's profile (Sara is in assembly which is in plants BU).
+    check:
+      - user: user:anita
+        object: employee:sara-profile
+        assertions:
+          viewer: true
+
+  # ── Beat 5: hr_admin sees all employees in org ────────────────────────────────
+  - name: hr-admin-views-any-employee
+    description: Priya (hr_admin of meridian org) can view Sara's profile.
+    check:
+      - user: user:priya
+        object: employee:sara-profile
+        assertions:
+          viewer: true
+
+  - name: hr-admin-views-logistics-employee
+    description: Priya (hr_admin of meridian org) can view Leo's profile even in a different team.
+    check:
+      - user: user:priya
+        object: employee:leo-profile
+        assertions:
+          viewer: true
+
+  # ── Beat 6: subject sees self ─────────────────────────────────────────────────
+  - name: subject-sees-self
+    description: Sara can view her own employee profile.
+    check:
+      - user: user:sara
+        object: employee:sara-profile
+        assertions:
+          viewer: true
+
+  # ── Beat 7: subject cannot see other employee ─────────────────────────────────
+  - name: subject-cannot-see-other-employee
+    description: Sara cannot view Leo's employee profile (different team, no relation).
+    check:
+      - user: user:sara
+        object: employee:leo-profile
+        assertions:
+          viewer: false
+
+  # ── Beat 8: manager can view team member's profile ───────────────────────────
+  - name: manager-views-own-team-member
+    description: Rohan (manager of assembly) can view Sara's employee profile.
+    check:
+      - user: user:rohan
+        object: employee:sara-profile
+        assertions:
+          viewer: true
+
+  # ── Beat 9: manager cannot view employee in another team ─────────────────────
+  - name: manager-cannot-view-other-team-employee
+    description: Rohan (manager of assembly) cannot view Leo's profile (Leo is in logistics).
+    check:
+      - user: user:rohan
+        object: employee:leo-profile
+        assertions:
+          viewer: false
+
+  # ── Beat 10: list_objects for team approver ───────────────────────────────────
+  - name: list-leave-requests-for-manager
+    description: Rohan should be listed as approver for sara-lr1 but not leo-lr1.
+    list_objects:
+      - user: user:rohan
+        type: leave_request
+        relation: approver
+        assertions:
+          - leave_request:sara-lr1
+
+  - name: list-employees-visible-to-hr-admin
+    description: Priya (hr_admin) should see both employees.
+    list_objects:
+      - user: user:priya
+        type: employee
+        relation: viewer
+        assertions:
+          - employee:sara-profile
+          - employee:leo-profile
