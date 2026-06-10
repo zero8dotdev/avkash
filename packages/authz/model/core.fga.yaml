@@ -262,16 +262,16 @@ tests:
     list_objects:
       - user: user:rohan
         type: leave_request
-        relation: approver
         assertions:
-          - leave_request:sara-lr1
+          approver:
+            - leave_request:sara-lr1
 
   - name: list-employees-visible-to-hr-admin
     description: Priya (hr_admin) should see both employees.
     list_objects:
       - user: user:priya
         type: employee
-        relation: viewer
         assertions:
-          - employee:sara-profile
-          - employee:leo-profile
+          viewer:
+            - employee:sara-profile
+            - employee:leo-profile
