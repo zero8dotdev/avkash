@@ -53,6 +53,8 @@ services:
       SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
       # Cron token for the /internal endpoints (scheduler must send X-Internal-Token).
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-cron-token}
+      # In-network FGA address (host default localhost:8080 doesn't resolve in-container).
+      FGA_API_URL: ${FGA_API_URL:-http://openfga:8080}
       # Browser origins allowed to call the API with credentials (comma-separated).
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       # Notification providers (blank = console fallback).
@@ -106,6 +108,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/${POSTGRES_DB:-avkash}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      # In-network FGA address — the tuple-writer + reconciler talk to it.
+      FGA_API_URL: ${FGA_API_URL:-http://openfga:8080}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
       # Notification providers (blank = console fallback). The worker sends accrual
@@ -171,7 +175,8 @@ services:
     ports:
       - '8080:8080' # HTTP API; 8081 gRPC if needed
     healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://localhost:8080/healthz || exit 1']
+      # The openfga image is distroless — no shell/wget. Use the bundled gRPC probe.
+      test: ['CMD', '/usr/local/bin/grpc_health_probe', '-addr=localhost:8081']
       interval: 5s
       timeout: 5s
       retries: 10
