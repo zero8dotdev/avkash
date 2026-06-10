@@ -9,6 +9,7 @@
     { label: 'Workweek Patterns', href: '/admin/workweek-patterns' },
     { label: 'Holidays & Locations', href: '/admin/holidays' },
     { label: 'Blackouts', href: '/admin/blackouts' },
+    { label: 'Field Policies', href: '/admin/field-policies' },
   ];
 
   function isActive(href: string) {

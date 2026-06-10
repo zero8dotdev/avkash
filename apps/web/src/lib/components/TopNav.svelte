@@ -39,6 +39,9 @@
     { label: 'Leave', href: '/leave' },
     { label: 'Attendance', href: '/attendance' },
     { label: 'Comp-off', href: '/comp-off' },
+    { label: 'Employees', href: '/employees' },
+    { label: 'Transfers', href: '/transfers' },
+    { label: 'Reports', href: '/reports' },
     { label: 'Admin', href: '/admin' },
     { label: 'Demo', href: '/demo' },
   ];

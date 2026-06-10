@@ -14,6 +14,7 @@ export interface ApiResult<T> {
   data?: T;
   error?: ApiError;
   status: number;
+  etag?: string;
 }
 
 export async function apiFetch<T>(
@@ -30,8 +31,24 @@ export async function apiFetch<T>(
         ...(init?.headers ?? {}),
       },
     });
-    const body = await res.json() as { data?: T; error?: ApiError };
-    return { ...(body as { data?: T; error?: ApiError }), status: res.status };
+    const body = await res.json() as unknown;
+    // Capture ETag for optimistic-concurrency (PATCH If-Match) flows.
+    const etag = res.headers.get('etag') ?? undefined;
+
+    // Handle both envelope responses { data: T } and direct object responses (e.g. /users/:id).
+    if (body !== null && typeof body === 'object' && !Array.isArray(body)) {
+      const b = body as Record<string, unknown>;
+      if ('error' in b) {
+        return { error: b.error as ApiError, status: res.status, etag };
+      }
+      if ('data' in b) {
+        return { data: b.data as T, status: res.status, etag };
+      }
+      // No wrapper: the response IS the data (e.g. /users/:id).
+      return { data: body as T, status: res.status, etag };
+    }
+    // Array or primitive — treat as unwrapped data.
+    return { data: body as T, status: res.status, etag };
   } catch {
     return {
       error: { code: 'NETWORK_ERROR', message: 'Failed to reach the API' },
