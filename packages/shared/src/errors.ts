@@ -65,9 +65,16 @@ export class PreconditionFailedError extends DomainError {
   }
 }
 
-// ── Layer 4 — System (500) ──────────────────────────────────────────────────
+// ── Layer 4 — System (5xx) ──────────────────────────────────────────────────
 export class InternalError extends DomainError {
   constructor(code = 'INTERNAL', params?: ErrorParams, options?: { cause?: unknown }) {
     super(code, 500, params, options);
+  }
+}
+// A required dependency is unreachable (503). Authz uses AUTHZ_UNAVAILABLE — guarded
+// routes FAIL CLOSED when OpenFGA is down: deny with 503, never fall back to allow.
+export class UnavailableError extends DomainError {
+  constructor(code = 'UNAVAILABLE', params?: ErrorParams, options?: { cause?: unknown }) {
+    super(code, 503, params, options);
   }
 }
