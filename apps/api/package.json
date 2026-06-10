@@ -33,7 +33,9 @@
     "hono": "^4.6.0",
     "zod": "^4.0.0",
     "drizzle-zod": "^0.8.0",
-    "@avkash/holidays": "workspace:*"
+    "@avkash/holidays": "workspace:*",
+    "@avkash/field-policy": "workspace:*",
+    "@avkash/authz-sync": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

@@ -22,7 +22,8 @@
     "zod": "^4.0.0",
     "drizzle-orm": "^0.38.0",
     "@avkash/holidays": "workspace:*",
-    "@avkash/attendance": "workspace:*"
+    "@avkash/attendance": "workspace:*",
+    "@avkash/authz": "workspace:*"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

@@ -23,6 +23,7 @@
     "@avkash/tsconfig": "workspace:*",
     "@avkash/eslint-config": "workspace:*",
     "typescript": "^5.8.2",
-    "@types/bun": "^1.1.0"
+    "@types/bun": "^1.1.0",
+    "zod": "^4.0.0"
   }
 }

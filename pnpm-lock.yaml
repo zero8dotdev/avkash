@@ -50,12 +50,18 @@ importers:
       '@avkash/authz':
         specifier: workspace:*
         version: link:../../packages/authz
+      '@avkash/authz-sync':
+        specifier: workspace:*
+        version: link:../../packages/authz-sync
       '@avkash/db':
         specifier: workspace:*
         version: link:../../packages/db
       '@avkash/documents':
         specifier: workspace:*
         version: link:../../packages/documents
+      '@avkash/field-policy':
+        specifier: workspace:*
+        version: link:../../packages/field-policy
       '@avkash/holidays':
         specifier: workspace:*
         version: link:../../packages/holidays
@@ -471,6 +477,9 @@ importers:
       typescript:
         specifier: ^5.8.2
         version: 5.9.3
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
 
   packages/holidays:
     dependencies:
@@ -563,6 +572,9 @@ importers:
       '@avkash/auth':
         specifier: workspace:*
         version: link:../auth
+      '@avkash/authz':
+        specifier: workspace:*
+        version: link:../authz
       '@avkash/db':
         specifier: workspace:*
         version: link:../db

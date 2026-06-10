@@ -8,8 +8,11 @@ import {
   ValidationError,
   ConflictError,
   BusinessRuleError,
+  objectRef,
+  FGA_TYPES,
 } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { authzClient } from '@avkash/authz';
 import { computeWorkingDays, type Duration } from './working-days';
 import { getEffectivePolicy } from './leave-policy';
 import { getBalance } from './balance';
@@ -55,7 +58,48 @@ async function audit(ctx: AuthContext, lv: { userId: string; teamId: string }, k
   });
 }
 
-async function assertCanApprove(ctx: AuthContext, teamId: string) {
+// Resolve the EmployeeProfile.id for a given userId (needed for the FGA employee ref).
+// Returns null when no profile row exists (synthesised profiles are not in FGA).
+async function resolveEmployeeProfileId(userId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ id: schema.employeeProfile.id })
+    .from(schema.employeeProfile)
+    .where(eq(schema.employeeProfile.userId, userId))
+    .limit(1);
+  return row?.id ?? null;
+}
+
+// Assert the caller may approve/reject a leave request.
+//
+// Strategy (Plan 51 WS5 — employee-pivot model):
+//   1. OWNER/ADMIN coarse pre-gate: always allowed (role fast-path, no FGA call).
+//   2. For relationship-shaped approval (MANAGER or below): resolve the leave
+//      subject's EmployeeProfile.id and call requireRelation(ctx, 'approver',
+//      'employee:<profileId>'). This single FGA check resolves the full chain:
+//        employee.approver → team.approver → manager | delegate | dept head
+//      Zero per-leave-request tuples are written; the relationship is checked
+//      against the pre-synced employee pivot tuples (WS3 derive.ts).
+//   3. If no EmployeeProfile row exists (synthesised profile, no FGA tuple),
+//      fall back to the legacy canApprove() SQL check so approval still works
+//      for orgs not yet fully synced to FGA.
+//
+// assertOrg() is enforced by the caller (setStatus) before reaching here.
+async function assertCanApprove(ctx: AuthContext, teamId: string, leaveUserId: string): Promise<void> {
+  // Coarse role pre-gate: ADMIN/OWNER always allowed (defence in depth).
+  if (ctx.role === 'OWNER' || ctx.role === 'ADMIN') return;
+
+  // Relationship-based check via the employee-pivot model.
+  const profileId = await resolveEmployeeProfileId(leaveUserId);
+  if (profileId) {
+    // requireRelation throws ForbiddenError('FORBIDDEN_RELATION') on deny,
+    // or UnavailableError('AUTHZ_UNAVAILABLE') when FGA is unreachable (fail closed).
+    await authzClient.requireRelation(ctx, 'approver', objectRef(FGA_TYPES.employee, profileId));
+    return;
+  }
+
+  // Fallback: no profile row means the employee is not in FGA yet — use the
+  // legacy SQL-based canApprove check so approval continues to work during
+  // partial sync windows (e.g. first deployment before backfill).
   if (!(await canApprove(ctx, teamId))) throw new ForbiddenError('NOT_TEAM_APPROVER');
 }
 
@@ -206,7 +250,7 @@ async function setStatus(
     .where(and(eq(schema.leave.leaveId, leaveId), eq(schema.leave.orgId, ctx.orgId)))
     .limit(1);
   if (!lv) throw new NotFoundError('LEAVE_NOT_FOUND');
-  await assertCanApprove(ctx, lv.teamId);
+  await assertCanApprove(ctx, lv.teamId, lv.userId);
   if (lv.isApproved !== 'PENDING') throw new ConflictError('LEAVE_NOT_PENDING');
   const [updated] = await db
     .update(schema.leave)

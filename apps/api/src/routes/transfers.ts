@@ -12,6 +12,7 @@ import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
 import { transferDto } from '../dto';
+import { syncOrgTuples } from '@avkash/authz-sync';
 
 const createSchema = z.object({
   userId: z.string().min(1),
@@ -43,7 +44,20 @@ export const transfers = new Hono<AppEnv>()
     return c.json(serialize(transferDto, row));
   })
   .post('/:id/approve', async (c) => {
-    const row = await approveTransfer(c.get('auth'), c.req.param('id'));
+    const ctx = c.get('auth');
+    const row = await approveTransfer(ctx, c.req.param('id'));
+    // Plan 51 Rule 4 fast-lane revoke: attempt a synchronous FGA sync so the
+    // transferred employee's old team manager loses visibility immediately.
+    // The outbox event (emitted by approveTransfer) is the reliability guarantee;
+    // this is best-effort only — failure is logged but does not fail the request.
+    try {
+      await syncOrgTuples(ctx.orgId);
+    } catch (err) {
+      console.error(
+        '[authz-sync] fast-lane syncOrgTuples after transfer approve failed:',
+        err instanceof Error ? err.message : err
+      );
+    }
     return c.json(serialize(transferDto, row));
   })
   .post('/:id/cancel', async (c) => {
