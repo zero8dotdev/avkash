@@ -49,8 +49,15 @@ function flattenTree(tree: unknown, path: string[] = []): string[] {
     }
     if ('tupleToUserset' in leaf && typeof leaf.tupleToUserset === 'object') {
       const ttu = leaf.tupleToUserset as Record<string, unknown>;
-      const ttusetName = typeof ttu.userset === 'string' ? ttu.userset : '(ttu)';
-      return [`(via ${ttusetName})${path.length ? ` ← ${path.join(' → ')}` : ''}`];
+      // Shape: { tupleset: 'employee:<id>#team', computed: [{ userset: 'team:<id>#approver' }] }
+      const tupleset = typeof ttu.tupleset === 'string' ? ttu.tupleset : '(ttu)';
+      const computed = Array.isArray(ttu.computed)
+        ? (ttu.computed as Array<Record<string, unknown>>)
+            .map((c) => (typeof c.userset === 'string' ? c.userset : ''))
+            .filter(Boolean)
+        : [];
+      const target = computed.length ? ` → ${computed.join(' | ')}` : '';
+      return [`(via ${tupleset}${target})${path.length ? ` ← ${path.join(' → ')}` : ''}`];
     }
   }
 
