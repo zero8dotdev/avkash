@@ -25,3 +25,4 @@ export * from './billing';
 export * from './contact';
 export * from './relations';
 export * from './types';
+export * from './event-outbox';

@@ -130,3 +130,7 @@ export type NewPaySubMap = typeof paySubMap.$inferInsert;
 
 export type ContactEmail = typeof contactEmail.$inferSelect;
 export type NewContactEmail = typeof contactEmail.$inferInsert;
+
+import type { eventOutbox } from './event-outbox';
+export type EventOutbox = typeof eventOutbox.$inferSelect;
+export type NewEventOutbox = typeof eventOutbox.$inferInsert;

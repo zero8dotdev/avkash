@@ -183,7 +183,7 @@ export async function recordPunch(
   // Plan 40: WEB punches from confirmation-required levels are held pending manager review.
   const needsConfirmation = source === 'WEB' && (level?.requiresPunchConfirmation ?? false);
   // Plan 46: remoteContext forces wfh=true and validates FACTORY_VISIT locationId belongs to the org.
-  let remoteContext = input.remoteContext ?? null;
+  const remoteContext = input.remoteContext ?? null;
   const isRemote = remoteContext !== null;
   if (remoteContext?.type === 'FACTORY_VISIT') {
     const [loc] = await db
