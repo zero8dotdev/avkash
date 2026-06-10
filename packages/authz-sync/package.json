@@ -1,8 +1,8 @@
 {
-  "name": "@avkash/leave",
+  "name": "@avkash/authz-sync",
   "version": "0.0.0",
   "private": true,
-  "description": "Domain: leave types, policies, balances, requests, approval. The template domain.",
+  "description": "Orchestration: tuple-sync pipeline — state-based writer, reconciler, backfill. Bridges Postgres org graph ↔ OpenFGA.",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
@@ -14,15 +14,14 @@
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
+    "@avkash/authz": "workspace:*",
+    "@avkash/config": "workspace:*",
     "@avkash/db": "workspace:*",
-    "@avkash/shared": "workspace:*",
-    "@avkash/auth": "workspace:*",
     "@avkash/events": "workspace:*",
-    "@avkash/notifications": "workspace:*",
-    "zod": "^4.0.0",
+    "@avkash/shared": "workspace:*",
+    "@openfga/sdk": "^0.9.6",
     "drizzle-orm": "^0.38.0",
-    "@avkash/holidays": "workspace:*",
-    "@avkash/attendance": "workspace:*"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

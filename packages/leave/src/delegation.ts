@@ -1,10 +1,26 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type ApprovalDelegation } from '@avkash/db';
-import { type AuthContext, NotFoundError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { publish, defineEvent } from '@avkash/events';
 import { notifyDelegationAssigned } from './leave-notify';
 import { todayStr } from './ledger';
 import { writeAudit } from './audit';
+
+// ── Event definitions (Plan 51 WS3) ──
+const delegationCreatedDef = defineEvent(
+  ORG_GRAPH_EVENTS.DELEGATION_CREATED,
+  z.object({
+    orgId: z.string().uuid(),
+    delegationId: z.string().uuid(),
+    teamId: z.string().uuid().nullable(),
+  })
+);
+const delegationRevokedDef = defineEvent(
+  ORG_GRAPH_EVENTS.DELEGATION_REVOKED,
+  z.object({ orgId: z.string().uuid(), delegationId: z.string().uuid() })
+);
 
 export interface SetDelegationInput {
   toUserId: string;
@@ -56,6 +72,12 @@ export async function setDelegation(ctx: AuthContext, input: SetDelegationInput)
     input.startsOn,
     input.endsOn
   );
+  // Plan 51 WS3: emit delegation created event. No transaction here — best-effort post-write.
+  try {
+    await publish(db, ctx, delegationCreatedDef, { orgId: ctx.orgId, delegationId: row.id, teamId: row.teamId });
+  } catch (err) {
+    console.error('[authz-sync] publish delegation.delegation.created failed:', err instanceof Error ? err.message : err);
+  }
   return row;
 }
 
@@ -73,6 +95,12 @@ export async function clearDelegation(ctx: AuthContext, id: string): Promise<voi
     changed: { id },
     changedBy: ctx.userId,
   });
+  // Plan 51 WS3: emit delegation revoked event. No transaction here — best-effort post-write.
+  try {
+    await publish(db, ctx, delegationRevokedDef, { orgId: ctx.orgId, delegationId: id });
+  } catch (err) {
+    console.error('[authz-sync] publish delegation.delegation.revoked failed:', err instanceof Error ? err.message : err);
+  }
 }
 
 export async function listDelegations(ctx: AuthContext): Promise<ApprovalDelegation[]> {

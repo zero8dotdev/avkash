@@ -2,6 +2,7 @@ import { runAccrualCycle, runEscalations, runRollover, runProbationCompletion } 
 import { restrictExpiredOrgs, notifyExpiringOrgs } from '@avkash/org';
 import { materializeHolidays } from '@avkash/holidays';
 import { retryFailedNotifications } from '@avkash/notifications';
+import { reconcileAllOrgs } from '@avkash/authz-sync';
 
 export interface ScheduledJob {
   name: string;
@@ -28,5 +29,12 @@ export const SCHEDULE: ScheduledJob[] = [
     name: 'probation-completion',
     cron: '0 2 * * *', // daily 02:00 — graduate employees past probationEndsOn
     run: () => runProbationCompletion(),
+  },
+  {
+    // Plan 51 Rule 3: nightly FGA reconciler. A nonzero repair count = upstream
+    // bug signal (domain mutation that didn't emit an event or subscriber failed).
+    name: 'authz-reconcile',
+    cron: '0 4 * * *', // daily 04:00 UTC — nightly full reconciliation
+    run: () => reconcileAllOrgs(),
   },
 ];

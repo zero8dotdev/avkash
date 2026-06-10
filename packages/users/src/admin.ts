@@ -1,8 +1,24 @@
 import { and, eq, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type User } from '@avkash/db';
-import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, ForbiddenError, PreconditionFailedError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
 import { dispatch, resolveUsers } from '@avkash/notifications';
+import { publish, defineEvent } from '@avkash/events';
+
+// ── Event definitions (Plan 51 WS3) ──
+const orgRoleChangedDef = defineEvent(
+  ORG_GRAPH_EVENTS.ORG_ROLE_CHANGED,
+  z.object({ orgId: z.string().uuid(), userId: z.string().uuid() })
+);
+const teamMemberAddedDef = defineEvent(
+  ORG_GRAPH_EVENTS.TEAM_MEMBER_ADDED,
+  z.object({ orgId: z.string().uuid(), userId: z.string().uuid(), teamId: z.string().uuid() })
+);
+const teamMemberRemovedDef = defineEvent(
+  ORG_GRAPH_EVENTS.TEAM_MEMBER_REMOVED,
+  z.object({ orgId: z.string().uuid(), userId: z.string().uuid(), teamId: z.string().uuid() })
+);
 
 // Session context — the web app's first call after login: who am I, my org, my team.
 export async function getMe(ctx: AuthContext) {
@@ -72,7 +88,7 @@ export async function updateUserAdmin(
 ): Promise<User> {
   requireRole(ctx, 'ADMIN');
   const [target] = await db
-    .select({ role: schema.user.role, orgId: schema.user.orgId })
+    .select({ role: schema.user.role, orgId: schema.user.orgId, teamId: schema.user.teamId })
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .limit(1);
@@ -103,6 +119,31 @@ export async function updateUserAdmin(
         throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
     }
     throw new NotFoundError('USER_NOT_FOUND');
+  }
+  // Plan 51 WS3: emit org-graph events for the tuple-writer subscriber.
+  // NOTE: No transaction here — events are published after the write (not atomic).
+  // The outbox event is still the reliability guarantee via the relay.
+  if (patch.role !== undefined && patch.role !== target.role) {
+    try {
+      await publish(db, ctx, orgRoleChangedDef, { orgId: ctx.orgId, userId });
+    } catch (err) {
+      console.error('[authz-sync] publish org.member.role_changed failed:', err instanceof Error ? err.message : err);
+    }
+  }
+  if (patch.teamId !== undefined && patch.teamId !== target.teamId) {
+    // Team membership changed: emit removed (old team) + added (new team) events.
+    const oldTeamId = target.teamId;
+    const newTeamId = patch.teamId;
+    try {
+      if (oldTeamId) {
+        await publish(db, ctx, teamMemberRemovedDef, { orgId: ctx.orgId, userId, teamId: oldTeamId });
+      }
+      if (newTeamId) {
+        await publish(db, ctx, teamMemberAddedDef, { orgId: ctx.orgId, userId, teamId: newTeamId });
+      }
+    } catch (err) {
+      console.error('[authz-sync] publish team member changed failed:', err instanceof Error ? err.message : err);
+    }
   }
   // Tell the member their role changed (best-effort; never blocks the update).
   if (patch.role !== undefined && patch.role !== target.role) {

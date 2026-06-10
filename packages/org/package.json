@@ -18,8 +18,10 @@
     "@avkash/shared": "workspace:*",
     "@avkash/auth": "workspace:*",
     "@avkash/config": "workspace:*",
+    "@avkash/events": "workspace:*",
     "@avkash/notifications": "workspace:*",
-    "drizzle-orm": "^0.38.0"
+    "drizzle-orm": "^0.38.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@avkash/tsconfig": "workspace:*",

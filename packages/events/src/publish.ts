@@ -15,10 +15,10 @@ import type { AuthContext, EventDef } from '@avkash/shared';
 // A validation failure throws a standard ZodError so the caller's transaction
 // rolls back naturally.
 
-// A Drizzle transaction handle is the same shape as `db` itself (both extend the
-// base query interface). We accept the narrowest type we actually need so callers
-// can pass either without a cast.
-type TxClient = Parameters<Parameters<DB['transaction']>[0]>[0];
+// A Drizzle transaction handle OR the bare db client (both expose .insert()).
+// Using DB here lets callers pass either db.transaction's tx arg or the bare db
+// client directly (the latter loses atomicity — see IMPORTANT note above).
+type TxClient = DB | Parameters<Parameters<DB['transaction']>[0]>[0];
 
 export async function publish<P>(tx: TxClient, ctx: AuthContext, def: EventDef<P>, payload: P): Promise<void> {
   // Validate payload — throws ZodError (which rolls the tx back) on mismatch.

@@ -130,6 +130,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@avkash/authz-sync':
+        specifier: workspace:*
+        version: link:../../packages/authz-sync
       '@avkash/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -238,6 +241,46 @@ importers:
       '@openfga/syntax-transformer':
         specifier: ^0.2.1
         version: 0.2.1
+    devDependencies:
+      '@avkash/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@avkash/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/bun':
+        specifier: ^1.1.14
+        version: 1.3.14
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
+  packages/authz-sync:
+    dependencies:
+      '@avkash/authz':
+        specifier: workspace:*
+        version: link:../authz
+      '@avkash/config':
+        specifier: workspace:*
+        version: link:../config
+      '@avkash/db':
+        specifier: workspace:*
+        version: link:../db
+      '@avkash/events':
+        specifier: workspace:*
+        version: link:../events
+      '@avkash/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@openfga/sdk':
+        specifier: ^0.9.6
+        version: 0.9.6
+      drizzle-orm:
+        specifier: ^0.38.0
+        version: 0.38.4(@opentelemetry/api@1.9.1)(@types/react@19.2.16)(bun-types@1.3.14)(kysely@0.29.2)(postgres@3.4.9)(react@19.2.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -471,6 +514,9 @@ importers:
 
   packages/jobs:
     dependencies:
+      '@avkash/authz-sync':
+        specifier: workspace:*
+        version: link:../authz-sync
       '@avkash/config':
         specifier: workspace:*
         version: link:../config
@@ -520,6 +566,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/events':
+        specifier: workspace:*
+        version: link:../events
       '@avkash/holidays':
         specifier: workspace:*
         version: link:../holidays
@@ -532,6 +581,9 @@ importers:
       drizzle-orm:
         specifier: ^0.38.0
         version: 0.38.4(@opentelemetry/api@1.9.1)(@types/react@19.2.16)(bun-types@1.3.14)(kysely@0.29.2)(postgres@3.4.9)(react@19.2.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -588,6 +640,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/events':
+        specifier: workspace:*
+        version: link:../events
       '@avkash/notifications':
         specifier: workspace:*
         version: link:../notifications
@@ -597,6 +652,9 @@ importers:
       drizzle-orm:
         specifier: ^0.38.0
         version: 0.38.4(@opentelemetry/api@1.9.1)(@types/react@19.2.16)(bun-types@1.3.14)(kysely@0.29.2)(postgres@3.4.9)(react@19.2.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
@@ -718,6 +776,9 @@ importers:
       '@avkash/db':
         specifier: workspace:*
         version: link:../db
+      '@avkash/events':
+        specifier: workspace:*
+        version: link:../events
       '@avkash/notifications':
         specifier: workspace:*
         version: link:../notifications
@@ -727,6 +788,9 @@ importers:
       drizzle-orm:
         specifier: ^0.38.0
         version: 0.38.4(@opentelemetry/api@1.9.1)(@types/react@19.2.16)(bun-types@1.3.14)(kysely@0.29.2)(postgres@3.4.9)(react@19.2.7)
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*

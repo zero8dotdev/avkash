@@ -17,6 +17,7 @@
   "dependencies": {
     "@avkash/jobs": "workspace:*",
     "@avkash/events": "workspace:*",
+    "@avkash/authz-sync": "workspace:*",
     "@avkash/config": "workspace:*"
   },
   "devDependencies": {

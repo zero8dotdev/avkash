@@ -1,7 +1,15 @@
 import { and, count, eq, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type Team } from '@avkash/db';
-import { type AuthContext, ValidationError, NotFoundError, PreconditionFailedError } from '@avkash/shared';
+import { type AuthContext, ValidationError, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { publish, defineEvent } from '@avkash/events';
+
+// ── Event definitions (Plan 51 WS3) ──
+const teamChangedDef = defineEvent(
+  ORG_GRAPH_EVENTS.TEAM_CHANGED,
+  z.object({ orgId: z.string().uuid(), teamId: z.string().uuid() })
+);
 
 type Day = 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
 const VALID: ReadonlySet<string> = new Set<Day>([
@@ -45,6 +53,12 @@ export async function createTeam(ctx: AuthContext, input: CreateTeamInput): Prom
       departmentId: input.departmentId ?? null,
     })
     .returning();
+  // Plan 51 WS3: emit team changed event. No transaction here — best-effort post-write.
+  try {
+    await publish(db, ctx, teamChangedDef, { orgId: ctx.orgId, teamId: row.teamId });
+  } catch (err) {
+    console.error('[authz-sync] publish team.team.changed (create) failed:', err instanceof Error ? err.message : err);
+  }
   return row;
 }
 
@@ -110,6 +124,12 @@ export async function updateTeam(
         throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
     }
     throw new NotFoundError('TEAM_NOT_FOUND');
+  }
+  // Plan 51 WS3: emit team changed event. No transaction here — best-effort post-write.
+  try {
+    await publish(db, ctx, teamChangedDef, { orgId: ctx.orgId, teamId });
+  } catch (err) {
+    console.error('[authz-sync] publish team.team.changed (update) failed:', err instanceof Error ? err.message : err);
   }
   return row;
 }

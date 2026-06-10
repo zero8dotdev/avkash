@@ -1,9 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import { and, eq, lt, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type Organisation, type Invitation } from '@avkash/db';
-import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { publish, defineEvent } from '@avkash/events';
 import { notifyOrgRestricted } from './org-notify';
+
+// ── Event definitions (Plan 51 WS3 — inline so @avkash/org doesn't import authz-sync) ──
+// Minimal payload: orgId only. Writer is state-based — payload is not used as a delta.
+const orgCreatedDef = defineEvent(
+  ORG_GRAPH_EVENTS.ORG_CREATED,
+  z.object({ orgId: z.string().uuid() })
+);
 
 export const GRACE_DAYS = 14;
 export const PROVISIONAL_INVITE_CAP = 10;
@@ -40,6 +49,10 @@ export async function createOrganization(
         expiresAt: verifyBy,
       })
       .returning();
+    // Plan 51 WS3: emit org-graph event for the tuple-writer subscriber.
+    // System actor — no user exists yet (invite-then-signup bootstrap path).
+    const sysCtx = { orgId: org.orgId, userId: null, role: 'ADMIN' as const, actorType: 'system' as const, assurance: 'low' as const, via: 'system' as const };
+    await publish(tx, sysCtx, orgCreatedDef, { orgId: org.orgId });
     return { org, invite };
   });
 }

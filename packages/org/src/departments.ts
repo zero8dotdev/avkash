@@ -1,7 +1,15 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type Department, type DepartmentLocation } from '@avkash/db';
-import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { publish, defineEvent } from '@avkash/events';
+
+// ── Event definitions (Plan 51 WS3) ──
+const departmentChangedDef = defineEvent(
+  ORG_GRAPH_EVENTS.DEPARTMENT_CHANGED,
+  z.object({ orgId: z.string().uuid(), departmentId: z.string().uuid() })
+);
 
 export interface CreateDepartmentInput {
   name: string;
@@ -22,6 +30,12 @@ export async function createDepartment(ctx: AuthContext, input: CreateDepartment
       updatedBy: ctx.userId,
     })
     .returning();
+  // Plan 51 WS3: emit department changed event. No transaction — best-effort post-write.
+  try {
+    await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: row.id });
+  } catch (err) {
+    console.error('[authz-sync] publish org.department.changed (create) failed:', err instanceof Error ? err.message : err);
+  }
   return row;
 }
 
@@ -101,6 +115,12 @@ export async function updateDepartment(
         throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
     }
     throw new NotFoundError('DEPARTMENT_NOT_FOUND');
+  }
+  // Plan 51 WS3: emit department changed event. No transaction — best-effort post-write.
+  try {
+    await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: id });
+  } catch (err) {
+    console.error('[authz-sync] publish org.department.changed (update) failed:', err instanceof Error ? err.message : err);
   }
   return row;
 }
@@ -192,6 +212,12 @@ export async function setDepartmentHead(
     )
     .returning();
   if (!row) throw new NotFoundError('DEPARTMENT_LOCATION_NOT_FOUND');
+  // Plan 51 WS3: head assignment changes the FGA department.head tuple.
+  try {
+    await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId });
+  } catch (err) {
+    console.error('[authz-sync] publish org.department.changed (setHead) failed:', err instanceof Error ? err.message : err);
+  }
   return row;
 }
 

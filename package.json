@@ -19,7 +19,8 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "knip": "knip",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "authz:backfill": "bun packages/authz-sync/src/backfill.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

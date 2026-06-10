@@ -1,11 +1,17 @@
 import { startWorker, registerSchedules } from '@avkash/jobs';
-import { startRelay } from '@avkash/events';
+import { startRelay, wireSubscribers } from '@avkash/events';
+import { tupleWriterSubscribers } from '@avkash/authz-sync';
 
 // The maintenance worker process. Boots:
 //   1. The BullMQ worker (start consuming the maintenance queue).
 //   2. The repeatable job schedule (accrual, notifications, etc.).
 //   3. The event-bus relay (drains event_outbox, fans out to subscribers).
 // Long-running — kept alive until a signal arrives.
+
+// Wire tuple-writer subscribers for all org-graph events (Plan 51 WS3).
+// Must be called BEFORE startRelay() so the registry is populated before
+// the first relay pass drains the outbox.
+wireSubscribers(tupleWriterSubscribers);
 
 const bullWorker = startWorker();
 await registerSchedules();

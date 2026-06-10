@@ -1,7 +1,15 @@
 import { and, eq, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { db, schema, type BusinessUnit } from '@avkash/db';
-import { type AuthContext, NotFoundError, PreconditionFailedError } from '@avkash/shared';
+import { type AuthContext, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVENTS } from '@avkash/shared';
 import { requireRole } from '@avkash/auth';
+import { publish, defineEvent } from '@avkash/events';
+
+// ── Event definitions (Plan 51 WS3) ──
+const businessUnitChangedDef = defineEvent(
+  ORG_GRAPH_EVENTS.BUSINESS_UNIT_CHANGED,
+  z.object({ orgId: z.string().uuid(), businessUnitId: z.string().uuid() })
+);
 
 export interface CreateBusinessUnitInput {
   name: string;
@@ -31,6 +39,12 @@ export async function createBusinessUnit(ctx: AuthContext, input: CreateBusiness
       updatedBy: ctx.userId,
     })
     .returning();
+  // Plan 51 WS3: emit BU changed event. No transaction — best-effort post-write.
+  try {
+    await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: row.id });
+  } catch (err) {
+    console.error('[authz-sync] publish org.business_unit.changed (create) failed:', err instanceof Error ? err.message : err);
+  }
   return row;
 }
 
@@ -83,6 +97,12 @@ export async function updateBusinessUnit(
         throw new PreconditionFailedError('VERSION_CONFLICT', { expected: expectedVersion, current: cur.version });
     }
     throw new NotFoundError('BUSINESS_UNIT_NOT_FOUND');
+  }
+  // Plan 51 WS3: emit BU changed event. No transaction — best-effort post-write.
+  try {
+    await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: id });
+  } catch (err) {
+    console.error('[authz-sync] publish org.business_unit.changed (update) failed:', err instanceof Error ? err.message : err);
   }
   return row;
 }

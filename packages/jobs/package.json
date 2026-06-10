@@ -21,6 +21,7 @@
     "@avkash/org": "workspace:*",
     "@avkash/holidays": "workspace:*",
     "@avkash/shared": "workspace:*",
+    "@avkash/authz-sync": "workspace:*",
     "bullmq": "^5.0.0"
   },
   "devDependencies": {
