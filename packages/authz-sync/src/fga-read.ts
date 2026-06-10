@@ -20,17 +20,21 @@
 import { OpenFgaClient } from '@openfga/sdk';
 import { UnavailableError, type Tuple, type TupleKey } from '@avkash/shared';
 import { env } from '@avkash/config';
+import { getStoreId } from '@avkash/authz';
 
 // ── Lazy singleton (mirrors pattern in @avkash/authz/src/client.ts) ───────────
 
 let _readClient: OpenFgaClient | null = null;
+let _readClientStoreId: string | null = null;
 
 function getReadClient(): OpenFgaClient {
-  if (!_readClient) {
-    _readClient = new OpenFgaClient({
-      apiUrl: env.FGA_API_URL,
-      storeId: env.FGA_STORE_ID ?? '',
-    });
+  // Resolve the store id at CALL time from @avkash/authz (set by bootAuthz /
+  // ensureStore) — caching env.FGA_STORE_ID at construction left this client
+  // storeless whenever the id was resolved dynamically at boot.
+  const storeId = getStoreId() ?? '';
+  if (!_readClient || _readClientStoreId !== storeId) {
+    _readClient = new OpenFgaClient({ apiUrl: env.FGA_API_URL, storeId });
+    _readClientStoreId = storeId;
   }
   return _readClient;
 }

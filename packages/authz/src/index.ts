@@ -11,7 +11,7 @@
 //   import { ensureStore, authzHealthy } from '@avkash/authz';
 //   const storeId = await ensureStore('avkash');
 
-export { authzClient } from './client';
+export { authzClient, getStoreId } from './client';
 export { ensureStore } from './store';
 export { authzHealthy } from './health';
 export { loadAuthzModel, buildCombinedDSL, dslToJSON, ensureModel, modelsEqual } from './model';

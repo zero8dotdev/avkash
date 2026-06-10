@@ -62,6 +62,8 @@ mock.module('@avkash/authz', () => ({
     listAccessible: mock(async () => []),
     explainAccess: mock(async () => ({})),
   },
+  // fga-read resolves the store id at call time through this accessor.
+  getStoreId: () => 'test-store-id',
 }));
 
 mock.module('@openfga/sdk', () => ({

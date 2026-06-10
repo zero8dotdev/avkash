@@ -23,6 +23,7 @@ import {
 // ── Singleton client (lazy-initialised) ──────────────────────────────────────
 
 let _client: OpenFgaClient | null = null;
+let _storeId: string | null = null;
 
 function getClient(): OpenFgaClient {
   if (!_client) {
@@ -36,10 +37,18 @@ function getClient(): OpenFgaClient {
 
 /** Replace the singleton — used by ensureStore() after the store id is resolved. */
 export function setStoreId(storeId: string): void {
+  _storeId = storeId;
   _client = new OpenFgaClient({
     apiUrl: env.FGA_API_URL,
     storeId,
   });
+}
+
+/** The resolved store id (boot/ensureStore), or the env fallback. Consumers that
+ *  build their own FGA clients (e.g. authz-sync's read path) MUST use this at
+ *  call time instead of caching env.FGA_STORE_ID at construction. */
+export function getStoreId(): string | null {
+  return _storeId ?? env.FGA_STORE_ID ?? null;
 }
 
 // ── Fail-closed error mapper ──────────────────────────────────────────────────

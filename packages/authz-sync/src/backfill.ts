@@ -11,9 +11,15 @@
 
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@avkash/db';
+import { bootAuthz } from '@avkash/authz';
 import { syncOrgTuples } from './sync';
 
 export async function runBackfill(): Promise<void> {
+  // Resolve the FGA store + model — standalone runs have no boot-time wiring,
+  // and every FGA call below needs a store id.
+  const { storeId } = await bootAuthz();
+  console.log(`[authz-backfill] FGA store ${storeId}`);
+
   const orgs = await db
     .select({ orgId: schema.organisation.orgId, name: schema.organisation.name })
     .from(schema.organisation);

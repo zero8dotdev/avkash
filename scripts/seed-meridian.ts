@@ -30,7 +30,7 @@ import { createOrganization, createBusinessUnit, createDepartment } from '@avkas
 import { createTeam } from '@avkash/users';
 import { createLeaveType, applyLeave } from '@avkash/leave';
 import { syncOrgTuples } from '@avkash/authz-sync';
-import { authzClient } from '@avkash/authz';
+import { authzClient, bootAuthz } from '@avkash/authz';
 import { objectRef, userRef, FGA_TYPES } from '@avkash/shared';
 import { and, eq } from 'drizzle-orm';
 import type { AuthContext } from '@avkash/shared';
@@ -119,6 +119,11 @@ async function main() {
   console.log('\n╔══════════════════════════════════════════╗');
   console.log('║  Meridian Manufacturing — Demo Seed      ║');
   console.log('╚══════════════════════════════════════════╝\n');
+
+  // Resolve the FGA store + model first — host-side scripts have no boot-time
+  // wiring, and without a store id every FGA call below fails (storeId required).
+  const { storeId } = await bootAuthz();
+  console.log(`  FGA store ${storeId}\n`);
 
   // ── 1. Organisation ─────────────────────────────────────────────────────────
   console.log('► 1. Organisation');
@@ -477,7 +482,9 @@ async function main() {
   console.log(JSON.stringify(ids, null, 2));
 }
 
-main().catch((err) => {
-  console.error('\n[seed-meridian] FATAL:', err);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0)) // open DB/FGA pools would otherwise keep Bun alive
+  .catch((err) => {
+    console.error('\n[seed-meridian] FATAL:', err);
+    process.exit(1);
+  });

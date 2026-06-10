@@ -7,6 +7,31 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@avkash/authz':
+        specifier: workspace:*
+        version: link:packages/authz
+      '@avkash/authz-sync':
+        specifier: workspace:*
+        version: link:packages/authz-sync
+      '@avkash/db':
+        specifier: workspace:*
+        version: link:packages/db
+      '@avkash/leave':
+        specifier: workspace:*
+        version: link:packages/leave
+      '@avkash/org':
+        specifier: workspace:*
+        version: link:packages/org
+      '@avkash/shared':
+        specifier: workspace:*
+        version: link:packages/shared
+      '@avkash/users':
+        specifier: workspace:*
+        version: link:packages/users
+      drizzle-orm:
+        specifier: ^0.38.4
+        version: 0.38.4(@opentelemetry/api@1.9.1)(@types/react@19.2.16)(bun-types@1.3.14)(kysely@0.29.2)(postgres@3.4.9)(react@19.2.7)
     devDependencies:
       '@avkash/eslint-config':
         specifier: workspace:*
