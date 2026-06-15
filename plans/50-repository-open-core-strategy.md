@@ -252,8 +252,8 @@ can gate/meter too — only the proprietary modules it switches on are private.
 ## Open decisions
 
 - Borderline modules: keep `documents` and basic `analytics`/reports open, or move to paid?
-- License posture: **AGPL-3.0 + CLA** (default) vs **BSL/source-available** (stronger SaaS protection, not
-  OSI-open) vs permissive + commercial modules.
+- License posture: **resolved as AGPL-3.0 + CLA** for the public core, with commercial license exceptions
+  available through the CLA-backed dual-license path.
 - CLA tooling: CLA Assistant vs DCO sign-off.
 - Private modules: one private repo (recommended to start) vs one repo per module (later, if teams diverge).
 - When to migrate off submodules to **published versioned packages** (only when team/scale forces clean

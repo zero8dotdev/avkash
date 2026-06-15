@@ -1,6 +1,7 @@
 {
   "name": "@avkash/attendance",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Domain: punches, shifts, regularization.",
   "type": "module",

@@ -1,6 +1,7 @@
 {
   "name": "@avkash/auth",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Identity (Layer 1): Better Auth + API keys. AuthN resolvers (one per transport) + authz guards. Where authN meets authz.",
   "type": "module",

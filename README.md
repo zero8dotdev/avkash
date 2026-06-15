@@ -170,16 +170,17 @@ This is an active v2 rewrite. The API is functional and covers all core HR domai
 - **No OpenAPI spec** — the TypeScript client type is the contract for now
 - **No route-level test suite** — unit tests exist for domain logic; route tests are sparse
 - **Module registry** — the `createApp(modules)` factory (Plan 49) is not built; routes are wired directly in `app.ts`
-- **License** — AGPL-3.0 is the intent; the file is forthcoming
 
 ---
 
 ## License
 
-License to be added. Until then, all rights reserved.
+Avkash core is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
+
+Commercial license exceptions are available for enterprises that cannot adopt AGPL terms.
 
 ---
 
 ## Contributing
 
-Contributions are welcome once the license and CLA are in place. Open an issue to discuss before sending a pull request for anything non-trivial.
+Contributions are welcome. By contributing, you agree that your contribution is licensed under the project license and that a signed [CLA](CLA.md) may be required before merge. Open an issue to discuss before sending a pull request for anything non-trivial.

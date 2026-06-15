@@ -1,6 +1,7 @@
 {
   "name": "@avkash/leave",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Domain: leave types, policies, balances, requests, approval. The template domain.",
   "type": "module",

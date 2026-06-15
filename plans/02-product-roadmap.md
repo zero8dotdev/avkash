@@ -220,7 +220,7 @@ This company needs: employee records, attendance, leaves, payroll, WhatsApp appr
 - [ ] One-click Docker Compose deploy
 - [ ] Helm chart for Kubernetes
 - [ ] Auto-update mechanism
-- [ ] License enforcement (BSL → Enterprise license)
+- [ ] Commercial license exception workflow for AGPL-restricted customers
 
 ---
 

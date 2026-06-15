@@ -1,6 +1,7 @@
 {
   "name": "@avkash/shared",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Foundation: enums, errors, AuthContext, primitives. Imported by everyone, imports no one.",
   "type": "module",

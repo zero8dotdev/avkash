@@ -1,6 +1,7 @@
 {
   "name": "@avkash/emails",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "React Email templates + renderer. Local preview via `email dev`.",
   "type": "module",

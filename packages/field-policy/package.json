@@ -1,6 +1,7 @@
 {
   "name": "@avkash/field-policy",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Field-group visibility: resolver, in-memory cache, CRUD, write-gate and query-gate helpers.",
   "type": "module",

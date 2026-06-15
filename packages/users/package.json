@@ -1,6 +1,7 @@
 {
   "name": "@avkash/users",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Domain: the people — employees, teams, roles, profiles. (Org lifecycle lives in @avkash/org.)",
   "type": "module",

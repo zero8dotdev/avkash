@@ -1,6 +1,7 @@
 {
   "name": "@avkash/notifications",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Orchestration: email/SMS/WhatsApp dispatch. Thin — knows providers, not domains.",
   "type": "module",

@@ -1,6 +1,7 @@
 {
   "name": "@avkash/worker",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "App: Bun process running the BullMQ maintenance worker + schedule.",
   "type": "module",

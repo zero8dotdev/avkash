@@ -1,6 +1,7 @@
 {
   "name": "@avkash/events",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Foundation: transactional outbox event bus. publish() writes in the caller's tx; a relay fans out to in-process subscribers.",
   "type": "module",

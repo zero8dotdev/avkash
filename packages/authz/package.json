@@ -1,6 +1,7 @@
 {
   "name": "@avkash/authz",
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "private": true,
   "description": "Identity layer: OpenFGA client. Implements AuthzClient (Seam 4) — fail-closed relationship authorization.",
   "type": "module",
