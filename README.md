@@ -1,102 +1,185 @@
 # Avkash
 
-**Open-source leave management for modern teams.**
+Open-source HR platform. REST API that covers leave, attendance, people, org structure, and policy — self-hostable, no UI included.
 
-Avkash is an HR management platform that streamlines leave requests, approvals, and team visibility — with deep Slack integration so your team never has to leave their communication hub.
+The UI and paid modules (payroll, compliance) ship in [Avkash Cloud](https://github.com/zero8dotdev/avkash-cloud), a private superset that embeds this repo as a dependency.
 
-<!-- Add a screenshot or banner image here -->
-<!-- ![Avkash Dashboard](screenshot.png) -->
+---
 
-## Features
+## What it does
 
-- **Leave Management** — Simple requests, approvals, and tracking for time off
-- **Slack Integration** — Handle leave requests, get notifications, and manage approvals directly in Slack
-- **Team Management** — Organize your company structure with teams and roles
-- **Policy Configuration** — Define custom leave policies and work calendars
-- **Timeline View** — Visual dashboard showing who's on leave at a glance
-- **Self-Hostable** — Run Avkash on your own infrastructure
+- **Leave** — requests, approvals, accruals, comp-off, encashments, delegations, blackout periods
+- **Attendance** — device-based punch, shift management, workweek patterns, OT/gap detection
+- **People** — employee directory, teams, departments, business units, org levels, transfers
+- **Policy** — leave policies, level restrictions, holiday calendars, location-aware rules
+- **Field access control** — per-field visibility and write gates via OpenFGA (who sees what on whose profile)
+- **Notifications** — email (Resend) and SMS (MSG91) with a console fallback for local dev
+- **Slack** — login and (optionally) leave notifications via Slack
 
-## Tech Stack
+Everything is multi-tenant. Every query is scoped to an `orgId`; there is no cross-tenant data leakage by construction.
 
-- **Framework:** Next.js 15 (App Router)
-- **UI:** React 19, Ant Design, Tailwind CSS
-- **Backend & Database:** Supabase (PostgreSQL + Auth + RLS)
-- **Integrations:** Slack API, Razorpay
-- **Language:** TypeScript
+---
 
-## Getting Started
+## What it is not
 
-### Prerequisites
+- There is no bundled UI. The API is the product.
+- There is no SaaS offering from this repo. If you want managed hosting, that is Avkash Cloud.
+- Payroll, compliance, and performance modules are not here. They are private.
 
-- [Node.js](https://nodejs.org/) >= 20
-- [pnpm](https://pnpm.io/installation)
-- [Docker](https://www.docker.com/get-started) (for running Supabase locally)
-- [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started)
+---
 
-### Installation
+## Stack
 
-1. **Clone the repository:**
+| Layer | Choice |
+|---|---|
+| Runtime | Bun |
+| HTTP | Hono |
+| ORM | Drizzle + PostgreSQL 16 |
+| Auth | Better Auth (email/password + Slack OAuth + API keys) |
+| AuthZ | OpenFGA (relationship-based, field-level) |
+| Background jobs | BullMQ + Redis |
+| Tooling | Turborepo + pnpm workspaces |
 
-   ```bash
-   git clone https://github.com/zero8dotdev/avkash.git
-   cd avkash
-   ```
+---
 
-2. **Install dependencies:**
+## Self-hosting
 
-   ```bash
-   pnpm install
-   ```
+**Prerequisites:** Docker, a Postgres 16 instance (or use the compose stack), Redis.
 
-3. **Set up environment variables:**
+```bash
+git clone https://github.com/zero8dotdev/avkash.git
+cd avkash
+cp .env.example .env   # fill in DATABASE_URL, BETTER_AUTH_SECRET at minimum
+docker compose up -d
+```
 
-   ```bash
-   cp .env.example .env.local
-   ```
+The compose file starts Postgres, Redis, OpenFGA, the API server on `:3001`, and the background worker. The API is ready when `/health/ready` returns `{"status":"ready"}`.
 
-4. **Start local Supabase:**
+For production use, point `DATABASE_URL` and `REDIS_URL` at your own infrastructure and run only the `api` and `worker` services.
 
-   ```bash
-   supabase start
-   ```
+### Schema
 
-   The CLI will output your local credentials — use them to fill in the Supabase variables in `.env.local`.
+```bash
+pnpm db:push   # drizzle-kit push — no migration files, syncs schema directly
+```
 
-5. **Run database migrations:**
+There are no versioned migration files. `db:push` syncs the schema to the database. Switch to `drizzle-kit generate` + `migrate` before you have production data you cannot push over.
 
-   ```bash
-   supabase db reset
-   ```
+### Environment variables
 
-6. **Start the dev server:**
+| Variable | Required | Default | Notes |
+|---|---|---|---|
+| `DATABASE_URL` | yes | — | Postgres connection string |
+| `BETTER_AUTH_SECRET` | yes | — | ≥32 random bytes |
+| `REDIS_URL` | yes (worker) | `redis://localhost:6379` | BullMQ broker |
+| `FGA_API_URL` | yes | `http://localhost:8080` | OpenFGA HTTP endpoint |
+| `FGA_STORE_ID` | yes | — | Created on first boot |
+| `FGA_MODEL_ID` | yes | — | Auth model ID |
+| `CORS_ORIGIN` | no | `http://localhost:3000` | Comma-separated allowed origins |
+| `PORT` | no | `3001` | API listen port |
+| `RESEND_API_KEY` | no | — | Email delivery (console fallback if blank) |
+| `MSG91_AUTH_KEY` | no | — | SMS delivery (silent if blank) |
+| `SLACK_CLIENT_ID` | no | — | Slack OAuth login |
+| `SLACK_CLIENT_SECRET` | no | — | Slack OAuth login |
+| `INTERNAL_API_TOKEN` | no | `dev-cron-token` | Guards `/internal` scheduler endpoints |
 
-   ```bash
-   pnpm dev
-   ```
+---
 
-   Open https://localhost:3000 to see the app.
+## Development
 
-## Environment Variables
+```bash
+pnpm install
+pnpm dev        # starts api + worker via Turbo
+pnpm typecheck  # authoritative — trust this over the editor LSP
+pnpm lint
+pnpm test
+```
 
-| Variable                                | Description                                                           |
-| --------------------------------------- | --------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`              | Public URL for your Supabase project. Provided by `supabase start`.   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`         | Public anonymous key for Supabase. Provided by `supabase start`.      |
-| `SUPABASE_DIRECT_URL`                   | Direct PostgreSQL connection string. Provided by `supabase start`.    |
-| `SUPABASE_SERVICE_ROLE_KEY`             | Secret service role key (bypasses RLS). Provided by `supabase start`. |
-| `NEXT_PUBLIC_SLACK_CLIENT_ID`           | Client ID for your Slack OAuth App.                                   |
-| `SLACK_CLIENT_SECRET`                   | Client Secret for your Slack OAuth App.                               |
-| `SLACK_REDIRECT_URI`                    | Redirect URI for Supabase Auth callback.                              |
-| `RAZORPAY_KEY_ID`                       | Razorpay Key ID for payment processing.                               |
-| `RAZORPAY_KEY_SECRET`                   | Razorpay Key Secret.                                                  |
-| `RAZORPAY_WEBHOOK_SECRET`               | Secret for verifying Razorpay webhooks.                               |
-| `NEXT_PUBLIC_REDIRECT_URL`              | Base URL of your application (e.g., `https://localhost:3000/`).       |
-| `NEXT_PUBLIC_REDIRECT_PATH_AFTER_OAUTH` | Path to redirect to after OAuth login (e.g., `welcome`).              |
+The API hot-reloads via `bun --watch`. To rebuild the Docker container after a schema change:
 
-## Contributing
+```bash
+pnpm db:push
+docker compose up -d --build --force-recreate api
+```
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+`--force-recreate` is required. `--build` alone rebuilds the image but does not replace the running container.
+
+### Monorepo layout
+
+```
+apps/
+  api/      Hono server — thin wiring layer, no business logic
+  worker/   BullMQ scheduler + maintenance jobs
+packages/
+  shared/   AuthContext, DomainError taxonomy, primitives
+  config/   Zod-validated env, fails fast at boot
+  db/       Drizzle schema (single source of truth), client
+  auth/     Better Auth + API keys
+  authz/    OpenFGA client, model bootstrap, health
+  authz-sync/ Writes FGA tuples from domain events
+  org/      Organisation lifecycle, invitations
+  users/    People, teams, roles, profiles
+  leave/    Leave requests, balances, policies, accruals
+  attendance/ Punches, shifts, devices, workweek
+  holidays/ Holiday calendars
+  policy/   Policy rules, level restrictions
+  documents/ Document storage
+  field-policy/ Per-field visibility and write gates
+  jobs/     BullMQ queues and schedule definitions
+  notifications/ Email + SMS dispatch
+  slack/    Slack SDK wiring
+  events/   In-process event bus (domain → subscribers)
+  i18n/     Message catalog, error translation
+  emails/   React Email templates
+```
+
+Packages are just-in-time — no build step, no publish. Everything imports via `@avkash/<name>` workspace aliases.
+
+---
+
+## API
+
+Base URL: `http://localhost:3001`
+
+Auth: send a `Better-Auth-Session` cookie (obtained from `POST /api/auth/sign-in`) or an `Authorization: Bearer <api-key>` header.
+
+A few representative endpoints:
+
+```
+GET    /health/ready
+POST   /api/auth/sign-in/email
+GET    /leaves
+POST   /leaves
+PATCH  /leaves/:id
+GET    /attendance
+POST   /attendance/punch
+GET    /employees
+GET    /me
+GET    /balances
+GET    /reports
+```
+
+There is no OpenAPI spec yet. The Hono `AppType` export in `apps/api/src/app.ts` is the type-safe contract — consume it from a TypeScript client with `hc<AppType>()`.
+
+---
+
+## Status
+
+This is an active v2 rewrite. The API is functional and covers all core HR domains. What is not done yet:
+
+- **No OpenAPI spec** — the TypeScript client type is the contract for now
+- **No route-level test suite** — unit tests exist for domain logic; route tests are sparse
+- **Module registry** — the `createApp(modules)` factory (Plan 49) is not built; routes are wired directly in `app.ts`
+- **License** — AGPL-3.0 is the intent; the file is forthcoming
+
+---
 
 ## License
 
-This project is licensed under the [Business Source License 1.1](LICENSE). You are free to self-host Avkash for internal use. After the change date (2030-02-07), the license converts to Apache License 2.0.
+License to be added. Until then, all rights reserved.
+
+---
+
+## Contributing
+
+Contributions are welcome once the license and CLA are in place. Open an issue to discuss before sending a pull request for anything non-trivial.
