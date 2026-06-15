@@ -6,7 +6,8 @@
   "description": "App: Bun + Hono server. Wires domain packages into routes. Apps wire, packages think.",
   "type": "module",
   "exports": {
-    ".": "./src/app.ts"
+    ".": "./src/app.ts",
+    "./modules": "./src/modules.ts"
   },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
@@ -17,6 +18,7 @@
     "clean": "rm -rf .turbo node_modules dist"
   },
   "dependencies": {
+    "@avkash/app": "workspace:*",
     "@avkash/shared": "workspace:*",
     "@avkash/i18n": "workspace:*",
     "@avkash/db": "workspace:*",

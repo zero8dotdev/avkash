@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@avkash/config": "workspace:*",
-    "@avkash/payroll": "workspace:*",
     "@avkash/notifications": "workspace:*",
     "@avkash/documents": "workspace:*",
     "@avkash/leave": "workspace:*",
