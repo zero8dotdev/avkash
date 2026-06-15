@@ -1,0 +1,30 @@
+{
+  "name": "@avkash/authz",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Identity layer: OpenFGA client. Implements AuthzClient (Seam 4) — fail-closed relationship authorization.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "model:test": "node scripts/validate-model.js",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/config": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@openfga/sdk": "^0.9.6",
+    "@openfga/syntax-transformer": "^0.2.1"
+  },
+  "devDependencies": {
+    "@avkash/eslint-config": "workspace:*",
+    "@avkash/tsconfig": "workspace:*",
+    "@types/bun": "^1.1.14",
+    "typescript": "^5.8.2"
+  }
+}

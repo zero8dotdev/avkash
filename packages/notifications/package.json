@@ -1,0 +1,29 @@
+{
+  "name": "@avkash/notifications",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Orchestration: email/SMS/WhatsApp dispatch. Thin — knows providers, not domains.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/config": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/db": "workspace:*",
+    "@avkash/emails": "workspace:*",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/node": "^20.17.27",
+    "typescript": "^5.8.2"
+  }
+}

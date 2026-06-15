@@ -1,0 +1,35 @@
+{
+  "name": "@avkash/leave",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Domain: leave types, policies, balances, requests, approval. The template domain.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/db": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "@avkash/events": "workspace:*",
+    "@avkash/notifications": "workspace:*",
+    "zod": "^4.0.0",
+    "drizzle-orm": "^0.38.0",
+    "@avkash/holidays": "workspace:*",
+    "@avkash/attendance": "workspace:*",
+    "@avkash/authz": "workspace:*"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.14",
+    "typescript": "^5.8.2"
+  }
+}

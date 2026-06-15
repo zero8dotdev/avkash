@@ -1,0 +1,34 @@
+{
+  "name": "@avkash/org",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Domain: the Organisation tenant — creation, lifecycle (provisional/verified/restricted), domain verification, invitations.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/db": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "@avkash/config": "workspace:*",
+    "@avkash/events": "workspace:*",
+    "@avkash/notifications": "workspace:*",
+    "drizzle-orm": "^0.38.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.14",
+    "@types/node": "^20.17.27",
+    "typescript": "^5.8.2"
+  }
+}

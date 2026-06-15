@@ -1,0 +1,184 @@
+name: avkash
+
+services:
+  # ── Postgres — the database for the Bun API (Better Auth + domain data) ──────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-avkash}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avkash}
+      POSTGRES_DB: ${POSTGRES_DB:-avkash}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-avkash} -d ${POSTGRES_DB:-avkash}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis — BullMQ broker for the maintenance worker ────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── API — strictly Bun (Hono server) ────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/${POSTGRES_DB:-avkash}
+      # Better Auth — set a strong secret in real use; this default is dev-only.
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      # Public web app URL — used to build invitation accept links.
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      # Slack login (leave blank until you have credentials).
+      SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
+      SLACK_CLIENT_SECRET: ${SLACK_CLIENT_SECRET:-}
+      # Cron token for the /internal endpoints (scheduler must send X-Internal-Token).
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-dev-cron-token}
+      # In-network FGA address (host default localhost:8080 doesn't resolve in-container).
+      FGA_API_URL: ${FGA_API_URL:-http://openfga:8080}
+      # Browser origins allowed to call the API with credentials (comma-separated).
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      # Notification providers (blank = console fallback).
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      MSG91_AUTH_KEY: ${MSG91_AUTH_KEY:-}
+      MSG91_SENDER_ID: ${MSG91_SENDER_ID:-}
+      MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID:-}
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test:
+        - CMD
+        - bun
+        - -e
+        - "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Web — SvelteKit on Node (adapter-node) ──────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # PUBLIC_API_URL is consumed by both the server-side hooks (session check)
+      # and injected by Vite at build time for browser-side fetches.
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:3001}
+      PORT: 3000
+    ports:
+      - '3000:3000'
+
+  # ── Worker — Bun process running BullMQ scheduler + maintenance jobs ─────────
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/${POSTGRES_DB:-avkash}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      # In-network FGA address — the tuple-writer + reconciler talk to it.
+      FGA_API_URL: ${FGA_API_URL:-http://openfga:8080}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-me}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      # Notification providers (blank = console fallback). The worker sends accrual
+      # notifications, so it needs these to deliver for real.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      MSG91_AUTH_KEY: ${MSG91_AUTH_KEY:-}
+      MSG91_SENDER_ID: ${MSG91_SENDER_ID:-}
+      MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID:-}
+
+  # ── OpenFGA infrastructure ───────────────────────────────────────────────────
+  # Rationale: OpenFGA runs against the EXISTING postgres instance in a dedicated
+  # logical database ("openfga") so drizzle-kit push never sees FGA tables. This
+  # keeps self-host complexity to exactly one extra stateless container with zero
+  # new stateful infrastructure. Same PG = same backup/ops story; separate logical
+  # DB = zero tooling interference (drizzle-kit diffs only the app schema).
+
+  # One-shot: creates the "openfga" logical DB if it does not exist. Probe-then-
+  # createdb in a shell because CREATE DATABASE has no IF NOT EXISTS in Postgres
+  # (and psql's \gexec doesn't survive YAML escaping).
+  openfga-db-init:
+    image: postgres:16-alpine
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-avkash}
+    command:
+      - sh
+      - -c
+      - >
+        psql -h postgres -U ${POSTGRES_USER:-avkash} -d ${POSTGRES_DB:-avkash} -tAc
+        "SELECT 1 FROM pg_database WHERE datname = 'openfga'" | grep -q 1
+        || createdb -h postgres -U ${POSTGRES_USER:-avkash} openfga
+
+  # One-shot: runs OpenFGA schema migrations against the openfga logical DB.
+  # Must complete before the server starts (service_completed_successfully).
+  openfga-migrate:
+    image: openfga/openfga:v1.8
+    command: migrate
+    restart: 'no'
+    depends_on:
+      openfga-db-init:
+        condition: service_completed_successfully
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/openfga?sslmode=disable
+
+  # The OpenFGA authorization server. Stateless binary — all state is in postgres.
+  # Port 8080 is the HTTP API; 8081 gRPC (exposed if needed).
+  openfga:
+    image: openfga/openfga:v1.8
+    command: run
+    restart: unless-stopped
+    depends_on:
+      openfga-migrate:
+        condition: service_completed_successfully
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://${POSTGRES_USER:-avkash}:${POSTGRES_PASSWORD:-avkash}@postgres:5432/openfga?sslmode=disable
+      OPENFGA_HTTP_ADDR: 0.0.0.0:8080
+    ports:
+      - '8080:8080' # HTTP API; 8081 gRPC if needed
+    healthcheck:
+      # The openfga image is distroless — no shell/wget. Use the bundled gRPC probe.
+      test: ['CMD', '/usr/local/bin/grpc_health_probe', '-addr=localhost:8081']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres_data:

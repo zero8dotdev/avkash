@@ -1,102 +1,114 @@
 # Avkash
 
-**Open-source leave management for modern teams.**
+> **v2.0.0 — June 2026.** Complete rewrite. Bun + Hono + Drizzle + OpenFGA. The v1 Next.js app is preserved on the [`v1`](../../tree/v1) tag. v2 is API-only; the UI is in Avkash Cloud.
 
-Avkash is an HR management platform that streamlines leave requests, approvals, and team visibility — with deep Slack integration so your team never has to leave their communication hub.
+Open-core HR infrastructure for teams that need control over:
 
-<!-- Add a screenshot or banner image here -->
-<!-- ![Avkash Dashboard](screenshot.png) -->
+- Leave
+- Attendance
+- People data
+- Organisation structure
+- HR policies
+- Field-level access
 
-## Features
+Avkash is built for companies where HR rules are not simple. Shifts, alternate Saturdays, location rules, probation, approvals, transfers, and access control all matter.
 
-- **Leave Management** — Simple requests, approvals, and tracking for time off
-- **Slack Integration** — Handle leave requests, get notifications, and manage approvals directly in Slack
-- **Team Management** — Organize your company structure with teams and roles
-- **Policy Configuration** — Define custom leave policies and work calendars
-- **Timeline View** — Visual dashboard showing who's on leave at a glance
-- **Self-Hostable** — Run Avkash on your own infrastructure
+The public repo is the self-hostable core. Avkash Cloud is the commercial product with hosted UI, payroll, compliance, performance, and other private modules.
 
-## Tech Stack
+---
 
-- **Framework:** Next.js 15 (App Router)
-- **UI:** React 19, Ant Design, Tailwind CSS
-- **Backend & Database:** Supabase (PostgreSQL + Auth + RLS)
-- **Integrations:** Slack API, Razorpay
-- **Language:** TypeScript
+## Why Avkash
 
-## Getting Started
+Most HR software is closed SaaS.
 
-### Prerequisites
+That can be a problem when:
 
-- [Node.js](https://nodejs.org/) >= 20
-- [pnpm](https://pnpm.io/installation)
-- [Docker](https://www.docker.com/get-started) (for running Supabase locally)
-- [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started)
+- Employee data needs to stay under your control
+- Company policies do not fit a generic workflow
+- Attendance depends on shifts, devices, sites, or supervisors
+- Leave rules vary by level, location, probation, or business unit
+- You need to build custom HR workflows on top of a real backend
 
-### Installation
+Avkash gives you a programmable HR core instead of a black box.
 
-1. **Clone the repository:**
+---
 
-   ```bash
-   git clone https://github.com/zero8dotdev/avkash.git
-   cd avkash
-   ```
+## What Is Open
 
-2. **Install dependencies:**
+The open core includes:
 
-   ```bash
-   pnpm install
-   ```
+- **People** - employees, profiles, teams, roles, departments, business units, org levels
+- **Leave** - requests, approvals, balances, accruals, comp-off, encashments, delegations, blackout periods
+- **Attendance** - punches, shifts, workweeks, alternate Saturdays, supervisor flows, regularisation, overtime
+- **Policies** - leave policies, applicability rules, level restrictions, holidays, location-aware rules
+- **Access control** - OpenFGA-based relationship and field-level permissions
+- **Notifications** - email and SMS dispatch with local fallbacks
+- **Slack** - login and optional leave notifications
+- **Multi-tenancy** - every request is scoped by `orgId`
 
-3. **Set up environment variables:**
+The open core is meant to be useful by itself. It is not a demo repo.
 
-   ```bash
-   cp .env.example .env.local
-   ```
+---
 
-4. **Start local Supabase:**
+## Open Core Vs Cloud
 
-   ```bash
-   supabase start
-   ```
+| Area | Open core | Avkash Cloud / private modules |
+|---|---|---|
+| Hosting | Self-hosted API and worker | Managed SaaS |
+| UI | Not included | Hosted UI |
+| People, leave, attendance, policy | Included | Included |
+| OpenFGA authorization | Included | Included |
+| Payroll | Not included | Commercial module |
+| Statutory compliance | Not included | Commercial module |
+| Performance, recruitment, analytics | Not included | Commercial modules |
+| License | AGPL-3.0 | Commercial |
 
-   The CLI will output your local credentials — use them to fill in the Supabase variables in `.env.local`.
+Commercial license exceptions are available for organisations that cannot use AGPL.
 
-5. **Run database migrations:**
+---
 
-   ```bash
-   supabase db reset
-   ```
+## Who It Is For
 
-6. **Start the dev server:**
+Use Avkash if you are:
 
-   ```bash
-   pnpm dev
-   ```
+- A company that wants self-hosted control over HR data
+- An HR-tech builder who needs a backend foundation
+- A team operating with India-style attendance, leave, shift, and compliance complexity
+- A developer extending HR workflows with custom rules and approvals
+- Evaluating an open-core alternative to closed HR SaaS
 
-   Open https://localhost:3000 to see the app.
+Use Avkash Cloud if you want:
 
-## Environment Variables
+- Hosted UI
+- Managed deployment
+- Payroll
+- Compliance
+- Performance and other commercial modules
 
-| Variable                                | Description                                                           |
-| --------------------------------------- | --------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`              | Public URL for your Supabase project. Provided by `supabase start`.   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`         | Public anonymous key for Supabase. Provided by `supabase start`.      |
-| `SUPABASE_DIRECT_URL`                   | Direct PostgreSQL connection string. Provided by `supabase start`.    |
-| `SUPABASE_SERVICE_ROLE_KEY`             | Secret service role key (bypasses RLS). Provided by `supabase start`. |
-| `NEXT_PUBLIC_SLACK_CLIENT_ID`           | Client ID for your Slack OAuth App.                                   |
-| `SLACK_CLIENT_SECRET`                   | Client Secret for your Slack OAuth App.                               |
-| `SLACK_REDIRECT_URI`                    | Redirect URI for Supabase Auth callback.                              |
-| `RAZORPAY_KEY_ID`                       | Razorpay Key ID for payment processing.                               |
-| `RAZORPAY_KEY_SECRET`                   | Razorpay Key Secret.                                                  |
-| `RAZORPAY_WEBHOOK_SECRET`               | Secret for verifying Razorpay webhooks.                               |
-| `NEXT_PUBLIC_REDIRECT_URL`              | Base URL of your application (e.g., `https://localhost:3000/`).       |
-| `NEXT_PUBLIC_REDIRECT_PATH_AFTER_OAUTH` | Path to redirect to after OAuth login (e.g., `welcome`).              |
+---
 
-## Contributing
+## Documentation
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+- [Technical README](docs/technical-readme.md) - self-hosting, environment variables, development commands, API entry points
+- [Architecture README](docs/architecture-readme.md) - stack, package layout, open-core boundary, current status
+- [Pluggable data flow](docs/pluggable-data-flow.md) - how core facts and module capabilities move both ways
+- [LMS module guide](docs/lms-module-guide.md) - worked example for mandatory training modules
+- [Enterprise authorization demo](docs/demo-enterprise-authz.md) - OpenFGA and field-access walkthrough
+
+---
 
 ## License
 
-This project is licensed under the [Business Source License 1.1](LICENSE). You are free to self-host Avkash for internal use. After the change date (2030-02-07), the license converts to Apache License 2.0.
+- Open core: AGPL-3.0. See [LICENSE](LICENSE).
+- Copyright: Zero8 Dot Dev Pvt Ltd.
+- Contributions may require signing the [Contributor License Agreement](CLA.md).
+- Commercial license exceptions are available through Zero8 Dot Dev Pvt Ltd.
+
+---
+
+## Contributing
+
+- Open an issue before a non-trivial pull request.
+- Keep changes scoped and aligned with the open-core boundary.
+- By contributing, you agree that your contribution is licensed under the project license.
+- A signed [CLA](CLA.md) may be required before merge.

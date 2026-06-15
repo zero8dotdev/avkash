@@ -1,0 +1,28 @@
+{
+  "name": "@avkash/holidays",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Holiday calendar: country suggestions (date-holidays), org selections, recurrence.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/shared": "workspace:*",
+    "@avkash/db": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "date-holidays": "^3.23.0",
+    "drizzle-orm": "^0.38.4"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "typescript": "^5.8.2"
+  }
+}

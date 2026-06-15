@@ -1,0 +1,1 @@
+{ "extends": "@avkash/tsconfig/base.json", "include": ["src", "drizzle.config.ts"] }

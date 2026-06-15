@@ -1,0 +1,32 @@
+{
+  "name": "@avkash/jobs",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Top-of-graph orchestration: BullMQ workers. Orchestrates through packages, doesn't reach into db.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/config": "workspace:*",
+    "@avkash/notifications": "workspace:*",
+    "@avkash/documents": "workspace:*",
+    "@avkash/leave": "workspace:*",
+    "@avkash/org": "workspace:*",
+    "@avkash/holidays": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/authz-sync": "workspace:*",
+    "bullmq": "^5.0.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "typescript": "^5.8.2"
+  }
+}

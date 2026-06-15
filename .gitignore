@@ -6,6 +6,18 @@
 .pnp.js
 .yarn/install-state.gz
 
+# v2 monorepo build artifacts (match at any depth)
+node_modules/
+.turbo/
+dist/
+**/.next/
+**/.svelte-kit/
+**/build/
+
+# local data / session artifacts
+data_dump.sql
+session-*.md
+
 # testing
 /coverage
 
@@ -37,3 +49,5 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+# React Email preview build
+**/.react-email/

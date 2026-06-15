@@ -1,0 +1,7 @@
+{
+  "extends": "@avkash/tsconfig/base.json",
+  "compilerOptions": {
+    "paths": {}
+  },
+  "include": ["src"]
+}

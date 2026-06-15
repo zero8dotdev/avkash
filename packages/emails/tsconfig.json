@@ -1,0 +1,9 @@
+{
+  "extends": "@avkash/tsconfig/base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM"],
+    "types": ["react", "react-dom"]
+  },
+  "include": ["src", "emails"]
+}

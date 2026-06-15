@@ -1,0 +1,33 @@
+{
+  "name": "@avkash/authz-sync",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "Orchestration: tuple-sync pipeline — state-based writer, reconciler, backfill. Bridges Postgres org graph ↔ OpenFGA.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/authz": "workspace:*",
+    "@avkash/config": "workspace:*",
+    "@avkash/db": "workspace:*",
+    "@avkash/events": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@openfga/sdk": "^0.9.6",
+    "drizzle-orm": "^0.38.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.14",
+    "typescript": "^5.8.2"
+  }
+}

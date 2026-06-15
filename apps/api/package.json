@@ -1,0 +1,50 @@
+{
+  "name": "@avkash/api",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "description": "App: Bun + Hono server. Wires domain packages into routes. Apps wire, packages think.",
+  "type": "module",
+  "exports": {
+    ".": "./src/app.ts",
+    "./modules": "./src/modules.ts"
+  },
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target bun --outdir dist",
+    "test": "bun test src/test",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo node_modules dist"
+  },
+  "dependencies": {
+    "@avkash/app": "workspace:*",
+    "@avkash/shared": "workspace:*",
+    "@avkash/i18n": "workspace:*",
+    "@avkash/db": "workspace:*",
+    "@avkash/auth": "workspace:*",
+    "@avkash/authz": "workspace:*",
+    "@avkash/org": "workspace:*",
+    "@avkash/users": "workspace:*",
+    "@avkash/leave": "workspace:*",
+    "@avkash/attendance": "workspace:*",
+    "@avkash/policy": "workspace:*",
+    "@avkash/documents": "workspace:*",
+    "@avkash/slack": "workspace:*",
+    "@avkash/jobs": "workspace:*",
+    "hono": "^4.6.0",
+    "zod": "^4.0.0",
+    "drizzle-zod": "^0.8.0",
+    "@avkash/holidays": "workspace:*",
+    "@avkash/field-policy": "workspace:*",
+    "@avkash/authz-sync": "workspace:*",
+    "@avkash/events": "workspace:*"
+  },
+  "devDependencies": {
+    "@avkash/tsconfig": "workspace:*",
+    "@avkash/eslint-config": "workspace:*",
+    "@types/bun": "^1.1.0",
+    "drizzle-orm": "^0.38.0",
+    "typescript": "^5.8.2"
+  }
+}

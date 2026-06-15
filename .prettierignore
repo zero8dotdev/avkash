@@ -1,0 +1,7 @@
+# Build artifacts
+**/.next
+**/.turbo
+**/dist
+
+# Generated / vendored
+pnpm-lock.yaml

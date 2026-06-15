@@ -1,0 +1,16 @@
+# Keep host artifacts out of the build context so images install fresh (Linux)
+# binaries rather than copying macOS ones.
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+.git
+.github
+*.log
+.env
+.env.*
+!.env.example
+data_dump.sql
+session-*.md
+docs
+plans

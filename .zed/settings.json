@@ -1,0 +1,17 @@
+{
+  // Format every buffer on save with Prettier, using the repo's .prettierrc.json
+  // and .prettierignore. Files matched by .prettierignore (the legacy Supabase
+  // app under src/, db/, and root configs) are left untouched on purpose.
+  "format_on_save": "on",
+  "formatter": "prettier",
+  // The dev server runs with NODE_TLS_REJECT_UNAUTHORIZED=0; keep editor noise low.
+  "languages": {
+    "TypeScript": { "formatter": "prettier" },
+    "TSX": { "formatter": "prettier" },
+    "JavaScript": { "formatter": "prettier" },
+    "JSON": { "formatter": "prettier" },
+    "JSONC": { "formatter": "prettier" },
+    "Markdown": { "formatter": "prettier" },
+    "YAML": { "formatter": "prettier" }
+  }
+}
