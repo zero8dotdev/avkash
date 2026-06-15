@@ -1,87 +1,111 @@
 # Avkash
 
-Open-core HR infrastructure for companies that need control over leave, attendance, people data, and policy logic.
+Open-core HR infrastructure for teams that need control over:
 
-Most HR systems are delivered as closed SaaS products. That works until your policies become local, your compliance rules become specific, or your employee data cannot sit inside a black box. Avkash is built as a self-hostable HR core: the public repository gives you the foundation, and commercial modules add the parts larger companies usually buy later.
+- Leave
+- Attendance
+- People data
+- Organisation structure
+- HR policies
+- Field-level access
 
-The open core is licensed under AGPL-3.0. Avkash Cloud is the commercial superset, with hosted deployment, UI, payroll, compliance, performance, and other private modules.
+Avkash is built for companies where HR rules are not simple. Shifts, alternate Saturdays, location rules, probation, approvals, transfers, and access control all matter.
 
----
-
-## Why Avkash Exists
-
-HR software looks simple from the outside: employees apply for leave, managers approve it, attendance gets marked, and payroll consumes the result. In practice, every company has exceptions.
-
-Factories have shifts, grace windows, alternate Saturdays, device punches, overtime rules, and location-based policies. Growing companies need org levels, transfers, delegations, probation rules, and field-level access control. Indian and emerging-market teams often need software that can adapt to local operating reality instead of forcing everything into one global SaaS workflow.
-
-Avkash treats HR as infrastructure. The public core gives teams a programmable, inspectable backend for the everyday HR primitives. The commercial layer adds the heavier workflows around payroll, statutory compliance, performance, and managed hosting.
+The public repo is the self-hostable core. Avkash Cloud is the commercial product with hosted UI, payroll, compliance, performance, and other private modules.
 
 ---
 
-## What You Get In The Open Core
+## Why Avkash
 
-- **People and organisation** - employees, teams, departments, business units, org levels, locations, roles, and transfers
-- **Leave management** - requests, approvals, accruals, balances, comp-off, encashments, delegations, blackout periods, and policy restrictions
-- **Attendance** - device-based punches, shifts, workweek patterns, alternate Saturdays, supervisor flows, regularisation, overtime, and gap detection
-- **Policy engine** - leave policies, applicability rules, level restrictions, holiday calendars, and location-aware behaviour
-- **Field access control** - per-field visibility and write gates through OpenFGA, so sensitive employee data is not exposed casually
-- **Notifications** - email and SMS dispatch with local-development fallbacks
-- **Slack integration** - Slack login and optional leave notifications
-- **Multi-tenancy** - every query is scoped by `orgId`; cross-tenant data access is blocked by construction
+Most HR software is closed SaaS.
 
-The public core is intended to be useful on its own. It is not a thin SDK or a teaser repo.
+That can be a problem when:
+
+- Employee data needs to stay under your control
+- Company policies do not fit a generic workflow
+- Attendance depends on shifts, devices, sites, or supervisors
+- Leave rules vary by level, location, probation, or business unit
+- You need to build custom HR workflows on top of a real backend
+
+Avkash gives you a programmable HR core instead of a black box.
+
+---
+
+## What Is Open
+
+The open core includes:
+
+- **People** - employees, profiles, teams, roles, departments, business units, org levels
+- **Leave** - requests, approvals, balances, accruals, comp-off, encashments, delegations, blackout periods
+- **Attendance** - punches, shifts, workweeks, alternate Saturdays, supervisor flows, regularisation, overtime
+- **Policies** - leave policies, applicability rules, level restrictions, holidays, location-aware rules
+- **Access control** - OpenFGA-based relationship and field-level permissions
+- **Notifications** - email and SMS dispatch with local fallbacks
+- **Slack** - login and optional leave notifications
+- **Multi-tenancy** - every request is scoped by `orgId`
+
+The open core is meant to be useful by itself. It is not a demo repo.
 
 ---
 
 ## Open Core Vs Cloud
 
-| Area | Public core (`avkash`) | Avkash Cloud / private modules |
+| Area | Open core | Avkash Cloud / private modules |
 |---|---|---|
 | Hosting | Self-hosted API and worker | Managed SaaS |
-| UI | Not bundled in this repo | Hosted product UI |
-| HR foundation | People, org, leave, attendance, holidays, policies | Included |
-| Authorisation | OpenFGA relationship and field-level access | Included, plus provider operations |
+| UI | Not included | Hosted UI |
+| People, leave, attendance, policy | Included | Included |
+| OpenFGA authorization | Included | Included |
 | Payroll | Not included | Commercial module |
 | Statutory compliance | Not included | Commercial module |
-| Performance / recruitment / analytics | Not included | Commercial modules |
+| Performance, recruitment, analytics | Not included | Commercial modules |
 | License | AGPL-3.0 | Commercial |
 
-Commercial license exceptions are available for organisations that want to use the core but cannot adopt AGPL terms.
+Commercial license exceptions are available for organisations that cannot use AGPL.
 
 ---
 
-## Who This Is For
+## Who It Is For
 
-Avkash is a good fit if you are:
+Use Avkash if you are:
 
-- Running an organisation that needs self-hosted control over HR data
-- Building an HR product and want a real backend foundation instead of starting from tables and CRUD
-- Operating in India or a similar market where policies, attendance rules, shifts, and compliance needs vary heavily by company
-- Extending HR workflows with custom rules, integrations, or approval paths
+- A company that wants self-hosted control over HR data
+- An HR-tech builder who needs a backend foundation
+- A team operating with India-style attendance, leave, shift, and compliance complexity
+- A developer extending HR workflows with custom rules and approvals
 - Evaluating an open-core alternative to closed HR SaaS
 
-It is not the right repo if you want a turnkey hosted product with UI today. For that, use Avkash Cloud.
+Use Avkash Cloud if you want:
+
+- Hosted UI
+- Managed deployment
+- Payroll
+- Compliance
+- Performance and other commercial modules
 
 ---
 
 ## Documentation
 
-- [Technical README](docs/technical-readme.md) - self-hosting, environment variables, development commands, and API entry points
-- [Architecture README](docs/architecture-readme.md) - stack, monorepo layout, package boundaries, and current project status
+- [Technical README](docs/technical-readme.md) - self-hosting, environment variables, development commands, API entry points
+- [Architecture README](docs/architecture-readme.md) - stack, package layout, open-core boundary, current status
 - [Enterprise authorization demo](docs/demo-enterprise-authz.md) - OpenFGA and field-access walkthrough
 
 ---
 
 ## License
 
-Avkash core is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
-
-Contributions may require signing the [Contributor License Agreement](CLA.md). The CLA lets Zero8 Dot Dev Pvt Ltd offer commercial license exceptions while keeping the public core open.
+- Open core: AGPL-3.0. See [LICENSE](LICENSE).
+- Copyright: Zero8 Dot Dev Pvt Ltd.
+- Contributions may require signing the [Contributor License Agreement](CLA.md).
+- Commercial license exceptions are available through Zero8 Dot Dev Pvt Ltd.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Open an issue before sending a non-trivial pull request so the design can be discussed first.
+- Open an issue before a non-trivial pull request.
+- Keep changes scoped and aligned with the open-core boundary.
+- By contributing, you agree that your contribution is licensed under the project license.
+- A signed [CLA](CLA.md) may be required before merge.
 
-By contributing, you agree that your contribution is licensed under the project license and that a signed [CLA](CLA.md) may be required before merge.
