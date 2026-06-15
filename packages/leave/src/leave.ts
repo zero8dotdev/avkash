@@ -24,7 +24,7 @@ import { notifyLeaveRequested, notifyLeaveDecision, notifyLeaveCancelled } from 
 import { addLeaveComment } from './comment';
 import { assertNoBlackout } from './blackout';
 
-// Plan 45: FIRST_HALF/SECOND_HALF relative to shift boundaries (replaces MORNING/AFTERNOON).
+// FIRST_HALF/SECOND_HALF relative to shift boundaries (replaces MORNING/AFTERNOON).
 type HalfDayPart = 'FIRST_HALF' | 'SECOND_HALF' | 'NONE';
 
 export interface ApplyLeaveInput {
@@ -71,14 +71,14 @@ async function resolveEmployeeProfileId(userId: string): Promise<string | null> 
 
 // Assert the caller may approve/reject a leave request.
 //
-// Strategy (Plan 51 WS5 — employee-pivot model):
+// Strategy (employee-pivot model):
 //   1. OWNER/ADMIN coarse pre-gate: always allowed (role fast-path, no FGA call).
 //   2. For relationship-shaped approval (MANAGER or below): resolve the leave
 //      subject's EmployeeProfile.id and call requireRelation(ctx, 'approver',
 //      'employee:<profileId>'). This single FGA check resolves the full chain:
 //        employee.approver → team.approver → manager | delegate | dept head
 //      Zero per-leave-request tuples are written; the relationship is checked
-//      against the pre-synced employee pivot tuples (WS3 derive.ts).
+//      against the pre-synced employee pivot tuples (authz-sync derive.ts).
 //   3. If no EmployeeProfile row exists (synthesised profile, no FGA tuple),
 //      fall back to the legacy canApprove() SQL check so approval still works
 //      for orgs not yet fully synced to FGA.
@@ -166,7 +166,7 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   );
   if (conflict) throw new ConflictError('LEAVE_OVERLAP');
 
-  // Blackout period guard (Plan 33). Fetch the user's current location for scoped blackouts.
+  // Blackout period guard. Fetch the user's current location for scoped blackouts.
   const [userLoc] = await db
     .select({ locationId: schema.user.locationId })
     .from(schema.user)

@@ -7,7 +7,7 @@
 //   - reconcileAllOrgs (reconciler) — same
 //   - the backfill script — same
 //
-// Design principle (Plan 51 Rule 1): NEVER apply event deltas. The expected
+// Design principle: NEVER apply event deltas. The expected
 // set is always derived fresh from the DB so replay/reorder always converges.
 
 import { and, eq, isNotNull } from 'drizzle-orm';

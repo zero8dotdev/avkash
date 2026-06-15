@@ -1,14 +1,14 @@
 // API entry point — Bun + Hono.
 //
-// Boot sequence (Plan 51 WS7):
+// Boot sequence:
 //   1. bootAuthz() — ensureStore('avkash') + ensureModel(core.fga).
-//      Resolves WS1 open issue #3: ensureStore was not called at boot.
+//      ensureStore() must be called at boot before any OpenFGA operation.
 //      On FGA unavailable: logs and continues (guarded routes return 503 until FGA recovers).
 //      On success: logs storeId + modelId so ops can verify the active model.
 //   2. Start the Hono server.
 //
-// TODO (Plan 49 Phase 3 — module registry): pass module authzModel fragments to
-//   bootAuthz(fragments) once the AvkashModule manifest registry is implemented.
+// TODO: pass module authzModel fragments to bootAuthz(fragments) once the
+//   AvkashModule manifest registry is implemented.
 //   Until then, the core model only is loaded.
 
 import { bootAuthz } from '@avkash/authz';

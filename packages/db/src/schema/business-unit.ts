@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, boolean, integer, char, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
-// Plan 41 — Business unit / subsidiary brand entity.
+// Business unit / subsidiary brand entity.
 // A branding overlay for a subset of employees (e.g. a sales subsidiary that operates
 // under a different brand name but belongs to the same org). Employees in a unit have
 // their name/logo substituted on documents and communications.

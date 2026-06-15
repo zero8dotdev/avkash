@@ -31,7 +31,7 @@ export const SCHEDULE: ScheduledJob[] = [
     run: () => runProbationCompletion(),
   },
   {
-    // Plan 51 Rule 3: nightly FGA reconciler. A nonzero repair count = upstream
+    // Nightly FGA reconciler. A nonzero repair count = upstream
     // bug signal (domain mutation that didn't emit an event or subscriber failed).
     name: 'authz-reconcile',
     cron: '0 4 * * *', // daily 04:00 UTC — nightly full reconciliation

@@ -80,7 +80,7 @@ pnpm format:fix    # Auto-fix formatting
 
 Avkash core is licensed under the GNU Affero General Public License v3.0. By contributing, you agree that your contribution is licensed under the same project license.
 
-Zero8 Dot Dev Pvt Ltd may require a signed [Contributor License Agreement](CLA.md) before your pull request can be merged. The CLA preserves the open-core licensing model from Plan 50 and allows commercial license exceptions for customers that cannot use AGPL software.
+Zero8 Dot Dev Pvt Ltd may require a signed [Contributor License Agreement](CLA.md) before your pull request can be merged. The CLA preserves the open-core licensing model and allows commercial license exceptions for customers that cannot use AGPL software.
 
 ## Reporting Issues
 

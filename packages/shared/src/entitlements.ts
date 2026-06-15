@@ -1,12 +1,12 @@
-// Per-tenant entitlements (Plan 49 Seam 3 — contracts only).
+// Per-tenant entitlements (contracts only).
 // The gate that makes "modules sold on top" real: routes 402 when disabled,
-// subscribers go inert, jobs skip the org. Distinct from authz (Plan 51): FGA
+// subscribers go inert, jobs skip the org. Distinct from authz: FGA
 // answers "who can do what to which resource"; entitlements answer "what did this
 // org pay for". They are never merged.
 
 export type EntitlementSource = 'manual' | 'billing' | 'trial';
 
-/** One org × module grant — mirrors the org_entitlement table (Phase 4). */
+/** One org × module grant — mirrors the org_entitlement table. */
 export interface OrgEntitlement {
   orgId: string;
   moduleKey: string;
@@ -14,7 +14,7 @@ export interface OrgEntitlement {
   /** Informational plan tag ('starter' | 'growth' | 'enterprise'). */
   plan?: string | null;
   /** Per-module caps, e.g. { seats: 100 } — also the home of per-org SLA knobs
-   *  like the Plan 51 reconciler cadence. */
+   *  like the FGA reconciler cadence. */
   limits?: Record<string, number> | null;
   source: EntitlementSource;
   /** null = perpetual; set for trials. */

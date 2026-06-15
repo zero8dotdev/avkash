@@ -1,4 +1,4 @@
-// Tuple-writer event subscriber (Plan 51 Rule 1).
+// Tuple-writer event subscriber.
 //
 // One subscriber wired to EVERY event name in ORG_GRAPH_EVENTS. On any
 // org-graph event it calls syncOrgTuples(event.orgId) — state-based, so the

@@ -6,7 +6,7 @@ import type { FieldGroupGrant } from '@avkash/shared';
  * outside the caller's grant.write set.
  *
  * Wire up AFTER validateBody — the body is already typed. This helper is
- * opt-in; individual routes call it. WS5 will wire it for the pilot routes.
+ * opt-in; individual routes call it.
  *
  * @param grant   Resolved FieldGroupGrant for the caller.
  * @param groups  group name → DTO field names (from ResourceFieldGroups.groups).

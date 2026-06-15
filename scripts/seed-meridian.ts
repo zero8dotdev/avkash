@@ -1,7 +1,7 @@
 /**
  * scripts/seed-meridian.ts — Idempotent demo seed for "Meridian Manufacturing"
  *
- * Builds the Meridian Manufacturing org used for the Plan 51 enterprise-authz demo
+ * Builds the Meridian Manufacturing org used for the enterprise-authz demo
  * (beats 1–8 in docs/demo-enterprise-authz.md). Safe to re-run — each entity is
  * looked up by name or email before being created, so a second pass is a no-op.
  *
@@ -9,20 +9,20 @@
  *   DATABASE_URL=postgres://avkash:avkash@localhost:5432/avkash bun scripts/seed-meridian.ts
  *   or via: pnpm demo:seed
  *
- * HRBP caveat — Plans 51: the BusinessUnit table has no hrbp_user_id column.
+ * HRBP caveat: the BusinessUnit table has no hrbp_user_id column.
  * The HRBP relationship (Anita on Plants BU) is written directly as an FGA tuple
  * via authzClient.writeTuples(). This is a MANUAL-TUPLE step: the tuple is NOT
  * backed by any DB column and will be removed by the nightly reconciler (deriveExpectedTuples
  * does not emit it). Re-run demo:seed before each demo session to restore it.
  * Long-term fix: add a BusinessUnit.hrbpUserId column and instrument it in
- * packages/authz-sync/src/derive.ts. Tracked in plans/51-reports/ws7.md.
+ * packages/authz-sync/src/derive.ts.
  *
  * Compensation/identity columns caveat: EmployeeProfile has no salary, bankAccount,
- * pan, aadhaar etc. columns yet (WS4 forward-compatibility note). Sara's profile
- * is seeded with the columns that DO exist. The field-group enforcement is
- * structurally in place and will activate when the schema columns are added.
+ * pan, aadhaar etc. columns yet. Sara's profile is seeded with the columns that DO
+ * exist. The field-group enforcement is structurally in place and will activate when
+ * the schema columns are added.
  *
- * API key (beat 6): Not implemented in any WS — demo:smoke prints SKIPPED.
+ * API key (beat 6): Not implemented — demo:smoke prints SKIPPED.
  */
 
 import { db, schema } from '@avkash/db';
@@ -85,7 +85,7 @@ async function upsertUser(
 }
 
 /** Find-or-insert an EmployeeProfile row; returns the profile `id`.
- *  NOTE: compensation/identity/medical columns do not exist yet (WS4 caveat). */
+ *  NOTE: compensation/identity/medical columns do not exist yet in EmployeeProfile. */
 async function upsertProfile(
   userId: string,
   orgId: string,
@@ -272,7 +272,7 @@ async function main() {
   // ── 7. Employee Profiles ───────────────────────────────────────────────────
   // Compensation/identity/medical columns do NOT exist in EmployeeProfile yet.
   // Seeding with existing columns only. The field-group enforcement will activate
-  // when columns are added (WS4 caveat).
+  // when the compensation/identity/medical columns are added to EmployeeProfile.
   console.log('\n► 7. Employee Profiles');
 
   const priyaProfileId = await upsertProfile(priyaId, orgId, {

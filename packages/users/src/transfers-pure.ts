@@ -1,4 +1,4 @@
-// Pure helpers for transfer resolution (Plan 34). No DB imports.
+// Pure helpers for transfer resolution. No DB imports.
 
 export type ActiveTransfer = {
   toLocationId: string;

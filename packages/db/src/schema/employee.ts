@@ -4,7 +4,7 @@ import { employmentTypeEnum, employmentStatusEnum } from './enums';
 
 // The HR record — 1:1 with user, separate from the auth identity so PII gating is
 // enforceable at the table boundary. Fields are grouped by their access tier (the
-// read/write rules live in @avkash/users, not the schema). See plans/18.
+// read/write rules live in @avkash/users, not the schema).
 export const employeeProfile = pgTable(
   'EmployeeProfile',
   {
@@ -26,7 +26,7 @@ export const employeeProfile = pgTable(
     workLocation: varchar('workLocation', { length: 255 }),
     reportingManagerId: uuid('reportingManagerId').references(() => user.id),
     employmentStatus: employmentStatusEnum('employmentStatus').notNull().default('ACTIVE'),
-    // OrgLevel FK (Plan 29 revised) — org-defined hierarchy level (soft FK → OrgLevel).
+    // OrgLevel FK — org-defined hierarchy level (soft FK → OrgLevel).
     // null = not yet classified; all downstream guards treat null as permissive.
     levelId: uuid('levelId'),
     probationEndsOn: date('probationEndsOn'),

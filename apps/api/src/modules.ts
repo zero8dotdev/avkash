@@ -35,8 +35,8 @@ import { fieldPolicies } from './routes/field-policies';
 
 // ── Module manifests ──────────────────────────────────────────────────────────
 // entitlement: null = always-on core (never gated).
-// Entitlement enforcement is Phase 4; keys are declared here so the registry
-// can reference them when Phase 4 lands.
+// Entitlement enforcement is not yet active; keys are declared here so the registry
+// can reference them when entitlement gating is wired.
 
 const orgModule: AvkashModule<Hono<PlatformEnv>> = {
   key: 'org',

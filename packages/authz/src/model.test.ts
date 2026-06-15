@@ -1,4 +1,4 @@
-// Unit tests for @avkash/authz model loader (Plan 51 WS2).
+// Unit tests for @avkash/authz model loader.
 // Uses a stubbed OpenFgaClient — no live FGA required.
 // Verifies:
 //   1. buildCombinedDSL() returns core DSL unchanged when no fragments supplied.

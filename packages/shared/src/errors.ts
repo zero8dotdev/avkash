@@ -3,7 +3,7 @@
 //
 // Errors carry a stable machine `code` (also the i18n message key), an HTTP `status`,
 // and structured `params` (interpolation values + response details). The human
-// message is resolved at the edge from `code` + locale (see error-messages.ts / plans/15).
+// message is resolved at the edge from `code` + locale (see error-messages.ts).
 export type ErrorParams = Record<string, unknown>;
 
 export class DomainError extends Error {

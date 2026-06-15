@@ -6,7 +6,7 @@ import { requireRole } from '@avkash/auth';
 import { dispatch, resolveUsers } from '@avkash/notifications';
 import { publish, defineEvent } from '@avkash/events';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ─────────────────────────────────────────────────────────
 const orgRoleChangedDef = defineEvent(
   ORG_GRAPH_EVENTS.ORG_ROLE_CHANGED,
   z.object({ orgId: z.string().uuid(), userId: z.string().uuid() })
@@ -120,7 +120,7 @@ export async function updateUserAdmin(
     }
     throw new NotFoundError('USER_NOT_FOUND');
   }
-  // Plan 51 WS3: emit org-graph events for the tuple-writer subscriber.
+  // Emit org-graph events for the tuple-writer subscriber.
   // NOTE: No transaction here — events are published after the write (not atomic).
   // The outbox event is still the reliability guarantee via the relay.
   if (patch.role !== undefined && patch.role !== target.role) {

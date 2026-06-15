@@ -1,4 +1,4 @@
-// Plan 51 WS5 — Leave approval relationship-authz unit tests.
+// Leave approval relationship-authz unit tests.
 //
 // Tests the employee-pivot model: requireRelation(ctx, 'approver', 'employee:<profileId>')
 // is used as the authoritative check instead of per-leave-request FGA tuples.
@@ -257,17 +257,17 @@ describe('leave approval — employee-pivot model', () => {
 
 describe('leave approval — decision rationale: employee-pivot, no per-request tuples', () => {
   it('documents the tuple strategy: approver checked via employee pivot', () => {
-    // The key design decision (WS5):
+    // The key design decision (employee-pivot model):
     //   requireRelation(ctx, 'approver', 'employee:<profileId>')
     //   NOT: requireRelation(ctx, 'approver', 'leave_request:<leaveId>')
     //
     // Rationale:
     //   - Zero per-request FGA tuple volume: no write on every leave application.
     //   - The leave_request.approver → employee.approver → team.approver chain
-    //     is already captured in the employee pivot tuples (WS3 sync).
+    //     is already captured in the employee pivot tuples (authz-sync).
     //   - Checking the employee pivot is semantically equivalent (both resolve
     //     to the same approver set: manager | active-delegate | dept-head).
-    //   - This matches ws2's documented "employee-as-approver-pivot adaptation".
+    //   - This matches the documented "employee-as-approver-pivot adaptation".
     //
     // The test below verifies the object ref format expected by the code.
     const profileId = 'some-uuid';

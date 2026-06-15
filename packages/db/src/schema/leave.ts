@@ -64,7 +64,7 @@ export const leave = pgTable(
     startDate: date('startDate').notNull(),
     endDate: date('endDate').notNull(),
     duration: leaveDurationEnum('duration').notNull().default('FULL_DAY'),
-    // Plan 45: FIRST_HALF/SECOND_HALF are relative to the employee's shift boundaries.
+    // FIRST_HALF/SECOND_HALF are relative to the employee's shift boundaries.
     halfDayPart: halfDayPartEnum('halfDayPart').notNull().default('NONE'),
     isApproved: leaveStatusEnum('isApproved').notNull().default('PENDING'),
     userId: uuid('userId')
@@ -125,7 +125,7 @@ export const leavePolicy = pgTable(
     prorateOnJoin: boolean('prorateOnJoin').notNull().default(true), // mid-year joiners get a partial-year entitlement
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     escalateOverDays: integer('escalateOverDays'), // leaves longer than N working days escalate on apply (null = off)
-    // Plan 43: probation overlay — applied when employmentStatus = 'PROBATION'. null = inherit base value.
+    // Probation overlay — applied when employmentStatus = 'PROBATION'. null = inherit base value.
     probationMaxLeaves: integer('probationMaxLeaves'),
     probationAccruals: boolean('probationAccruals'),
     probationAccrualRate: numeric('probationAccrualRate', { precision: 5, scale: 2 }),
@@ -146,7 +146,7 @@ export const leavePolicy = pgTable(
 
 // ── LeaveLedger (authoritative balance source — signed entries) ──────────────
 // balance = Σ amount WHERE effectiveOn ≤ today AND (expiresOn IS NULL OR ≥ today).
-// See plans/14 for the entry-kind semantics.
+// Entry-kind semantics: TAKEN (negative), ACCRUAL/ROLLOVER/ADJUSTMENT (positive).
 export const leaveLedger = pgTable(
   'LeaveLedger',
   {
@@ -275,7 +275,7 @@ export const leaveComment = pgTable(
   (t) => [index('idx_leavecomment_leave').on(t.leaveId)]
 );
 
-// ── LeaveBlackout (Plan 33) ──────────────────────────────────────────────────
+// ── LeaveBlackout ────────────────────────────────────────────────────────────
 // Org-wide date ranges during which no leave is approved (e.g. year-end crunch,
 // peak production season). `leaveTypeId = null` → all leave types blocked.
 export const leaveBlackout = pgTable(
@@ -303,7 +303,7 @@ export const leaveBlackout = pgTable(
   ]
 );
 
-// ── LevelLeavePolicy (Plan 36) ───────────────────────────────────────────────
+// ── LevelLeavePolicy ─────────────────────────────────────────────────────────
 // Override leave entitlement per employment level. Resolves below team policy;
 // null level = no override (use team policy directly).
 // Example: WORKER gets 18 EL + 12 SL; MANAGEMENT gets 24 EL.
@@ -321,7 +321,7 @@ export const levelLeavePolicy = pgTable(
     maxLeaves: integer('maxLeaves'), // null = inherit from team policy
     accrualPerMonth: numeric('accrualPerMonth', { precision: 5, scale: 2 }), // null = inherit
     rollOverLimit: integer('rollOverLimit'), // null = inherit
-    // Plan 43: probation overlay (same semantics as in LeavePolicy).
+    // Probation overlay (same semantics as in LeavePolicy).
     probationMaxLeaves: integer('probationMaxLeaves'),
     probationAccruals: boolean('probationAccruals'),
     probationAccrualRate: numeric('probationAccrualRate', { precision: 5, scale: 2 }),

@@ -20,7 +20,7 @@ try {
   console.error('[authz] bootAuthz failed — tuple sync will retry via relay:', err);
 }
 
-// Wire tuple-writer subscribers for all org-graph events (Plan 51 WS3).
+// Wire tuple-writer subscribers for all org-graph events.
 // Must be called BEFORE startRelay() so the registry is populated before
 // the first relay pass drains the outbox.
 wireSubscribers(tupleWriterSubscribers);

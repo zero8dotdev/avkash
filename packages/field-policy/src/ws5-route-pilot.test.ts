@@ -1,4 +1,4 @@
-// Plan 51 WS5 — Route pilot field-visibility + query/write-gate tests.
+// Route pilot field-visibility + query/write-gate tests.
 //
 // Tests (all stub-based, no live DB or FGA):
 //   1. Employee detail: omits compensation group for non-privileged caller.

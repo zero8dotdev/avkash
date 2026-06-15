@@ -1,4 +1,4 @@
-// @avkash/authz — OpenFGA client implementation (Plan 51 WS1).
+// @avkash/authz — OpenFGA client implementation.
 //
 // Implements AuthzClient from @avkash/shared. All check / require / list methods
 // FAIL CLOSED: an unreachable FGA service throws UnavailableError('AUTHZ_UNAVAILABLE')
@@ -119,7 +119,7 @@ async function explainAccess(ctx: AuthContext, relation: string, object: string)
  * Write/delete tuples via the FGA Write API.
  *
  * IMPORTANT: This method is ONLY for the tuple-writer subscriber and nightly
- * reconciler (WS3). Route handlers must never call writeTuples directly —
+ * reconciler. Route handlers must never call writeTuples directly —
  * tuple management is the exclusive domain of the sync pipeline.
  */
 async function writeTuples(writes: Tuple[], deletes?: TupleKey[]): Promise<void> {

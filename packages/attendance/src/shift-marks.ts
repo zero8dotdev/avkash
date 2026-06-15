@@ -1,4 +1,4 @@
-// Pure shift math (plan 23): pairing punches into sessions and grading a worked day
+// Pure shift math: pairing punches into sessions and grading a worked day
 // against a shift. No DB, no Date.now — fully unit-tested. Overnight shifts
 // (crossesMidnight) are handled by measuring minutes-into-shift, which wraps midnight.
 
@@ -70,7 +70,7 @@ export function pairSessions(punches: PunchLite[]): Session[] {
   return sessions;
 }
 
-// Plan 45: compute the clock-time window of each shift half for half-day leave logic.
+// Compute the clock-time window of each shift half for half-day leave logic.
 // FIRST_HALF = shift-start to midpoint; SECOND_HALF = midpoint to shift-end.
 // This is a pure function (no DB, no Date.now) — usable anywhere (resolver, UI, overlap checks).
 export type HalfDayPart = 'FIRST_HALF' | 'SECOND_HALF' | 'NONE';
@@ -95,9 +95,9 @@ export function halfDayWindow(
     : { from: midHHMM, to: shift.endTime.slice(0, 5) };
 }
 
-// Plan 39 + Plan 38: compute overtime mark and hours from worked hours.
+// Compute overtime mark and hours from worked hours.
 // trackOvertime=false → no OVERTIME mark, 0 overtimeHours (executive/management shifts).
-// overtimeThresholdHours overrides fullDayHours when set (SEZ higher threshold, Plan 38).
+// overtimeThresholdHours overrides fullDayHours when set (SEZ higher threshold).
 export function applyOvertime(
   marks: string[],
   hours: number,
@@ -114,7 +114,7 @@ export function applyOvertime(
 
 // Grade a worked day: marks layered on PRESENT. OVERTIME is intentionally NOT computed
 // here — it's the caller's (resolveDay's) responsibility so it can apply the
-// trackOvertime flag (Plan 39) and the location-level SEZ threshold (Plan 38).
+// trackOvertime flag and the location-level SEZ threshold.
 export function computeMarks(
   shift: ShiftLite,
   firstInLocal: string | null,

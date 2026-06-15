@@ -28,11 +28,11 @@ export const attendancePunch = pgTable(
     flagged: boolean('flagged').notNull().default(false), // e.g. punched outside the allowed window
     flagReason: varchar('flagReason', { length: 255 }),
     receivedAt: timestamp('receivedAt', { precision: 6 }), // server arrival (offline batches arrive late)
-    // Plan 40: null = no confirmation required; PENDING_CONFIRMATION = awaiting manager approval.
+    // null = no confirmation required; PENDING_CONFIRMATION = awaiting manager approval.
     confirmationStatus: punchConfirmationEnum('confirmationStatus'),
     confirmedBy: uuid('confirmedBy'), // soft FK → User
     confirmedAt: timestamp('confirmedAt', { precision: 6 }),
-    // Plan 46: structured remote context (factory visit / client site / WFH / field).
+    // Structured remote context (factory visit / client site / WFH / field).
     // Setting this also forces wfh = true. Absent + wfh=true is legacy "WFH" (no detail).
     remoteContext: jsonb('remoteContext').$type<{
       type: 'WFH' | 'FACTORY_VISIT' | 'CLIENT_SITE' | 'FIELD';
@@ -53,7 +53,7 @@ export const attendancePunch = pgTable(
   ]
 );
 
-// Plan 44: scoped authority — a supervisor has operational control over a specific
+// Scoped authority — a supervisor has operational control over a specific
 // shift × location (× department) without being a team manager or org admin.
 export const shiftSupervisor = pgTable(
   'ShiftSupervisor',
@@ -83,7 +83,7 @@ export const shiftSupervisor = pgTable(
   ]
 );
 
-// Plan 31 (revised): per-level source policy keyed by OrgLevel.id instead of enum.
+// Per-level source policy keyed by OrgLevel.id instead of enum.
 // If no row for a levelId → all sources allowed (permissive default).
 export const attendanceSourcePolicy = pgTable(
   'AttendanceSourcePolicy',

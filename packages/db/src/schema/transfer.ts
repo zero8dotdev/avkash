@@ -2,7 +2,7 @@ import { pgTable, uuid, varchar, integer, date, timestamp, index } from 'drizzle
 import { organisation, user, location } from './core';
 import { transferTypeEnum, transferStatusEnum } from './enums';
 
-// Plan 34: effective-dated employee transfers between factories.
+// Effective-dated employee transfers between factories.
 // Soft FKs on fromDepartmentId/toDepartmentId (department is in a different file).
 export const transfer = pgTable(
   'Transfer',

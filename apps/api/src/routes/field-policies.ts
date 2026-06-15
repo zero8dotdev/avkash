@@ -1,4 +1,4 @@
-// Field-policy admin routes (Plan 51 WS6 — tenant-facing CRUD).
+// Field-policy admin routes (tenant-facing CRUD).
 //
 // OWNER/ADMIN-guarded. Mounting point: /field-policies.
 // These routes let a tenant admin flip a field_policy row so that, say,

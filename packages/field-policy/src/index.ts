@@ -1,10 +1,10 @@
-// @avkash/field-policy — field-group visibility seam (Plan 51 WS4)
+// @avkash/field-policy — field-group visibility seam
 //
 // Public surface:
 //   - resolveFieldGroups: resolve caller's FieldGroupGrant for a resource
 //   - invalidateFieldPolicy: evict cache after a write
-//   - CRUD helpers for the field_policy table (WS6 mounts routes on these)
-//   - assertWritableFields: write-gate (WS5 routes adopt this)
+//   - CRUD helpers for the field_policy table (admin routes mount on these)
+//   - assertWritableFields: write-gate for routes
 //   - assertQueryableFields / QueryParamAnnotation: query side-channel gate
 //   - EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups pilot declaration for 'employee'
 

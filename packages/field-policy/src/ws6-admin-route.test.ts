@@ -1,5 +1,4 @@
-// Unit tests for WS6 — field-policy admin routes + sensitive-read audit hook
-// (Plan 51 WS6 Deliverable 5).
+// Unit tests for field-policy admin routes + sensitive-read audit hook.
 //
 // The route handler itself runs in apps/api; we test the underlying CRUD
 // helpers (which the route delegates to) with stubbed DB calls, verifying:

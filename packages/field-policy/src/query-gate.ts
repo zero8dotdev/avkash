@@ -30,7 +30,6 @@ export interface QueryParamAnnotation {
  * field groups the caller cannot read. Pure function — no DB calls.
  *
  * Wire up AFTER validateQuery (params already validated). Opt-in per route.
- * WS5 will adopt this for the employee pilot routes.
  *
  * @param grant      Resolved FieldGroupGrant for the caller.
  * @param groups     group name → DTO field names (from ResourceFieldGroups.groups).

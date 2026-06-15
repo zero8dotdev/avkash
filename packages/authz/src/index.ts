@@ -1,4 +1,4 @@
-// @avkash/authz — Identity layer: OpenFGA client (Plan 51 Seam 4).
+// @avkash/authz — Authorization (OpenFGA) client.
 //
 // Sits beside @avkash/auth in the dependency graph.
 // Depends only on @avkash/shared + @avkash/config — never on @avkash/db.

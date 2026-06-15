@@ -34,9 +34,9 @@ const createShiftSchema = z.object({
   halfDayHours: NUM.optional(),
   isFlexible: z.boolean().optional(),
   minStaff: z.number().int().min(0).optional(),
-  // Plan 30: gender restriction (SEZ). Level restrictions managed via /shifts/:id/levels.
+  // Gender restriction (SEZ). Level restrictions managed via /shifts/:id/levels.
   allowedGenders: z.array(z.string().max(32)).nullish(),
-  // Plan 39: false = no OVERTIME mark / overtimeHours for this shift (e.g. executive shifts).
+  // false = no OVERTIME mark / overtimeHours for this shift (e.g. executive shifts).
   trackOvertime: z.boolean().optional(),
 });
 const updateShiftSchema = createShiftSchema.partial();

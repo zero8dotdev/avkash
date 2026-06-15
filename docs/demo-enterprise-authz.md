@@ -1,6 +1,6 @@
 # Meridian Manufacturing — Enterprise AuthZ Demo Runbook
 
-_Plan 51 WS7 · Avkash v2 · Relationship authorization + field-level visibility_
+_Avkash v2 · Relationship authorization + field-level visibility_
 
 ---
 
@@ -274,9 +274,9 @@ pnpm demo:smoke --beat 5
 
 ### Beat 6 — Least-privilege API key
 
-**Status: SKIPPED** — Resource-scoped API keys are not in scope for Plan 51 WS1–7.
+**Status: SKIPPED** — Resource-scoped API keys are not yet implemented.
 
-This beat requires Plan 49 Seam 2 (scoped API keys) to be wired into the authz model
+This beat requires resource-scoped API keys to be wired into the authz model
 with an `api_key` FGA type and `requireScope` → FGA resource-type tuple check. When
 implemented, a partner API key scoped to `Plants BU` would allow `GET /attendance?bu=plants`
 (200) but deny `GET /attendance?bu=corporate` (403).
@@ -474,6 +474,6 @@ docker compose up -d openfga
 |--------|--------|---------|
 | HRBP manual tuple | No `hrbp_user_id` on `BusinessUnit`; tuple written directly, removed by reconciler | ws7.md §caveats |
 | Compensation/identity schema | `salary`, `pan`, `aadhaar` etc. not in `EmployeeProfile` schema | ws4.md #2, ws7.md |
-| Beat 6 API keys | Resource-scoped API keys not in scope for Plan 51 | ws7.md §caveats |
+| Beat 6 API keys | Resource-scoped API keys not yet implemented | — |
 | Beat 2 delegation smoke | Full delegation flow requires a session token; smoke shows reconcile pre-check only | ws7.md |
 | FGA store tests (live) | `fga model test` requires `@openfga/cli` binary; authored in `core.fga.yaml` | ws2.md |

@@ -1,4 +1,4 @@
-// Pure helpers for rotating workweek patterns (Plan 32).
+// Pure helpers for rotating workweek patterns.
 // No DB imports — safe to import in tests and edge workers.
 
 export type WorkweekPatternRecord = {

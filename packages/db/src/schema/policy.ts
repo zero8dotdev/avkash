@@ -2,7 +2,7 @@ import { pgTable, uuid, varchar, text, boolean, integer, date, timestamp, index,
 import { organisation, user } from './core';
 import { policyStatusEnum } from './enums';
 
-// Plan 47: HR document management — standing orders, codes of conduct, factory rules.
+// HR document management — standing orders, codes of conduct, factory rules.
 // Scoped by location / department / org-level; employees acknowledge they have read each policy.
 
 export const policy = pgTable(

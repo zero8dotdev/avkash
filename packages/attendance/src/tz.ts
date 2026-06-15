@@ -3,7 +3,7 @@ import { db, schema } from '@avkash/db';
 
 // The effective timezone for a user, resolved down the cascade (the null-means-inherit
 // pattern): user's location → team's location → team's legacy timeZone string → UTC.
-// All shift/window/"today" math in Phase 3 runs in this zone — never server-local.
+// All shift/window/"today" math runs in this zone — never server-local.
 
 // Pure pick: first non-empty candidate, else UTC. Unit-tested.
 export function pickTimezone(...candidates: Array<string | null | undefined>): string {

@@ -1,9 +1,8 @@
 import { pgTable, uuid, varchar, integer, boolean, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
-// Plan 29 (revised) — org-defined employment hierarchy. Each organisation creates
-// its own named levels (e.g. "Grade A / B / C" or "L1–L6") instead of the
-// old hardcoded WORKER/EXECUTIVE/MANAGEMENT/FIELD enum.
+// Org-defined employment hierarchy. Each organisation creates its own named levels
+// (e.g. "Grade A / B / C" or "L1–L6") instead of a hardcoded enum.
 //
 // `rank` is an integer the org assigns — lower = more junior.
 // Used for range comparisons (e.g. "shift requires rank >= 3").
@@ -23,7 +22,7 @@ export const orgLevel = pgTable(
     description: varchar('description', { length: 500 }),
     rank: integer('rank').notNull().default(0), // org-controlled ordinal; ties broken by name
     isFloating: boolean('isFloating').notNull().default(false),
-    // Plan 40: WEB punches from employees at this level require manager confirmation.
+    // WEB punches from employees at this level require manager confirmation.
     requiresPunchConfirmation: boolean('requiresPunchConfirmation').notNull().default(false),
     isActive: boolean('isActive').notNull().default(true),
     version: integer('version').notNull().default(0),

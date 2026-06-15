@@ -304,7 +304,7 @@ expected=31` — in sync). Run it: [demo-enterprise-authz.md](demo-enterprise-au
 
 ## What we did NOT show (honesty section)
 
-- **Payroll, PF / ESI / PT / TDS** — not built; payroll is a planned commercial module (Plan 49/50).
+- **Payroll, PF / ESI / PT / TDS** — not built; payroll is a planned commercial module.
   Statutory filings are an integration story, not a tick-box claim.
 - **Maternity leave week-semantics** — modeled as a 182-day cap (26 weeks × 7); the policy schema has no
   weeks-based field yet.

@@ -1,4 +1,4 @@
-// Scenario 6 — Probation graduation (Plan 43)
+// Scenario 6 — Probation graduation
 // runProbationCompletion transitions PROBATION employees whose probationEndsOn
 // is in the past to ACTIVE, sets confirmedOn, and writes an audit entry.
 // During probation, EL balance is capped at 0 (factory worker policy).

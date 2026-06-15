@@ -24,7 +24,7 @@ const applyLeaveSchema = z.object({
   startDate: DATE,
   endDate: DATE,
   duration: z.enum(['FULL_DAY', 'HALF_DAY']).optional(),
-  // Plan 45: FIRST_HALF/SECOND_HALF are relative to the employee's shift boundaries.
+  // FIRST_HALF/SECOND_HALF are relative to the employee's shift boundaries.
   halfDayPart: z.enum(['FIRST_HALF', 'SECOND_HALF', 'NONE']).optional(),
   reason: z.string().max(1000).optional(),
   userId: z.string().optional(),

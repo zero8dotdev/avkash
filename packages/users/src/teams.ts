@@ -5,7 +5,7 @@ import { type AuthContext, ValidationError, NotFoundError, PreconditionFailedErr
 import { requireRole } from '@avkash/auth';
 import { publish, defineEvent } from '@avkash/events';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ─────────────────────────────────────────────────────────
 const teamChangedDef = defineEvent(
   ORG_GRAPH_EVENTS.TEAM_CHANGED,
   z.object({ orgId: z.string().uuid(), teamId: z.string().uuid() })
@@ -53,7 +53,7 @@ export async function createTeam(ctx: AuthContext, input: CreateTeamInput): Prom
       departmentId: input.departmentId ?? null,
     })
     .returning();
-  // Plan 51 WS3: emit team changed event. No transaction here — best-effort post-write.
+  // Emit team changed event. No transaction here — best-effort post-write.
   try {
     await publish(db, ctx, teamChangedDef, { orgId: ctx.orgId, teamId: row.teamId });
   } catch (err) {
@@ -125,7 +125,7 @@ export async function updateTeam(
     }
     throw new NotFoundError('TEAM_NOT_FOUND');
   }
-  // Plan 51 WS3: emit team changed event. No transaction here — best-effort post-write.
+  // Emit team changed event. No transaction here — best-effort post-write.
   try {
     await publish(db, ctx, teamChangedDef, { orgId: ctx.orgId, teamId });
   } catch (err) {

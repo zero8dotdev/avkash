@@ -1,4 +1,4 @@
-// Scenario 5 — SEZ overtime threshold (Plan 38)
+// Scenario 5 — SEZ overtime threshold
 // Silvassa SEZ location has a 10h OT threshold vs 9h at standard factory sites.
 // Working 10.5h should produce 0.5h OT at SEZ and 1.5h OT at Pune MIDC.
 

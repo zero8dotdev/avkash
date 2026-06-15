@@ -89,6 +89,7 @@ Use Avkash Cloud if you want:
 
 - [Technical README](docs/technical-readme.md) - self-hosting, environment variables, development commands, API entry points
 - [Architecture README](docs/architecture-readme.md) - stack, package layout, open-core boundary, current status
+- [Pluggable data flow](docs/pluggable-data-flow.md) - how core facts and module capabilities move both ways
 - [Enterprise authorization demo](docs/demo-enterprise-authz.md) - OpenFGA and field-access walkthrough
 
 ---
@@ -108,4 +109,3 @@ Use Avkash Cloud if you want:
 - Keep changes scoped and aligned with the open-core boundary.
 - By contributing, you agree that your contribution is licensed under the project license.
 - A signed [CLA](CLA.md) may be required before merge.
-

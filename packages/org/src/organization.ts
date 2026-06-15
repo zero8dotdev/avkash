@@ -7,7 +7,7 @@ import { requireRole } from '@avkash/auth';
 import { publish, defineEvent } from '@avkash/events';
 import { notifyOrgRestricted } from './org-notify';
 
-// ── Event definitions (Plan 51 WS3 — inline so @avkash/org doesn't import authz-sync) ──
+// ── Event definitions (inline so @avkash/org doesn't import authz-sync) ──────
 // Minimal payload: orgId only. Writer is state-based — payload is not used as a delta.
 const orgCreatedDef = defineEvent(
   ORG_GRAPH_EVENTS.ORG_CREATED,
@@ -49,7 +49,7 @@ export async function createOrganization(
         expiresAt: verifyBy,
       })
       .returning();
-    // Plan 51 WS3: emit org-graph event for the tuple-writer subscriber.
+    // Emit org-graph event for the tuple-writer subscriber.
     // System actor — no user exists yet (invite-then-signup bootstrap path).
     const sysCtx = { orgId: org.orgId, userId: null, role: 'ADMIN' as const, actorType: 'system' as const, assurance: 'low' as const, via: 'system' as const };
     await publish(tx, sysCtx, orgCreatedDef, { orgId: org.orgId });

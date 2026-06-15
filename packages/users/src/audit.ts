@@ -1,4 +1,4 @@
-// Sensitive-read audit helper (Plan 51 WS6 — Piece 3 requirement).
+// Sensitive-read audit helper.
 //
 // When a caller reads an employee record and the serialized grant includes
 // groups in EMPLOYEE_FIELD_GROUPS.auditedGroups (identity / medical), we emit

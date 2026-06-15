@@ -57,9 +57,9 @@ function resolveDay(
   shift: Shift | null,
   sessions: Session[],
   wfh: boolean,
-  // Plan 38: SEZ locations may have a higher OT threshold (null = use shift.fullDayHours).
+  // SEZ locations may have a higher OT threshold (null = use shift.fullDayHours).
   overtimeThresholdHours?: number | null,
-  // Plan 32: rotating workweek pattern (alternate Saturdays etc.). When set, overrides `workweek`.
+  // Rotating workweek pattern (alternate Saturdays etc.). When set, overrides `workweek`.
   pattern?: WorkweekPatternRecord | null
 ): DayAttendance {
   const closed = sessions.filter((s) => s.outTs);
@@ -80,7 +80,7 @@ function resolveDay(
       lastOutTs ? localTimeHHMM(lastOutTs, tz) : null,
       hours
     );
-    // Plan 39 + 38: applyOvertime respects trackOvertime flag and SEZ threshold.
+    // applyOvertime respects trackOvertime flag and SEZ threshold.
     ({ marks, overtimeHours } = applyOvertime(marks, hours, shift.trackOvertime, lite.fullDayHours, overtimeThresholdHours));
   }
 
@@ -101,7 +101,7 @@ function resolveDay(
 
 // The person's effective workweek (user → team → default). Timezone comes from
 // effectiveTimezone (location-aware); the holiday set keeps the legacy location string.
-// Plan 32: also resolves workweekPattern (user → team → null); pattern takes precedence over workweek array.
+// Also resolves workweekPattern (user → team → null); pattern takes precedence over workweek array.
 async function loadCalendar(
   orgId: string,
   userId: string
@@ -156,7 +156,7 @@ function eachDate(from: string, to: string): string[] {
   return out;
 }
 
-// Plan 46: structured context for remote workers (factories, client sites, field).
+// Structured context for remote workers (factories, client sites, field).
 export type RemoteContext =
   | { type: 'WFH' }
   | { type: 'FACTORY_VISIT'; locationId: string }
@@ -177,12 +177,12 @@ export async function recordPunch(
   input: RecordPunchInput,
   source: 'WEB' | 'SLACK' = 'WEB'
 ): Promise<AttendancePunch> {
-  // Plan 31: enforce source eligibility based on org-defined level.
+  // Enforce source eligibility based on org-defined level.
   const level = await getEmployeeLevel(ctx.orgId, ctx.userId ?? '');
   await assertSourceAllowed(ctx.orgId, level?.id ?? null, source);
-  // Plan 40: WEB punches from confirmation-required levels are held pending manager review.
+  // WEB punches from confirmation-required levels are held pending manager review.
   const needsConfirmation = source === 'WEB' && (level?.requiresPunchConfirmation ?? false);
-  // Plan 46: remoteContext forces wfh=true and validates FACTORY_VISIT locationId belongs to the org.
+  // remoteContext forces wfh=true and validates FACTORY_VISIT locationId belongs to the org.
   const remoteContext = input.remoteContext ?? null;
   const isRemote = remoteContext !== null;
   if (remoteContext?.type === 'FACTORY_VISIT') {
@@ -236,7 +236,7 @@ export async function listAttendance(
         gte(schema.leave.endDate, from)
       )
     );
-  // Fetch location's SEZ overtime threshold (Plan 38 + 39).
+  // Fetch location's SEZ overtime threshold.
   const [userLoc] = await db
     .select({ locationId: schema.user.locationId })
     .from(schema.user)
@@ -253,8 +253,8 @@ export async function listAttendance(
   }
 
   // Widen the punch window a day each side so overnight sessions at the edges pair.
-  // Plan 42: join device to get context; WEB/SLACK punches (no deviceId) → ENTRY_EXIT.
-  // Plan 40: exclude PENDING_CONFIRMATION and REJECTED punches from session pairing.
+  // Join device to get context; WEB/SLACK punches (no deviceId) → ENTRY_EXIT.
+  // Exclude PENDING_CONFIRMATION and REJECTED punches from session pairing.
   const punchRows = await db
     .select({
       ts: schema.attendancePunch.ts,
@@ -291,7 +291,7 @@ export async function listAttendance(
   for (const p of punchRows) {
     if (p.wfh) wfhByDate.set(localDateStr(p.ts, tz), true);
   }
-  // Inform caller about pending punches per date (Plan 40 informational mark).
+  // Inform caller about pending punches per date (informational mark).
   const pendingByDate = new Map<string, number>();
   for (const p of punchRows) {
     if (p.confirmationStatus === 'PENDING_CONFIRMATION') {

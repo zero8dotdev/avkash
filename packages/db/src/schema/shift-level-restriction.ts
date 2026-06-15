@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
-// Which OrgLevels are permitted to work a given shift (Plan 37 revised).
+// Which OrgLevels are permitted to work a given shift.
 // When the table has NO rows for a shiftId → shift is open to all levels (permissive default).
 // Soft FKs on shiftId and levelId to avoid circular schema imports.
 export const shiftLevelRestriction = pgTable(

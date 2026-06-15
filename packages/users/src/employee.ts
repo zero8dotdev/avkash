@@ -18,14 +18,14 @@ type Relationship = 'HR' | 'SELF' | 'MANAGER' | 'PEER';
 type ReadTier = 'PUBLIC' | 'MANAGER' | 'SELF' | 'HR';
 type WriteTier = 'SELF' | 'HR';
 
-// The single source of truth for field-level access (plans/18). Reads project to the
+// The single source of truth for field-level access. Reads project to the
 // fields the viewer may see; writes are gated by the viewer's relationship. Audit
 // fields + orgId are absent here, so they're never projected and never writable.
 const FIELD_TIERS: Record<string, { read: ReadTier; write: WriteTier }> = {
   employeeCode: { read: 'PUBLIC', write: 'HR' },
   designation: { read: 'PUBLIC', write: 'HR' },
   employmentType: { read: 'MANAGER', write: 'HR' },
-  // Plan 29 (revised): organisational level (OrgLevel FK) — HR-write, MANAGER-read.
+  // Organisational level (OrgLevel FK) — HR-write, MANAGER-read.
   levelId: { read: 'MANAGER', write: 'HR' },
   workLocation: { read: 'MANAGER', write: 'HR' },
   reportingManagerId: { read: 'MANAGER', write: 'HR' },
@@ -286,7 +286,7 @@ export async function setFloating(ctx: AuthContext, userId: string, isFloating: 
     .where(and(eq(schema.user.id, userId), eq(schema.user.orgId, ctx.orgId)));
 }
 
-// Plan 41: assign a user to a business unit (branding overlay). null = revert to org branding.
+// Assign a user to a business unit (branding overlay). null = revert to org branding.
 export async function setUserBusinessUnit(
   ctx: AuthContext,
   userId: string,

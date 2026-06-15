@@ -1,4 +1,4 @@
-// Org-graph event definitions for the tuple-sync pipeline (Plan 51 WS3).
+// Org-graph event definitions for the tuple-sync pipeline.
 //
 // Payloads are deliberately minimal — {orgId} + relevant ids only. The
 // tuple-writer is STATE-BASED: on any event it re-reads current truth from
@@ -89,8 +89,8 @@ export const teamMemberRemovedEvent = defineEvent(
 /**
  * Emitted when an employee transfer is approved (status → ACTIVE). Triggers
  * fast-lane revoke + re-sync of affected employee tuples.
- * See Rule 4 (plan/51): revokes get the fast lane — a synchronous best-effort
- * revoke is attempted in the approveTransfer path; this event is the guarantee.
+ * Revokes get the fast lane — a synchronous best-effort revoke is attempted in
+ * the approveTransfer path; this event is the reliability guarantee.
  */
 export const employeeTransferredEvent = defineEvent(
   ORG_GRAPH_EVENTS.EMPLOYEE_TRANSFERRED,

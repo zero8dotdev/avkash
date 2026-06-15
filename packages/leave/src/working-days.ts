@@ -38,7 +38,7 @@ export function calculateWorkingDays(
   return duration === 'HALF_DAY' ? count / 2 : count;
 }
 
-// Plan 32: count working days using a rotating pattern (alternate Saturdays etc.),
+// Count working days using a rotating pattern (alternate Saturdays etc.),
 // still skipping holidays. Kept separate from calculateWorkingDays so the pure
 // array path has zero overhead for the common case.
 function calculateWorkingDaysFromPattern(
@@ -63,7 +63,7 @@ function calculateWorkingDaysFromPattern(
 
 // DB wrapper: resolve the person's EFFECTIVE workweek (own override → team → Mon–Fri)
 // and the holidays that apply to THEM (team's country → org's first location), then
-// compute. Plan 32: if a workweekPattern is assigned, it takes precedence over the day array.
+// compute. If a workweekPattern is assigned, it takes precedence over the day array.
 export async function computeWorkingDays(
   orgId: string,
   userId: string,
@@ -105,7 +105,7 @@ export async function computeWorkingDays(
 
   const holidays = await resolveHolidays(orgId, location, Number(startDate.slice(0, 4)), Number(endDate.slice(0, 4)));
 
-  // Plan 32: resolve pattern (user → team → none) and use it if present.
+  // Resolve pattern (user → team → none) and use it if present.
   const patternId = u?.workweekPatternId ?? teamPatternId ?? null;
   if (patternId) {
     const [p] = await db

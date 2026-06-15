@@ -18,7 +18,7 @@ const DEFAULT_WORKWEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'
 // ── Shift CRUD (ADMIN) ───────────────────────────────────────────────────────
 // ── Eligibility helpers ──────────────────────────────────────────────────────
 
-// Load gender for Plan 30 gender-restriction checks.
+// Load gender for gender-restriction checks.
 async function loadGender(userId: string): Promise<string | null> {
   const [prof] = await db
     .select({ gender: schema.employeeProfile.gender })
@@ -218,7 +218,7 @@ export async function validateAssignment(ctx: AuthContext, input: AssignShiftInp
     .limit(1);
   if (!shift) throw new NotFoundError('SHIFT_NOT_FOUND');
 
-  // Plan 30 — gender restriction (hard conflict; always enforced, force cannot override).
+  // Gender restriction (hard conflict; always enforced, force cannot override).
   if (shift.allowedGenders && shift.allowedGenders.length > 0) {
     const gender = await loadGender(input.userId);
     if (gender !== null && !shift.allowedGenders.includes(gender)) {
@@ -226,7 +226,7 @@ export async function validateAssignment(ctx: AuthContext, input: AssignShiftInp
     }
   }
 
-  // Plan 37 (revised) — level restriction via ShiftLevelRestriction join table.
+  // Level restriction via ShiftLevelRestriction join table.
   const levelOk = await isLevelEligible(ctx.orgId, input.shiftId, input.userId);
   if (!levelOk) {
     const userLevel = await getEmployeeLevel(ctx.orgId, input.userId);
@@ -541,7 +541,7 @@ export async function generateRoster(ctx: AuthContext, input: GenerateRosterInpu
         lastShift.delete(u.id);
         continue;
       }
-      // Level eligibility (Plan 37 revised): filter shifts by ShiftLevelRestriction.
+      // Level eligibility: filter shifts by ShiftLevelRestriction.
       const userLevel = await getEmployeeLevel(ctx.orgId, u.id);
       const eligibleShifts = await Promise.all(
         shifts.map(async (s) => {

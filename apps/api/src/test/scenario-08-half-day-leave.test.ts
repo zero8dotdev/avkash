@@ -1,4 +1,4 @@
-// Scenario 8 — Shift-aware half-day leave (Plan 45)
+// Scenario 8 — Shift-aware half-day leave
 // FIRST_HALF and SECOND_HALF replace MORNING/AFTERNOON.
 // FIRST_HALF on 2026-06-10 does NOT block SECOND_HALF on the same day.
 // Two half-days on the same part on the same day ARE blocked.

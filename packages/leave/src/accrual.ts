@@ -7,7 +7,7 @@ import { writeAudit } from './audit';
 import { accrualOccursOn, nextAccrualOn, periodKeyFor } from './accrual-schedule';
 import { effectiveAccrualRate, probationAccrualsEnabled, type EmploymentStatus } from './probation-pure';
 
-// One credited ledger row, surfaced so the caller (Phase 2: the notification
+// One credited ledger row, surfaced so the caller (the notification
 // dispatcher) knows exactly who to tell and how much landed.
 export interface AccrualCredit {
   orgId: string;
@@ -41,7 +41,7 @@ export async function runAccrualTick(now: Date = new Date()): Promise<AccrualTic
       if (policy.unlimited || !policy.maxLeaves || !policy.accrualFrequency) return [];
       const amount = policy.accrualFrequency === 'MONTHLY' ? policy.maxLeaves / 12 : policy.maxLeaves / 4;
       const periodKey = periodKeyFor(policy.accrualFrequency, now);
-      // Plan 43: fetch member status to apply probation overlay per-member.
+      // Fetch member status to apply probation overlay per-member.
       const members = await db
         .select({ id: schema.user.id, employmentStatus: schema.employeeProfile.employmentStatus })
         .from(schema.user)

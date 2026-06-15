@@ -8,7 +8,7 @@ import { notifyDelegationAssigned } from './leave-notify';
 import { todayStr } from './ledger';
 import { writeAudit } from './audit';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ────────────────
 const delegationCreatedDef = defineEvent(
   ORG_GRAPH_EVENTS.DELEGATION_CREATED,
   z.object({
@@ -72,7 +72,7 @@ export async function setDelegation(ctx: AuthContext, input: SetDelegationInput)
     input.startsOn,
     input.endsOn
   );
-  // Plan 51 WS3: emit delegation created event. No transaction here — best-effort post-write.
+  // Emit delegation created event. No transaction here — best-effort post-write.
   try {
     await publish(db, ctx, delegationCreatedDef, { orgId: ctx.orgId, delegationId: row.id, teamId: row.teamId });
   } catch (err) {
@@ -95,7 +95,7 @@ export async function clearDelegation(ctx: AuthContext, id: string): Promise<voi
     changed: { id },
     changedBy: ctx.userId,
   });
-  // Plan 51 WS3: emit delegation revoked event. No transaction here — best-effort post-write.
+  // Emit delegation revoked event. No transaction here — best-effort post-write.
   try {
     await publish(db, ctx, delegationRevokedDef, { orgId: ctx.orgId, delegationId: id });
   } catch (err) {

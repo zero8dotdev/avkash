@@ -1,4 +1,4 @@
-// Scenario 7 — Shift supervisor scoped authority (Plan 44)
+// Scenario 7 — Shift supervisor scoped authority
 // Verifies that assignShiftSupervisor, isShiftSupervisor, and requireShiftAccess
 // enforce the correct OR-gate: MANAGER role OR active supervisor scope.
 

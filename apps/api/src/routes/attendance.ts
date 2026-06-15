@@ -20,7 +20,7 @@ import { idempotency } from '../middleware/idempotency';
 import { punchDto, regularizationDto } from '../dto';
 
 const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
-// Plan 46: remote context for factory visits, client sites, and field work.
+// Remote context for factory visits, client sites, and field work.
 const remoteContextSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('WFH') }),
   z.object({ type: z.literal('FACTORY_VISIT'), locationId: z.string().uuid() }),
@@ -82,8 +82,8 @@ export const attendance = new Hono<AppEnv>()
   .get('/:userId', validateQuery(rangeQuery), async (c) =>
     c.json({ data: await listAttendance(c.get('auth'), c.req.param('userId'), c.get('query').from, c.get('query').to) })
   )
-  // Plan 31: source policy management (ADMIN).
-  // Plan 40: manager confirms or rejects FIELD employees' pending WEB punches.
+  // Source policy management (ADMIN).
+  // Manager confirms or rejects FIELD employees' pending WEB punches.
   .post(
     '/confirm',
     validateBody(

@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { organisation, user, location } from './core';
 
-// A structural org-chart unit (Plan 28). Distinct from Team (which drives leave approval).
+// A structural org-chart unit. Distinct from Team (which drives leave approval).
 // A department can exist across multiple locations with a different headcount at each.
 export const department = pgTable(
   'Department',

@@ -1,4 +1,4 @@
-// Unit tests for packages/users/src/audit.ts (Plan 51 WS6 — sensitive-read audit).
+// Unit tests for packages/users/src/audit.ts (sensitive-read audit).
 //
 // Tests run with Bun's built-in test runner. All DB calls are stubbed via
 // module mock so no real Postgres is required.

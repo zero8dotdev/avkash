@@ -21,11 +21,11 @@ export const shift = pgTable(
     halfDayHours: numeric('halfDayHours', { precision: 4, scale: 2 }).notNull().default('4'),
     isFlexible: boolean('isFlexible').notNull().default(false), // no fixed start → no LATE/EARLY marks
     minStaff: integer('minStaff').notNull().default(1), // coverage target — gaps flag below this
-    // Plan 30: SEZ gender restriction. null = all genders allowed.
+    // SEZ gender restriction. null = all genders allowed.
     allowedGenders: varchar('allowedGenders', { length: 32 }).array(),
-    // Plan 37 (revised): level eligibility now lives in ShiftLevelRestriction (join table).
+    // Level eligibility now lives in ShiftLevelRestriction (join table).
     // Removed allowedLevels array — FK into OrgLevel can't be an array column.
-    // Plan 39: when false, resolveDay produces overtimeHours = 0 and no OVERTIME mark.
+    // When false, resolveDay produces overtimeHours = 0 and no OVERTIME mark.
     trackOvertime: boolean('trackOvertime').notNull().default(true),
     version: integer('version').notNull().default(0), // optimistic concurrency
     createdBy: varchar('createdBy', { length: 255 }),

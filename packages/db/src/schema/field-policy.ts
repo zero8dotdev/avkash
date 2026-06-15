@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, integer, timestamp, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
-// Field-policy: per-org overrides for the field-group visibility matrix (Plan 51 Piece 3).
+// Field-policy: per-org overrides for the field-group visibility matrix.
 // Resolution: row here → module-manifest default (ResourceFieldGroups.defaults).
 // Cached per (orgId, resource) with a short TTL; invalidated on write.
 //

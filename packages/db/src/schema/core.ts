@@ -31,7 +31,7 @@ export const organisation = pgTable(
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
     initialSetup: varchar('initialSetup', { length: 1 }).default('0'),
     isSetupCompleted: boolean('isSetupCompleted').default(false),
-    // Ownership-validation lifecycle (plans/13): PROVISIONAL → VERIFIED via DNS TXT,
+    // Ownership-validation lifecycle: PROVISIONAL → VERIFIED via DNS TXT,
     // or → RESTRICTED if the 14-day grace window lapses unverified.
     status: orgStatusEnum('status').notNull().default('PROVISIONAL'),
     verifyBy: timestamp('verifyBy', { precision: 6 }),
@@ -49,7 +49,7 @@ export const organisation = pgTable(
 );
 
 // ── Location ────────────────────────────────────────────────────────────────
-// A first-class site (plan 23). Owns the timezone (all shift/window/"today" math runs
+// A first-class site. Owns the timezone (all shift/window/"today" math runs
 // in it — never server-local), plus geofence + the allowed punch window for machines.
 // Defined here (not its own file) so user/team can FK it without a core⇄location import
 // cycle. The legacy string `location` columns stay during transition.
@@ -69,7 +69,7 @@ export const location = pgTable(
     ipAllowlist: varchar('ipAllowlist', { length: 64 }).array(),
     punchWindowStart: time('punchWindowStart'), // local; null = always open
     punchWindowEnd: time('punchWindowEnd'),
-    // SEZ / labour regime flag (Plan 38). STANDARD = Factories Act / Shops & Est.
+    // SEZ / labour regime flag. STANDARD = Factories Act / Shops & Est.
     // SEZ factories get additional compliance rules (night-shift ban, 6-day week, OT threshold).
     laborRegime: laborRegimeEnum('laborRegime').notNull().default('STANDARD'),
     // When set, overrides shift.fullDayHours for OT calculation at this location (e.g. SEZ = 9h).
@@ -100,7 +100,7 @@ export const team = pgTable(
     escalateAfterDays: integer('escalateAfterDays'), // overrides the org SLA; 0 = off (e.g. HR-managed core team)
     escalatesTo: uuid('escalatesTo'), // designated HR user for this team's escalations (null → all ADMINs)
     defaultShiftId: uuid('defaultShiftId'), // soft ref to Shift — the roster cascade baseline (null = no shift)
-    workweekPatternId: uuid('workweekPatternId'), // soft FK → WorkweekPattern (Plan 32; null = use team.workweek)
+    workweekPatternId: uuid('workweekPatternId'), // soft FK → WorkweekPattern (null = use team.workweek)
     // Org-chart link: which department this team belongs to (null = ungrouped). Approval routing
     // stays on teamId; departmentId here enables Department → Teams → Employees queries.
     departmentId: uuid('departmentId'), // soft FK → Department
@@ -158,15 +158,15 @@ export const user = pgTable(
     workweek: daysOfWeekEnum('workweek').array(),
     joinedOn: date('joinedOn'), // employment start; drives mid-year proration (falls back to createdAt)
     version: integer('version').notNull().default(0), // optimistic-concurrency token (ETag / If-Match)
-    // Structural/org-chart unit (Plan 28). Soft FK → Department — constraint managed by db:push.
+    // Structural/org-chart unit. Soft FK → Department — constraint managed by db:push.
     // Approval routing stays on teamId; departmentId is for org-chart / reporting / compliance.
     departmentId: uuid('departmentId'),
-    // Soft FK → WorkweekPattern (Plan 32). null = inherit from team; team null = fixed workweek.
+    // Soft FK → WorkweekPattern. null = inherit from team; team null = fixed workweek.
     workweekPatternId: uuid('workweekPatternId'),
-    // Floating-manager flag (Plan 35). Auto-set when employmentLevel = MANAGEMENT.
+    // Floating-manager flag. Auto-set when employmentLevel = MANAGEMENT.
     // When true, ingestPunch routes to the punch location's shift supervisor, not the user's team manager.
     isFloating: boolean('isFloating').notNull().default(false),
-    // Plan 41: subsidiary brand overlay (null = use parent org branding).
+    // Subsidiary brand overlay (null = use parent org branding).
     businessUnitId: uuid('businessUnitId'), // soft FK → BusinessUnit
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),

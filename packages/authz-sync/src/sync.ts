@@ -1,4 +1,4 @@
-// State-based tuple writer (Plan 51 Rule 1).
+// State-based tuple writer.
 //
 // syncOrgTuples(orgId):
 //   1. deriveExpectedTuples(orgId)   → what SHOULD be in FGA
@@ -141,7 +141,7 @@ export interface ReconcileSummary {
  * A nonzero repair count means a domain mutation occurred that did NOT emit an
  * event or the subscriber failed — treat it as an upstream bug signal.
  *
- * Called by the jobs reconciler (Plan 51 Rule 3).
+ * Called by the jobs reconciler (nightly cron).
  */
 export async function reconcileAllOrgs(): Promise<ReconcileSummary> {
   const orgs = await db

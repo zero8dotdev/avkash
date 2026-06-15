@@ -1,4 +1,4 @@
-// @avkash/authz-sync — Tuple-sync pipeline (Plan 51 WS3).
+// @avkash/authz-sync — Tuple-sync pipeline.
 //
 // Orchestration layer: bridges Postgres org graph ↔ OpenFGA.
 // Sits at the top of the dependency graph (orchestration tier).

@@ -1,25 +1,24 @@
 import type { ResourceFieldGroups } from '@avkash/shared';
 import { FIELD_GROUPS } from '@avkash/shared';
 
-// Employee field-group declaration (Plan 51 Piece 3 — pilot resource).
+// Employee field-group declaration (pilot resource).
 //
 // Field names come from:
 //   - packages/db/src/schema/employee.ts (EmployeeProfile table)
 //   - packages/db/src/schema/core.ts (User table, after userDto omissions)
 //
-// This const is the staging module for WS5+ to import. The route pilot will
-// pass this to resolveFieldGroups() and then serialize() for enforcement.
+// The route pilot passes this to resolveFieldGroups() and then serialize()
+// for enforcement.
 //
-// Defaults matrix follows the plan's table:
+// Defaults matrix:
 //   org member (USER/MANAGER)  → basic
 //   manager chain (MANAGER)    → basic + contact + employment
 //   hr_admin (ADMIN/OWNER)     → all groups (read + write for most)
 //   subject (maps: USER self)  → basic + contact + employment + compensation (read own)
 //   identity / medical         → hr_admin only, reads AUDITED
 //
-// NOTE: WS5 will refine `relation` keys to match FGA relations
-// ('manager', 'subject', 'hr_admin'). For now we map to Role names so the
-// resolver works with ctx.role directly.
+// NOTE: Relation keys currently map to Role names (ctx.role).
+// Future: refine to match FGA relations ('manager', 'subject', 'hr_admin').
 
 export const EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups = {
   resource: 'employee',
@@ -98,7 +97,7 @@ export const EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups = {
 
   // Default visibility matrix.
   // Relation keys currently map to Role names (ctx.role).
-  // WS5 will extend with FGA-derived relations ('manager', 'subject').
+  // Future: extend with FGA-derived relations ('manager', 'subject').
   defaults: {
     // Any authenticated member sees basic info only.
     USER: {
@@ -141,7 +140,7 @@ export const EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups = {
 
     // Subject (the employee themselves): reads own contact + employment + compensation.
     // Write access to personal/contact fields only. Identity/medical: hr_admin only.
-    // WS5 will introduce a 'subject' FGA relation to replace this role-based fallback.
+    // Future: introduce a 'subject' FGA relation to replace this role-based fallback.
     subject: {
       [FIELD_GROUPS.BASIC]: 'write',
       [FIELD_GROUPS.CONTACT]: 'write',

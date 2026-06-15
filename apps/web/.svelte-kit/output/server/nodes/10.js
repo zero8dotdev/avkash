@@ -1,0 +1,10 @@
+import * as server from '../entries/pages/attendance/_page.server.ts.js';
+
+export const index = 10;
+let component_cache;
+export const component = async () => component_cache ??= (await import('../entries/pages/attendance/_page.svelte.js')).default;
+export { server };
+export const server_id = "src/routes/attendance/+page.server.ts";
+export const imports = ["_app/immutable/nodes/10.CdGPPT82.js","_app/immutable/chunks/Bzak7iHL.js","_app/immutable/chunks/D-q6HbuA.js","_app/immutable/chunks/DD-_xbeO.js","_app/immutable/chunks/9N0L4DTv.js","_app/immutable/chunks/84zgOHFZ.js","_app/immutable/chunks/BvXRaNk8.js","_app/immutable/chunks/Bpp-4mxF.js","_app/immutable/chunks/Dfsh8lEb.js","_app/immutable/chunks/BI7nSIaz.js","_app/immutable/chunks/BguxzEhB.js","_app/immutable/chunks/BYcAmK0v.js","_app/immutable/chunks/D49kVdkG.js","_app/immutable/chunks/ObsDGmXM.js","_app/immutable/chunks/DxLrmQ3r.js","_app/immutable/chunks/CfUpXnJf.js"];
+export const stylesheets = ["_app/immutable/assets/ErrorBanner.C1OswYdo.css","_app/immutable/assets/StatusBadge.BXMm2-1m.css","_app/immutable/assets/10.17VM8ZQW.css"];
+export const fonts = [];

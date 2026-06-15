@@ -2,8 +2,8 @@ import type { AuthContext } from './context';
 import type { EventSubscriber } from './events';
 import type { ResourceFieldGroups } from './field-groups';
 
-// The module manifest (Plan 49 Seam 2, extended by Plan 51 — contracts only).
-// A module declares everything the platform mounts for it; the registry (Phase 3)
+// The module manifest.
+// A module declares everything the platform mounts for it; the registry
 // iterates manifests so adding a module = its package + ONE array entry in
 // modules.ts — never edits to app.ts, i18n catalogs, the DTO file, or the scheduler.
 // Core never imports a module; modules depend only downward on core.
@@ -46,7 +46,7 @@ export interface AvkashModule<TRouter = unknown> {
   /** Locale tag → message catalog, namespaced by module key; merged at boot. */
   i18n?: Record<string, Record<string, string>>;
 
-  // ── Plan 51 (Seam 4) contributions ──────────────────────────────────────────
+  // ── Authorization (OpenFGA) ───────────────────────────────────────────────────
   /** FGA model DSL fragment (the module's own types). Core fragments + entitled
    *  modules' fragments are concatenated and written to FGA at boot iff changed. */
   authzModel?: string;

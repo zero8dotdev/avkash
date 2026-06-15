@@ -8,7 +8,7 @@ export { effectiveLocation, effectiveDepartment } from './transfers-pure';
 export type { ActiveTransfer } from './transfers-pure';
 import { effectiveLocation } from './transfers-pure';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ─────────────────────────────────────────────────────────
 const employeeTransferredDef = defineEvent(
   ORG_GRAPH_EVENTS.EMPLOYEE_TRANSFERRED,
   z.object({ orgId: z.string().uuid(), userId: z.string().uuid(), transferId: z.string().uuid() })
@@ -103,9 +103,9 @@ export async function approveTransfer(ctx: AuthContext, transferId: string) {
     .where(and(eq(schema.transfer.id, transferId), eq(schema.transfer.orgId, ctx.orgId), eq(schema.transfer.status, 'PENDING')))
     .returning();
   if (!row) throw new NotFoundError('TRANSFER_NOT_FOUND');
-  // Plan 51 WS3 Rule 4: emit event for the tuple-writer. The outbox event is the
-  // reliability guarantee; the fast-lane synchronous revoke is the caller's
-  // responsibility (e.g. the apps/api route wraps this call + a try/catch syncOrgTuples).
+  // Emit event for the tuple-writer. The outbox event is the reliability guarantee;
+  // the fast-lane synchronous revoke is the caller's responsibility (e.g. the apps/api
+  // route wraps this call + a try/catch syncOrgTuples).
   // No transaction here — best-effort post-write publish.
   try {
     await publish(db, ctx, employeeTransferredDef, { orgId: ctx.orgId, userId: row.userId, transferId });

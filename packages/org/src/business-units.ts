@@ -5,7 +5,7 @@ import { type AuthContext, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVE
 import { requireRole } from '@avkash/auth';
 import { publish, defineEvent } from '@avkash/events';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ────────────────
 const businessUnitChangedDef = defineEvent(
   ORG_GRAPH_EVENTS.BUSINESS_UNIT_CHANGED,
   z.object({ orgId: z.string().uuid(), businessUnitId: z.string().uuid() })
@@ -39,7 +39,7 @@ export async function createBusinessUnit(ctx: AuthContext, input: CreateBusiness
       updatedBy: ctx.userId,
     })
     .returning();
-  // Plan 51 WS3: emit BU changed event. No transaction — best-effort post-write.
+  // Emit BU changed event. No transaction — best-effort post-write.
   try {
     await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: row.id });
   } catch (err) {
@@ -98,7 +98,7 @@ export async function updateBusinessUnit(
     }
     throw new NotFoundError('BUSINESS_UNIT_NOT_FOUND');
   }
-  // Plan 51 WS3: emit BU changed event. No transaction — best-effort post-write.
+  // Emit BU changed event. No transaction — best-effort post-write.
   try {
     await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: id });
   } catch (err) {

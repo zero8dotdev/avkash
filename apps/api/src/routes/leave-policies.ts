@@ -10,7 +10,7 @@ import { leavePolicyDto, levelLeavePolicyDto } from '../dto';
 // ETag for a policy is just its version, quoted (a strong validator).
 const etag = (version: number) => `"${version}"`;
 
-// Plan 43: probation overlay fields (null = inherit base policy value).
+// Probation overlay fields (null = inherit base policy value).
 const probationFields = {
   probationMaxLeaves: z.number().int().nonnegative().nullish(),
   probationAccruals: z.boolean().nullish(),
@@ -72,7 +72,7 @@ export const leavePolicies = new Hono<AppEnv>()
     return c.json(serialize(leavePolicyDto, updated));
   });
 
-// ── Level-leave-policy overrides (Plan 36) ───────────────────────────────────
+// ── Level-leave-policy overrides ─────────────────────────────────────────────
 // Separate router; mounted at /leave-policies/levels in app.ts.
 const levelPolicySchema = z.object({
   leaveTypeId: z.string().min(1),

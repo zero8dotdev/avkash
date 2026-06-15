@@ -1,4 +1,4 @@
-// Pure helpers for attendance source policy (Plan 31 revised). No DB imports.
+// Pure helpers for attendance source policy. No DB imports.
 // With OrgLevel replacing the hardcoded enum, there are no built-in defaults per level.
 // When no policy row exists for a level → all sources are allowed (permissive default).
 

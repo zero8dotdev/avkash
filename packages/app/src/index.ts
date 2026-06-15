@@ -25,7 +25,7 @@ const EXPOSE_ERRORS =
 const CORS_ORIGINS = (process.env.CORS_ORIGIN ?? 'http://localhost:3000').split(',');
 
 /**
- * Assembles the Hono app from a list of module manifests (Plan 49 Seam 2 / Phase 3).
+ * Assembles the Hono app from a list of module manifests.
  *
  * Platform middleware (request-id, CORS, locale), health + readiness endpoints, and
  * the Better Auth handler are always present. Each module's `routes` function is
@@ -60,7 +60,7 @@ export function createApp(modules: AvkashModule<Hono<PlatformEnv>>[]): Hono<Plat
   app.on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw));
 
   // ── Module routes ─────────────────────────────────────────────────────────
-  // Entitlement gating (Phase 4) will wrap each gated module's router here.
+  // TODO: Entitlement gating will wrap each gated module's router here.
   for (const mod of modules) {
     mod.routes?.(app);
   }

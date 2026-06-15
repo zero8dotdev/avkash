@@ -56,7 +56,7 @@ const listQuery = z.object({
   levelId: z.string().optional(),
   businessUnitId: z.string().optional(),
   status: z.string().optional(),
-  // Field-group gated sort param (Plan 51 Piece 3 query side-channel gate).
+  // Field-group gated sort param (query side-channel gate).
   sort: z.string().optional(),
 });
 const bulkLevelSchema = z.object({
@@ -135,7 +135,7 @@ export const employees = new Hono<AppEnv>()
     // FGA list filtering: build the WHERE id IN (...) constraint.
     // Performance escape: ADMIN/OWNER/hr_admin callers see all employees without
     // a ListObjects call (they have full visibility by role; avoiding the FGA round-trip
-    // is a deliberate perf choice documented in the WS5 report).
+    // is a deliberate perf choice: ADMIN/OWNER have full visibility, no FGA call needed).
     const isHrAdmin = ctx.role === 'ADMIN' || ctx.role === 'OWNER';
     const rows = await listEmployees(ctx, query);
 
@@ -218,7 +218,7 @@ export const employees = new Hono<AppEnv>()
     }
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, relations);
     c.header('ETag', etag(version));
-    // Sensitive-read audit (Plan 51 Piece 3): if the grant includes any audited
+    // Sensitive-read audit: if the grant includes any audited
     // group (identity / medical) and the caller is NOT the subject, emit one audit
     // row per request — batched, never per field. Fire-and-forget (errors logged,
     // must not fail the response).

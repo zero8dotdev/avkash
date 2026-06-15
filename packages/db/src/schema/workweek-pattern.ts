@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, integer, boolean, date, jsonb, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
-// Plan 32: rotating workweek pattern for alternating Saturdays and similar cycles.
+// Rotating workweek pattern for alternating Saturdays and similar cycles.
 // Each week in the cycle has its own day-set. Resolution is O(1) pure math — no DB per day.
 export const workweekPattern = pgTable(
   'WorkweekPattern',

@@ -54,7 +54,7 @@ export async function getBalance(
 ): Promise<LeaveBalance> {
   const { teamId, joinedOn, employmentStatus } = await userInfo(userId);
   const rawPolicy = teamId ? await getEffectivePolicy(ctx.orgId, teamId, leaveTypeId) : null;
-  // Plan 43: probation overlay — adjusts maxLeaves, accruals, encashable for probationers.
+  // Probation overlay — adjusts maxLeaves, accruals, encashable for probationers.
   const policy = rawPolicy ? applyProbationOverlay(rawPolicy, employmentStatus) : null;
   const from = yearStart(year);
   const windowEnd = year === currentYear() ? todayStr() : yearEnd(year);

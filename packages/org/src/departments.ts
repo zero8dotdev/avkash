@@ -5,7 +5,7 @@ import { type AuthContext, NotFoundError, PreconditionFailedError, ORG_GRAPH_EVE
 import { requireRole } from '@avkash/auth';
 import { publish, defineEvent } from '@avkash/events';
 
-// ── Event definitions (Plan 51 WS3) ──
+// ── Event definitions ────────────────
 const departmentChangedDef = defineEvent(
   ORG_GRAPH_EVENTS.DEPARTMENT_CHANGED,
   z.object({ orgId: z.string().uuid(), departmentId: z.string().uuid() })
@@ -30,7 +30,7 @@ export async function createDepartment(ctx: AuthContext, input: CreateDepartment
       updatedBy: ctx.userId,
     })
     .returning();
-  // Plan 51 WS3: emit department changed event. No transaction — best-effort post-write.
+  // Emit department changed event. No transaction — best-effort post-write.
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: row.id });
   } catch (err) {
@@ -116,7 +116,7 @@ export async function updateDepartment(
     }
     throw new NotFoundError('DEPARTMENT_NOT_FOUND');
   }
-  // Plan 51 WS3: emit department changed event. No transaction — best-effort post-write.
+  // Emit department changed event. No transaction — best-effort post-write.
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: id });
   } catch (err) {
@@ -212,7 +212,7 @@ export async function setDepartmentHead(
     )
     .returning();
   if (!row) throw new NotFoundError('DEPARTMENT_LOCATION_NOT_FOUND');
-  // Plan 51 WS3: head assignment changes the FGA department.head tuple.
+  // Head assignment changes the FGA department.head tuple.
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId });
   } catch (err) {

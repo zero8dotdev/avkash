@@ -1,7 +1,7 @@
 import type { z } from 'zod';
 import type { AuthContext } from './context';
 
-// Domain events (Plan 49 Seam 1 / Plan 51 WS0 — contracts only).
+// Domain events (contracts only).
 // An event is a *reaction trigger*, not a query: synchronous cross-domain reads stay
 // direct function calls. publish() writes the outbox row in the SAME transaction as
 // the domain mutation (no dual-write); a relay drains the outbox and fans out.
@@ -23,7 +23,7 @@ export interface DomainEvent<P = unknown> {
   requestId: string | null;
 }
 
-/** Pairs an event name with its payload schema. Created via defineEvent() in @avkash/events (Phase 1). */
+/** Pairs an event name with its payload schema. Created via defineEvent() in @avkash/events. */
 export interface EventDef<P> {
   name: string;
   schema: z.ZodType<P>;
@@ -40,8 +40,8 @@ export interface EventSubscriber<P = unknown> {
 }
 
 // ── Org-graph event catalog ───────────────────────────────────────────────────
-// The events the FGA tuple-writer (Plan 51 WS3) consumes. Names are contracts from
-// day one; payload schemas land with @avkash/events (Phase 1). The tuple-writer is
+// The events the FGA tuple-writer consumes. Names are stable contracts;
+// payload schemas live in @avkash/events. The tuple-writer is
 // STATE-BASED — it re-reads current truth from Postgres on any of these — so coarse
 // "changed" semantics are sufficient for sync correctness; finer verbs exist where
 // other subscribers care about the distinction.

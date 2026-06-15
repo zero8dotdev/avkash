@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, jsonb, integer, text, timestamp, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
-// ── Event outbox (Plan 49 Seam 1 — transactional outbox) ─────────────────────
+// ── Event outbox (transactional outbox) ──────────────────────────────────────
 // Every call to publish() inserts a row here IN the caller's transaction, so the
 // event is guaranteed to exist if and only if the domain mutation committed.
 // A relay in apps/worker drains unpublished rows and fans out to in-process

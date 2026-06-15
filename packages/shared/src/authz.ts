@@ -1,7 +1,7 @@
 import type { AuthContext } from './context';
 
-// Relationship authorization contracts (Plan 51 Seam 4 — types only).
-// The implementation (OpenFGA client, guards) lives in @avkash/authz (WS1); domain
+// Relationship authorization contracts (types only).
+// The implementation (OpenFGA client, guards) lives in @avkash/authz; domain
 // code consumes that package, never these raw shapes. Layered on TOP of the existing
 // guards: requireRole/requireScope/assertOrg stay — every FGA-checked route still
 // calls assertOrg (tenant isolation is never delegated to the graph alone).
@@ -31,12 +31,12 @@ export interface AuthzClient {
   listAccessible(ctx: AuthContext, relation: string, type: string): Promise<string[]>;
   /** Expand → the relation path ("why does Alice see this?") — the audit answer. */
   explainAccess(ctx: AuthContext, relation: string, object: string): Promise<unknown>;
-  /** Used ONLY by the tuple-writer + reconciler (WS3) — never by route handlers. */
+  /** Used ONLY by the tuple-writer + reconciler — never by route handlers. */
   writeTuples(writes: Tuple[], deletes?: TupleKey[]): Promise<void>;
 }
 
 // ── Core model vocabulary ─────────────────────────────────────────────────────
-// Type + relation names of the core authorization model (WS2). Modules introduce
+// Type + relation names of the core authorization model. Modules introduce
 // their own types via the manifest's `authzModel` fragment.
 export const FGA_TYPES = {
   user: 'user',
@@ -50,7 +50,7 @@ export const FGA_TYPES = {
 
 export type FgaType = (typeof FGA_TYPES)[keyof typeof FGA_TYPES];
 
-/** The time-window condition delegations carry (WS2 defines it in the model DSL). */
+/** The time-window condition delegations carry (defined in the OpenFGA model DSL). */
 export const ACTIVE_WINDOW_CONDITION = 'active_window';
 
 export const objectRef = (type: FgaType | (string & {}), id: string): string => `${type}:${id}`;

@@ -46,8 +46,8 @@ export const transfers = new Hono<AppEnv>()
   .post('/:id/approve', async (c) => {
     const ctx = c.get('auth');
     const row = await approveTransfer(ctx, c.req.param('id'));
-    // Plan 51 Rule 4 fast-lane revoke: attempt a synchronous FGA sync so the
-    // transferred employee's old team manager loses visibility immediately.
+    // Fast-lane revoke: attempt a synchronous FGA sync so the transferred employee's
+    // old team manager loses visibility immediately.
     // The outbox event (emitted by approveTransfer) is the reliability guarantee;
     // this is best-effort only — failure is logged but does not fail the request.
     try {

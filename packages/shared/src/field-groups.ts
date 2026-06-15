@@ -1,4 +1,4 @@
-// Field-level visibility contracts (Plan 51 Piece 3 — types only).
+// Field-level visibility contracts (types only).
 // Granularity is field GROUPS (sensitivity classes: basic/contact/compensation/
 // identity/medical), never individual fields. Enforcement happens at exactly two
 // points — serialize (read projection) and validateBody (write gate, 403
@@ -10,7 +10,7 @@
 export type FieldGroupAccess = 'read' | 'write' | 'none';
 
 /** A module's field-group declaration for one resource, carried in its manifest.
- *  Per-org `field_policy` rows (WS4) override these defaults; resolution is
+ *  Per-org `field_policy` rows override these defaults; resolution is
  *  org row → manifest default, cached per (orgId, resource). */
 export interface ResourceFieldGroups {
   /** Resource key, matching the DTO it shapes — e.g. 'employee'. */
@@ -25,7 +25,7 @@ export interface ResourceFieldGroups {
 }
 
 /** Resolved per-caller view used by serialize/validateBody: which groups the
- *  caller may read, and which they may write. Produced by the WS4 resolver. */
+ *  caller may read, and which they may write. Produced by the field-policy resolver. */
 export interface FieldGroupGrant {
   resource: string;
   read: ReadonlySet<string>;

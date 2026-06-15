@@ -57,7 +57,9 @@ The public repository contains the HR foundation: platform packages, identity, a
 
 Private modules live outside this repository. Payroll, statutory compliance, performance, recruitment, analytics, billing, provider administration, and the hosted UI are composed in Avkash Cloud.
 
-The intended long-term shape is described in [Plan 50](../plans/50-repository-open-core-strategy.md). Today, the public API routes are still wired directly in `apps/api/src/app.ts`; the Plan 49 `createApp(modules)` factory is not finished yet.
+The public `avkash` repository is the API-only open core. Private modules (payroll, UI, hosted services) are composed in a separate private repository that depends on this one as a submodule.
+
+The module system is two-way: core emits domain facts, while modules contribute routes, jobs, subscribers, permissions, fields, schema, and policy surfaces back into the app. See [Pluggable Data Flow](pluggable-data-flow.md).
 
 ---
 
@@ -70,6 +72,4 @@ Known gaps:
 - **No bundled UI** - this repository is the public API core
 - **No OpenAPI spec** - the TypeScript client type is the contract for now
 - **Route test coverage is still growing** - domain unit tests exist, but route tests are sparse
-- **Module registry is not finished** - the `createApp(modules)` factory from Plan 49 is not built yet; routes are wired directly in `app.ts`
 - **Database migrations are not versioned yet** - use `db:push` during development and move to generated migrations before production data
-

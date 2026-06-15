@@ -25,7 +25,7 @@
  *   7. Blackout: Q2 FY2027 quarter-end Sep 25–30 2026, Coimbatore location
  *   8. Attendance regularization: Sara missed punch-out on 2026-06-05 → PENDING
  *
- * Known limitations (see plans/51-reports/demo-india.md):
+ * Known limitations:
  *   - ML 26-week semantic: LeavePolicy has no maxWeeks/paidWeeks column.
  *     maxLeaves=182 (26*7) used as a crude proxy.
  *   - Location field on Holiday is a free string (not a FK to Location.id).

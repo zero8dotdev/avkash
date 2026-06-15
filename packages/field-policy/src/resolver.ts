@@ -77,12 +77,11 @@ export function invalidateFieldPolicy(orgId: string, resource: string): void {
  *   2. Module-manifest defaults (`declared.defaults`).
  *
  * @param ctx       The caller's AuthContext — ctx.role is used as the relation
- *                  key for now. WS5 will pass an explicit `relations` array for
- *                  FGA-derived relations (manager, subject, etc.).
+ *                  key when no explicit relations list is provided.
  * @param resource  The resource key, e.g. 'employee'.
  * @param declared  The ResourceFieldGroups manifest declaring defaults.
- * @param relations Optional explicit relation list (WS5 hook). Falls back to
- *                  [ctx.role] when absent so the signature is backward-compatible.
+ * @param relations Optional explicit relation list (FGA-derived relations such as
+ *                  manager, subject, etc.). Falls back to [ctx.role] when absent.
  */
 export async function resolveFieldGroups(
   ctx: AuthContext,

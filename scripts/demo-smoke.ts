@@ -1,5 +1,5 @@
 /**
- * scripts/demo-smoke.ts — End-to-end smoke test for Plan 51 demo beats 1–8
+ * scripts/demo-smoke.ts — End-to-end smoke test for demo beats 1–8
  *
  * Hits the running API (default http://localhost:3001) and asserts PASS/FAIL
  * per beat. Reads persona IDs from the MERIDIAN_* environment variables (set
@@ -345,7 +345,7 @@ async function beat5() {
 async function beat6() {
   const name = 'Least-privilege API key';
   console.log(`\n─── Beat 6: ${name} ───`);
-  skip(6, name, 'API keys (resource-scoped) are NOT in scope for Plan 51 WS1–7. Beat 6 is marked SKIPPED. Implemented when Plan 49 Seam 2 (scoped API keys) is wired into authz via requireScope + FGA resource-type tuples.');
+  skip(6, name, 'API keys (resource-scoped) are NOT yet implemented. Beat 6 is marked SKIPPED. Requires scoped API keys wired into authz via requireScope + FGA resource-type tuples.');
 }
 
 /**

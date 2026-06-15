@@ -35,7 +35,7 @@ describe('computeMarks — day shift', () => {
   it('HALF_DAY when worked below the half-day threshold', () => {
     expect(computeMarks(day, '09:00', '12:00', 3)).toContain('HALF_DAY');
   });
-  it('does not mark OVERTIME — that is resolveDay responsibility (Plan 39)', () => {
+  it('does not mark OVERTIME — that is resolveDay responsibility', () => {
     // OVERTIME is emitted by resolveDay, which respects shift.trackOvertime.
     expect(computeMarks(day, '09:00', '19:00', 10)).not.toContain('OVERTIME');
   });
@@ -74,7 +74,7 @@ describe('restMinutes', () => {
   });
 });
 
-describe('halfDayWindow — Plan 45', () => {
+describe('halfDayWindow', () => {
   const morning = { startTime: '06:00', endTime: '14:00', crossesMidnight: false };
   const night = { startTime: '22:00', endTime: '06:00', crossesMidnight: true };
   const general = { startTime: '10:30', endTime: '18:30', crossesMidnight: false };
@@ -111,7 +111,7 @@ describe('halfDayWindow — Plan 45', () => {
   });
 });
 
-describe('applyOvertime — Plan 39 + Plan 38', () => {
+describe('applyOvertime', () => {
   it('adds OVERTIME mark and computes overtimeHours when trackOvertime=true', () => {
     const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 10, true, 8);
     expect(marks).toContain('OVERTIME');
@@ -126,7 +126,7 @@ describe('applyOvertime — Plan 39 + Plan 38', () => {
     expect(withoutOT.overtimeHours).toBe(0);
   });
 
-  it('uses overtimeThresholdHours (SEZ Plan 38) instead of fullDayHours when provided', () => {
+  it('uses overtimeThresholdHours (SEZ threshold) instead of fullDayHours when provided', () => {
     // SEZ threshold = 10h; worked 10.5h — only 0.5h OT
     const { marks, overtimeHours } = applyOvertime(['ON_TIME'], 10.5, true, 8, 10);
     expect(marks).toContain('OVERTIME');

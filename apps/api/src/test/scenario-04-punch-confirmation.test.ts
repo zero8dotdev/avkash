@@ -1,4 +1,4 @@
-// Scenario 4 — Punch confirmation (Plan 40)
+// Scenario 4 — Punch confirmation
 // WEB punches from OPERATOR-level employees are held PENDING_CONFIRMATION.
 // A manager confirms them; punches then feed into attendance computation.
 

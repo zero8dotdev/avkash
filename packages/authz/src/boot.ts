@@ -1,11 +1,8 @@
-// Boot-time setup helper (Plan 51 WS7).
+// Boot-time setup helper.
 //
 // Called once at API startup before the server accepts requests.
 // Combines ensureStore + loadAuthzModel into a single call so apps/api/src/index.ts
-// stays minimal.
-//
-// Resolves WS1 open issue #3: "ensureStore() at API boot — apps/api/src/index.ts
-// has not been updated to call it at boot." WS7 wires it here.
+// stays minimal. ensureStore() must be called at boot before any OpenFGA operation.
 
 import { OpenFgaClient } from '@openfga/sdk';
 import { env } from '@avkash/config';
@@ -22,7 +19,7 @@ import { loadAuthzModel } from './model';
  *         (models are immutable + versioned in FGA; no-op when unchanged).
  *
  * @param extraFragments - AvkashModule.authzModel DSL fragments (empty until the
- *   module registry is wired in Plan 49 Phase 3; until then, pass [] here and list
+ *   module registry is wired; until then, pass [] here and list
  *   private fragments as a TODO in apps/api).
  * @returns The active store id and authorization model id.
  *

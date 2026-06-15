@@ -2,7 +2,7 @@
 
 > A learning doc, not a spec. Built around the Avkash HRMS API design (Bun + Hono +
 > Drizzle + Better Auth in a Turborepo). Read it to re-learn how a monorepo works and
-> _why_ each decision is made. The architecture itself lives in `plans/03-technical-architecture.md`.
+> _why_ each decision is made. The architecture overview lives in `docs/architecture-readme.md`.
 
 ---
 
@@ -297,8 +297,7 @@ typecheck`. Watch the red spread across every consumer. _Lesson: types are the c
 
 ## See also
 
-- `plans/03-technical-architecture.md` — the full stack and package structure.
-- `plans/09-migration-supabase.md` — the step-by-step migration this monorepo enables.
+- `docs/architecture-readme.md` — the full stack and package structure.
 - `docs/lessons/` — companion lessons (add `api-design.md` next).
   </content>
   </invoke>

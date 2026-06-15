@@ -1,4 +1,4 @@
-// Model loader for @avkash/authz (Plan 51 WS2).
+// Model loader for @avkash/authz.
 //
 // Responsibilities:
 //   1. Read core.fga (the compiled-in base model).
