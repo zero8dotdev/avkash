@@ -11,6 +11,8 @@ node_modules/
 .turbo/
 dist/
 **/.next/
+**/.svelte-kit/
+**/build/
 
 # local data / session artifacts
 data_dump.sql

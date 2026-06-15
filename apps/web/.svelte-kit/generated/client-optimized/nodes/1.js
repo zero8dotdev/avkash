@@ -1,1 +1,0 @@
-export { default as component } from "../../../../../../node_modules/.pnpm/@sveltejs+kit@2.64.0_@opentelemetry+api@1.9.1_@sveltejs+vite-plugin-svelte@5.1.1_svelte_f3049a0b9eee3d2a419e6b19f9421ff2/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte";
