@@ -1,5 +1,7 @@
 # Avkash
 
+> **v2.0.0 — June 2026.** Complete rewrite. Bun + Hono + Drizzle + OpenFGA. The v1 Next.js app is preserved on the [`v1`](../../tree/v1) tag. v2 is API-only; the UI is in Avkash Cloud.
+
 Open-core HR infrastructure for teams that need control over:
 
 - Leave
