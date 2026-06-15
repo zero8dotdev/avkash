@@ -1,175 +1,74 @@
 # Avkash
 
-Open-source HR platform. REST API that covers leave, attendance, people, org structure, and policy — self-hostable, no UI included.
+Open-core HR infrastructure for companies that need control over leave, attendance, people data, and policy logic.
 
-The UI and paid modules (payroll, compliance) ship in [Avkash Cloud](https://github.com/zero8dotdev/avkash-cloud), a private superset that embeds this repo as a dependency.
+Most HR systems are delivered as closed SaaS products. That works until your policies become local, your compliance rules become specific, or your employee data cannot sit inside a black box. Avkash is built as a self-hostable HR core: the public repository gives you the foundation, and commercial modules add the parts larger companies usually buy later.
 
----
-
-## What it does
-
-- **Leave** — requests, approvals, accruals, comp-off, encashments, delegations, blackout periods
-- **Attendance** — device-based punch, shift management, workweek patterns, OT/gap detection
-- **People** — employee directory, teams, departments, business units, org levels, transfers
-- **Policy** — leave policies, level restrictions, holiday calendars, location-aware rules
-- **Field access control** — per-field visibility and write gates via OpenFGA (who sees what on whose profile)
-- **Notifications** — email (Resend) and SMS (MSG91) with a console fallback for local dev
-- **Slack** — login and (optionally) leave notifications via Slack
-
-Everything is multi-tenant. Every query is scoped to an `orgId`; there is no cross-tenant data leakage by construction.
+The open core is licensed under AGPL-3.0. Avkash Cloud is the commercial superset, with hosted deployment, UI, payroll, compliance, performance, and other private modules.
 
 ---
 
-## What it is not
+## Why Avkash Exists
 
-- There is no bundled UI. The API is the product.
-- There is no SaaS offering from this repo. If you want managed hosting, that is Avkash Cloud.
-- Payroll, compliance, and performance modules are not here. They are private.
+HR software looks simple from the outside: employees apply for leave, managers approve it, attendance gets marked, and payroll consumes the result. In practice, every company has exceptions.
 
----
+Factories have shifts, grace windows, alternate Saturdays, device punches, overtime rules, and location-based policies. Growing companies need org levels, transfers, delegations, probation rules, and field-level access control. Indian and emerging-market teams often need software that can adapt to local operating reality instead of forcing everything into one global SaaS workflow.
 
-## Stack
-
-| Layer | Choice |
-|---|---|
-| Runtime | Bun |
-| HTTP | Hono |
-| ORM | Drizzle + PostgreSQL 16 |
-| Auth | Better Auth (email/password + Slack OAuth + API keys) |
-| AuthZ | OpenFGA (relationship-based, field-level) |
-| Background jobs | BullMQ + Redis |
-| Tooling | Turborepo + pnpm workspaces |
+Avkash treats HR as infrastructure. The public core gives teams a programmable, inspectable backend for the everyday HR primitives. The commercial layer adds the heavier workflows around payroll, statutory compliance, performance, and managed hosting.
 
 ---
 
-## Self-hosting
+## What You Get In The Open Core
 
-**Prerequisites:** Docker, a Postgres 16 instance (or use the compose stack), Redis.
+- **People and organisation** - employees, teams, departments, business units, org levels, locations, roles, and transfers
+- **Leave management** - requests, approvals, accruals, balances, comp-off, encashments, delegations, blackout periods, and policy restrictions
+- **Attendance** - device-based punches, shifts, workweek patterns, alternate Saturdays, supervisor flows, regularisation, overtime, and gap detection
+- **Policy engine** - leave policies, applicability rules, level restrictions, holiday calendars, and location-aware behaviour
+- **Field access control** - per-field visibility and write gates through OpenFGA, so sensitive employee data is not exposed casually
+- **Notifications** - email and SMS dispatch with local-development fallbacks
+- **Slack integration** - Slack login and optional leave notifications
+- **Multi-tenancy** - every query is scoped by `orgId`; cross-tenant data access is blocked by construction
 
-```bash
-git clone https://github.com/zero8dotdev/avkash.git
-cd avkash
-cp .env.example .env   # fill in DATABASE_URL, BETTER_AUTH_SECRET at minimum
-docker compose up -d
-```
-
-The compose file starts Postgres, Redis, OpenFGA, the API server on `:3001`, and the background worker. The API is ready when `/health/ready` returns `{"status":"ready"}`.
-
-For production use, point `DATABASE_URL` and `REDIS_URL` at your own infrastructure and run only the `api` and `worker` services.
-
-### Schema
-
-```bash
-pnpm db:push   # drizzle-kit push — no migration files, syncs schema directly
-```
-
-There are no versioned migration files. `db:push` syncs the schema to the database. Switch to `drizzle-kit generate` + `migrate` before you have production data you cannot push over.
-
-### Environment variables
-
-| Variable | Required | Default | Notes |
-|---|---|---|---|
-| `DATABASE_URL` | yes | — | Postgres connection string |
-| `BETTER_AUTH_SECRET` | yes | — | ≥32 random bytes |
-| `REDIS_URL` | yes (worker) | `redis://localhost:6379` | BullMQ broker |
-| `FGA_API_URL` | yes | `http://localhost:8080` | OpenFGA HTTP endpoint |
-| `FGA_STORE_ID` | yes | — | Created on first boot |
-| `FGA_MODEL_ID` | yes | — | Auth model ID |
-| `CORS_ORIGIN` | no | `http://localhost:3000` | Comma-separated allowed origins |
-| `PORT` | no | `3001` | API listen port |
-| `RESEND_API_KEY` | no | — | Email delivery (console fallback if blank) |
-| `MSG91_AUTH_KEY` | no | — | SMS delivery (silent if blank) |
-| `SLACK_CLIENT_ID` | no | — | Slack OAuth login |
-| `SLACK_CLIENT_SECRET` | no | — | Slack OAuth login |
-| `INTERNAL_API_TOKEN` | no | `dev-cron-token` | Guards `/internal` scheduler endpoints |
+The public core is intended to be useful on its own. It is not a thin SDK or a teaser repo.
 
 ---
 
-## Development
+## Open Core Vs Cloud
 
-```bash
-pnpm install
-pnpm dev        # starts api + worker via Turbo
-pnpm typecheck  # authoritative — trust this over the editor LSP
-pnpm lint
-pnpm test
-```
+| Area | Public core (`avkash`) | Avkash Cloud / private modules |
+|---|---|---|
+| Hosting | Self-hosted API and worker | Managed SaaS |
+| UI | Not bundled in this repo | Hosted product UI |
+| HR foundation | People, org, leave, attendance, holidays, policies | Included |
+| Authorisation | OpenFGA relationship and field-level access | Included, plus provider operations |
+| Payroll | Not included | Commercial module |
+| Statutory compliance | Not included | Commercial module |
+| Performance / recruitment / analytics | Not included | Commercial modules |
+| License | AGPL-3.0 | Commercial |
 
-The API hot-reloads via `bun --watch`. To rebuild the Docker container after a schema change:
-
-```bash
-pnpm db:push
-docker compose up -d --build --force-recreate api
-```
-
-`--force-recreate` is required. `--build` alone rebuilds the image but does not replace the running container.
-
-### Monorepo layout
-
-```
-apps/
-  api/      Hono server — thin wiring layer, no business logic
-  worker/   BullMQ scheduler + maintenance jobs
-packages/
-  shared/   AuthContext, DomainError taxonomy, primitives
-  config/   Zod-validated env, fails fast at boot
-  db/       Drizzle schema (single source of truth), client
-  auth/     Better Auth + API keys
-  authz/    OpenFGA client, model bootstrap, health
-  authz-sync/ Writes FGA tuples from domain events
-  org/      Organisation lifecycle, invitations
-  users/    People, teams, roles, profiles
-  leave/    Leave requests, balances, policies, accruals
-  attendance/ Punches, shifts, devices, workweek
-  holidays/ Holiday calendars
-  policy/   Policy rules, level restrictions
-  documents/ Document storage
-  field-policy/ Per-field visibility and write gates
-  jobs/     BullMQ queues and schedule definitions
-  notifications/ Email + SMS dispatch
-  slack/    Slack SDK wiring
-  events/   In-process event bus (domain → subscribers)
-  i18n/     Message catalog, error translation
-  emails/   React Email templates
-```
-
-Packages are just-in-time — no build step, no publish. Everything imports via `@avkash/<name>` workspace aliases.
+Commercial license exceptions are available for organisations that want to use the core but cannot adopt AGPL terms.
 
 ---
 
-## API
+## Who This Is For
 
-Base URL: `http://localhost:3001`
+Avkash is a good fit if you are:
 
-Auth: send a `Better-Auth-Session` cookie (obtained from `POST /api/auth/sign-in`) or an `Authorization: Bearer <api-key>` header.
+- Running an organisation that needs self-hosted control over HR data
+- Building an HR product and want a real backend foundation instead of starting from tables and CRUD
+- Operating in India or a similar market where policies, attendance rules, shifts, and compliance needs vary heavily by company
+- Extending HR workflows with custom rules, integrations, or approval paths
+- Evaluating an open-core alternative to closed HR SaaS
 
-A few representative endpoints:
-
-```
-GET    /health/ready
-POST   /api/auth/sign-in/email
-GET    /leaves
-POST   /leaves
-PATCH  /leaves/:id
-GET    /attendance
-POST   /attendance/punch
-GET    /employees
-GET    /me
-GET    /balances
-GET    /reports
-```
-
-There is no OpenAPI spec yet. The Hono `AppType` export in `apps/api/src/app.ts` is the type-safe contract — consume it from a TypeScript client with `hc<AppType>()`.
+It is not the right repo if you want a turnkey hosted product with UI today. For that, use Avkash Cloud.
 
 ---
 
-## Status
+## Documentation
 
-This is an active v2 rewrite. The API is functional and covers all core HR domains. What is not done yet:
-
-- **No OpenAPI spec** — the TypeScript client type is the contract for now
-- **No route-level test suite** — unit tests exist for domain logic; route tests are sparse
-- **Module registry** — the `createApp(modules)` factory (Plan 49) is not built; routes are wired directly in `app.ts`
+- [Technical README](docs/technical-readme.md) - self-hosting, environment variables, development commands, and API entry points
+- [Architecture README](docs/architecture-readme.md) - stack, monorepo layout, package boundaries, and current project status
+- [Enterprise authorization demo](docs/demo-enterprise-authz.md) - OpenFGA and field-access walkthrough
 
 ---
 
@@ -177,10 +76,12 @@ This is an active v2 rewrite. The API is functional and covers all core HR domai
 
 Avkash core is licensed under the GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
 
-Commercial license exceptions are available for enterprises that cannot adopt AGPL terms.
+Contributions may require signing the [Contributor License Agreement](CLA.md). The CLA lets Zero8 Dot Dev Pvt Ltd offer commercial license exceptions while keeping the public core open.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. By contributing, you agree that your contribution is licensed under the project license and that a signed [CLA](CLA.md) may be required before merge. Open an issue to discuss before sending a pull request for anything non-trivial.
+Contributions are welcome. Open an issue before sending a non-trivial pull request so the design can be discussed first.
+
+By contributing, you agree that your contribution is licensed under the project license and that a signed [CLA](CLA.md) may be required before merge.
