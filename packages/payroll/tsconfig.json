@@ -1,1 +1,0 @@
-{ "extends": "@avkash/tsconfig/base.json", "include": ["src"] }

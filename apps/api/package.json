@@ -27,7 +27,6 @@
     "@avkash/attendance": "workspace:*",
     "@avkash/policy": "workspace:*",
     "@avkash/documents": "workspace:*",
-    "@avkash/payroll": "workspace:*",
     "@avkash/slack": "workspace:*",
     "@avkash/jobs": "workspace:*",
     "hono": "^4.6.0",
