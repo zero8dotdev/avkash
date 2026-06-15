@@ -200,3 +200,4 @@ This is what makes Avkash open-core without becoming a fork.
 - Avkash Cloud adds payroll, compliance, UI, and managed operations as modules.
 - New modules can become first-class product features without changing core ownership boundaries.
 
+For a concrete worked example, see [LMS Module Guide](lms-module-guide.md).
