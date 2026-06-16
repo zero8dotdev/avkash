@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'bun:test';
-import { applyOvertime, computeMarks, halfDayWindow, minutesIntoShift, pairSessions, restMinutes, type ShiftLite } from './shift-marks';
+import {
+  applyOvertime,
+  computeMarks,
+  halfDayWindow,
+  minutesIntoShift,
+  pairSessions,
+  restMinutes,
+  type ShiftLite,
+} from './shift-marks';
 
 const day: ShiftLite = {
   startTime: '09:00',

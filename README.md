@@ -52,16 +52,16 @@ The open core is meant to be useful by itself. It is not a demo repo.
 
 ## Open Core Vs Cloud
 
-| Area | Open core | Avkash Cloud / private modules |
-|---|---|---|
-| Hosting | Self-hosted API and worker | Managed SaaS |
-| UI | Not included | Hosted UI |
-| People, leave, attendance, policy | Included | Included |
-| OpenFGA authorization | Included | Included |
-| Payroll | Not included | Commercial module |
-| Statutory compliance | Not included | Commercial module |
-| Performance, recruitment, analytics | Not included | Commercial modules |
-| License | AGPL-3.0 | Commercial |
+| Area                                | Open core                  | Avkash Cloud / private modules |
+| ----------------------------------- | -------------------------- | ------------------------------ |
+| Hosting                             | Self-hosted API and worker | Managed SaaS                   |
+| UI                                  | Not included               | Hosted UI                      |
+| People, leave, attendance, policy   | Included                   | Included                       |
+| OpenFGA authorization               | Included                   | Included                       |
+| Payroll                             | Not included               | Commercial module              |
+| Statutory compliance                | Not included               | Commercial module              |
+| Performance, recruitment, analytics | Not included               | Commercial modules             |
+| License                             | AGPL-3.0                   | Commercial                     |
 
 Commercial license exceptions are available for organisations that cannot use AGPL.
 

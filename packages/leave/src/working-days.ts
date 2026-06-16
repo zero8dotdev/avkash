@@ -72,7 +72,11 @@ export async function computeWorkingDays(
   duration: Duration = 'FULL_DAY'
 ): Promise<number> {
   const [u] = await db
-    .select({ workweek: schema.user.workweek, teamId: schema.user.teamId, workweekPatternId: schema.user.workweekPatternId })
+    .select({
+      workweek: schema.user.workweek,
+      teamId: schema.user.teamId,
+      workweekPatternId: schema.user.workweekPatternId,
+    })
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .limit(1);
@@ -82,7 +86,11 @@ export async function computeWorkingDays(
   let location: string | null = null;
   if (u?.teamId) {
     const [team] = await db
-      .select({ workweek: schema.team.workweek, location: schema.team.location, workweekPatternId: schema.team.workweekPatternId })
+      .select({
+        workweek: schema.team.workweek,
+        location: schema.team.location,
+        workweekPatternId: schema.team.workweekPatternId,
+      })
       .from(schema.team)
       .where(eq(schema.team.teamId, u.teamId))
       .limit(1);
@@ -109,12 +117,20 @@ export async function computeWorkingDays(
   const patternId = u?.workweekPatternId ?? teamPatternId ?? null;
   if (patternId) {
     const [p] = await db
-      .select({ cycleLength: schema.workweekPattern.cycleLength, weeks: schema.workweekPattern.weeks, referenceDate: schema.workweekPattern.referenceDate })
+      .select({
+        cycleLength: schema.workweekPattern.cycleLength,
+        weeks: schema.workweekPattern.weeks,
+        referenceDate: schema.workweekPattern.referenceDate,
+      })
       .from(schema.workweekPattern)
       .where(eq(schema.workweekPattern.id, patternId))
       .limit(1);
     if (p) {
-      const pattern: WorkweekPatternRecord = { cycleLength: p.cycleLength, weeks: p.weeks as string[][], referenceDate: p.referenceDate };
+      const pattern: WorkweekPatternRecord = {
+        cycleLength: p.cycleLength,
+        weeks: p.weeks as string[][],
+        referenceDate: p.referenceDate,
+      };
       return calculateWorkingDaysFromPattern(pattern, holidays, startDate, endDate, duration);
     }
   }

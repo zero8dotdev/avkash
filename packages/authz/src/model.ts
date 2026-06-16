@@ -74,7 +74,11 @@ export function dslToJSON(dsl: string): WriteAuthorizationModelRequest {
     return JSON.parse(jsonStr) as WriteAuthorizationModelRequest;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new UnavailableError('AUTHZ_UNAVAILABLE', { cause: `DSL transform failed: ${msg}` }, { cause: err instanceof Error ? err : new Error(msg) });
+    throw new UnavailableError(
+      'AUTHZ_UNAVAILABLE',
+      { cause: `DSL transform failed: ${msg}` },
+      { cause: err instanceof Error ? err : new Error(msg) }
+    );
   }
 }
 
@@ -86,17 +90,12 @@ export function dslToJSON(dsl: string): WriteAuthorizationModelRequest {
  *
  * Returns true when the models are semantically identical (no write needed).
  */
-export function modelsEqual(
-  existing: AuthorizationModel,
-  incoming: WriteAuthorizationModelRequest
-): boolean {
+export function modelsEqual(existing: AuthorizationModel, incoming: WriteAuthorizationModelRequest): boolean {
   // Normalise by sorting type_definitions by type name and conditions by key
   // so JSON.stringify produces a stable comparison.
   const norm = (m: { schema_version: string; type_definitions: unknown[]; conditions?: Record<string, unknown> }) => ({
     schema_version: m.schema_version,
-    type_definitions: [...m.type_definitions].sort((a, b) =>
-      JSON.stringify(a) < JSON.stringify(b) ? -1 : 1
-    ),
+    type_definitions: [...m.type_definitions].sort((a, b) => (JSON.stringify(a) < JSON.stringify(b) ? -1 : 1)),
     conditions: m.conditions ?? {},
   });
 
@@ -118,11 +117,7 @@ export function modelsEqual(
  * @param dsl     - Combined DSL string (core + module fragments).
  * @returns The active authorization model id.
  */
-export async function ensureModel(
-  client: OpenFgaClient,
-  _storeId: string,
-  dsl: string
-): Promise<string> {
+export async function ensureModel(client: OpenFgaClient, _storeId: string, dsl: string): Promise<string> {
   const incoming = dslToJSON(dsl);
 
   try {

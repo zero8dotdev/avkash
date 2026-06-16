@@ -69,11 +69,11 @@ function makeCtx(role: 'ADMIN' | 'MANAGER' | 'USER', userId = 'user-1', orgId = 
 
 // Sensitive sort params from the employees route
 const LIST_SENSITIVE_PARAMS: QueryParamAnnotation[] = [
-  { param: 'sort', value: 'salary',      group: 'compensation' },
+  { param: 'sort', value: 'salary', group: 'compensation' },
   { param: 'sort', value: 'bankAccount', group: 'compensation' },
-  { param: 'sort', value: 'pan',         group: 'identity' },
-  { param: 'sort', value: 'aadhaar',     group: 'identity' },
-  { param: 'sort', value: 'disability',  group: 'medical' },
+  { param: 'sort', value: 'pan', group: 'identity' },
+  { param: 'sort', value: 'aadhaar', group: 'identity' },
+  { param: 'sort', value: 'disability', group: 'medical' },
 ];
 
 const { groups } = EMPLOYEE_FIELD_GROUPS;
@@ -123,8 +123,8 @@ describe('employee detail — field-group projection', () => {
     expect(grant.read.has('basic')).toBe(true);
     expect(grant.read.has('contact')).toBe(true);
     expect(grant.read.has('employment')).toBe(true);
-    expect(grant.read.has('compensation')).toBe(true);  // own record
-    expect(grant.read.has('identity')).toBe(false);     // identity still hr_admin only
+    expect(grant.read.has('compensation')).toBe(true); // own record
+    expect(grant.read.has('identity')).toBe(false); // identity still hr_admin only
     expect(grant.read.has('medical')).toBe(false);
   });
 
@@ -143,7 +143,9 @@ describe('employee detail — field-group projection', () => {
   it('OWNER reads all groups (same as ADMIN)', async () => {
     const ctx = makeCtx('ADMIN', 'user-owner') as AuthContext & { role: 'ADMIN' | 'MANAGER' | 'USER' };
     const ownerCtx = { ...ctx, role: 'OWNER' as const };
-    const grant = await resolveFieldGroups(ownerCtx as unknown as AuthContext, 'employee', EMPLOYEE_FIELD_GROUPS, ['OWNER']);
+    const grant = await resolveFieldGroups(ownerCtx as unknown as AuthContext, 'employee', EMPLOYEE_FIELD_GROUPS, [
+      'OWNER',
+    ]);
 
     expect(grant.read.has('compensation')).toBe(true);
     expect(grant.read.has('identity')).toBe(true);
@@ -164,7 +166,7 @@ describe('employee detail — field-group projection', () => {
       email: 'sara@test.com',
       role: 'USER',
       teamId: 'team-1',
-      salary: 100000,       // compensation group
+      salary: 100000, // compensation group
       bankAccount: '123456', // compensation group
     };
 
@@ -224,15 +226,15 @@ describe('employee list — FGA listAccessible intersection', () => {
 
     // Employee rows (userId-keyed, from listEmployees)
     const rows = [
-      { userId: 'user-sara',    name: 'Sara' },
-      { userId: 'user-dev',     name: 'Dev' },
-      { userId: 'user-alice',   name: 'Alice' },
+      { userId: 'user-sara', name: 'Sara' },
+      { userId: 'user-dev', name: 'Dev' },
+      { userId: 'user-alice', name: 'Alice' },
     ];
 
     // Profile map (userId → profileId, from EmployeeProfile lookup)
     const profileIdByUserId = new Map([
-      ['user-sara',  'profile-sara'],
-      ['user-dev',   'profile-dev'],
+      ['user-sara', 'profile-sara'],
+      ['user-dev', 'profile-dev'],
       ['user-alice', 'profile-alice'],
     ]);
 
@@ -282,9 +284,9 @@ describe('query gate — sort/filter side-channel protection', () => {
     const ctx = makeCtx('USER');
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, ['USER']);
 
-    expect(() =>
-      assertQueryableFields(grant, groups, { sort: 'salary' }, LIST_SENSITIVE_PARAMS)
-    ).toThrow(ForbiddenError);
+    expect(() => assertQueryableFields(grant, groups, { sort: 'salary' }, LIST_SENSITIVE_PARAMS)).toThrow(
+      ForbiddenError
+    );
 
     let caughtError: unknown;
     try {
@@ -313,9 +315,7 @@ describe('query gate — sort/filter side-channel protection', () => {
     const ctx = makeCtx('ADMIN');
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, ['ADMIN']);
 
-    expect(() =>
-      assertQueryableFields(grant, groups, { sort: 'salary' }, LIST_SENSITIVE_PARAMS)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, groups, { sort: 'salary' }, LIST_SENSITIVE_PARAMS)).not.toThrow();
   });
 
   it('allows ?sort=name for USER (basic group — always readable)', async () => {
@@ -323,9 +323,7 @@ describe('query gate — sort/filter side-channel protection', () => {
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, ['USER']);
 
     // 'name' is in the basic group which USER can read → no gating
-    expect(() =>
-      assertQueryableFields(grant, groups, { sort: 'name' }, LIST_SENSITIVE_PARAMS)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, groups, { sort: 'name' }, LIST_SENSITIVE_PARAMS)).not.toThrow();
   });
 
   it('raw field-name param ?salary=50000 is rejected for USER (side-channel)', async () => {
@@ -386,9 +384,7 @@ describe('PATCH write gate — assertWritableFields', () => {
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, ['USER', 'subject']);
 
     // personalEmail is in the contact group — subject has write on it
-    expect(() =>
-      assertWritableFields(grant, groups, { personalEmail: 'sara@personal.com' })
-    ).not.toThrow();
+    expect(() => assertWritableFields(grant, groups, { personalEmail: 'sara@personal.com' })).not.toThrow();
   });
 
   it('allows ADMIN to write all fields including compensation', async () => {
@@ -444,7 +440,9 @@ describe('transfer fast-lane revoke — syncOrgTuples wiring', () => {
     // The outbox event emitted by approveTransfer is the reliability guarantee.
     //
     // This test verifies the error-swallowing pattern is correct by simulating it.
-    const syncOrgTuplesMock = mock(async (_orgId: string) => { throw new Error('FGA down'); });
+    const syncOrgTuplesMock = mock(async (_orgId: string) => {
+      throw new Error('FGA down');
+    });
 
     let requestFailed = false;
     async function simulateApproveTransferRoute() {
@@ -458,7 +456,9 @@ describe('transfer fast-lane revoke — syncOrgTuples wiring', () => {
     }
 
     // Verify that syncOrgTuples failure does not propagate.
-    const result = simulateApproveTransferRoute().catch(() => { requestFailed = true; });
+    const result = simulateApproveTransferRoute().catch(() => {
+      requestFailed = true;
+    });
     expect(requestFailed).toBe(false);
     void result;
   });

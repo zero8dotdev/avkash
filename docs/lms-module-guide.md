@@ -137,15 +137,9 @@ export const lmsModule: AvkashModule<Hono<PlatformEnv>> = {
     reevaluateTrainingAfterRoleChange,
   ],
 
-  jobs: [
-    sendTrainingReminders,
-    markOverdueEnrollments,
-    expireOldCertificates,
-  ],
+  jobs: [sendTrainingReminders, markOverdueEnrollments, expireOldCertificates],
 
-  profileContributors: [
-    employeeTrainingProfileSection,
-  ],
+  profileContributors: [employeeTrainingProfileSection],
 
   authzModel: lmsAuthzModel,
   fieldGroups: lmsFieldGroups,
@@ -169,17 +163,17 @@ The LMS should react to core events instead of polling core tables blindly.
 
 Useful event categories:
 
-| Core event type | Why LMS cares |
-|---|---|
-| Employee joined | Enroll in onboarding or mandatory base training |
-| Employee transferred | Recalculate department, location, business-unit, or role-based training |
-| Team membership changed | Assign team-specific training |
-| Department changed | Assign department-specific training |
-| Business unit changed | Assign BU-specific training |
-| Org level changed | Assign manager or seniority-specific training |
-| Role changed | Assign role-sensitive training |
-| Delegation created | Allow delegate to approve training tasks if LMS supports approvals |
-| Employee deactivated | Pause reminders or close open training tasks |
+| Core event type         | Why LMS cares                                                           |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Employee joined         | Enroll in onboarding or mandatory base training                         |
+| Employee transferred    | Recalculate department, location, business-unit, or role-based training |
+| Team membership changed | Assign team-specific training                                           |
+| Department changed      | Assign department-specific training                                     |
+| Business unit changed   | Assign BU-specific training                                             |
+| Org level changed       | Assign manager or seniority-specific training                           |
+| Role changed            | Assign role-sensitive training                                          |
+| Delegation created      | Allow delegate to approve training tasks if LMS supports approvals      |
+| Employee deactivated    | Pause reminders or close open training tasks                            |
 
 The handler should be idempotent.
 
@@ -384,18 +378,18 @@ The goal is the same as the rest of Avkash:
 
 For an LMS module, use these boundaries:
 
-| Data | Owner |
-|---|---|
-| Employee identity | Core |
-| Team, department, location | Core |
-| Employment status | Core |
-| Course | LMS |
-| Assignment rule | LMS |
-| Enrollment | LMS |
-| Completion | LMS |
-| Certificate | LMS |
-| Training report | LMS or analytics module |
-| Compliance interpretation | Compliance module |
+| Data                       | Owner                   |
+| -------------------------- | ----------------------- |
+| Employee identity          | Core                    |
+| Team, department, location | Core                    |
+| Employment status          | Core                    |
+| Course                     | LMS                     |
+| Assignment rule            | LMS                     |
+| Enrollment                 | LMS                     |
+| Completion                 | LMS                     |
+| Certificate                | LMS                     |
+| Training report            | LMS or analytics module |
+| Compliance interpretation  | Compliance module       |
 
 This keeps the system clean.
 
@@ -431,4 +425,3 @@ When done well, the LMS feels native:
 - Avkash core stays clean.
 
 That is the Avkash plugin model in practice.
-

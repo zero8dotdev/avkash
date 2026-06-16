@@ -76,7 +76,10 @@ export async function setDelegation(ctx: AuthContext, input: SetDelegationInput)
   try {
     await publish(db, ctx, delegationCreatedDef, { orgId: ctx.orgId, delegationId: row.id, teamId: row.teamId });
   } catch (err) {
-    console.error('[authz-sync] publish delegation.delegation.created failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish delegation.delegation.created failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -99,7 +102,10 @@ export async function clearDelegation(ctx: AuthContext, id: string): Promise<voi
   try {
     await publish(db, ctx, delegationRevokedDef, { orgId: ctx.orgId, delegationId: id });
   } catch (err) {
-    console.error('[authz-sync] publish delegation.delegation.revoked failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish delegation.delegation.revoked failed:',
+      err instanceof Error ? err.message : err
+    );
   }
 }
 

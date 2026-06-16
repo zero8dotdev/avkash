@@ -7,8 +7,13 @@ import { db, schema } from '@avkash/db';
 import { eq, and } from 'drizzle-orm';
 import { listAttendance } from '@avkash/attendance';
 import {
-  createMahalaxmiOrg, createEmployee, insertPunch, cleanupOrg,
-  adminCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  insertPunch,
+  cleanupOrg,
+  adminCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -37,20 +42,25 @@ beforeAll(async () => {
   // Both workers on A shift
   for (const userId of [sezWorker.userId, stdWorker.userId]) {
     await db.insert(schema.shiftAssignment).values({
-      orgId: fx.orgId, userId,
-      shiftId: fx.shift.a, fromDate: '2026-01-01', toDate: null,
+      orgId: fx.orgId,
+      userId,
+      shiftId: fx.shift.a,
+      fromDate: '2026-01-01',
+      toDate: null,
       createdBy: 'seed',
     });
   }
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 // 10.5h worked: IN 00:30 UTC (06:00 IST), OUT 11:00 UTC (16:30 IST)
 async function punchLongDay(orgId: string, userId: string) {
-  await db.delete(schema.attendancePunch).where(
-    and(eq(schema.attendancePunch.userId, userId), eq(schema.attendancePunch.orgId, orgId))
-  );
-  await insertPunch(orgId, userId, { type: 'IN',  ts: utc('00:30') }); // 06:00 IST
+  await db
+    .delete(schema.attendancePunch)
+    .where(and(eq(schema.attendancePunch.userId, userId), eq(schema.attendancePunch.orgId, orgId)));
+  await insertPunch(orgId, userId, { type: 'IN', ts: utc('00:30') }); // 06:00 IST
   await insertPunch(orgId, userId, { type: 'OUT', ts: utc('11:00') }); // 16:30 IST → 10.5h
 }
 
@@ -72,10 +82,10 @@ describe('OT threshold — SEZ (10h) vs Standard (9h)', () => {
   });
 
   it('SEZ worker working exactly 10h: no OVERTIME (at threshold, not over)', async () => {
-    await db.delete(schema.attendancePunch).where(
-      and(eq(schema.attendancePunch.userId, sezWorker.userId), eq(schema.attendancePunch.orgId, fx.orgId))
-    );
-    await insertPunch(fx.orgId, sezWorker.userId, { type: 'IN',  ts: utc('00:30') }); // 06:00 IST
+    await db
+      .delete(schema.attendancePunch)
+      .where(and(eq(schema.attendancePunch.userId, sezWorker.userId), eq(schema.attendancePunch.orgId, fx.orgId)));
+    await insertPunch(fx.orgId, sezWorker.userId, { type: 'IN', ts: utc('00:30') }); // 06:00 IST
     await insertPunch(fx.orgId, sezWorker.userId, { type: 'OUT', ts: utc('10:30') }); // 16:00 IST = exactly 10h
 
     const [day] = await listAttendance(adminCtx(fx.orgId, sezWorker.userId), sezWorker.userId, DATE, DATE);
@@ -84,10 +94,10 @@ describe('OT threshold — SEZ (10h) vs Standard (9h)', () => {
   });
 
   it('Standard worker working 9h: no OVERTIME (at threshold)', async () => {
-    await db.delete(schema.attendancePunch).where(
-      and(eq(schema.attendancePunch.userId, stdWorker.userId), eq(schema.attendancePunch.orgId, fx.orgId))
-    );
-    await insertPunch(fx.orgId, stdWorker.userId, { type: 'IN',  ts: utc('00:30') }); // 06:00 IST
+    await db
+      .delete(schema.attendancePunch)
+      .where(and(eq(schema.attendancePunch.userId, stdWorker.userId), eq(schema.attendancePunch.orgId, fx.orgId)));
+    await insertPunch(fx.orgId, stdWorker.userId, { type: 'IN', ts: utc('00:30') }); // 06:00 IST
     await insertPunch(fx.orgId, stdWorker.userId, { type: 'OUT', ts: utc('09:30') }); // 15:00 IST = 9h
 
     const [day] = await listAttendance(adminCtx(fx.orgId, stdWorker.userId), stdWorker.userId, DATE, DATE);

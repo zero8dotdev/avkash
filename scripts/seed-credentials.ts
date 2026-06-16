@@ -59,12 +59,7 @@ async function main() {
     const [existing] = await db
       .select({ id: schema.account.id })
       .from(schema.account)
-      .where(
-        and(
-          eq(schema.account.userId, user.id),
-          eq(schema.account.providerId, 'credential')
-        )
-      )
+      .where(and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'credential')))
       .limit(1);
 
     if (existing) {
@@ -82,7 +77,7 @@ async function main() {
     const hashed = await hashPassword(DEMO_PASSWORD);
     await db.insert(schema.account).values({
       userId: user.id,
-      accountId: user.id,   // Better Auth credential provider uses userId as accountId
+      accountId: user.id, // Better Auth credential provider uses userId as accountId
       providerId: 'credential',
       password: hashed,
       createdAt: new Date(),

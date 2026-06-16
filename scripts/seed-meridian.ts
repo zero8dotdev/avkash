@@ -89,7 +89,12 @@ async function upsertUser(
 async function upsertProfile(
   userId: string,
   orgId: string,
-  opts: { designation?: string; employmentType?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERN'; workLocation?: string; employeeCode?: string }
+  opts: {
+    designation?: string;
+    employmentType?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERN';
+    workLocation?: string;
+    employeeCode?: string;
+  }
 ): Promise<string> {
   const [existing] = await db
     .select({ id: schema.employeeProfile.id })
@@ -162,7 +167,10 @@ async function main() {
       .from(schema.businessUnit)
       .where(and(eq(schema.businessUnit.orgId, orgId), eq(schema.businessUnit.name, name)))
       .limit(1);
-    if (ex) { log('bu', ex.id, `${name} existing`); return ex.id; }
+    if (ex) {
+      log('bu', ex.id, `${name} existing`);
+      return ex.id;
+    }
     const row = await createBusinessUnit(ctx, { name });
     log('bu', row.id, `${name} created`);
     return row.id;
@@ -180,7 +188,10 @@ async function main() {
       .from(schema.department)
       .where(and(eq(schema.department.orgId, orgId), eq(schema.department.code, code)))
       .limit(1);
-    if (ex) { log('dept', ex.id, `${name} (${code}) existing`); return ex.id; }
+    if (ex) {
+      log('dept', ex.id, `${name} (${code}) existing`);
+      return ex.id;
+    }
     const row = await createDepartment(ctx, { name, code });
     log('dept', row.id, `${name} (${code}) created`);
     return row.id;
@@ -203,7 +214,10 @@ async function main() {
       .from(schema.team)
       .where(and(eq(schema.team.orgId, orgId), eq(schema.team.name, name)))
       .limit(1);
-    if (ex) { log('team', ex.teamId, `${name} existing`); return ex.teamId; }
+    if (ex) {
+      log('team', ex.teamId, `${name} existing`);
+      return ex.teamId;
+    }
     const row = await createTeam(ctx, { name, departmentId });
     log('team', row.teamId, `${name} created`);
     return row.teamId;
@@ -231,40 +245,37 @@ async function main() {
 
   // Rohan — MANAGER, Team Assembly
   const rohanId = await upsertUser(orgId, teamAssemblyId, PERSONAS.rohan);
-  await db.update(schema.user)
-    .set({ role: 'MANAGER', teamId: teamAssemblyId })
-    .where(eq(schema.user.id, rohanId));
+  await db.update(schema.user).set({ role: 'MANAGER', teamId: teamAssemblyId }).where(eq(schema.user.id, rohanId));
   log('user/rohan', rohanId, 'MANAGER, Assembly');
 
   // Sara — USER, Team Assembly (has compensation/identity profile — columns future)
   const saraId = await upsertUser(orgId, teamAssemblyId, PERSONAS.sara);
-  await db.update(schema.user)
+  await db
+    .update(schema.user)
     .set({ role: 'USER', teamId: teamAssemblyId, businessUnitId: buPlantsId })
     .where(eq(schema.user.id, saraId));
   log('user/sara', saraId, 'USER, Assembly, Plants BU');
 
   // Dev — MANAGER, Team Logistics
   const devId = await upsertUser(orgId, teamLogisticsId, PERSONAS.dev);
-  await db.update(schema.user)
-    .set({ role: 'MANAGER', teamId: teamLogisticsId })
-    .where(eq(schema.user.id, devId));
+  await db.update(schema.user).set({ role: 'MANAGER', teamId: teamLogisticsId }).where(eq(schema.user.id, devId));
   log('user/dev', devId, 'MANAGER, Logistics');
 
   // Anita — USER, Plants BU HRBP (HRBP FGA tuple written below as manual step)
   const anitaId = await upsertUser(orgId, defaultTeamId, PERSONAS.anita);
-  await db.update(schema.user)
-    .set({ role: 'USER', businessUnitId: buPlantsId })
-    .where(eq(schema.user.id, anitaId));
+  await db.update(schema.user).set({ role: 'USER', businessUnitId: buPlantsId }).where(eq(schema.user.id, anitaId));
   log('user/anita', anitaId, 'USER, Plants BU (HRBP tuple below)');
 
   // ── 6. Wire team managers ──────────────────────────────────────────────────
   console.log('\n► 6. Wire team managers');
-  await db.update(schema.team)
+  await db
+    .update(schema.team)
     .set({ managers: [rohanId] })
     .where(eq(schema.team.teamId, teamAssemblyId));
   log('managers', teamAssemblyId, `Rohan (${rohanId.slice(0, 8)}…)`);
 
-  await db.update(schema.team)
+  await db
+    .update(schema.team)
     .set({ managers: [devId] })
     .where(eq(schema.team.teamId, teamLogisticsId));
   log('managers', teamLogisticsId, `Dev (${devId.slice(0, 8)}…)`);
@@ -276,29 +287,39 @@ async function main() {
   console.log('\n► 7. Employee Profiles');
 
   const priyaProfileId = await upsertProfile(priyaId, orgId, {
-    designation: 'HR Director', employeeCode: 'MFG-001', workLocation: 'Corporate HQ',
+    designation: 'HR Director',
+    employeeCode: 'MFG-001',
+    workLocation: 'Corporate HQ',
   });
   log('profile/priya', priyaProfileId, 'HR Director');
 
   const rohanProfileId = await upsertProfile(rohanId, orgId, {
-    designation: 'Assembly Manager', employeeCode: 'MFG-002', workLocation: 'Plant A',
+    designation: 'Assembly Manager',
+    employeeCode: 'MFG-002',
+    workLocation: 'Plant A',
   });
   log('profile/rohan', rohanProfileId, 'Assembly Manager');
 
   // Sara — future: salary/pan/aadhaar would go here when schema columns exist.
   const saraProfileId = await upsertProfile(saraId, orgId, {
-    designation: 'Assembly Technician', employeeCode: 'MFG-003', workLocation: 'Plant A',
+    designation: 'Assembly Technician',
+    employeeCode: 'MFG-003',
+    workLocation: 'Plant A',
     employmentType: 'FULL_TIME',
   });
   log('profile/sara', saraProfileId, 'Assembly Technician (no comp/id cols yet)');
 
   const devProfileId = await upsertProfile(devId, orgId, {
-    designation: 'Logistics Manager', employeeCode: 'MFG-004', workLocation: 'Plant A',
+    designation: 'Logistics Manager',
+    employeeCode: 'MFG-004',
+    workLocation: 'Plant A',
   });
   log('profile/dev', devProfileId, 'Logistics Manager');
 
   const anitaProfileId = await upsertProfile(anitaId, orgId, {
-    designation: 'HR Business Partner', employeeCode: 'MFG-005', workLocation: 'Plants HQ',
+    designation: 'HR Business Partner',
+    employeeCode: 'MFG-005',
+    workLocation: 'Plants HQ',
   });
   log('profile/anita', anitaProfileId, 'HR Business Partner');
 
@@ -315,7 +336,10 @@ async function main() {
     log('leave-type', leaveTypeId, 'existing');
   } else {
     const lt = await createLeaveType(ctx, {
-      name: 'Annual Leave', color: '3B82F6', kind: 'LEAVE', isPaid: true,
+      name: 'Annual Leave',
+      color: '3B82F6',
+      kind: 'LEAVE',
+      isPaid: true,
     });
     leaveTypeId = lt.leaveTypeId;
     log('leave-type', leaveTypeId, 'Annual Leave created');
@@ -328,13 +352,7 @@ async function main() {
   const [existingLeave] = await db
     .select({ leaveId: schema.leave.leaveId })
     .from(schema.leave)
-    .where(
-      and(
-        eq(schema.leave.orgId, orgId),
-        eq(schema.leave.userId, saraId),
-        eq(schema.leave.isApproved, 'PENDING')
-      )
-    )
+    .where(and(eq(schema.leave.orgId, orgId), eq(schema.leave.userId, saraId), eq(schema.leave.isApproved, 'PENDING')))
     .limit(1);
 
   if (existingLeave) {
@@ -343,8 +361,12 @@ async function main() {
   } else {
     // Apply on Sara's behalf. Using Monday/Tuesday dates to ensure working days.
     const saraLeaveCtx: AuthContext = {
-      orgId, userId: saraId, role: 'USER',
-      actorType: 'user', assurance: 'medium', via: 'system',
+      orgId,
+      userId: saraId,
+      role: 'USER',
+      actorType: 'user',
+      assurance: 'medium',
+      via: 'system',
     };
     // applyLeave validates balance — if policy is unlimited this passes;
     // if not, we catch and fall back to a direct insert for seeding.
@@ -386,7 +408,11 @@ async function main() {
   let syncResult = { orgId, written: 0, deleted: 0, expectedCount: 0, actualCount: 0 };
   try {
     syncResult = await syncOrgTuples(orgId);
-    log('fga-sync', orgId, `written=${syncResult.written} deleted=${syncResult.deleted} expected=${syncResult.expectedCount}`);
+    log(
+      'fga-sync',
+      orgId,
+      `written=${syncResult.written} deleted=${syncResult.deleted} expected=${syncResult.expectedCount}`
+    );
   } catch (err) {
     console.warn('  ⚠  FGA sync skipped — OpenFGA not reachable:', err instanceof Error ? err.message : String(err));
     console.warn('     Run "pnpm authz:backfill" after starting OpenFGA to sync tuples.');
@@ -430,10 +456,7 @@ async function main() {
     .limit(1);
 
   if (existingFP) {
-    await db
-      .update(schema.fieldPolicy)
-      .set({ access: 'none' })
-      .where(eq(schema.fieldPolicy.id, existingFP.id));
+    await db.update(schema.fieldPolicy).set({ access: 'none' }).where(eq(schema.fieldPolicy.id, existingFP.id));
     log('field-policy', existingFP.id, 'hrbp/compensation reset to none');
   } else {
     const [fp] = await db
@@ -453,12 +476,25 @@ async function main() {
 
   // ── Summary ────────────────────────────────────────────────────────────────
   const ids = {
-    orgId, buPlantsId, buCorporateId,
-    deptManufacturingId, deptFinanceId,
-    teamAssemblyId, teamLogisticsId,
-    priyaId, rohanId, saraId, devId, anitaId,
-    priyaProfileId, rohanProfileId, saraProfileId, devProfileId, anitaProfileId,
-    leaveTypeId, saraLeaveId,
+    orgId,
+    buPlantsId,
+    buCorporateId,
+    deptManufacturingId,
+    deptFinanceId,
+    teamAssemblyId,
+    teamLogisticsId,
+    priyaId,
+    rohanId,
+    saraId,
+    devId,
+    anitaId,
+    priyaProfileId,
+    rohanProfileId,
+    saraProfileId,
+    devProfileId,
+    anitaProfileId,
+    leaveTypeId,
+    saraLeaveId,
   };
 
   console.log('\n╔══════════════════════════════════════════╗');

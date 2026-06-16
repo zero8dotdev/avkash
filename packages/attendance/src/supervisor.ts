@@ -51,10 +51,7 @@ export async function removeShiftSupervisor(ctx: AuthContext, id: string) {
   if (!row) throw new NotFoundError('SHIFT_SUPERVISOR_NOT_FOUND');
 }
 
-export async function listShiftSupervisors(
-  ctx: AuthContext,
-  opts?: { shiftId?: string; locationId?: string }
-) {
+export async function listShiftSupervisors(ctx: AuthContext, opts?: { shiftId?: string; locationId?: string }) {
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.shiftSupervisor.orgId, ctx.orgId), eq(schema.shiftSupervisor.isActive, true)];
   if (opts?.shiftId) conds.push(eq(schema.shiftSupervisor.shiftId, opts.shiftId));
@@ -81,7 +78,8 @@ export async function isShiftSupervisor(
     eq(schema.shiftSupervisor.locationId, locationId),
     eq(schema.shiftSupervisor.isActive, true),
   ];
-  const rows = await db.select({ id: schema.shiftSupervisor.id, departmentId: schema.shiftSupervisor.departmentId })
+  const rows = await db
+    .select({ id: schema.shiftSupervisor.id, departmentId: schema.shiftSupervisor.departmentId })
     .from(schema.shiftSupervisor)
     .where(and(...conds));
   if (!rows.length) return false;
@@ -111,12 +109,7 @@ export async function supervisorScope(ctx: AuthContext): Promise<SupervisorScope
 }
 
 // Guard: throws if caller is not a manager AND not a supervisor for the given shift × location.
-export async function requireShiftAccess(
-  ctx: AuthContext,
-  shiftId: string,
-  locationId: string,
-  departmentId?: string
-) {
+export async function requireShiftAccess(ctx: AuthContext, shiftId: string, locationId: string, departmentId?: string) {
   try {
     requireRole(ctx, 'MANAGER');
     return; // MANAGER or above → OK

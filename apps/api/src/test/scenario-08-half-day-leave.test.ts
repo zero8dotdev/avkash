@@ -7,8 +7,13 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { applyLeave, setOpeningBalance, getBalance } from '@avkash/leave';
 import { halfDayWindow } from '@avkash/attendance';
 import {
-  createMahalaxmiOrg, createEmployee, cleanupOrg,
-  adminCtx, userCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  cleanupOrg,
+  adminCtx,
+  userCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -28,7 +33,9 @@ beforeAll(async () => {
     year: 2026,
   });
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Half-day leave — FIRST_HALF / SECOND_HALF', () => {
   it('halfDayWindow pure: FIRST_HALF of A shift (06:00–14:00) → 06:00 to 10:00', () => {

@@ -8,8 +8,12 @@ import { db, schema } from '@avkash/db';
 import { eq } from 'drizzle-orm';
 import { runProbationCompletion, getBalance, setOpeningBalance } from '@avkash/leave';
 import {
-  createMahalaxmiOrg, createEmployee, cleanupOrg,
-  adminCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  cleanupOrg,
+  adminCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -45,7 +49,9 @@ beforeAll(async () => {
   // In real usage, the accrual cron skips PROBATION employees (probationAccruals=false),
   // so their ledger starts empty and probationMaxLeaves=0 means available=0.
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Probation overlay and graduation', () => {
   it('factory worker on PROBATION cannot use EL (probationMaxLeaves = 0)', async () => {

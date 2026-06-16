@@ -223,7 +223,14 @@ export async function getEmployeeLevel(_orgId: string, userId: string): Promise<
     .limit(1);
   if (!profile?.levelId) return null;
   const [level] = await db
-    .select({ id: schema.orgLevel.id, name: schema.orgLevel.name, code: schema.orgLevel.code, rank: schema.orgLevel.rank, isFloating: schema.orgLevel.isFloating, requiresPunchConfirmation: schema.orgLevel.requiresPunchConfirmation })
+    .select({
+      id: schema.orgLevel.id,
+      name: schema.orgLevel.name,
+      code: schema.orgLevel.code,
+      rank: schema.orgLevel.rank,
+      isFloating: schema.orgLevel.isFloating,
+      requiresPunchConfirmation: schema.orgLevel.requiresPunchConfirmation,
+    })
     .from(schema.orgLevel)
     .where(eq(schema.orgLevel.id, profile.levelId))
     .limit(1);
@@ -232,11 +239,7 @@ export async function getEmployeeLevel(_orgId: string, userId: string): Promise<
 
 // Bulk-assign an OrgLevel to multiple users (ADMIN only). Idempotent.
 // Auto-syncs user.isFloating from the level's isFloating flag.
-export async function bulkSetLevel(
-  ctx: AuthContext,
-  userIds: string[],
-  levelId: string
-): Promise<void> {
+export async function bulkSetLevel(ctx: AuthContext, userIds: string[], levelId: string): Promise<void> {
   requireRole(ctx, 'ADMIN');
   if (userIds.length === 0) return;
   // Look up the OrgLevel to determine isFloating.
@@ -254,9 +257,9 @@ export async function bulkSetLevel(
   const existingIds = new Set(existing.map((r) => r.userId));
   const missing = userIds.filter((id) => !existingIds.has(id));
   if (missing.length > 0) {
-    await db.insert(schema.employeeProfile).values(
-      missing.map((id) => ({ userId: id, orgId: ctx.orgId, createdBy: ctx.userId }))
-    );
+    await db
+      .insert(schema.employeeProfile)
+      .values(missing.map((id) => ({ userId: id, orgId: ctx.orgId, createdBy: ctx.userId })));
   }
   await db
     .update(schema.employeeProfile)
@@ -300,11 +303,7 @@ export async function setUserBusinessUnit(
 }
 
 // Set a user's department (structural assignment — does not affect team/leave routing).
-export async function setUserDepartment(
-  ctx: AuthContext,
-  userId: string,
-  departmentId: string | null
-): Promise<void> {
+export async function setUserDepartment(ctx: AuthContext, userId: string, departmentId: string | null): Promise<void> {
   requireRole(ctx, 'ADMIN');
   await db
     .update(schema.user)

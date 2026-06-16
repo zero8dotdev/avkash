@@ -152,12 +152,16 @@ describe('modelsEqual()', () => {
 
 // ── ensureModel() — stubs ─────────────────────────────────────────────────────
 
-const mockReadLatestAuthorizationModel = mock(async (): Promise<{ authorization_model?: AuthorizationModel }> => ({
-  authorization_model: undefined,
-}));
-const mockWriteAuthorizationModel = mock(async (_body: unknown): Promise<{ authorization_model_id?: string }> => ({
-  authorization_model_id: 'new-model-id',
-}));
+const mockReadLatestAuthorizationModel = mock(
+  async (): Promise<{ authorization_model?: AuthorizationModel }> => ({
+    authorization_model: undefined,
+  })
+);
+const mockWriteAuthorizationModel = mock(
+  async (_body: unknown): Promise<{ authorization_model_id?: string }> => ({
+    authorization_model_id: 'new-model-id',
+  })
+);
 
 const mockFgaClient = {
   readLatestAuthorizationModel: mockReadLatestAuthorizationModel,

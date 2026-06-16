@@ -19,10 +19,7 @@ export async function runProbationCompletion(now: Date = new Date()): Promise<Pr
     .update(schema.employeeProfile)
     .set({ employmentStatus: 'ACTIVE', confirmedOn: today, updatedOn: new Date(), updatedBy: 'system' })
     .where(
-      and(
-        eq(schema.employeeProfile.employmentStatus, 'PROBATION'),
-        lte(schema.employeeProfile.probationEndsOn, today)
-      )
+      and(eq(schema.employeeProfile.employmentStatus, 'PROBATION'), lte(schema.employeeProfile.probationEndsOn, today))
     )
     .returning({ userId: schema.employeeProfile.userId, orgId: schema.employeeProfile.orgId });
 

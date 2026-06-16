@@ -15,7 +15,10 @@ import { idempotency } from '../middleware/idempotency';
 import { etag, requireIfMatch } from '../concurrency';
 import { businessUnitDto } from '../dto';
 
-const HEX6 = z.string().regex(/^[0-9a-fA-F]{6}$/).optional();
+const HEX6 = z
+  .string()
+  .regex(/^[0-9a-fA-F]{6}$/)
+  .optional();
 const createSchema = z.object({
   name: z.string().min(1).max(255),
   legalName: z.string().max(255).nullish(),
@@ -27,9 +30,7 @@ const setUnitSchema = z.object({ businessUnitId: z.string().min(1).nullable() })
 
 export const businessUnits = new Hono<AppEnv>()
   .use(requireAuth)
-  .get('/', async (c) =>
-    c.json({ data: serialize(businessUnitDto.array(), await listBusinessUnits(c.get('auth'))) })
-  )
+  .get('/', async (c) => c.json({ data: serialize(businessUnitDto.array(), await listBusinessUnits(c.get('auth'))) }))
   .post('/', idempotency, validateBody(createSchema), async (c) => {
     const row = await createBusinessUnit(c.get('auth'), c.get('body'));
     return c.json(serialize(businessUnitDto, row), 201);

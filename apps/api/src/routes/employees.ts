@@ -1,6 +1,13 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { getEmployeeProfile, updateProfile, listEmployees, bulkSetLevel, setUserDepartment, writeSensitiveReadAudit } from '@avkash/users';
+import {
+  getEmployeeProfile,
+  updateProfile,
+  listEmployees,
+  bulkSetLevel,
+  setUserDepartment,
+  writeSensitiveReadAudit,
+} from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { etag, requireIfMatch } from '../concurrency';
@@ -68,17 +75,17 @@ const departmentSchema = z.object({ departmentId: z.string().min(1).nullable() }
 // Sensitive sort/filter params for the list endpoint.
 // Any ?sort=salary (or other compensation/identity/medical field) is a side-channel.
 const LIST_SENSITIVE_PARAMS: QueryParamAnnotation[] = [
-  { param: 'sort', value: 'salary',      group: 'compensation' },
+  { param: 'sort', value: 'salary', group: 'compensation' },
   { param: 'sort', value: 'bankAccount', group: 'compensation' },
-  { param: 'sort', value: 'bankIfsc',    group: 'compensation' },
-  { param: 'sort', value: 'bankName',    group: 'compensation' },
-  { param: 'sort', value: 'pan',         group: 'identity' },
-  { param: 'sort', value: 'aadhaar',     group: 'identity' },
-  { param: 'sort', value: 'passport',    group: 'identity' },
+  { param: 'sort', value: 'bankIfsc', group: 'compensation' },
+  { param: 'sort', value: 'bankName', group: 'compensation' },
+  { param: 'sort', value: 'pan', group: 'identity' },
+  { param: 'sort', value: 'aadhaar', group: 'identity' },
+  { param: 'sort', value: 'passport', group: 'identity' },
   { param: 'sort', value: 'dateOfBirth', group: 'identity' },
-  { param: 'sort', value: 'disability',  group: 'medical' },
-  { param: 'sort', value: 'conditions',  group: 'medical' },
-  { param: 'sort', value: 'bloodGroup',  group: 'medical' },
+  { param: 'sort', value: 'disability', group: 'medical' },
+  { param: 'sort', value: 'conditions', group: 'medical' },
+  { param: 'sort', value: 'bloodGroup', group: 'medical' },
 ];
 
 // Lookup the EmployeeProfile.id for a given userId. Used to construct the FGA
@@ -130,7 +137,12 @@ export const employees = new Hono<AppEnv>()
     const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, [ctx.role as string]);
 
     // Gate sort/filter params that draw on sensitive field groups.
-    assertQueryableFields(grant, EMPLOYEE_FIELD_GROUPS.groups, query as Record<string, string | undefined>, LIST_SENSITIVE_PARAMS);
+    assertQueryableFields(
+      grant,
+      EMPLOYEE_FIELD_GROUPS.groups,
+      query as Record<string, string | undefined>,
+      LIST_SENSITIVE_PARAMS
+    );
 
     // FGA list filtering: build the WHERE id IN (...) constraint.
     // Performance escape: ADMIN/OWNER/hr_admin callers see all employees without
@@ -167,7 +179,9 @@ export const employees = new Hono<AppEnv>()
     }
 
     // Apply field-group projection to each row.
-    const projected = filtered.map((row) => serialize(userDto.partial(), row, { grant, groups: EMPLOYEE_FIELD_GROUPS.groups }));
+    const projected = filtered.map((row) =>
+      serialize(userDto.partial(), row, { grant, groups: EMPLOYEE_FIELD_GROUPS.groups })
+    );
     return c.json({ data: projected });
   })
   .post('/bulk-level', validateBody(bulkLevelSchema), async (c) => {
@@ -181,7 +195,12 @@ export const employees = new Hono<AppEnv>()
     const { profile, version } = await getEmployeeProfile(ctx, subjectUserId);
     // /me is always the subject — give them the subject relation for field-group
     // resolution so they see their own compensation group.
-    const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, await resolveEmployeeRelations(ctx, subjectUserId));
+    const grant = await resolveFieldGroups(
+      ctx,
+      'employee',
+      EMPLOYEE_FIELD_GROUPS,
+      await resolveEmployeeRelations(ctx, subjectUserId)
+    );
     c.header('ETag', etag(version));
     return c.json({ data: serialize(userDto.partial(), profile, { grant, groups: EMPLOYEE_FIELD_GROUPS.groups }) });
   })
@@ -189,7 +208,12 @@ export const employees = new Hono<AppEnv>()
     const ctx = c.get('auth');
     const subjectUserId = ctx.userId ?? '';
     const body = c.get('body');
-    const grant = await resolveFieldGroups(ctx, 'employee', EMPLOYEE_FIELD_GROUPS, await resolveEmployeeRelations(ctx, subjectUserId));
+    const grant = await resolveFieldGroups(
+      ctx,
+      'employee',
+      EMPLOYEE_FIELD_GROUPS,
+      await resolveEmployeeRelations(ctx, subjectUserId)
+    );
     assertWritableFields(grant, EMPLOYEE_FIELD_GROUPS.groups, body as Record<string, unknown>);
     const { profile, version } = await updateProfile(ctx, subjectUserId, body, requireIfMatch(c));
     c.header('ETag', etag(version));
@@ -227,7 +251,10 @@ export const employees = new Hono<AppEnv>()
       const auditedGroupsRead = (EMPLOYEE_FIELD_GROUPS.auditedGroups ?? []).filter((g) => grant.read.has(g));
       if (auditedGroupsRead.length > 0) {
         writeSensitiveReadAudit(ctx, subjectUserId, auditedGroupsRead).catch((err) => {
-          console.error('[authz-audit] sensitive-read audit write failed:', err instanceof Error ? err.message : String(err));
+          console.error(
+            '[authz-audit] sensitive-read audit write failed:',
+            err instanceof Error ? err.message : String(err)
+          );
         });
       }
     }

@@ -84,10 +84,7 @@ export async function readAllFgaTuples(): Promise<Tuple[]> {
   try {
     do {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const res: any = await client.read(
-        {},
-        continuationToken ? { continuationToken } : {}
-      );
+      const res: any = await client.read({}, continuationToken ? { continuationToken } : {});
 
       const items: FgaTupleRecord[] = res.tuples ?? [];
       for (const item of items) {

@@ -124,7 +124,8 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
   const halfDayPart: HalfDayPart = input.halfDayPart ?? 'NONE';
   if (duration === 'HALF_DAY') {
     if (input.startDate !== input.endDate) throw new ValidationError('HALF_DAY_SINGLE_DAY');
-    if (halfDayPart !== 'FIRST_HALF' && halfDayPart !== 'SECOND_HALF') throw new ValidationError('HALF_DAY_NEEDS_SHIFT');
+    if (halfDayPart !== 'FIRST_HALF' && halfDayPart !== 'SECOND_HALF')
+      throw new ValidationError('HALF_DAY_NEEDS_SHIFT');
   }
 
   const [lt] = await db
@@ -172,7 +173,14 @@ export async function applyLeave(ctx: AuthContext, input: ApplyLeaveInput): Prom
     .from(schema.user)
     .where(eq(schema.user.id, targetUserId))
     .limit(1);
-  await assertNoBlackout(ctx.orgId, targetUserId, input.startDate, input.endDate, input.leaveTypeId, userLoc?.locationId ?? null);
+  await assertNoBlackout(
+    ctx.orgId,
+    targetUserId,
+    input.startDate,
+    input.endDate,
+    input.leaveTypeId,
+    userLoc?.locationId ?? null
+  );
 
   // Balance check (bounded policies). Accrual policies now have a real accrued
   // balance in the ledger, so they're enforced too — you can't take un-accrued days.

@@ -1,4 +1,15 @@
-import { pgTable, uuid, varchar, integer, boolean, date, jsonb, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  integer,
+  boolean,
+  date,
+  jsonb,
+  timestamp,
+  index,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { organisation } from './core';
 
 // Rotating workweek pattern for alternating Saturdays and similar cycles.

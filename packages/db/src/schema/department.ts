@@ -1,13 +1,4 @@
-import {
-  pgTable,
-  uuid,
-  varchar,
-  boolean,
-  integer,
-  timestamp,
-  index,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, boolean, integer, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { organisation, user, location } from './core';
 
 // A structural org-chart unit. Distinct from Team (which drives leave approval).

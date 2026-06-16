@@ -97,8 +97,5 @@ export const attendanceSourcePolicy = pgTable(
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
     createdBy: varchar('createdBy', { length: 255 }),
   },
-  (t) => [
-    uniqueIndex('uq_source_policy_org_level').on(t.orgId, t.levelId),
-    index('idx_source_policy_org').on(t.orgId),
-  ]
+  (t) => [uniqueIndex('uq_source_policy_org_level').on(t.orgId, t.levelId), index('idx_source_policy_org').on(t.orgId)]
 );

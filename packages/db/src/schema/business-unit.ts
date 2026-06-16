@@ -23,8 +23,5 @@ export const businessUnit = pgTable(
     createdBy: varchar('createdBy', { length: 255 }),
     updatedBy: varchar('updatedBy', { length: 255 }),
   },
-  (t) => [
-    uniqueIndex('uq_business_unit_org_name').on(t.orgId, t.name),
-    index('idx_business_unit_org').on(t.orgId),
-  ]
+  (t) => [uniqueIndex('uq_business_unit_org_name').on(t.orgId, t.name), index('idx_business_unit_org').on(t.orgId)]
 );

@@ -34,7 +34,7 @@ function makeTupleWriterSubscriber(eventName: string): EventSubscriber {
         if (result.written > 0 || result.deleted > 0) {
           console.log(
             `[authz-sync] ${eventName} → org ${event.orgId}: ` +
-            `+${result.written} writes, -${result.deleted} deletes (${ms}ms)`
+              `+${result.written} writes, -${result.deleted} deletes (${ms}ms)`
           );
         }
       } catch (err) {
@@ -59,6 +59,4 @@ function makeTupleWriterSubscriber(eventName: string): EventSubscriber {
  *   import { tupleWriterSubscribers } from '@avkash/authz-sync';
  *   wireSubscribers(tupleWriterSubscribers);
  */
-export const tupleWriterSubscribers: EventSubscriber[] = Object.values(ORG_GRAPH_EVENTS).map(
-  makeTupleWriterSubscriber
-);
+export const tupleWriterSubscribers: EventSubscriber[] = Object.values(ORG_GRAPH_EVENTS).map(makeTupleWriterSubscriber);

@@ -54,17 +54,19 @@ export async function runAccrualTick(now: Date = new Date()): Promise<AccrualTic
         if (!probationAccrualsEnabled(policy, status)) return [];
         const effectiveRateStr = effectiveAccrualRate(String(amount), policy, status);
         const effectiveAmount = effectiveRateStr ? Number(effectiveRateStr) : amount;
-        return [{
-          orgId,
-          userId: m.id,
-          leaveTypeId: policy.leaveTypeId,
-          kind: 'ACCRUAL' as const,
-          amount: String(effectiveAmount),
-          effectiveOn: todayStr(now),
-          periodKey,
-          note: `${policy.accrualFrequency!.toLowerCase()} accrual`,
-          createdBy: 'system',
-        }];
+        return [
+          {
+            orgId,
+            userId: m.id,
+            leaveTypeId: policy.leaveTypeId,
+            kind: 'ACCRUAL' as const,
+            amount: String(effectiveAmount),
+            effectiveOn: todayStr(now),
+            periodKey,
+            note: `${policy.accrualFrequency!.toLowerCase()} accrual`,
+            createdBy: 'system',
+          },
+        ];
       });
       if (!rows.length) return [];
       // onConflictDoNothing: re-running a day never double-credits.

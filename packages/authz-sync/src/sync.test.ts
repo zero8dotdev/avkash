@@ -19,7 +19,11 @@ import { describe, it, expect, mock, beforeEach } from 'bun:test';
 // ── Module mocks (must come before dynamic imports) ───────────────────────────
 
 mock.module('@avkash/config', () => ({
-  env: { FGA_API_URL: 'http://localhost:8080', FGA_STORE_ID: 'test-store', DATABASE_URL: 'postgresql://localhost/test' },
+  env: {
+    FGA_API_URL: 'http://localhost:8080',
+    FGA_STORE_ID: 'test-store',
+    DATABASE_URL: 'postgresql://localhost/test',
+  },
 }));
 
 const mockDbSelect = mock(() => ({
@@ -34,13 +38,33 @@ const mockDbSelect = mock(() => ({
 
 // Minimal schema stub — just enough for the where/eq calls to not throw.
 const mockSchema = {
-  user: { orgId: 'user.orgId', id: 'user.id', role: 'user.role', teamId: 'user.teamId', businessUnitId: 'user.businessUnitId' },
-  team: { orgId: 'team.orgId', isActive: 'team.isActive', teamId: 'team.teamId', departmentId: 'team.departmentId', managers: 'team.managers' },
+  user: {
+    orgId: 'user.orgId',
+    id: 'user.id',
+    role: 'user.role',
+    teamId: 'user.teamId',
+    businessUnitId: 'user.businessUnitId',
+  },
+  team: {
+    orgId: 'team.orgId',
+    isActive: 'team.isActive',
+    teamId: 'team.teamId',
+    departmentId: 'team.departmentId',
+    managers: 'team.managers',
+  },
   businessUnit: { orgId: 'bu.orgId', isActive: 'bu.isActive', id: 'bu.id' },
   department: { orgId: 'dept.orgId', isActive: 'dept.isActive', id: 'dept.id' },
   departmentLocation: { departmentId: 'dl.departmentId', headUserId: 'dl.headUserId' },
   employeeProfile: { orgId: 'ep.orgId', id: 'ep.id', userId: 'ep.userId' },
-  approvalDelegation: { orgId: 'ad.orgId', id: 'ad.id', teamId: 'ad.teamId', toUserId: 'ad.toUserId', fromManagerId: 'ad.fromManagerId', startsOn: 'ad.startsOn', endsOn: 'ad.endsOn' },
+  approvalDelegation: {
+    orgId: 'ad.orgId',
+    id: 'ad.id',
+    teamId: 'ad.teamId',
+    toUserId: 'ad.toUserId',
+    fromManagerId: 'ad.fromManagerId',
+    startsOn: 'ad.startsOn',
+    endsOn: 'ad.endsOn',
+  },
   organisation: { orgId: 'org.orgId', status: 'org.status', name: 'org.name' },
 };
 
@@ -50,15 +74,20 @@ mock.module('@avkash/db', () => ({
 }));
 
 // Capture write calls.
-const writtenTuples: Array<{ writes: import('@avkash/shared').Tuple[]; deletes: import('@avkash/shared').TupleKey[] }> = [];
+const writtenTuples: Array<{ writes: import('@avkash/shared').Tuple[]; deletes: import('@avkash/shared').TupleKey[] }> =
+  [];
 
 mock.module('@avkash/authz', () => ({
   authzClient: {
-    writeTuples: mock(async (writes: import('@avkash/shared').Tuple[], deletes: import('@avkash/shared').TupleKey[]) => {
-      writtenTuples.push({ writes, deletes });
-    }),
+    writeTuples: mock(
+      async (writes: import('@avkash/shared').Tuple[], deletes: import('@avkash/shared').TupleKey[]) => {
+        writtenTuples.push({ writes, deletes });
+      }
+    ),
     check: mock(async () => false),
-    requireRelation: mock(async () => { throw new Error('forbidden'); }),
+    requireRelation: mock(async () => {
+      throw new Error('forbidden');
+    }),
     listAccessible: mock(async () => []),
     explainAccess: mock(async () => ({})),
   },
@@ -108,10 +137,7 @@ function empTuple(ref: string, relation: string): Tuple {
 
 describe('diffTuples()', () => {
   it('returns empty write/delete when expected === actual', () => {
-    const tuples: Tuple[] = [
-      orgTuple(USER_MANAGER, 'member'),
-      orgTuple(USER_MANAGER, 'hr_admin'),
-    ];
+    const tuples: Tuple[] = [orgTuple(USER_MANAGER, 'member'), orgTuple(USER_MANAGER, 'hr_admin')];
     const { toWrite, toDelete } = diffTuples(tuples, tuples);
     expect(toWrite).toHaveLength(0);
     expect(toDelete).toHaveLength(0);
@@ -136,9 +162,22 @@ describe('diffTuples()', () => {
   });
 
   it('handles conditioned tuples: same user+relation+object+condition.name = equal', () => {
-    const condition = { name: 'active_window', context: { starts: '2026-01-01T00:00:00Z', ends: '2026-01-31T23:59:59Z' } };
-    const conditioned: Tuple = { user: userRef(DELEGATE_USER), relation: 'delegate', object: objectRef(FGA_TYPES.team, TEAM_ID), condition };
-    const same: Tuple = { user: userRef(DELEGATE_USER), relation: 'delegate', object: objectRef(FGA_TYPES.team, TEAM_ID), condition: { name: 'active_window' } };
+    const condition = {
+      name: 'active_window',
+      context: { starts: '2026-01-01T00:00:00Z', ends: '2026-01-31T23:59:59Z' },
+    };
+    const conditioned: Tuple = {
+      user: userRef(DELEGATE_USER),
+      relation: 'delegate',
+      object: objectRef(FGA_TYPES.team, TEAM_ID),
+      condition,
+    };
+    const same: Tuple = {
+      user: userRef(DELEGATE_USER),
+      relation: 'delegate',
+      object: objectRef(FGA_TYPES.team, TEAM_ID),
+      condition: { name: 'active_window' },
+    };
     const { toWrite, toDelete } = diffTuples([conditioned], [same]);
     // Same condition name → equal, no diff
     expect(toWrite).toHaveLength(0);
@@ -146,7 +185,11 @@ describe('diffTuples()', () => {
   });
 
   it('treats a tuple gaining a condition as a write + delete', () => {
-    const bare: Tuple = { user: userRef(DELEGATE_USER), relation: 'delegate', object: objectRef(FGA_TYPES.team, TEAM_ID) };
+    const bare: Tuple = {
+      user: userRef(DELEGATE_USER),
+      relation: 'delegate',
+      object: objectRef(FGA_TYPES.team, TEAM_ID),
+    };
     const conditioned: Tuple = { ...bare, condition: { name: 'active_window' } };
     const { toWrite, toDelete } = diffTuples([conditioned], [bare]);
     expect(toWrite).toHaveLength(1);

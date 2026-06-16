@@ -25,7 +25,10 @@ bootAuthz([])
   })
   .catch((err: unknown) => {
     // FGA unreachable at boot — server starts but guarded routes return 503.
-    console.error('[authz] boot failed (FGA unreachable? Guarded routes will 503):', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz] boot failed (FGA unreachable? Guarded routes will 503):',
+      err instanceof Error ? err.message : err
+    );
     console.error('[authz] Start OpenFGA and restart the API to initialize the store + model.');
   });
 

@@ -1,1396 +1,2763 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avkash HR Platform — Mahalaxmi Precision Plastics Demo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-/* ─── Reset & Base ─────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:        #0d1117;
-  --surface:   #161b22;
-  --surface2:  #21262d;
-  --border:    #30363d;
-  --text:      #e6edf3;
-  --muted:     #8b949e;
-  --green:     #3fb950;
-  --amber:     #d29922;
-  --red:       #f85149;
-  --blue:      #58a6ff;
-  --purple:    #bc8cff;
-  --nav-h:     56px;
-  --console-h: 56px;
-}
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.5;
-}
-button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avkash HR Platform — Mahalaxmi Precision Plastics Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ─── Reset & Base ─────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --green: #3fb950;
+        --amber: #d29922;
+        --red: #f85149;
+        --blue: #58a6ff;
+        --purple: #bc8cff;
+        --nav-h: 56px;
+        --console-h: 56px;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        outline: none;
+      }
 
-/* ─── Keyframes ────────────────────────────────────────────────── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes dropBounce {
-  0%   { transform: translateY(-40px); opacity: 0; }
-  60%  { transform: translateY(4px);  opacity: 1; }
-  80%  { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
-}
-@keyframes fillSweep {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50%       { transform: scale(1.3); opacity: 0.7; }
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%      { transform: translateX(-8px); }
-  40%      { transform: translateX(8px); }
-  60%      { transform: translateX(-6px); }
-  80%      { transform: translateX(6px); }
-}
-@keyframes typewriter {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 0% 0 0); }
-}
-@keyframes tickDown {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); color: var(--red); }
-  100% { transform: scale(1); }
-}
-@keyframes cardSlideIn {
-  from { opacity: 0; transform: translateX(60px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes barGrow {
-  from { width: 0; }
-}
-@keyframes chapterOut {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(-40px); }
-}
-@keyframes chapterIn {
-  from { opacity: 0; transform: translateX(40px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes chapterOutReverse {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(40px); }
-}
-@keyframes chapterInReverse {
-  from { opacity: 0; transform: translateX(-40px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes badgeFlip {
-  0%   { transform: rotateY(0deg); }
-  50%  { transform: rotateY(90deg); }
-  100% { transform: rotateY(0deg); }
-}
-@keyframes lockOpen {
-  0%   { transform: rotate(0deg); }
-  30%  { transform: rotate(-15deg); }
-  60%  { transform: rotate(10deg); }
-  100% { transform: rotate(0deg); opacity: 0.3; }
-}
-@keyframes greenFill {
-  from { background: var(--surface2); }
-  to   { background: rgba(63, 185, 80, 0.15); }
-}
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-30px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes toastUp {
-  0%   { opacity: 0; transform: translateY(10px); }
-  20%  { opacity: 1; transform: translateY(0); }
-  80%  { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
-}
+      /* ─── Keyframes ────────────────────────────────────────────────── */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes dropBounce {
+        0% {
+          transform: translateY(-40px);
+          opacity: 0;
+        }
+        60% {
+          transform: translateY(4px);
+          opacity: 1;
+        }
+        80% {
+          transform: translateY(-6px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+      @keyframes fillSweep {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.7;
+        }
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-8px);
+        }
+        40% {
+          transform: translateX(8px);
+        }
+        60% {
+          transform: translateX(-6px);
+        }
+        80% {
+          transform: translateX(6px);
+        }
+      }
+      @keyframes typewriter {
+        from {
+          clip-path: inset(0 100% 0 0);
+        }
+        to {
+          clip-path: inset(0 0% 0 0);
+        }
+      }
+      @keyframes tickDown {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.4);
+          color: var(--red);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes cardSlideIn {
+        from {
+          opacity: 0;
+          transform: translateX(60px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      @keyframes barGrow {
+        from {
+          width: 0;
+        }
+      }
+      @keyframes chapterOut {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(-40px);
+        }
+      }
+      @keyframes chapterIn {
+        from {
+          opacity: 0;
+          transform: translateX(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      @keyframes chapterOutReverse {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(40px);
+        }
+      }
+      @keyframes chapterInReverse {
+        from {
+          opacity: 0;
+          transform: translateX(-40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      @keyframes badgeFlip {
+        0% {
+          transform: rotateY(0deg);
+        }
+        50% {
+          transform: rotateY(90deg);
+        }
+        100% {
+          transform: rotateY(0deg);
+        }
+      }
+      @keyframes lockOpen {
+        0% {
+          transform: rotate(0deg);
+        }
+        30% {
+          transform: rotate(-15deg);
+        }
+        60% {
+          transform: rotate(10deg);
+        }
+        100% {
+          transform: rotate(0deg);
+          opacity: 0.3;
+        }
+      }
+      @keyframes greenFill {
+        from {
+          background: var(--surface2);
+        }
+        to {
+          background: rgba(63, 185, 80, 0.15);
+        }
+      }
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes toastUp {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        20% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        80% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
 
-/* ─── Top Nav ─────────────────────────────────────────────────── */
-#nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--nav-h);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 16px;
-}
-#nav .logo {
-  font-weight: 700; font-size: 16px; color: var(--blue); letter-spacing: -0.5px;
-  white-space: nowrap; flex-shrink: 0;
-}
-#nav .logo span { color: var(--purple); }
-#chapters-nav {
-  display: flex; gap: 4px; flex: 1; justify-content: center; overflow: hidden;
-}
-.ch-pill {
-  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
-  background: transparent; color: var(--muted); border: 1px solid transparent;
-  transition: all 0.2s; cursor: pointer; white-space: nowrap;
-}
-.ch-pill:hover { background: var(--surface2); color: var(--text); }
-.ch-pill.active { background: var(--blue); color: #000; font-weight: 600; border-color: var(--blue); }
-#api-status {
-  display: flex; align-items: center; gap: 6px; font-size: 12px;
-  color: var(--muted); white-space: nowrap; flex-shrink: 0;
-}
-#api-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
-  animation: pulse 2s infinite;
-}
-#api-dot.connected { background: var(--green); }
-#api-dot.offline { background: var(--red); animation: none; }
+      /* ─── Top Nav ─────────────────────────────────────────────────── */
+      #nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        height: var(--nav-h);
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 16px;
+      }
+      #nav .logo {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--blue);
+        letter-spacing: -0.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      #nav .logo span {
+        color: var(--purple);
+      }
+      #chapters-nav {
+        display: flex;
+        gap: 4px;
+        flex: 1;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .ch-pill {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .ch-pill:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .ch-pill.active {
+        background: var(--blue);
+        color: #000;
+        font-weight: 600;
+        border-color: var(--blue);
+      }
+      #api-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      #api-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--amber);
+        animation: pulse 2s infinite;
+      }
+      #api-dot.connected {
+        background: var(--green);
+      }
+      #api-dot.offline {
+        background: var(--red);
+        animation: none;
+      }
 
-/* ─── Main Stage ──────────────────────────────────────────────── */
-#stage {
-  position: fixed;
-  top: var(--nav-h); left: 0; right: 0;
-  bottom: var(--console-h);
-  overflow: hidden;
-}
-.chapter {
-  position: absolute; inset: 0;
-  display: none; opacity: 0;
-}
-.chapter.active {
-  display: flex; opacity: 1;
-}
-.chapter.entering-forward  { animation: chapterIn 0.4s ease forwards; }
-.chapter.entering-backward { animation: chapterInReverse 0.4s ease forwards; }
-.chapter.exiting-forward   { animation: chapterOut 0.4s ease forwards; display: flex !important; pointer-events: none; }
-.chapter.exiting-backward  { animation: chapterOutReverse 0.4s ease forwards; display: flex !important; pointer-events: none; }
+      /* ─── Main Stage ──────────────────────────────────────────────── */
+      #stage {
+        position: fixed;
+        top: var(--nav-h);
+        left: 0;
+        right: 0;
+        bottom: var(--console-h);
+        overflow: hidden;
+      }
+      .chapter {
+        position: absolute;
+        inset: 0;
+        display: none;
+        opacity: 0;
+      }
+      .chapter.active {
+        display: flex;
+        opacity: 1;
+      }
+      .chapter.entering-forward {
+        animation: chapterIn 0.4s ease forwards;
+      }
+      .chapter.entering-backward {
+        animation: chapterInReverse 0.4s ease forwards;
+      }
+      .chapter.exiting-forward {
+        animation: chapterOut 0.4s ease forwards;
+        display: flex !important;
+        pointer-events: none;
+      }
+      .chapter.exiting-backward {
+        animation: chapterOutReverse 0.4s ease forwards;
+        display: flex !important;
+        pointer-events: none;
+      }
 
-/* Split layout */
-.scene { flex: 0 0 60%; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
-.narration {
-  flex: 0 0 40%; background: var(--surface);
-  border-left: 1px solid var(--border);
-  padding: 40px 32px; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 16px;
-}
-.narration h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
-.narration p { color: var(--text); line-height: 1.7; font-size: 14px; }
-.narration .highlight { color: var(--blue); font-weight: 500; }
+      /* Split layout */
+      .scene {
+        flex: 0 0 60%;
+        padding: 40px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .narration {
+        flex: 0 0 40%;
+        background: var(--surface);
+        border-left: 1px solid var(--border);
+        padding: 40px 32px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .narration h3 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .narration p {
+        color: var(--text);
+        line-height: 1.7;
+        font-size: 14px;
+      }
+      .narration .highlight {
+        color: var(--blue);
+        font-weight: 500;
+      }
 
-/* Full-width chapter */
-.chapter.full-width .scene { flex: 1; }
+      /* Full-width chapter */
+      .chapter.full-width .scene {
+        flex: 1;
+      }
 
-/* ─── Console Strip ───────────────────────────────────────────── */
-#console {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-  height: var(--console-h);
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 20px; gap: 0;
-  font-family: 'JetBrains Mono', monospace; font-size: 12px;
-  overflow: hidden;
-}
-#console .con-label {
-  color: var(--muted); margin-right: 12px; flex-shrink: 0; font-weight: 500;
-}
-#console .con-call { color: var(--blue); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#console .con-sep  { width: 1px; background: var(--border); height: 24px; margin: 0 16px; flex-shrink: 0; }
-#console .con-resp { color: var(--green); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#console .con-resp.error { color: var(--red); }
+      /* ─── Console Strip ───────────────────────────────────────────── */
+      #console {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        height: var(--console-h);
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        overflow: hidden;
+      }
+      #console .con-label {
+        color: var(--muted);
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-weight: 500;
+      }
+      #console .con-call {
+        color: var(--blue);
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #console .con-sep {
+        width: 1px;
+        background: var(--border);
+        height: 24px;
+        margin: 0 16px;
+        flex-shrink: 0;
+      }
+      #console .con-resp {
+        color: var(--green);
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #console .con-resp.error {
+        color: var(--red);
+      }
 
-/* ─── Shared UI Components ────────────────────────────────────── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
-}
-.badge.green  { background: rgba(63,185,80,0.15);  color: var(--green); }
-.badge.amber  { background: rgba(210,153,34,0.15); color: var(--amber); }
-.badge.red    { background: rgba(248,81,73,0.15);  color: var(--red); }
-.badge.blue   { background: rgba(88,166,255,0.15); color: var(--blue); }
-.badge.purple { background: rgba(188,140,255,0.15);color: var(--purple); }
-.badge.gold   { background: rgba(210,153,34,0.25); color: #f0c040; border: 1px solid rgba(240,192,64,0.4); }
-.badge.muted  { background: rgba(139,148,158,0.15);color: var(--muted); }
+      /* ─── Shared UI Components ────────────────────────────────────── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge.green {
+        background: rgba(63, 185, 80, 0.15);
+        color: var(--green);
+      }
+      .badge.amber {
+        background: rgba(210, 153, 34, 0.15);
+        color: var(--amber);
+      }
+      .badge.red {
+        background: rgba(248, 81, 73, 0.15);
+        color: var(--red);
+      }
+      .badge.blue {
+        background: rgba(88, 166, 255, 0.15);
+        color: var(--blue);
+      }
+      .badge.purple {
+        background: rgba(188, 140, 255, 0.15);
+        color: var(--purple);
+      }
+      .badge.gold {
+        background: rgba(210, 153, 34, 0.25);
+        color: #f0c040;
+        border: 1px solid rgba(240, 192, 64, 0.4);
+      }
+      .badge.muted {
+        background: rgba(139, 148, 158, 0.15);
+        color: var(--muted);
+      }
 
-.action-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
-  background: var(--surface2); color: var(--text);
-  border: 1px solid var(--border); transition: all 0.2s;
-}
-.action-btn:hover { background: var(--surface); border-color: var(--blue); color: var(--blue); }
-.action-btn.primary { background: var(--blue); color: #000; border-color: var(--blue); }
-.action-btn.primary:hover { background: #79b8ff; }
-.action-btn.green-btn { background: var(--green); color: #000; border-color: var(--green); }
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+      }
+      .action-btn:hover {
+        background: var(--surface);
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .action-btn.primary {
+        background: var(--blue);
+        color: #000;
+        border-color: var(--blue);
+      }
+      .action-btn.primary:hover {
+        background: #79b8ff;
+      }
+      .action-btn.green-btn {
+        background: var(--green);
+        color: #000;
+        border-color: var(--green);
+      }
 
-.section-title {
-  font-size: 13px; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px;
-}
+      .section-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 16px;
+      }
 
-/* ─── Chapter 1 — Org Hierarchy ───────────────────────────────── */
-#ch1 { align-items: flex-start; justify-content: flex-start; overflow: hidden; }
-.org-tree {
-  display: flex; flex-direction: column; gap: 0;
-  padding: 28px 32px 20px; width: 100%; box-sizing: border-box;
-  height: 100%; overflow: auto;
-}
-.org-root-card {
-  display: flex; align-items: center; gap: 16px;
-  background: var(--surface); border: 1px solid var(--blue);
-  border-radius: 12px; padding: 14px 24px; width: 100%; box-sizing: border-box;
-  opacity: 0; transform: translateY(-12px);
-  transition: opacity 0.5s ease, transform 0.5s ease; flex-shrink: 0;
-}
-.org-root-card.visible { opacity: 1; transform: translateY(0); }
-.org-logo-badge {
-  width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
-  background: linear-gradient(135deg, #1c3b8a 0%, #3563d4 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 22px; color: #fff;
-}
-.org-root-name { font-weight: 700; font-size: 14px; color: var(--text); }
-.org-root-sub  { color: var(--muted); font-size: 11px; margin-top: 2px; }
-.org-root-pills { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
-.org-root-pill {
-  padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 500;
-  background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
-  white-space: nowrap;
-}
-.org-root-pill b { color: var(--blue); font-weight: 700; }
+      /* ─── Chapter 1 — Org Hierarchy ───────────────────────────────── */
+      #ch1 {
+        align-items: flex-start;
+        justify-content: flex-start;
+        overflow: hidden;
+      }
+      .org-tree {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 28px 32px 20px;
+        width: 100%;
+        box-sizing: border-box;
+        height: 100%;
+        overflow: auto;
+      }
+      .org-root-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--surface);
+        border: 1px solid var(--blue);
+        border-radius: 12px;
+        padding: 14px 24px;
+        width: 100%;
+        box-sizing: border-box;
+        opacity: 0;
+        transform: translateY(-12px);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+        flex-shrink: 0;
+      }
+      .org-root-card.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .org-logo-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #1c3b8a 0%, #3563d4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 22px;
+        color: #fff;
+      }
+      .org-root-name {
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text);
+      }
+      .org-root-sub {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 2px;
+      }
+      .org-root-pills {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .org-root-pill {
+        padding: 4px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .org-root-pill b {
+        color: var(--blue);
+        font-weight: 700;
+      }
 
-/* trunk — thin vertical line from root card down to dept row */
-.org-trunk {
-  width: 2px; background: var(--border); align-self: center; flex-shrink: 0;
-  height: 0; margin: 0; transition: height 0.28s ease 0.45s;
-}
-.org-trunk.visible { height: 24px; }
+      /* trunk — thin vertical line from root card down to dept row */
+      .org-trunk {
+        width: 2px;
+        background: var(--border);
+        align-self: center;
+        flex-shrink: 0;
+        height: 0;
+        margin: 0;
+        transition: height 0.28s ease 0.45s;
+      }
+      .org-trunk.visible {
+        height: 24px;
+      }
 
-/* dept row */
-.org-depts {
-  display: flex; gap: 10px; align-items: flex-start;
-  flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; flex-shrink: 0;
-  /* subtle horizontal divider across the tops of all columns */
-  border-top: 2px solid transparent;
-}
+      /* dept row */
+      .org-depts {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        flex-shrink: 0;
+        /* subtle horizontal divider across the tops of all columns */
+        border-top: 2px solid transparent;
+      }
 
-/* dept column */
-.org-dept-col {
-  display: flex; flex-direction: column; gap: 6px;
-  min-width: 152px; flex: 1;
-  opacity: 0; transform: translateY(18px);
-  transition: opacity 0.32s ease, transform 0.32s ease;
-  position: relative; padding-top: 20px;
-}
-/* vertical drop from the trunk horizontal into each dept card */
-.org-dept-col::before {
-  content: ''; position: absolute; top: 0; left: 50%;
-  width: 2px; height: 20px; background: var(--border);
-  transform: translateX(-50%) scaleY(0); transform-origin: top;
-  transition: transform 0.2s ease;
-}
-.org-dept-col.visible { opacity: 1; transform: translateY(0); }
-.org-dept-col.visible::before { transform: translateX(-50%) scaleY(1); }
+      /* dept column */
+      .org-dept-col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 152px;
+        flex: 1;
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 0.32s ease,
+          transform 0.32s ease;
+        position: relative;
+        padding-top: 20px;
+      }
+      /* vertical drop from the trunk horizontal into each dept card */
+      .org-dept-col::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background: var(--border);
+        transform: translateX(-50%) scaleY(0);
+        transform-origin: top;
+        transition: transform 0.2s ease;
+      }
+      .org-dept-col.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .org-dept-col.visible::before {
+        transform: translateX(-50%) scaleY(1);
+      }
 
-.org-dept-hdr {
-  background: var(--surface); border: 1px solid var(--border);
-  border-top: 3px solid var(--dc);
-  border-radius: 8px; padding: 10px 12px; cursor: default;
-  transition: box-shadow 0.2s;
-}
-.org-dept-hdr:hover { box-shadow: 0 0 0 1px var(--dc); }
-.org-dept-icon { font-size: 15px; margin-bottom: 5px; }
-.org-dept-n    { font-weight: 600; font-size: 12px; color: var(--text); }
-.org-dept-m    { font-size: 10px; color: var(--muted); margin-top: 2px; }
+      .org-dept-hdr {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--dc);
+        border-radius: 8px;
+        padding: 10px 12px;
+        cursor: default;
+        transition: box-shadow 0.2s;
+      }
+      .org-dept-hdr:hover {
+        box-shadow: 0 0 0 1px var(--dc);
+      }
+      .org-dept-icon {
+        font-size: 15px;
+        margin-bottom: 5px;
+      }
+      .org-dept-n {
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--text);
+      }
+      .org-dept-m {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
 
-/* team cards under each dept */
-.org-team-card {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-left: 2px solid var(--dc);
-  border-radius: 6px; padding: 8px 10px;
-  opacity: 0; transform: translateX(-8px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-}
-.org-dept-col.visible .org-team-card { opacity: 1; transform: translateX(0); }
-.org-team-n   { font-size: 11px; font-weight: 500; color: var(--text); }
-.org-team-loc { font-size: 10px; color: var(--muted); margin-top: 2px; }
-.org-team-cnt { font-size: 10px; font-weight: 600; color: var(--dc); margin-top: 4px; }
-.org-avatars  { display: flex; gap: 3px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
-.org-av {
-  width: 20px; height: 20px; border-radius: 50%;
-  font-size: 7px; font-weight: 700; letter-spacing: -0.3px;
-  display: flex; align-items: center; justify-content: center;
-  color: #000; background: var(--dc); opacity: 0.9; flex-shrink: 0;
-}
-.org-av.more {
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--muted); font-size: 9px; opacity: 1;
-}
+      /* team cards under each dept */
+      .org-team-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-left: 2px solid var(--dc);
+        border-radius: 6px;
+        padding: 8px 10px;
+        opacity: 0;
+        transform: translateX(-8px);
+        transition:
+          opacity 0.28s ease,
+          transform 0.28s ease;
+      }
+      .org-dept-col.visible .org-team-card {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .org-team-n {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .org-team-loc {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .org-team-cnt {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--dc);
+        margin-top: 4px;
+      }
+      .org-avatars {
+        display: flex;
+        gap: 3px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .org-av {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        font-size: 7px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #000;
+        background: var(--dc);
+        opacity: 0.9;
+        flex-shrink: 0;
+      }
+      .org-av.more {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 9px;
+        opacity: 1;
+      }
 
-/* crossbar — horizontal line connecting the top of all dept vertical drops */
-.org-crossbar-wrap {
-  align-self: stretch; flex-shrink: 0;
-  display: flex; align-items: flex-start;
-  overflow: hidden; height: 2px; margin-bottom: 0;
-}
-.org-crossbar {
-  height: 2px; background: var(--border); width: 0%; transition: width 0.35s ease 0.65s;
-  margin: 0 auto;
-}
-.org-crossbar.visible { width: 90%; }
+      /* crossbar — horizontal line connecting the top of all dept vertical drops */
+      .org-crossbar-wrap {
+        align-self: stretch;
+        flex-shrink: 0;
+        display: flex;
+        align-items: flex-start;
+        overflow: hidden;
+        height: 2px;
+        margin-bottom: 0;
+      }
+      .org-crossbar {
+        height: 2px;
+        background: var(--border);
+        width: 0%;
+        transition: width 0.35s ease 0.65s;
+        margin: 0 auto;
+      }
+      .org-crossbar.visible {
+        width: 90%;
+      }
 
-/* ─── Chapter 2 ───────────────────────────────────────────────── */
-.level-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; border-radius: 6px; margin-bottom: 4px;
-  background: var(--surface); border: 1px solid var(--border);
-  opacity: 0; transform: translateX(-30px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.level-row.visible { opacity: 1; transform: translateX(0); }
-.level-rank {
-  width: 36px; height: 36px; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 13px; flex-shrink: 0;
-}
-.level-name { flex: 1; font-size: 13px; font-weight: 500; }
-.level-icon {
-  font-size: 14px; padding: 2px 4px; border-radius: 3px;
-  opacity: 0.25; transition: opacity 0.2s;
-}
-.level-icon.active { opacity: 1; }
-.level-icon.floating.active { color: var(--purple); }
-.level-icon.confirm.active { color: var(--amber); }
+      /* ─── Chapter 2 ───────────────────────────────────────────────── */
+      .level-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        opacity: 0;
+        transform: translateX(-30px);
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+      }
+      .level-row.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .level-rank {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+      .level-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .level-icon {
+        font-size: 14px;
+        padding: 2px 4px;
+        border-radius: 3px;
+        opacity: 0.25;
+        transition: opacity 0.2s;
+      }
+      .level-icon.active {
+        opacity: 1;
+      }
+      .level-icon.floating.active {
+        color: var(--purple);
+      }
+      .level-icon.confirm.active {
+        color: var(--amber);
+      }
 
-/* ─── Chapter 3 ───────────────────────────────────────────────── */
-.timeline-wrap { margin: 24px 0; }
-.timeline-header {
-  display: flex; justify-content: space-between;
-  font-size: 10px; color: var(--muted); margin-bottom: 6px;
-  font-family: 'JetBrains Mono', monospace;
-}
-.timeline-bar {
-  position: relative; height: 40px; background: var(--surface2);
-  border-radius: 4px; overflow: visible;
-}
-.shift-seg {
-  position: absolute; height: 100%; border-radius: 3px;
-  display: flex; align-items: center; padding: 0 8px;
-  font-size: 11px; font-weight: 600; overflow: hidden;
-  transition: all 0.5s ease; opacity: 0;
-  cursor: default;
-}
-.shift-seg.visible { opacity: 0.9; }
-.shift-seg.gen { border: 2px dashed; }
-.shift-seg-label { white-space: nowrap; overflow: hidden; }
-.timeline-markers {
-  display: flex; justify-content: space-between;
-  font-size: 9px; color: var(--muted); margin-top: 4px;
-  font-family: 'JetBrains Mono', monospace; padding: 0 1px;
-}
-.shift-info-row {
-  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
-}
-.shift-chip {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 6px; padding: 6px 10px; font-size: 12px;
-  opacity: 0; animation: fadeInUp 0.4s ease forwards;
-}
-.shift-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.gender-badge {
-  margin-left: auto; padding: 4px 12px;
-  background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3);
-  border-radius: 20px; color: var(--red); font-size: 11px; font-weight: 600;
-  opacity: 0; animation: fadeInUp 0.5s ease 2.5s forwards;
-}
-.staffing-note {
-  font-size: 12px; color: var(--muted); margin-top: 12px;
-  padding: 10px 14px; background: var(--surface);
-  border-left: 3px solid var(--border); border-radius: 0 6px 6px 0;
-  opacity: 0; animation: fadeInUp 0.4s ease 3s forwards;
-}
+      /* ─── Chapter 3 ───────────────────────────────────────────────── */
+      .timeline-wrap {
+        margin: 24px 0;
+      }
+      .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .timeline-bar {
+        position: relative;
+        height: 40px;
+        background: var(--surface2);
+        border-radius: 4px;
+        overflow: visible;
+      }
+      .shift-seg {
+        position: absolute;
+        height: 100%;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        font-size: 11px;
+        font-weight: 600;
+        overflow: hidden;
+        transition: all 0.5s ease;
+        opacity: 0;
+        cursor: default;
+      }
+      .shift-seg.visible {
+        opacity: 0.9;
+      }
+      .shift-seg.gen {
+        border: 2px dashed;
+      }
+      .shift-seg-label {
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .timeline-markers {
+        display: flex;
+        justify-content: space-between;
+        font-size: 9px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 0 1px;
+      }
+      .shift-info-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .shift-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        opacity: 0;
+        animation: fadeInUp 0.4s ease forwards;
+      }
+      .shift-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .gender-badge {
+        margin-left: auto;
+        padding: 4px 12px;
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        border-radius: 20px;
+        color: var(--red);
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease 2.5s forwards;
+      }
+      .staffing-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 12px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border-left: 3px solid var(--border);
+        border-radius: 0 6px 6px 0;
+        opacity: 0;
+        animation: fadeInUp 0.4s ease 3s forwards;
+      }
 
-/* ─── Chapter 4 ───────────────────────────────────────────────── */
-.punch-scene { position: relative; margin: 24px 0; }
-.shift-bar-ch4 {
-  height: 60px; background: rgba(63,185,80,0.12);
-  border: 1px solid rgba(63,185,80,0.3); border-radius: 8px;
-  position: relative; display: flex; align-items: center;
-  padding: 0 16px; overflow: visible;
-}
-.shift-bar-label { font-size: 12px; color: var(--green); font-weight: 600; }
-.shift-bar-times { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
-.grace-line {
-  position: absolute; width: 1px; background: var(--amber);
-  top: -8px; bottom: -8px; opacity: 0.5;
-}
-.grace-label {
-  position: absolute; top: -22px; font-size: 10px; color: var(--amber);
-  font-family: 'JetBrains Mono', monospace; white-space: nowrap;
-  transform: translateX(-50%);
-}
-.punch-marker {
-  position: absolute; top: -50px;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  opacity: 0;
-}
-.punch-marker.dropped {
-  opacity: 1;
-  animation: dropBounce 0.6s ease forwards;
-  top: -8px;
-}
-.punch-marker.moved { top: -8px; opacity: 1; transition: left 0.5s ease; }
-.punch-dot {
-  width: 12px; height: 12px; border-radius: 50%; background: var(--blue);
-  border: 2px solid white;
-}
-.punch-line { width: 2px; height: 70px; background: var(--blue); }
-.punch-time-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  color: var(--blue); background: var(--surface); padding: 1px 4px;
-  border-radius: 2px; white-space: nowrap;
-}
-.mark-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 6px; font-size: 14px; font-weight: 700;
-  margin-top: 16px; position: relative; overflow: hidden;
-  opacity: 0; transition: opacity 0.3s;
-}
-.mark-badge.visible { opacity: 1; }
-.mark-badge::before {
-  content: ''; position: absolute; inset: 0;
-  animation: fillSweep 0.6s ease forwards;
-}
-.mark-badge.on-time { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
-.mark-badge.on-time::before { background: rgba(63,185,80,0.1); }
-.mark-badge.late    { background: rgba(210,153,34,0.15); color: var(--amber); border: 1px solid rgba(210,153,34,0.3); }
-.mark-badge.late::before { background: rgba(210,153,34,0.1); }
-.mark-badge span { position: relative; z-index: 1; }
+      /* ─── Chapter 4 ───────────────────────────────────────────────── */
+      .punch-scene {
+        position: relative;
+        margin: 24px 0;
+      }
+      .shift-bar-ch4 {
+        height: 60px;
+        background: rgba(63, 185, 80, 0.12);
+        border: 1px solid rgba(63, 185, 80, 0.3);
+        border-radius: 8px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        overflow: visible;
+      }
+      .shift-bar-label {
+        font-size: 12px;
+        color: var(--green);
+        font-weight: 600;
+      }
+      .shift-bar-times {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .grace-line {
+        position: absolute;
+        width: 1px;
+        background: var(--amber);
+        top: -8px;
+        bottom: -8px;
+        opacity: 0.5;
+      }
+      .grace-label {
+        position: absolute;
+        top: -22px;
+        font-size: 10px;
+        color: var(--amber);
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+        transform: translateX(-50%);
+      }
+      .punch-marker {
+        position: absolute;
+        top: -50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        opacity: 0;
+      }
+      .punch-marker.dropped {
+        opacity: 1;
+        animation: dropBounce 0.6s ease forwards;
+        top: -8px;
+      }
+      .punch-marker.moved {
+        top: -8px;
+        opacity: 1;
+        transition: left 0.5s ease;
+      }
+      .punch-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--blue);
+        border: 2px solid white;
+      }
+      .punch-line {
+        width: 2px;
+        height: 70px;
+        background: var(--blue);
+      }
+      .punch-time-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--blue);
+        background: var(--surface);
+        padding: 1px 4px;
+        border-radius: 2px;
+        white-space: nowrap;
+      }
+      .mark-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        margin-top: 16px;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .mark-badge.visible {
+        opacity: 1;
+      }
+      .mark-badge::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        animation: fillSweep 0.6s ease forwards;
+      }
+      .mark-badge.on-time {
+        background: rgba(63, 185, 80, 0.15);
+        color: var(--green);
+        border: 1px solid rgba(63, 185, 80, 0.3);
+      }
+      .mark-badge.on-time::before {
+        background: rgba(63, 185, 80, 0.1);
+      }
+      .mark-badge.late {
+        background: rgba(210, 153, 34, 0.15);
+        color: var(--amber);
+        border: 1px solid rgba(210, 153, 34, 0.3);
+      }
+      .mark-badge.late::before {
+        background: rgba(210, 153, 34, 0.1);
+      }
+      .mark-badge span {
+        position: relative;
+        z-index: 1;
+      }
 
-/* ─── Chapter 5 ───────────────────────────────────────────────── */
-.ot-scene { display: flex; gap: 24px; }
-.ot-plant {
-  flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 20px;
-}
-.ot-plant h4 { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
-.hours-track {
-  position: relative; height: 28px; background: var(--surface2);
-  border-radius: 4px; overflow: visible; margin-bottom: 8px;
-}
-.hours-fill {
-  height: 100%; border-radius: 4px;
-  background: rgba(88,166,255,0.4); width: 0;
-  transition: width 1.2s ease;
-}
-.ot-fill {
-  position: absolute; top: 0; bottom: 0; border-radius: 0 4px 4px 0;
-  background: rgba(210,153,34,0.7); width: 0;
-  transition: width 0.8s ease 1.4s;
-}
-.threshold-line {
-  position: absolute; top: -6px; bottom: -6px;
-  width: 2px; background: var(--red); opacity: 0;
-  transition: opacity 0.4s ease 1.2s;
-}
-.threshold-line.visible { opacity: 0.8; }
-.threshold-label {
-  position: absolute; top: -22px; font-size: 9px;
-  color: var(--red); font-family: 'JetBrains Mono', monospace;
-  transform: translateX(-50%); white-space: nowrap;
-}
-.ot-label {
-  font-size: 11px; font-weight: 600; color: var(--amber);
-  margin-top: 4px; opacity: 0; transition: opacity 0.4s ease 2s;
-}
-.ot-label.visible { opacity: 1; }
-.hours-labels {
-  display: flex; justify-content: space-between; font-size: 9px;
-  color: var(--muted); font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 12px;
-}
-.diff-callout {
-  margin-top: 20px; padding: 12px 16px;
-  background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.2);
-  border-radius: 8px; font-size: 12px; color: var(--amber); text-align: center;
-  opacity: 0; animation: fadeInUp 0.5s ease 3s forwards;
-}
+      /* ─── Chapter 5 ───────────────────────────────────────────────── */
+      .ot-scene {
+        display: flex;
+        gap: 24px;
+      }
+      .ot-plant {
+        flex: 1;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .ot-plant h4 {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      .hours-track {
+        position: relative;
+        height: 28px;
+        background: var(--surface2);
+        border-radius: 4px;
+        overflow: visible;
+        margin-bottom: 8px;
+      }
+      .hours-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: rgba(88, 166, 255, 0.4);
+        width: 0;
+        transition: width 1.2s ease;
+      }
+      .ot-fill {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-radius: 0 4px 4px 0;
+        background: rgba(210, 153, 34, 0.7);
+        width: 0;
+        transition: width 0.8s ease 1.4s;
+      }
+      .threshold-line {
+        position: absolute;
+        top: -6px;
+        bottom: -6px;
+        width: 2px;
+        background: var(--red);
+        opacity: 0;
+        transition: opacity 0.4s ease 1.2s;
+      }
+      .threshold-line.visible {
+        opacity: 0.8;
+      }
+      .threshold-label {
+        position: absolute;
+        top: -22px;
+        font-size: 9px;
+        color: var(--red);
+        font-family: 'JetBrains Mono', monospace;
+        transform: translateX(-50%);
+        white-space: nowrap;
+      }
+      .ot-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--amber);
+        margin-top: 4px;
+        opacity: 0;
+        transition: opacity 0.4s ease 2s;
+      }
+      .ot-label.visible {
+        opacity: 1;
+      }
+      .hours-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 9px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 12px;
+      }
+      .diff-callout {
+        margin-top: 20px;
+        padding: 12px 16px;
+        background: rgba(210, 153, 34, 0.08);
+        border: 1px solid rgba(210, 153, 34, 0.2);
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--amber);
+        text-align: center;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease 3s forwards;
+      }
 
-/* ─── Chapter 6 ───────────────────────────────────────────────── */
-.transfer-scene { position: relative; }
-.plant-cards { display: flex; gap: 20px; margin-bottom: 24px; }
-.plant-card {
-  flex: 1; background: var(--surface); border-radius: 10px; padding: 16px;
-  text-align: center;
-}
-.plant-card.pune { border: 2px solid rgba(63,185,80,0.4); }
-.plant-card.silvassa { border: 2px solid rgba(210,153,34,0.4); }
-.plant-card .plant-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-.plant-card .plant-ot { font-size: 12px; color: var(--muted); }
-.plant-card .ot-badge {
-  display: inline-block; margin-top: 8px;
-  padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;
-  transition: all 0.4s ease;
-}
-.emp-avatar {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 16px;
-  transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
-}
-.emp-avatar .avatar-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: rgba(88,166,255,0.2); border: 2px solid var(--blue);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 14px; color: var(--blue);
-}
-.emp-avatar .emp-info .emp-name { font-weight: 600; font-size: 13px; }
-.emp-avatar .emp-info .emp-role { font-size: 11px; color: var(--muted); }
-.emp-avatar .emp-ot-badge {
-  padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
-  background: rgba(63,185,80,0.15); color: var(--green);
-  transition: all 0.4s ease;
-}
-.emp-avatar .emp-ot-badge.flipping { animation: badgeFlip 0.5s ease; }
-.transfer-wrap { text-align: center; }
-.effective-note {
-  font-size: 11px; color: var(--muted); margin-top: 12px;
-  font-family: 'JetBrains Mono', monospace; opacity: 0;
-  transition: opacity 0.4s ease;
-}
+      /* ─── Chapter 6 ───────────────────────────────────────────────── */
+      .transfer-scene {
+        position: relative;
+      }
+      .plant-cards {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      .plant-card {
+        flex: 1;
+        background: var(--surface);
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+      }
+      .plant-card.pune {
+        border: 2px solid rgba(63, 185, 80, 0.4);
+      }
+      .plant-card.silvassa {
+        border: 2px solid rgba(210, 153, 34, 0.4);
+      }
+      .plant-card .plant-name {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+      .plant-card .plant-ot {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .plant-card .ot-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.4s ease;
+      }
+      .emp-avatar {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 16px;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .emp-avatar .avatar-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(88, 166, 255, 0.2);
+        border: 2px solid var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--blue);
+      }
+      .emp-avatar .emp-info .emp-name {
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .emp-avatar .emp-info .emp-role {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .emp-avatar .emp-ot-badge {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(63, 185, 80, 0.15);
+        color: var(--green);
+        transition: all 0.4s ease;
+      }
+      .emp-avatar .emp-ot-badge.flipping {
+        animation: badgeFlip 0.5s ease;
+      }
+      .transfer-wrap {
+        text-align: center;
+      }
+      .effective-note {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
 
-/* ─── Chapter 7 ───────────────────────────────────────────────── */
-.probation-timeline {
-  position: relative; margin: 24px 0;
-  background: var(--surface2); border-radius: 6px; height: 10px;
-}
-.probation-bar {
-  height: 100%; background: linear-gradient(to right, var(--amber), var(--green));
-  border-radius: 6px; width: 90%; transition: width 1.2s ease;
-}
-.prob-dates {
-  display: flex; justify-content: space-between; font-size: 10px;
-  color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 4px;
-}
-.sunita-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 20px; margin-bottom: 20px;
-}
-.sunita-card .emp-header {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-}
-.sunita-card .avatar-s {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(210,153,34,0.2); border: 2px solid var(--amber);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 16px; color: var(--amber);
-}
-.status-badge-wrap { perspective: 200px; display: inline-block; }
-.status-badge-inner { transition: transform 0.5s; transform-style: preserve-3d; }
-.status-badge-inner.flipped { transform: rotateY(180deg); }
-.status-badge-front, .status-badge-back {
-  backface-visibility: hidden; display: block;
-}
-.status-badge-back { transform: rotateY(180deg); margin-top: -24px; }
-.el-counter-wrap {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px; background: var(--surface2); border-radius: 8px;
-}
-.el-number {
-  font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
-  color: var(--text);
-}
-.el-lock { font-size: 18px; transition: opacity 0.5s; }
-.el-lock.unlocked { animation: lockOpen 0.5s ease forwards; }
+      /* ─── Chapter 7 ───────────────────────────────────────────────── */
+      .probation-timeline {
+        position: relative;
+        margin: 24px 0;
+        background: var(--surface2);
+        border-radius: 6px;
+        height: 10px;
+      }
+      .probation-bar {
+        height: 100%;
+        background: linear-gradient(to right, var(--amber), var(--green));
+        border-radius: 6px;
+        width: 90%;
+        transition: width 1.2s ease;
+      }
+      .prob-dates {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 4px;
+      }
+      .sunita-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .sunita-card .emp-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .sunita-card .avatar-s {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(210, 153, 34, 0.2);
+        border: 2px solid var(--amber);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--amber);
+      }
+      .status-badge-wrap {
+        perspective: 200px;
+        display: inline-block;
+      }
+      .status-badge-inner {
+        transition: transform 0.5s;
+        transform-style: preserve-3d;
+      }
+      .status-badge-inner.flipped {
+        transform: rotateY(180deg);
+      }
+      .status-badge-front,
+      .status-badge-back {
+        backface-visibility: hidden;
+        display: block;
+      }
+      .status-badge-back {
+        transform: rotateY(180deg);
+        margin-top: -24px;
+      }
+      .el-counter-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: var(--surface2);
+        border-radius: 8px;
+      }
+      .el-number {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text);
+      }
+      .el-lock {
+        font-size: 18px;
+        transition: opacity 0.5s;
+      }
+      .el-lock.unlocked {
+        animation: lockOpen 0.5s ease forwards;
+      }
 
-/* ─── Chapter 8 ───────────────────────────────────────────────── */
-.leave-cal {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px; margin-bottom: 20px;
-}
-.cal-header { font-weight: 600; font-size: 13px; margin-bottom: 12px; color: var(--blue); }
-.cal-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-}
-.cal-day {
-  padding: 8px; border-radius: 6px; text-align: center;
-  background: var(--surface2); border: 1px solid var(--border);
-  transition: all 0.3s ease;
-}
-.cal-day.highlight { background: rgba(88,166,255,0.15); border-color: var(--blue); }
-.cal-day.approved { background: rgba(63,185,80,0.15); border-color: var(--green); }
-.cal-day .day-name { font-size: 9px; color: var(--muted); }
-.cal-day .day-num { font-size: 18px; font-weight: 700; }
-.manager-inbox {
-  animation: cardSlideIn 0.5s ease 0.3s both;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px; position: relative; overflow: hidden;
-}
-.manager-inbox.approved-state { background: rgba(63,185,80,0.05); border-color: rgba(63,185,80,0.3); }
-.inbox-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.inbox-header .from { font-size: 13px; font-weight: 600; }
-.inbox-header .type { }
-.inbox-meta { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
-.balance-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px; background: var(--surface2); border-radius: 6px; margin-bottom: 12px;
-}
-.balance-num {
-  font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
-  color: var(--blue); transition: color 0.3s;
-}
-.balance-num.ticking { animation: tickDown 0.3s ease; }
-.approve-checkmark {
-  position: absolute; inset: 0; background: rgba(63,185,80,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 40px; opacity: 0; transition: opacity 0.4s;
-  pointer-events: none;
-}
-.approve-checkmark.visible { opacity: 1; }
-.toast {
-  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
-  background: var(--green); color: #000; padding: 8px 20px; border-radius: 20px;
-  font-size: 13px; font-weight: 600;
-  animation: toastUp 2s ease forwards;
-  z-index: 200;
-}
+      /* ─── Chapter 8 ───────────────────────────────────────────────── */
+      .leave-cal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+      .cal-header {
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 12px;
+        color: var(--blue);
+      }
+      .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .cal-day {
+        padding: 8px;
+        border-radius: 6px;
+        text-align: center;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+      }
+      .cal-day.highlight {
+        background: rgba(88, 166, 255, 0.15);
+        border-color: var(--blue);
+      }
+      .cal-day.approved {
+        background: rgba(63, 185, 80, 0.15);
+        border-color: var(--green);
+      }
+      .cal-day .day-name {
+        font-size: 9px;
+        color: var(--muted);
+      }
+      .cal-day .day-num {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .manager-inbox {
+        animation: cardSlideIn 0.5s ease 0.3s both;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .manager-inbox.approved-state {
+        background: rgba(63, 185, 80, 0.05);
+        border-color: rgba(63, 185, 80, 0.3);
+      }
+      .inbox-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .inbox-header .from {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .inbox-header .type {
+      }
+      .inbox-meta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .balance-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: var(--surface2);
+        border-radius: 6px;
+        margin-bottom: 12px;
+      }
+      .balance-num {
+        font-size: 24px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--blue);
+        transition: color 0.3s;
+      }
+      .balance-num.ticking {
+        animation: tickDown 0.3s ease;
+      }
+      .approve-checkmark {
+        position: absolute;
+        inset: 0;
+        background: rgba(63, 185, 80, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        opacity: 0;
+        transition: opacity 0.4s;
+        pointer-events: none;
+      }
+      .approve-checkmark.visible {
+        opacity: 1;
+      }
+      .toast {
+        position: fixed;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--green);
+        color: #000;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        animation: toastUp 2s ease forwards;
+        z-index: 200;
+      }
 
-/* ─── Chapter 9 ───────────────────────────────────────────────── */
-.half-day-bar {
-  position: relative; height: 56px; border-radius: 8px; overflow: hidden;
-  border: 1px solid var(--border); margin: 20px 0;
-  display: flex;
-}
-.half-first {
-  flex: 1; background: rgba(63,185,80,0.2); border-right: 2px solid var(--text);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600; color: var(--green);
-  opacity: 0; transition: opacity 0.4s ease;
-}
-.half-second {
-  flex: 1; background: rgba(88,166,255,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600; color: var(--blue);
-  opacity: 0; transition: opacity 0.4s ease;
-}
-.midpoint-line {
-  position: absolute; left: 50%; top: -4px; bottom: -4px;
-  width: 2px; background: var(--text); opacity: 0;
-  transform: scaleY(0);
-  transition: opacity 0.3s, transform 0.4s ease;
-}
-.midpoint-line.visible { opacity: 1; transform: scaleY(1); }
-.midpoint-label {
-  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-  font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-}
-.shift-times-labels {
-  display: flex; justify-content: space-between;
-  font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-}
-.leave-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-.leave-app-card {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; font-size: 13px; opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.leave-app-card.visible { opacity: 1; }
-.leave-app-card.approved { border-color: rgba(63,185,80,0.3); background: rgba(63,185,80,0.05); }
-.leave-app-card.error { border-color: rgba(248,81,73,0.3); background: rgba(248,81,73,0.05); }
-.leave-app-card.shake { animation: shake 0.6s ease; }
-.error-tooltip {
-  font-size: 11px; color: var(--red); font-family: 'JetBrains Mono', monospace;
-  margin-left: auto;
-}
-.half-day-counter {
-  margin-top: 16px; padding: 10px 14px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px;
-  font-size: 13px; color: var(--muted); text-align: center;
-}
+      /* ─── Chapter 9 ───────────────────────────────────────────────── */
+      .half-day-bar {
+        position: relative;
+        height: 56px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        margin: 20px 0;
+        display: flex;
+      }
+      .half-first {
+        flex: 1;
+        background: rgba(63, 185, 80, 0.2);
+        border-right: 2px solid var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--green);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .half-second {
+        flex: 1;
+        background: rgba(88, 166, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--blue);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .midpoint-line {
+        position: absolute;
+        left: 50%;
+        top: -4px;
+        bottom: -4px;
+        width: 2px;
+        background: var(--text);
+        opacity: 0;
+        transform: scaleY(0);
+        transition:
+          opacity 0.3s,
+          transform 0.4s ease;
+      }
+      .midpoint-line.visible {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+      .midpoint-label {
+        position: absolute;
+        top: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .shift-times-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .leave-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .leave-app-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .leave-app-card.visible {
+        opacity: 1;
+      }
+      .leave-app-card.approved {
+        border-color: rgba(63, 185, 80, 0.3);
+        background: rgba(63, 185, 80, 0.05);
+      }
+      .leave-app-card.error {
+        border-color: rgba(248, 81, 73, 0.3);
+        background: rgba(248, 81, 73, 0.05);
+      }
+      .leave-app-card.shake {
+        animation: shake 0.6s ease;
+      }
+      .error-tooltip {
+        font-size: 11px;
+        color: var(--red);
+        font-family: 'JetBrains Mono', monospace;
+        margin-left: auto;
+      }
+      .half-day-counter {
+        margin-top: 16px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--muted);
+        text-align: center;
+      }
 
-/* ─── Nav buttons ─────────────────────────────────────────────── */
-.nav-btns {
-  position: fixed; bottom: calc(var(--console-h) + 12px);
-  right: 20px; z-index: 50;
-  display: flex; gap: 8px;
-}
-.nav-btn {
-  width: 36px; height: 36px; border-radius: 8px;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text); font-size: 16px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; cursor: pointer;
-}
-.nav-btn:hover { background: var(--surface2); border-color: var(--blue); color: var(--blue); }
-.nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+      /* ─── Nav buttons ─────────────────────────────────────────────── */
+      .nav-btns {
+        position: fixed;
+        bottom: calc(var(--console-h) + 12px);
+        right: 20px;
+        z-index: 50;
+        display: flex;
+        gap: 8px;
+      }
+      .nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .nav-btn:hover {
+        background: var(--surface2);
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: default;
+        pointer-events: none;
+      }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-</style>
-</head>
-<body>
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ─── Top Nav ─────────────────────────────────────────────────── -->
+    <nav id="nav">
+      <div class="logo">avk<span>ash</span></div>
+      <div id="chapters-nav">
+        <button class="ch-pill active" data-ch="1">1 · Company</button>
+        <button class="ch-pill" data-ch="2">2 · Ladder</button>
+        <button class="ch-pill" data-ch="3">3 · Shifts</button>
+        <button class="ch-pill" data-ch="4">4 · Punch</button>
+        <button class="ch-pill" data-ch="5">5 · OT Gap</button>
+        <button class="ch-pill" data-ch="6">6 · Transfer</button>
+        <button class="ch-pill" data-ch="7">7 · Probation</button>
+        <button class="ch-pill" data-ch="8">8 · Leave</button>
+        <button class="ch-pill" data-ch="9">9 · Half Day</button>
+      </div>
+      <div id="api-status">
+        <div id="api-dot"></div>
+        <span id="api-label">Connecting…</span>
+      </div>
+    </nav>
 
-<!-- ─── Top Nav ─────────────────────────────────────────────────── -->
-<nav id="nav">
-  <div class="logo">avk<span>ash</span></div>
-  <div id="chapters-nav">
-    <button class="ch-pill active" data-ch="1">1 · Company</button>
-    <button class="ch-pill" data-ch="2">2 · Ladder</button>
-    <button class="ch-pill" data-ch="3">3 · Shifts</button>
-    <button class="ch-pill" data-ch="4">4 · Punch</button>
-    <button class="ch-pill" data-ch="5">5 · OT Gap</button>
-    <button class="ch-pill" data-ch="6">6 · Transfer</button>
-    <button class="ch-pill" data-ch="7">7 · Probation</button>
-    <button class="ch-pill" data-ch="8">8 · Leave</button>
-    <button class="ch-pill" data-ch="9">9 · Half Day</button>
-  </div>
-  <div id="api-status">
-    <div id="api-dot"></div>
-    <span id="api-label">Connecting…</span>
-  </div>
-</nav>
-
-<!-- ─── Stage ──────────────────────────────────────────────────── -->
-<div id="stage">
-
-  <!-- Chapter 1 — Org Hierarchy -->
-  <div class="chapter full-width active" id="ch1" data-chapter="1">
-    <div class="scene" style="align-items:flex-start;justify-content:flex-start;padding:0;overflow:hidden;">
-      <div class="org-tree">
-        <div class="org-root-card" id="ch1-root">
-          <div class="org-logo-badge">M</div>
-          <div>
-            <div class="org-root-name">Mahalaxmi Precision Plastics Pvt. Ltd.</div>
-            <div class="org-root-sub">Manufacturing Excellence Since 1987 · Pune, Maharashtra</div>
-          </div>
-          <div class="org-root-pills">
-            <div class="org-root-pill"><b id="ch1-emp">0</b> employees</div>
-            <div class="org-root-pill"><b>5</b> plants</div>
-            <div class="org-root-pill"><b>5</b> departments</div>
+    <!-- ─── Stage ──────────────────────────────────────────────────── -->
+    <div id="stage">
+      <!-- Chapter 1 — Org Hierarchy -->
+      <div class="chapter full-width active" id="ch1" data-chapter="1">
+        <div class="scene" style="align-items: flex-start; justify-content: flex-start; padding: 0; overflow: hidden">
+          <div class="org-tree">
+            <div class="org-root-card" id="ch1-root">
+              <div class="org-logo-badge">M</div>
+              <div>
+                <div class="org-root-name">Mahalaxmi Precision Plastics Pvt. Ltd.</div>
+                <div class="org-root-sub">Manufacturing Excellence Since 1987 · Pune, Maharashtra</div>
+              </div>
+              <div class="org-root-pills">
+                <div class="org-root-pill"><b id="ch1-emp">0</b> employees</div>
+                <div class="org-root-pill"><b>5</b> plants</div>
+                <div class="org-root-pill"><b>5</b> departments</div>
+              </div>
+            </div>
+            <div class="org-trunk" id="ch1-trunk"></div>
+            <div class="org-crossbar-wrap"><div class="org-crossbar" id="ch1-crossbar"></div></div>
+            <div class="org-depts" id="ch1-depts"></div>
           </div>
         </div>
-        <div class="org-trunk" id="ch1-trunk"></div>
-        <div class="org-crossbar-wrap"><div class="org-crossbar" id="ch1-crossbar"></div></div>
-        <div class="org-depts" id="ch1-depts"></div>
       </div>
-    </div>
-  </div>
 
-  <!-- Chapter 2 -->
-  <div class="chapter" id="ch2" data-chapter="2">
-    <div class="scene">
-      <div class="section-title">Employment Levels</div>
-      <div id="ch2-levels"></div>
-    </div>
-    <div class="narration">
-      <h3>The Ladder</h3>
-      <p>Mahalaxmi doesn't use the old <span class="highlight">WORKER / EXECUTIVE</span> enum. They defined <span class="highlight">10 named levels</span> with a numeric rank — from Director (100) down to Helper Gr. II (5).</p>
-      <p><span class="highlight" style="color:var(--purple)">Directors and GMs float</span> — their punch routes to wherever they're physically present. This avoids the fiction of a Director "belonging" to one plant.</p>
-      <p><span class="highlight" style="color:var(--amber)">Operators, Helper Gr. I and II</span> require a supervisor to confirm their WEB punches before they count toward attendance. Device punches bypass this — hardware is trusted; browser is not.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">The rank field enables leave policy inheritance — policies can be restricted to rank ≥ 40 (officer and above) with a single config flag.</p>
-    </div>
-  </div>
+      <!-- Chapter 2 -->
+      <div class="chapter" id="ch2" data-chapter="2">
+        <div class="scene">
+          <div class="section-title">Employment Levels</div>
+          <div id="ch2-levels"></div>
+        </div>
+        <div class="narration">
+          <h3>The Ladder</h3>
+          <p>
+            Mahalaxmi doesn't use the old <span class="highlight">WORKER / EXECUTIVE</span> enum. They defined
+            <span class="highlight">10 named levels</span> with a numeric rank — from Director (100) down to Helper Gr.
+            II (5).
+          </p>
+          <p>
+            <span class="highlight" style="color: var(--purple)">Directors and GMs float</span> — their punch routes to
+            wherever they're physically present. This avoids the fiction of a Director "belonging" to one plant.
+          </p>
+          <p>
+            <span class="highlight" style="color: var(--amber)">Operators, Helper Gr. I and II</span> require a
+            supervisor to confirm their WEB punches before they count toward attendance. Device punches bypass this —
+            hardware is trusted; browser is not.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            The rank field enables leave policy inheritance — policies can be restricted to rank ≥ 40 (officer and
+            above) with a single config flag.
+          </p>
+        </div>
+      </div>
 
-  <!-- Chapter 3 -->
-  <div class="chapter" id="ch3" data-chapter="3">
-    <div class="scene">
-      <div class="section-title">24-Hour Shift Coverage</div>
-      <div class="timeline-wrap">
-        <div class="timeline-header">
-          <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
-        </div>
-        <div class="timeline-bar" id="ch3-bar">
-          <div class="shift-seg gen" id="seg-gen" style="left:39.58%;width:37.5%;color:#58a6ff;border-color:#58a6ff;background:rgba(88,166,255,0.08)">
-            <span class="shift-seg-label">General · HQ</span>
-          </div>
-          <div class="shift-seg" id="seg-a" style="left:25%;width:33.33%;background:rgba(63,185,80,0.25);color:#3fb950">
-            <span class="shift-seg-label">A · Morning</span>
-          </div>
-          <div class="shift-seg" id="seg-b" style="left:58.33%;width:33.33%;background:rgba(210,153,34,0.25);color:#d29922">
-            <span class="shift-seg-label">B · Afternoon</span>
-          </div>
-          <div class="shift-seg" id="seg-c1" style="left:91.67%;width:8.33%;background:rgba(248,81,73,0.25);color:#f85149">
-            <span class="shift-seg-label"></span>
-          </div>
-          <div class="shift-seg" id="seg-c2" style="left:0%;width:25%;background:rgba(248,81,73,0.25);color:#f85149">
-            <span class="shift-seg-label">C · Night</span>
-          </div>
-        </div>
-        <div class="timeline-markers">
-          <span>0</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span><span>15h</span><span>18h</span><span>21h</span><span>24h</span>
-        </div>
-      </div>
-      <div class="shift-info-row" id="ch3-chips"></div>
-      <div class="gender-badge" id="ch3-gender-badge">⚠ C Shift: Male only · SEZ Factory Act compliance</div>
-      <div class="staffing-note">Minimum staffing: A &amp; B Shift — <strong>10 workers</strong> &nbsp;·&nbsp; C Shift (Night) — <strong>8 workers</strong></div>
-    </div>
-    <div class="narration">
-      <h3>Three Shifts, One Clock</h3>
-      <p>Factory workers rotate through 3 shifts covering all 24 hours. The <span class="highlight">General Shift</span> (09:30–18:30) is HQ-only — no overtime tracking for executives.</p>
-      <p>The <span class="highlight" style="color:var(--red)">C Shift (Night)</span> crosses midnight — 22:00 to 06:00. Avkash marks this with <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">crossesMidnight: true</code> so attendance spans two calendar dates correctly.</p>
-      <p>A legal restriction applies: <span class="highlight" style="color:var(--red)">no female workers at night</span> in the SEZ plant (Factories Act). The <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">allowedGenders</code> field enforces this at shift assignment time, not punch time.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">General Shift has <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">trackOT: false</code> — a policy decision, not a system limitation.</p>
-    </div>
-  </div>
-
-  <!-- Chapter 4 -->
-  <div class="chapter" id="ch4" data-chapter="4">
-    <div class="scene">
-      <div class="section-title">Punch-In · A Shift · Pune MIDC</div>
-      <div class="punch-scene">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'JetBrains Mono',monospace">
-          A Shift: 06:00 → 14:00 &nbsp;·&nbsp; Grace: 10 min &nbsp;·&nbsp; OT threshold: 9h
-        </div>
-        <div class="shift-bar-ch4" id="ch4-shiftbar" style="position:relative;overflow:visible">
-          <div class="grace-line" id="ch4-grace" style="left:6.25%;">
-            <div class="grace-label">06:10 (grace ends)</div>
-          </div>
-          <div class="punch-marker" id="ch4-marker" style="left:3.125%">
-            <div class="punch-time-label" id="ch4-time-label">06:05</div>
-            <div class="punch-dot" id="ch4-punch-dot"></div>
-            <div class="punch-line"></div>
-          </div>
-          <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">14:00</div>
-          <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">06:00</div>
-        </div>
-      </div>
-      <div id="ch4-mark-badge" class="mark-badge on-time">
-        <span>✓ ON_TIME</span>
-      </div>
-      <div style="margin-top:24px">
-        <button class="action-btn" id="ch4-toggle">Punch in late →</button>
-      </div>
-      <div style="margin-top:16px;font-size:12px;color:var(--muted)">
-        Ramesh Pawar · Machine Operator · Pune MIDC &nbsp;·&nbsp; Employee #RP-0042
-      </div>
-    </div>
-    <div class="narration">
-      <h3>The First Punch</h3>
-      <p><span class="highlight">Ramesh Pawar</span>, Machine Operator at Pune MIDC, clocks in for his A Shift (06:00–14:00).</p>
-      <p>The system computes attendance marks from the shift's <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">graceMinutes</code> field — not a hardcoded rule. Every shift can have its own grace window.</p>
-      <p><span class="highlight" style="color:var(--green)">06:05 → ON_TIME.</span> The grace window hasn't expired.</p>
-      <p><span class="highlight" style="color:var(--amber)">06:25 → LATE.</span> More than 10 minutes past shift start. The mark changes and the hours calculation adjusts.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">Machine Operators require supervisor confirmation for WEB punches. Ramesh used a device terminal — so this punch counts immediately.</p>
-    </div>
-  </div>
-
-  <!-- Chapter 5 -->
-  <div class="chapter" id="ch5" data-chapter="5">
-    <div class="scene">
-      <div class="section-title">Overtime Threshold Comparison — Same Hours, Different Rules</div>
-      <div class="ot-scene" id="ch5-scene">
-        <!-- Pune MIDC -->
-        <div class="ot-plant">
-          <h4>📍 Pune MIDC <span class="badge muted" style="font-size:10px;margin-left:6px">STANDARD</span></h4>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Deepak Jadhav · Operator · Worked 10.5h</div>
-          <div class="hours-labels"><span>0h</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span></div>
-          <div class="hours-track">
-            <div class="hours-fill" id="pune-fill" style="width:0"></div>
-            <div class="ot-fill" id="pune-ot" style="left:75%;width:0"></div>
-            <div class="threshold-line" id="pune-thresh" style="left:75%">
-              <div class="threshold-label">9h</div>
+      <!-- Chapter 3 -->
+      <div class="chapter" id="ch3" data-chapter="3">
+        <div class="scene">
+          <div class="section-title">24-Hour Shift Coverage</div>
+          <div class="timeline-wrap">
+            <div class="timeline-header">
+              <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+            </div>
+            <div class="timeline-bar" id="ch3-bar">
+              <div
+                class="shift-seg gen"
+                id="seg-gen"
+                style="
+                  left: 39.58%;
+                  width: 37.5%;
+                  color: #58a6ff;
+                  border-color: #58a6ff;
+                  background: rgba(88, 166, 255, 0.08);
+                "
+              >
+                <span class="shift-seg-label">General · HQ</span>
+              </div>
+              <div
+                class="shift-seg"
+                id="seg-a"
+                style="left: 25%; width: 33.33%; background: rgba(63, 185, 80, 0.25); color: #3fb950"
+              >
+                <span class="shift-seg-label">A · Morning</span>
+              </div>
+              <div
+                class="shift-seg"
+                id="seg-b"
+                style="left: 58.33%; width: 33.33%; background: rgba(210, 153, 34, 0.25); color: #d29922"
+              >
+                <span class="shift-seg-label">B · Afternoon</span>
+              </div>
+              <div
+                class="shift-seg"
+                id="seg-c1"
+                style="left: 91.67%; width: 8.33%; background: rgba(248, 81, 73, 0.25); color: #f85149"
+              >
+                <span class="shift-seg-label"></span>
+              </div>
+              <div
+                class="shift-seg"
+                id="seg-c2"
+                style="left: 0%; width: 25%; background: rgba(248, 81, 73, 0.25); color: #f85149"
+              >
+                <span class="shift-seg-label">C · Night</span>
+              </div>
+            </div>
+            <div class="timeline-markers">
+              <span>0</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span><span>15h</span><span>18h</span
+              ><span>21h</span><span>24h</span>
             </div>
           </div>
-          <div class="ot-label" id="pune-ot-label">▲ 1.5h Overtime (OT)</div>
-          <div style="margin-top:12px;font-size:11px;color:var(--muted)">
-            Threshold: <strong style="color:var(--text)">9h</strong> (STANDARD regime)
+          <div class="shift-info-row" id="ch3-chips"></div>
+          <div class="gender-badge" id="ch3-gender-badge">⚠ C Shift: Male only · SEZ Factory Act compliance</div>
+          <div class="staffing-note">
+            Minimum staffing: A &amp; B Shift — <strong>10 workers</strong> &nbsp;·&nbsp; C Shift (Night) —
+            <strong>8 workers</strong>
           </div>
         </div>
-        <!-- Silvassa SEZ -->
-        <div class="ot-plant">
-          <h4>📍 Silvassa SEZ <span class="badge gold" style="font-size:10px;margin-left:6px">SEZ</span></h4>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Anwar Shaikh · Operator · Worked 10.5h</div>
-          <div class="hours-labels"><span>0h</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span></div>
-          <div class="hours-track">
-            <div class="hours-fill" id="sez-fill" style="width:0"></div>
-            <div class="ot-fill" id="sez-ot" style="left:83.33%;width:0"></div>
-            <div class="threshold-line" id="sez-thresh" style="left:83.33%">
-              <div class="threshold-label">10h</div>
-            </div>
-          </div>
-          <div class="ot-label" id="sez-ot-label">▲ 0.5h Overtime (OT)</div>
-          <div style="margin-top:12px;font-size:11px;color:var(--muted)">
-            Threshold: <strong style="color:var(--text)">10h</strong> (SEZ · Factories Act 2017)
-          </div>
+        <div class="narration">
+          <h3>Three Shifts, One Clock</h3>
+          <p>
+            Factory workers rotate through 3 shifts covering all 24 hours. The
+            <span class="highlight">General Shift</span> (09:30–18:30) is HQ-only — no overtime tracking for executives.
+          </p>
+          <p>
+            The <span class="highlight" style="color: var(--red)">C Shift (Night)</span> crosses midnight — 22:00 to
+            06:00. Avkash marks this with
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >crossesMidnight: true</code
+            >
+            so attendance spans two calendar dates correctly.
+          </p>
+          <p>
+            A legal restriction applies:
+            <span class="highlight" style="color: var(--red)">no female workers at night</span> in the SEZ plant
+            (Factories Act). The
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >allowedGenders</code
+            >
+            field enforces this at shift assignment time, not punch time.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            General Shift has
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >trackOT: false</code
+            >
+            — a policy decision, not a system limitation.
+          </p>
         </div>
       </div>
-      <div class="diff-callout">
-        ⚖ Same 10.5 hours worked &nbsp;·&nbsp; <strong>3× more OT pay</strong> at the standard plant (1.5h vs 0.5h)
-      </div>
-    </div>
-    <div class="narration">
-      <h3>The Overtime Gap</h3>
-      <p>The SEZ labour regime follows the <span class="highlight">Factories Act (Amendment) 2017</span>, which raises the daily OT threshold from 9 hours to 10 hours.</p>
-      <p>Avkash reads <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">overtimeThresholdHours</code> directly from the location record — <strong>no hardcoded rules</strong>. The same resolver handles all regimes.</p>
-      <p>Result: Deepak at Pune MIDC earns <span class="highlight" style="color:var(--amber)">1.5h OT pay</span>. Anwar at Silvassa earns <span class="highlight" style="color:var(--amber)">0.5h OT pay</span>. Same clock. Different laws.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">When a location's regime changes (e.g. new SEZ notification), updating the single <code style="font-family:'JetBrains Mono',monospace;font-size:11px">regime</code> field re-calibrates all future attendance computations automatically.</p>
-    </div>
-  </div>
 
-  <!-- Chapter 6 -->
-  <div class="chapter" id="ch6" data-chapter="6">
-    <div class="scene">
-      <div class="section-title">Transfer Management</div>
-      <div class="plant-cards">
-        <div class="plant-card pune">
-          <div class="plant-name">🏭 Pune MIDC</div>
-          <div class="plant-city" style="font-size:11px;color:var(--muted)">Pune, Maharashtra</div>
-          <div class="plant-ot">OT Threshold</div>
-          <div class="ot-badge" id="pune-ot-badge" style="background:rgba(63,185,80,0.15);color:var(--green)">9h (STANDARD)</div>
-        </div>
-        <div class="plant-card silvassa">
-          <div class="plant-name">🏭 Silvassa SEZ</div>
-          <div class="plant-city" style="font-size:11px;color:var(--muted)">Silvassa, Dadra &amp; NH</div>
-          <div class="plant-ot">OT Threshold</div>
-          <div class="ot-badge" id="silvassa-ot-badge" style="background:rgba(210,153,34,0.15);color:var(--amber)">10h (SEZ)</div>
-        </div>
-      </div>
-      <div class="transfer-wrap">
-        <div id="ch6-emp-wrap" style="display:inline-flex;flex-direction:column;align-items:flex-start;gap:8px">
-          <div class="emp-avatar" id="ch6-emp">
-            <div class="avatar-circle">R</div>
-            <div class="emp-info">
-              <div class="emp-name">Ramesh Pawar</div>
-              <div class="emp-role">Machine Operator · <span id="ch6-location-text">Pune MIDC</span></div>
+      <!-- Chapter 4 -->
+      <div class="chapter" id="ch4" data-chapter="4">
+        <div class="scene">
+          <div class="section-title">Punch-In · A Shift · Pune MIDC</div>
+          <div class="punch-scene">
+            <div
+              style="font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace"
+            >
+              A Shift: 06:00 → 14:00 &nbsp;·&nbsp; Grace: 10 min &nbsp;·&nbsp; OT threshold: 9h
             </div>
-            <div class="emp-ot-badge" id="ch6-ot-badge">9h OT</div>
-          </div>
-          <div class="effective-note" id="ch6-effective">Effective from 2026-06-10 →</div>
-        </div>
-        <div style="margin-top:20px">
-          <button class="action-btn" id="ch6-transfer-btn">Transfer to Silvassa →</button>
-          <button class="action-btn" id="ch6-reset-btn" style="display:none;margin-left:8px">↺ Reset</button>
-        </div>
-      </div>
-    </div>
-    <div class="narration">
-      <h3>On the Move</h3>
-      <p><span class="highlight">Ramesh Pawar</span> is transferred to the Silvassa SEZ plant for the new production line ramp-up.</p>
-      <p>From <span class="highlight">2026-06-10</span>, his attendance is computed against the SEZ's <span class="highlight" style="color:var(--amber)">10h OT threshold</span>. The transfer record carries a <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">fromDate</code> — past punches are not retroactively changed.</p>
-      <p>The system resolves which location applies for a given punch date by walking the transfer history, picking the record whose <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">fromDate ≤ punchDate</code>.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">Future-dated transfers are queued and applied by the nightly cron. HR can schedule them in advance during notice periods.</p>
-    </div>
-  </div>
-
-  <!-- Chapter 7 -->
-  <div class="chapter" id="ch7" data-chapter="7">
-    <div class="scene">
-      <div class="section-title">Probation Period · Sunita Yadav</div>
-      <div class="sunita-card">
-        <div class="emp-header">
-          <div class="avatar-s">S</div>
-          <div>
-            <div style="font-weight:600;font-size:15px">Sunita Yadav</div>
-            <div style="font-size:12px;color:var(--muted)">Helper Gr. I · Pune MIDC · Joined Nov 2025</div>
-          </div>
-          <div style="margin-left:auto">
-            <div class="status-badge-wrap">
-              <div class="status-badge-inner" id="ch7-status-inner">
-                <span class="status-badge-front"><span class="badge amber">PROBATION</span></span>
-                <span class="status-badge-back"><span class="badge green">ACTIVE</span></span>
+            <div class="shift-bar-ch4" id="ch4-shiftbar" style="position: relative; overflow: visible">
+              <div class="grace-line" id="ch4-grace" style="left: 6.25%">
+                <div class="grace-label">06:10 (grace ends)</div>
+              </div>
+              <div class="punch-marker" id="ch4-marker" style="left: 3.125%">
+                <div class="punch-time-label" id="ch4-time-label">06:05</div>
+                <div class="punch-dot" id="ch4-punch-dot"></div>
+                <div class="punch-line"></div>
+              </div>
+              <div
+                style="
+                  position: absolute;
+                  right: 12px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  font-size: 11px;
+                  color: var(--muted);
+                "
+              >
+                14:00
+              </div>
+              <div
+                style="
+                  position: absolute;
+                  left: 12px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  font-size: 11px;
+                  color: var(--muted);
+                "
+              >
+                06:00
               </div>
             </div>
           </div>
-        </div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Probation period: Nov 2025 → May 2026 (240 working days)</div>
-        <div class="probation-timeline">
-          <div class="probation-bar" id="ch7-prob-bar" style="width:90%"></div>
-        </div>
-        <div class="prob-dates">
-          <span>Nov 2025 (joined)</span>
-          <span id="ch7-prob-end-label">May 2026 (probation ends)</span>
-        </div>
-      </div>
-      <div class="el-counter-wrap">
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">Earned Leave (EL) Balance</div>
-          <div style="display:flex;align-items:baseline;gap:6px">
-            <div class="el-number" id="ch7-el-num">0</div>
-            <div style="font-size:14px;color:var(--muted)">/&nbsp;15</div>
+          <div id="ch4-mark-badge" class="mark-badge on-time">
+            <span>✓ ON_TIME</span>
+          </div>
+          <div style="margin-top: 24px">
+            <button class="action-btn" id="ch4-toggle">Punch in late →</button>
+          </div>
+          <div style="margin-top: 16px; font-size: 12px; color: var(--muted)">
+            Ramesh Pawar · Machine Operator · Pune MIDC &nbsp;·&nbsp; Employee #RP-0042
           </div>
         </div>
-        <div class="el-lock" id="ch7-lock">🔒</div>
-        <div style="font-size:11px;color:var(--muted);max-width:160px" id="ch7-lock-note">
-          EL locked during probation — accrues after 240 working days (Factories Act)
+        <div class="narration">
+          <h3>The First Punch</h3>
+          <p>
+            <span class="highlight">Ramesh Pawar</span>, Machine Operator at Pune MIDC, clocks in for his A Shift
+            (06:00–14:00).
+          </p>
+          <p>
+            The system computes attendance marks from the shift's
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >graceMinutes</code
+            >
+            field — not a hardcoded rule. Every shift can have its own grace window.
+          </p>
+          <p>
+            <span class="highlight" style="color: var(--green)">06:05 → ON_TIME.</span> The grace window hasn't expired.
+          </p>
+          <p>
+            <span class="highlight" style="color: var(--amber)">06:25 → LATE.</span> More than 10 minutes past shift
+            start. The mark changes and the hours calculation adjusts.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            Machine Operators require supervisor confirmation for WEB punches. Ramesh used a device terminal — so this
+            punch counts immediately.
+          </p>
         </div>
       </div>
-      <div style="margin-top:20px">
-        <button class="action-btn primary" id="ch7-advance-btn">Advance to June 2026 →</button>
-      </div>
-    </div>
-    <div class="narration">
-      <h3>On Probation</h3>
-      <p><span class="highlight">Sunita Yadav</span> joined as a Helper Gr. I at Pune MIDC in November 2025. Factory workers must complete <span class="highlight">240 days of work</span> (Factories Act) before Earned Leave accrues.</p>
-      <p>During probation, a <span class="highlight" style="color:var(--amber)">policy overlay</span> caps her EL at 0 regardless of what the base leave policy says. The overlay is scoped to <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">employmentStatus = PROBATION</code>.</p>
-      <p>On <span class="highlight">June 1, 2026</span> — after the daily cron runs — she graduates automatically. The cron calls <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">runProbationCompletion()</code>, transitions her status to ACTIVE, and immediately posts 15 days of EL credit.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">The policy overlay pattern means zero special-casing in the leave resolver — it reads overlays, base policy, and location in priority order.</p>
-    </div>
-  </div>
 
-  <!-- Chapter 8 -->
-  <div class="chapter" id="ch8" data-chapter="8">
-    <div class="scene">
-      <div class="section-title">Leave Application · Earned Leave · June 2026</div>
-      <div class="leave-cal">
-        <div class="cal-header">June 2026</div>
-        <div class="cal-grid">
-          <div class="cal-day highlight" id="cal-15">
-            <div class="day-name">MON</div>
-            <div class="day-num">15</div>
+      <!-- Chapter 5 -->
+      <div class="chapter" id="ch5" data-chapter="5">
+        <div class="scene">
+          <div class="section-title">Overtime Threshold Comparison — Same Hours, Different Rules</div>
+          <div class="ot-scene" id="ch5-scene">
+            <!-- Pune MIDC -->
+            <div class="ot-plant">
+              <h4>📍 Pune MIDC <span class="badge muted" style="font-size: 10px; margin-left: 6px">STANDARD</span></h4>
+              <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px">
+                Deepak Jadhav · Operator · Worked 10.5h
+              </div>
+              <div class="hours-labels">
+                <span>0h</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span>
+              </div>
+              <div class="hours-track">
+                <div class="hours-fill" id="pune-fill" style="width: 0"></div>
+                <div class="ot-fill" id="pune-ot" style="left: 75%; width: 0"></div>
+                <div class="threshold-line" id="pune-thresh" style="left: 75%">
+                  <div class="threshold-label">9h</div>
+                </div>
+              </div>
+              <div class="ot-label" id="pune-ot-label">▲ 1.5h Overtime (OT)</div>
+              <div style="margin-top: 12px; font-size: 11px; color: var(--muted)">
+                Threshold: <strong style="color: var(--text)">9h</strong> (STANDARD regime)
+              </div>
+            </div>
+            <!-- Silvassa SEZ -->
+            <div class="ot-plant">
+              <h4>📍 Silvassa SEZ <span class="badge gold" style="font-size: 10px; margin-left: 6px">SEZ</span></h4>
+              <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px">
+                Anwar Shaikh · Operator · Worked 10.5h
+              </div>
+              <div class="hours-labels">
+                <span>0h</span><span>3h</span><span>6h</span><span>9h</span><span>12h</span>
+              </div>
+              <div class="hours-track">
+                <div class="hours-fill" id="sez-fill" style="width: 0"></div>
+                <div class="ot-fill" id="sez-ot" style="left: 83.33%; width: 0"></div>
+                <div class="threshold-line" id="sez-thresh" style="left: 83.33%">
+                  <div class="threshold-label">10h</div>
+                </div>
+              </div>
+              <div class="ot-label" id="sez-ot-label">▲ 0.5h Overtime (OT)</div>
+              <div style="margin-top: 12px; font-size: 11px; color: var(--muted)">
+                Threshold: <strong style="color: var(--text)">10h</strong> (SEZ · Factories Act 2017)
+              </div>
+            </div>
           </div>
-          <div class="cal-day highlight" id="cal-16">
-            <div class="day-name">TUE</div>
-            <div class="day-num">16</div>
-          </div>
-          <div class="cal-day highlight" id="cal-17">
-            <div class="day-name">WED</div>
-            <div class="day-num">17</div>
+          <div class="diff-callout">
+            ⚖ Same 10.5 hours worked &nbsp;·&nbsp; <strong>3× more OT pay</strong> at the standard plant (1.5h vs 0.5h)
           </div>
         </div>
-      </div>
-      <div class="balance-row">
-        <div>
-          <div style="font-size:11px;color:var(--muted)">Priya Sharma · EL Balance</div>
-          <div class="balance-num" id="ch8-balance">10</div>
+        <div class="narration">
+          <h3>The Overtime Gap</h3>
+          <p>
+            The SEZ labour regime follows the <span class="highlight">Factories Act (Amendment) 2017</span>, which
+            raises the daily OT threshold from 9 hours to 10 hours.
+          </p>
+          <p>
+            Avkash reads
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >overtimeThresholdHours</code
+            >
+            directly from the location record — <strong>no hardcoded rules</strong>. The same resolver handles all
+            regimes.
+          </p>
+          <p>
+            Result: Deepak at Pune MIDC earns <span class="highlight" style="color: var(--amber)">1.5h OT pay</span>.
+            Anwar at Silvassa earns <span class="highlight" style="color: var(--amber)">0.5h OT pay</span>. Same clock.
+            Different laws.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            When a location's regime changes (e.g. new SEZ notification), updating the single
+            <code style="font-family: 'JetBrains Mono', monospace; font-size: 11px">regime</code> field re-calibrates
+            all future attendance computations automatically.
+          </p>
         </div>
-        <div class="badge blue">Earned Leave</div>
       </div>
-      <div class="manager-inbox" id="ch8-inbox">
-        <div class="approve-checkmark" id="ch8-checkmark">✅</div>
-        <div class="inbox-header">
-          <span class="from">Priya Sharma</span>
-          <span class="type"><span class="badge blue">Earned Leave</span></span>
+
+      <!-- Chapter 6 -->
+      <div class="chapter" id="ch6" data-chapter="6">
+        <div class="scene">
+          <div class="section-title">Transfer Management</div>
+          <div class="plant-cards">
+            <div class="plant-card pune">
+              <div class="plant-name">🏭 Pune MIDC</div>
+              <div class="plant-city" style="font-size: 11px; color: var(--muted)">Pune, Maharashtra</div>
+              <div class="plant-ot">OT Threshold</div>
+              <div class="ot-badge" id="pune-ot-badge" style="background: rgba(63, 185, 80, 0.15); color: var(--green)">
+                9h (STANDARD)
+              </div>
+            </div>
+            <div class="plant-card silvassa">
+              <div class="plant-name">🏭 Silvassa SEZ</div>
+              <div class="plant-city" style="font-size: 11px; color: var(--muted)">Silvassa, Dadra &amp; NH</div>
+              <div class="plant-ot">OT Threshold</div>
+              <div
+                class="ot-badge"
+                id="silvassa-ot-badge"
+                style="background: rgba(210, 153, 34, 0.15); color: var(--amber)"
+              >
+                10h (SEZ)
+              </div>
+            </div>
+          </div>
+          <div class="transfer-wrap">
+            <div
+              id="ch6-emp-wrap"
+              style="display: inline-flex; flex-direction: column; align-items: flex-start; gap: 8px"
+            >
+              <div class="emp-avatar" id="ch6-emp">
+                <div class="avatar-circle">R</div>
+                <div class="emp-info">
+                  <div class="emp-name">Ramesh Pawar</div>
+                  <div class="emp-role">Machine Operator · <span id="ch6-location-text">Pune MIDC</span></div>
+                </div>
+                <div class="emp-ot-badge" id="ch6-ot-badge">9h OT</div>
+              </div>
+              <div class="effective-note" id="ch6-effective">Effective from 2026-06-10 →</div>
+            </div>
+            <div style="margin-top: 20px">
+              <button class="action-btn" id="ch6-transfer-btn">Transfer to Silvassa →</button>
+              <button class="action-btn" id="ch6-reset-btn" style="display: none; margin-left: 8px">↺ Reset</button>
+            </div>
+          </div>
         </div>
-        <div class="inbox-meta">June 15–17 (Mon–Wed) · 3 days &nbsp;·&nbsp; via Prakash Nair's queue</div>
-        <button class="action-btn green-btn" id="ch8-approve-btn" style="font-size:13px">✓ Approve</button>
+        <div class="narration">
+          <h3>On the Move</h3>
+          <p>
+            <span class="highlight">Ramesh Pawar</span> is transferred to the Silvassa SEZ plant for the new production
+            line ramp-up.
+          </p>
+          <p>
+            From <span class="highlight">2026-06-10</span>, his attendance is computed against the SEZ's
+            <span class="highlight" style="color: var(--amber)">10h OT threshold</span>. The transfer record carries a
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >fromDate</code
+            >
+            — past punches are not retroactively changed.
+          </p>
+          <p>
+            The system resolves which location applies for a given punch date by walking the transfer history, picking
+            the record whose
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >fromDate ≤ punchDate</code
+            >.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            Future-dated transfers are queued and applied by the nightly cron. HR can schedule them in advance during
+            notice periods.
+          </p>
+        </div>
+      </div>
+
+      <!-- Chapter 7 -->
+      <div class="chapter" id="ch7" data-chapter="7">
+        <div class="scene">
+          <div class="section-title">Probation Period · Sunita Yadav</div>
+          <div class="sunita-card">
+            <div class="emp-header">
+              <div class="avatar-s">S</div>
+              <div>
+                <div style="font-weight: 600; font-size: 15px">Sunita Yadav</div>
+                <div style="font-size: 12px; color: var(--muted)">Helper Gr. I · Pune MIDC · Joined Nov 2025</div>
+              </div>
+              <div style="margin-left: auto">
+                <div class="status-badge-wrap">
+                  <div class="status-badge-inner" id="ch7-status-inner">
+                    <span class="status-badge-front"><span class="badge amber">PROBATION</span></span>
+                    <span class="status-badge-back"><span class="badge green">ACTIVE</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 12px">
+              Probation period: Nov 2025 → May 2026 (240 working days)
+            </div>
+            <div class="probation-timeline">
+              <div class="probation-bar" id="ch7-prob-bar" style="width: 90%"></div>
+            </div>
+            <div class="prob-dates">
+              <span>Nov 2025 (joined)</span>
+              <span id="ch7-prob-end-label">May 2026 (probation ends)</span>
+            </div>
+          </div>
+          <div class="el-counter-wrap">
+            <div>
+              <div style="font-size: 12px; color: var(--muted); margin-bottom: 2px">Earned Leave (EL) Balance</div>
+              <div style="display: flex; align-items: baseline; gap: 6px">
+                <div class="el-number" id="ch7-el-num">0</div>
+                <div style="font-size: 14px; color: var(--muted)">/&nbsp;15</div>
+              </div>
+            </div>
+            <div class="el-lock" id="ch7-lock">🔒</div>
+            <div style="font-size: 11px; color: var(--muted); max-width: 160px" id="ch7-lock-note">
+              EL locked during probation — accrues after 240 working days (Factories Act)
+            </div>
+          </div>
+          <div style="margin-top: 20px">
+            <button class="action-btn primary" id="ch7-advance-btn">Advance to June 2026 →</button>
+          </div>
+        </div>
+        <div class="narration">
+          <h3>On Probation</h3>
+          <p>
+            <span class="highlight">Sunita Yadav</span> joined as a Helper Gr. I at Pune MIDC in November 2025. Factory
+            workers must complete <span class="highlight">240 days of work</span> (Factories Act) before Earned Leave
+            accrues.
+          </p>
+          <p>
+            During probation, a <span class="highlight" style="color: var(--amber)">policy overlay</span> caps her EL at
+            0 regardless of what the base leave policy says. The overlay is scoped to
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >employmentStatus = PROBATION</code
+            >.
+          </p>
+          <p>
+            On <span class="highlight">June 1, 2026</span> — after the daily cron runs — she graduates automatically.
+            The cron calls
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >runProbationCompletion()</code
+            >, transitions her status to ACTIVE, and immediately posts 15 days of EL credit.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            The policy overlay pattern means zero special-casing in the leave resolver — it reads overlays, base policy,
+            and location in priority order.
+          </p>
+        </div>
+      </div>
+
+      <!-- Chapter 8 -->
+      <div class="chapter" id="ch8" data-chapter="8">
+        <div class="scene">
+          <div class="section-title">Leave Application · Earned Leave · June 2026</div>
+          <div class="leave-cal">
+            <div class="cal-header">June 2026</div>
+            <div class="cal-grid">
+              <div class="cal-day highlight" id="cal-15">
+                <div class="day-name">MON</div>
+                <div class="day-num">15</div>
+              </div>
+              <div class="cal-day highlight" id="cal-16">
+                <div class="day-name">TUE</div>
+                <div class="day-num">16</div>
+              </div>
+              <div class="cal-day highlight" id="cal-17">
+                <div class="day-name">WED</div>
+                <div class="day-num">17</div>
+              </div>
+            </div>
+          </div>
+          <div class="balance-row">
+            <div>
+              <div style="font-size: 11px; color: var(--muted)">Priya Sharma · EL Balance</div>
+              <div class="balance-num" id="ch8-balance">10</div>
+            </div>
+            <div class="badge blue">Earned Leave</div>
+          </div>
+          <div class="manager-inbox" id="ch8-inbox">
+            <div class="approve-checkmark" id="ch8-checkmark">✅</div>
+            <div class="inbox-header">
+              <span class="from">Priya Sharma</span>
+              <span class="type"><span class="badge blue">Earned Leave</span></span>
+            </div>
+            <div class="inbox-meta">June 15–17 (Mon–Wed) · 3 days &nbsp;·&nbsp; via Prakash Nair's queue</div>
+            <button class="action-btn green-btn" id="ch8-approve-btn" style="font-size: 13px">✓ Approve</button>
+          </div>
+        </div>
+        <div class="narration">
+          <h3>Leave Day</h3>
+          <p>
+            <span class="highlight">Priya Sharma</span> (Corporate White Collar) applies for 3 days Earned Leave — June
+            15–17. Her manager <span class="highlight">Prakash Nair</span> gets an in-app notification.
+          </p>
+          <p>
+            On approval, a
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >TAKEN</code
+            >
+            ledger entry is posted for each day and the balance decrements. All in
+            <strong>one atomic transaction</strong> — no partial states.
+          </p>
+          <p>
+            The calendar days flip from blue highlight to green. The balance updates from
+            <span class="highlight">10 → 7</span> with a tick animation.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            Leave policies can block applications during blackout periods (quarter-end, audit week). The policy
+            evaluator runs before the ledger write — blocking is clean, not a cancellation.
+          </p>
+        </div>
+      </div>
+
+      <!-- Chapter 9 -->
+      <div class="chapter" id="ch9" data-chapter="9">
+        <div class="scene">
+          <div class="section-title">Half-Day Leave · Kavitha Menon · A Shift · 2026-06-10</div>
+          <div
+            style="font-size: 11px; color: var(--muted); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace"
+          >
+            A Shift: 06:00 → 14:00 &nbsp;·&nbsp; Midpoint: 10:00
+          </div>
+          <div style="position: relative; padding-top: 28px">
+            <div class="midpoint-label">10:00 (midpoint)</div>
+            <div class="midpoint-line" id="ch9-midline"></div>
+            <div class="half-day-bar">
+              <div class="half-first" id="ch9-first">
+                FIRST_HALF<br /><span style="font-size: 9px; font-weight: 400">06:00–10:00</span>
+              </div>
+              <div class="half-second" id="ch9-second">
+                SECOND_HALF<br /><span style="font-size: 9px; font-weight: 400">10:00–14:00</span>
+              </div>
+            </div>
+          </div>
+          <div class="shift-times-labels"><span>06:00</span><span style="margin-left: auto">14:00</span></div>
+          <div class="leave-cards" id="ch9-cards">
+            <div class="leave-app-card approved visible">
+              <span>✅</span>
+              <span style="font-weight: 500">FIRST_HALF applied</span>
+              <span class="badge green" style="margin-left: auto">APPROVED</span>
+            </div>
+            <div class="leave-app-card approved visible">
+              <span>✅</span>
+              <span style="font-weight: 500">SECOND_HALF applied</span>
+              <span class="badge green" style="margin-left: auto">APPROVED</span>
+            </div>
+            <div class="leave-app-card" id="ch9-conflict-card" style="display: none">
+              <span>❌</span>
+              <span style="font-weight: 500">FIRST_HALF applied again?</span>
+              <span class="error-tooltip">LEAVE_OVERLAP</span>
+            </div>
+          </div>
+          <div class="half-day-counter">2 × half-days = <strong>1.0 working day</strong> debited from EL balance</div>
+          <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap">
+            <button class="action-btn" id="ch9-conflict-btn">Apply FIRST_HALF again? →</button>
+            <button class="action-btn" id="ch9-reset-btn" style="display: none">↺ Reset</button>
+          </div>
+        </div>
+        <div class="narration">
+          <h3>Half a Day</h3>
+          <p>
+            <span class="highlight">Kavitha Menon</span> needs the afternoon off for a hospital visit — she'll work the
+            morning. Avkash models this as
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >FIRST_HALF</code
+            >
+            +
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >SECOND_HALF</code
+            >.
+          </p>
+          <p>
+            The midpoint is computed from the shift's actual
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >start</code
+            >
+            and
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >end</code
+            >
+            — not clock-based MORNING/AFTERNOON labels. A night shift worker's "morning" is at 02:00.
+          </p>
+          <p>
+            Attempting to apply
+            <span class="highlight" style="color: var(--red)">FIRST_HALF a second time</span> triggers a
+            <code
+              style="
+                background: var(--surface2);
+                padding: 1px 4px;
+                border-radius: 3px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+              "
+              >ConflictError: LEAVE_OVERLAP</code
+            >. The guard runs before any ledger write — the balance is protected.
+          </p>
+          <p style="color: var(--muted); font-size: 12px; margin-top: auto">
+            This model also enables "split" leave days: EL for the morning, Comp-Off for the afternoon — each half
+            tracked independently.
+          </p>
+        </div>
       </div>
     </div>
-    <div class="narration">
-      <h3>Leave Day</h3>
-      <p><span class="highlight">Priya Sharma</span> (Corporate White Collar) applies for 3 days Earned Leave — June 15–17. Her manager <span class="highlight">Prakash Nair</span> gets an in-app notification.</p>
-      <p>On approval, a <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">TAKEN</code> ledger entry is posted for each day and the balance decrements. All in <strong>one atomic transaction</strong> — no partial states.</p>
-      <p>The calendar days flip from blue highlight to green. The balance updates from <span class="highlight">10 → 7</span> with a tick animation.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">Leave policies can block applications during blackout periods (quarter-end, audit week). The policy evaluator runs before the ledger write — blocking is clean, not a cancellation.</p>
+    <!-- /stage -->
+
+    <!-- ─── Console Strip ───────────────────────────────────────────── -->
+    <div id="console">
+      <span class="con-label">→ API</span>
+      <span class="con-call" id="con-call">GET /org</span>
+      <div class="con-sep"></div>
+      <span class="con-resp" id="con-resp"
+        >{ name: "Mahalaxmi Precision Plastics Pvt. Ltd.", employeeCount: 750, locationsCount: 5 }</span
+      >
     </div>
-  </div>
 
-  <!-- Chapter 9 -->
-  <div class="chapter" id="ch9" data-chapter="9">
-    <div class="scene">
-      <div class="section-title">Half-Day Leave · Kavitha Menon · A Shift · 2026-06-10</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-family:'JetBrains Mono',monospace">
-        A Shift: 06:00 → 14:00 &nbsp;·&nbsp; Midpoint: 10:00
-      </div>
-      <div style="position:relative;padding-top:28px">
-        <div class="midpoint-label">10:00 (midpoint)</div>
-        <div class="midpoint-line" id="ch9-midline"></div>
-        <div class="half-day-bar">
-          <div class="half-first" id="ch9-first">FIRST_HALF<br><span style="font-size:9px;font-weight:400">06:00–10:00</span></div>
-          <div class="half-second" id="ch9-second">SECOND_HALF<br><span style="font-size:9px;font-weight:400">10:00–14:00</span></div>
-        </div>
-      </div>
-      <div class="shift-times-labels">
-        <span>06:00</span><span style="margin-left:auto">14:00</span>
-      </div>
-      <div class="leave-cards" id="ch9-cards">
-        <div class="leave-app-card approved visible">
-          <span>✅</span>
-          <span style="font-weight:500">FIRST_HALF applied</span>
-          <span class="badge green" style="margin-left:auto">APPROVED</span>
-        </div>
-        <div class="leave-app-card approved visible">
-          <span>✅</span>
-          <span style="font-weight:500">SECOND_HALF applied</span>
-          <span class="badge green" style="margin-left:auto">APPROVED</span>
-        </div>
-        <div class="leave-app-card" id="ch9-conflict-card" style="display:none">
-          <span>❌</span>
-          <span style="font-weight:500">FIRST_HALF applied again?</span>
-          <span class="error-tooltip">LEAVE_OVERLAP</span>
-        </div>
-      </div>
-      <div class="half-day-counter">
-        2 × half-days = <strong>1.0 working day</strong> debited from EL balance
-      </div>
-      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="action-btn" id="ch9-conflict-btn">Apply FIRST_HALF again? →</button>
-        <button class="action-btn" id="ch9-reset-btn" style="display:none">↺ Reset</button>
-      </div>
+    <!-- ─── Nav Buttons ────────────────────────────────────────────── -->
+    <div class="nav-btns">
+      <button class="nav-btn" id="btn-prev" disabled>←</button>
+      <button class="nav-btn" id="btn-next">→</button>
     </div>
-    <div class="narration">
-      <h3>Half a Day</h3>
-      <p><span class="highlight">Kavitha Menon</span> needs the afternoon off for a hospital visit — she'll work the morning. Avkash models this as <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">FIRST_HALF</code> + <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">SECOND_HALF</code>.</p>
-      <p>The midpoint is computed from the shift's actual <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">start</code> and <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">end</code> — not clock-based MORNING/AFTERNOON labels. A night shift worker's "morning" is at 02:00.</p>
-      <p>Attempting to apply <span class="highlight" style="color:var(--red)">FIRST_HALF a second time</span> triggers a <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:11px">ConflictError: LEAVE_OVERLAP</code>. The guard runs before any ledger write — the balance is protected.</p>
-      <p style="color:var(--muted);font-size:12px;margin-top:auto;">This model also enables "split" leave days: EL for the morning, Comp-Off for the afternoon — each half tracked independently.</p>
-    </div>
-  </div>
 
-</div><!-- /stage -->
+    <script>
+      // ─── Static Data ────────────────────────────────────────────────
+      const MAHALAXMI = {
+        org: { name: 'Mahalaxmi Precision Plastics Pvt. Ltd.', employees: 750, founded: 1987 },
+        locations: [
+          { id: 'hq', name: 'Corporate HQ', city: 'Pune', regime: 'STANDARD', otThreshold: 9, x: 162, y: 208 },
+          { id: 'pune', name: 'Pune MIDC Plant', city: 'Pune', regime: 'STANDARD', otThreshold: 9, x: 166, y: 212 },
+          { id: 'nashik', name: 'Nashik Plant', city: 'Nashik', regime: 'STANDARD', otThreshold: 9, x: 152, y: 192 },
+          {
+            id: 'silvassa',
+            name: 'Silvassa SEZ Plant',
+            city: 'Silvassa',
+            regime: 'SEZ',
+            otThreshold: 10,
+            x: 145,
+            y: 206,
+          },
+          {
+            id: 'pithampur',
+            name: 'Pithampur Plant',
+            city: 'Pithampur',
+            regime: 'SHOP_EST',
+            otThreshold: 9,
+            x: 183,
+            y: 182,
+          },
+        ],
+        levels: [
+          { code: 'DIR', name: 'Director', rank: 100, floating: true, punchConfirm: false, color: '#bc8cff' },
+          { code: 'GM', name: 'General Manager', rank: 80, floating: true, punchConfirm: false, color: '#bc8cff' },
+          {
+            code: 'DGM',
+            name: 'Deputy General Manager',
+            rank: 65,
+            floating: false,
+            punchConfirm: false,
+            color: '#58a6ff',
+          },
+          { code: 'MGR', name: 'Manager', rank: 50, floating: false, punchConfirm: false, color: '#58a6ff' },
+          {
+            code: 'AM',
+            name: 'Asst. Manager / Officer',
+            rank: 40,
+            floating: false,
+            punchConfirm: false,
+            color: '#58a6ff',
+          },
+          {
+            code: 'SUP',
+            name: 'Supervisor / Foreman',
+            rank: 30,
+            floating: false,
+            punchConfirm: false,
+            color: '#3fb950',
+          },
+          { code: 'TECH', name: 'Technician / ITI', rank: 20, floating: false, punchConfirm: false, color: '#3fb950' },
+          { code: 'OPR', name: 'Machine Operator', rank: 15, floating: false, punchConfirm: true, color: '#d29922' },
+          { code: 'HLP1', name: 'Helper Gr. I', rank: 10, floating: false, punchConfirm: true, color: '#8b949e' },
+          { code: 'HLP2', name: 'Helper Gr. II', rank: 5, floating: false, punchConfirm: true, color: '#8b949e' },
+        ],
+        shifts: [
+          {
+            id: 'gen',
+            name: 'General Shift',
+            start: '09:30',
+            end: '18:30',
+            crossesMidnight: false,
+            trackOT: false,
+            allowedGenders: null,
+            minStaff: 0,
+            color: '#58a6ff',
+          },
+          {
+            id: 'a',
+            name: 'A Shift (Morning)',
+            start: '06:00',
+            end: '14:00',
+            crossesMidnight: false,
+            trackOT: true,
+            allowedGenders: null,
+            minStaff: 10,
+            color: '#3fb950',
+          },
+          {
+            id: 'b',
+            name: 'B Shift (Afternoon)',
+            start: '14:00',
+            end: '22:00',
+            crossesMidnight: false,
+            trackOT: true,
+            allowedGenders: null,
+            minStaff: 10,
+            color: '#d29922',
+          },
+          {
+            id: 'c',
+            name: 'C Shift (Night)',
+            start: '22:00',
+            end: '06:00',
+            crossesMidnight: true,
+            trackOT: true,
+            allowedGenders: ['MALE'],
+            minStaff: 8,
+            color: '#f85149',
+          },
+        ],
+        departments: [
+          {
+            id: 'prod',
+            name: 'Production',
+            icon: '⚙',
+            color: '#58a6ff',
+            teams: [
+              { name: 'Injection Moulding', location: 'Pune MIDC', count: 68, avatars: ['RS', 'AK', 'DP'] },
+              { name: 'Assembly Line', location: 'Nashik Plant', count: 72, avatars: ['SB', 'VK', 'JR'] },
+              { name: 'Night Operations', location: 'All Plants', count: 40, avatars: ['SM', 'RT'] },
+            ],
+          },
+          {
+            id: 'qa',
+            name: 'Quality',
+            icon: '◎',
+            color: '#3fb950',
+            teams: [
+              { name: 'QA Laboratory', location: 'Silvassa SEZ', count: 28, avatars: ['KP', 'RD'] },
+              { name: 'Final Inspection', location: 'Pune MIDC', count: 17, avatars: ['MJ', 'SL'] },
+            ],
+          },
+          {
+            id: 'hr',
+            name: 'HR & Admin',
+            icon: '◈',
+            color: '#bc8cff',
+            teams: [{ name: 'HR Core', location: 'Corporate HQ', count: 22, avatars: ['PA', 'PM'] }],
+          },
+          {
+            id: 'eng',
+            name: 'Engineering',
+            icon: '⬡',
+            color: '#d29922',
+            teams: [{ name: 'Tool & Die', location: 'Pithampur Plant', count: 18, avatars: ['VN', 'KS'] }],
+          },
+          {
+            id: 'fin',
+            name: 'Finance',
+            icon: '₹',
+            color: '#8b949e',
+            teams: [{ name: 'Accounts & Payroll', location: 'Corporate HQ', count: 12, avatars: ['MT', 'DK'] }],
+          },
+        ],
+      };
 
-<!-- ─── Console Strip ───────────────────────────────────────────── -->
-<div id="console">
-  <span class="con-label">→ API</span>
-  <span class="con-call" id="con-call">GET /org</span>
-  <div class="con-sep"></div>
-  <span class="con-resp" id="con-resp">{ name: "Mahalaxmi Precision Plastics Pvt. Ltd.", employeeCount: 750, locationsCount: 5 }</span>
-</div>
+      // ─── Console data per chapter ──────────────────────────────────
+      const CONSOLE_DATA = {
+        1: {
+          call: 'GET /departments/:id/teams',
+          resp: '[ { name: "Injection Moulding", memberCount: 68 }, { name: "Assembly Line", memberCount: 72 }, { name: "Night Operations", memberCount: 40 } ]',
+        },
+        2: {
+          call: 'GET /org-levels',
+          resp: '[ { code: "DIR", rank: 100, isFloating: true }, { code: "GM", rank: 80, isFloating: true }, ... 8 more ]',
+        },
+        3: {
+          call: 'GET /shifts',
+          resp: '4 shifts — C shift: { allowedGenders: ["MALE"], crossesMidnight: true, trackOT: true }',
+        },
+        4: {
+          call: 'resolveDay(ramesh, "2026-06-04", shiftA)',
+          resp: '{ marks: ["ON_TIME"], hours: 7.92, punchIn: "06:05" }',
+          lateResp: '{ marks: ["LATE"], hours: 7.58, punchIn: "06:25" }',
+        },
+        5: {
+          call: 'listAttendance(anwar, "2026-06-04") | listAttendance(deepak, "2026-06-04")',
+          resp: '{ anwar: { overtimeHours: 0.5 }, deepak: { overtimeHours: 1.5 } }',
+        },
+        6: {
+          call: 'POST /transfers { userId: "ramesh", toLocationId: "silvassa", fromDate: "2026-06-10" }',
+          resp: '{ id: "txf_001", status: "COMPLETED", effectiveFrom: "2026-06-10" }',
+        },
+        7: {
+          call: 'runProbationCompletion() → { transitioned: 1, userIds: ["sunita"] }',
+          resp: 'getBalance(sunita, EL) → { available: 15, locked: false }',
+        },
+        8: {
+          call: 'applyLeave(priya, EL, "2026-06-15", 3) → PENDING | approveLeave(prakash, leaveId)',
+          resp: '→ APPROVED | getBalance(priya, EL) → { available: 7, debited: 3 }',
+        },
+        9: {
+          call: 'applyLeave({ halfDayPart: "FIRST_HALF", duration: "HALF_DAY" }) → OK',
+          resp: 'applyLeave({ halfDayPart: "FIRST_HALF" again }) → ConflictError: LEAVE_OVERLAP',
+          isError: false,
+        },
+        '9e': {
+          call: 'applyLeave({ halfDayPart: "FIRST_HALF", duration: "HALF_DAY" }) → OK',
+          resp: 'ConflictError: LEAVE_OVERLAP — FIRST_HALF already taken on 2026-06-10',
+          isError: true,
+        },
+      };
 
-<!-- ─── Nav Buttons ────────────────────────────────────────────── -->
-<div class="nav-btns">
-  <button class="nav-btn" id="btn-prev" disabled>←</button>
-  <button class="nav-btn" id="btn-next">→</button>
-</div>
+      // ─── Animation Utilities ───────────────────────────────────────
+      function animateCounter(el, from, to, duration = 1200, suffix = '') {
+        const start = performance.now();
+        const run = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          el.textContent = Math.floor(from + (to - from) * ease) + suffix;
+          if (t < 1) requestAnimationFrame(run);
+        };
+        requestAnimationFrame(run);
+      }
 
-<script>
-// ─── Static Data ────────────────────────────────────────────────
-const MAHALAXMI = {
-  org: { name: 'Mahalaxmi Precision Plastics Pvt. Ltd.', employees: 750, founded: 1987 },
-  locations: [
-    { id: 'hq',        name: 'Corporate HQ',       city: 'Pune',      regime: 'STANDARD', otThreshold: 9,  x: 162, y: 208 },
-    { id: 'pune',      name: 'Pune MIDC Plant',    city: 'Pune',      regime: 'STANDARD', otThreshold: 9,  x: 166, y: 212 },
-    { id: 'nashik',    name: 'Nashik Plant',       city: 'Nashik',    regime: 'STANDARD', otThreshold: 9,  x: 152, y: 192 },
-    { id: 'silvassa',  name: 'Silvassa SEZ Plant', city: 'Silvassa',  regime: 'SEZ',      otThreshold: 10, x: 145, y: 206 },
-    { id: 'pithampur', name: 'Pithampur Plant',    city: 'Pithampur', regime: 'SHOP_EST', otThreshold: 9,  x: 183, y: 182 },
-  ],
-  levels: [
-    { code: 'DIR',  name: 'Director',                rank: 100, floating: true,  punchConfirm: false, color: '#bc8cff' },
-    { code: 'GM',   name: 'General Manager',         rank: 80,  floating: true,  punchConfirm: false, color: '#bc8cff' },
-    { code: 'DGM',  name: 'Deputy General Manager',  rank: 65,  floating: false, punchConfirm: false, color: '#58a6ff' },
-    { code: 'MGR',  name: 'Manager',                 rank: 50,  floating: false, punchConfirm: false, color: '#58a6ff' },
-    { code: 'AM',   name: 'Asst. Manager / Officer', rank: 40,  floating: false, punchConfirm: false, color: '#58a6ff' },
-    { code: 'SUP',  name: 'Supervisor / Foreman',    rank: 30,  floating: false, punchConfirm: false, color: '#3fb950' },
-    { code: 'TECH', name: 'Technician / ITI',        rank: 20,  floating: false, punchConfirm: false, color: '#3fb950' },
-    { code: 'OPR',  name: 'Machine Operator',        rank: 15,  floating: false, punchConfirm: true,  color: '#d29922' },
-    { code: 'HLP1', name: 'Helper Gr. I',            rank: 10,  floating: false, punchConfirm: true,  color: '#8b949e' },
-    { code: 'HLP2', name: 'Helper Gr. II',           rank: 5,   floating: false, punchConfirm: true,  color: '#8b949e' },
-  ],
-  shifts: [
-    { id: 'gen', name: 'General Shift',    start: '09:30', end: '18:30', crossesMidnight: false, trackOT: false, allowedGenders: null,     minStaff: 0,  color: '#58a6ff' },
-    { id: 'a',   name: 'A Shift (Morning)',  start: '06:00', end: '14:00', crossesMidnight: false, trackOT: true,  allowedGenders: null,     minStaff: 10, color: '#3fb950' },
-    { id: 'b',   name: 'B Shift (Afternoon)',start: '14:00', end: '22:00', crossesMidnight: false, trackOT: true,  allowedGenders: null,     minStaff: 10, color: '#d29922' },
-    { id: 'c',   name: 'C Shift (Night)',    start: '22:00', end: '06:00', crossesMidnight: true,  trackOT: true,  allowedGenders: ['MALE'], minStaff: 8,  color: '#f85149' },
-  ],
-  departments: [
-    {
-      id: 'prod', name: 'Production', icon: '⚙', color: '#58a6ff',
-      teams: [
-        { name: 'Injection Moulding', location: 'Pune MIDC',   count: 68, avatars: ['RS','AK','DP'] },
-        { name: 'Assembly Line',      location: 'Nashik Plant', count: 72, avatars: ['SB','VK','JR'] },
-        { name: 'Night Operations',   location: 'All Plants',   count: 40, avatars: ['SM','RT'] },
-      ]
-    },
-    {
-      id: 'qa', name: 'Quality', icon: '◎', color: '#3fb950',
-      teams: [
-        { name: 'QA Laboratory',    location: 'Silvassa SEZ', count: 28, avatars: ['KP','RD'] },
-        { name: 'Final Inspection', location: 'Pune MIDC',    count: 17, avatars: ['MJ','SL'] },
-      ]
-    },
-    {
-      id: 'hr', name: 'HR & Admin', icon: '◈', color: '#bc8cff',
-      teams: [
-        { name: 'HR Core', location: 'Corporate HQ', count: 22, avatars: ['PA','PM'] },
-      ]
-    },
-    {
-      id: 'eng', name: 'Engineering', icon: '⬡', color: '#d29922',
-      teams: [
-        { name: 'Tool & Die', location: 'Pithampur Plant', count: 18, avatars: ['VN','KS'] },
-      ]
-    },
-    {
-      id: 'fin', name: 'Finance', icon: '₹', color: '#8b949e',
-      teams: [
-        { name: 'Accounts & Payroll', location: 'Corporate HQ', count: 12, avatars: ['MT','DK'] },
-      ]
-    },
-  ],
-};
+      function staggerIn(els, cls = 'visible', delay = 80) {
+        els.forEach((el, i) => setTimeout(() => el.classList.add(cls), i * delay));
+      }
 
-// ─── Console data per chapter ──────────────────────────────────
-const CONSOLE_DATA = {
-  1: { call: 'GET /departments/:id/teams', resp: '[ { name: "Injection Moulding", memberCount: 68 }, { name: "Assembly Line", memberCount: 72 }, { name: "Night Operations", memberCount: 40 } ]' },
-  2: { call: 'GET /org-levels', resp: '[ { code: "DIR", rank: 100, isFloating: true }, { code: "GM", rank: 80, isFloating: true }, ... 8 more ]' },
-  3: { call: 'GET /shifts', resp: '4 shifts — C shift: { allowedGenders: ["MALE"], crossesMidnight: true, trackOT: true }' },
-  4: { call: 'resolveDay(ramesh, "2026-06-04", shiftA)', resp: '{ marks: ["ON_TIME"], hours: 7.92, punchIn: "06:05" }', lateResp: '{ marks: ["LATE"], hours: 7.58, punchIn: "06:25" }' },
-  5: { call: 'listAttendance(anwar, "2026-06-04") | listAttendance(deepak, "2026-06-04")', resp: '{ anwar: { overtimeHours: 0.5 }, deepak: { overtimeHours: 1.5 } }' },
-  6: { call: 'POST /transfers { userId: "ramesh", toLocationId: "silvassa", fromDate: "2026-06-10" }', resp: '{ id: "txf_001", status: "COMPLETED", effectiveFrom: "2026-06-10" }' },
-  7: { call: 'runProbationCompletion() → { transitioned: 1, userIds: ["sunita"] }', resp: 'getBalance(sunita, EL) → { available: 15, locked: false }' },
-  8: { call: 'applyLeave(priya, EL, "2026-06-15", 3) → PENDING | approveLeave(prakash, leaveId)', resp: '→ APPROVED | getBalance(priya, EL) → { available: 7, debited: 3 }' },
-  9: { call: 'applyLeave({ halfDayPart: "FIRST_HALF", duration: "HALF_DAY" }) → OK', resp: 'applyLeave({ halfDayPart: "FIRST_HALF" again }) → ConflictError: LEAVE_OVERLAP', isError: false },
-  '9e': { call: 'applyLeave({ halfDayPart: "FIRST_HALF", duration: "HALF_DAY" }) → OK', resp: 'ConflictError: LEAVE_OVERLAP — FIRST_HALF already taken on 2026-06-10', isError: true },
-};
+      function growBar(el, targetWidth, delay = 0) {
+        setTimeout(() => {
+          el.style.width = targetWidth;
+        }, delay);
+      }
 
-// ─── Animation Utilities ───────────────────────────────────────
-function animateCounter(el, from, to, duration = 1200, suffix = '') {
-  const start = performance.now();
-  const run = now => {
-    const t = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 3);
-    el.textContent = Math.floor(from + (to - from) * ease) + suffix;
-    if (t < 1) requestAnimationFrame(run);
-  };
-  requestAnimationFrame(run);
-}
+      function shake(el) {
+        el.classList.add('shake');
+        setTimeout(() => el.classList.remove('shake'), 600);
+      }
 
-function staggerIn(els, cls = 'visible', delay = 80) {
-  els.forEach((el, i) => setTimeout(() => el.classList.add(cls), i * delay));
-}
+      function showToast(msg) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2200);
+      }
 
-function growBar(el, targetWidth, delay = 0) {
-  setTimeout(() => { el.style.width = targetWidth; }, delay);
-}
+      function setConsole(ch, variant) {
+        const key = variant ? `${ch}${variant}` : ch;
+        const d = CONSOLE_DATA[key] || CONSOLE_DATA[ch];
+        if (!d) return;
+        document.getElementById('con-call').textContent = d.call;
+        const respEl = document.getElementById('con-resp');
+        respEl.textContent = variant === 'e' && d.lateResp ? d.lateResp : d.resp || d.call;
+        respEl.className = 'con-resp' + (d.isError || variant === 'e' ? ' error' : '');
+      }
 
-function shake(el) {
-  el.classList.add('shake');
-  setTimeout(() => el.classList.remove('shake'), 600);
-}
+      // ─── Chapter Navigation ────────────────────────────────────────
+      let currentChapter = 1;
+      const TOTAL = 9;
+      const chapterInited = {};
 
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2200);
-}
+      function goToChapter(n, direction) {
+        if (n < 1 || n > TOTAL || n === currentChapter) return;
+        direction = direction || (n > currentChapter ? 'forward' : 'backward');
 
-function setConsole(ch, variant) {
-  const key = variant ? `${ch}${variant}` : ch;
-  const d = CONSOLE_DATA[key] || CONSOLE_DATA[ch];
-  if (!d) return;
-  document.getElementById('con-call').textContent = d.call;
-  const respEl = document.getElementById('con-resp');
-  respEl.textContent = (variant === 'e' && d.lateResp) ? d.lateResp : (d.resp || d.call);
-  respEl.className = 'con-resp' + ((d.isError || variant === 'e') ? ' error' : '');
-}
+        const oldEl = document.getElementById(`ch${currentChapter}`);
+        const newEl = document.getElementById(`ch${n}`);
+        if (!oldEl || !newEl) return;
 
-// ─── Chapter Navigation ────────────────────────────────────────
-let currentChapter = 1;
-const TOTAL = 9;
-const chapterInited = {};
+        // exit old
+        oldEl.classList.remove('active');
+        oldEl.classList.add(direction === 'forward' ? 'exiting-forward' : 'exiting-backward');
+        setTimeout(() => {
+          oldEl.classList.remove('exiting-forward', 'exiting-backward');
+          oldEl.style.display = 'none';
+        }, 420);
 
-function goToChapter(n, direction) {
-  if (n < 1 || n > TOTAL || n === currentChapter) return;
-  direction = direction || (n > currentChapter ? 'forward' : 'backward');
+        // enter new
+        newEl.style.display = 'flex';
+        newEl.classList.remove('active');
+        void newEl.offsetWidth; // reflow
+        newEl.classList.add('active', direction === 'forward' ? 'entering-forward' : 'entering-backward');
+        setTimeout(() => {
+          newEl.classList.remove('entering-forward', 'entering-backward');
+        }, 420);
 
-  const oldEl = document.getElementById(`ch${currentChapter}`);
-  const newEl = document.getElementById(`ch${n}`);
-  if (!oldEl || !newEl) return;
+        currentChapter = n;
+        updateNav();
+        setConsole(n);
 
-  // exit old
-  oldEl.classList.remove('active');
-  oldEl.classList.add(direction === 'forward' ? 'exiting-forward' : 'exiting-backward');
-  setTimeout(() => {
-    oldEl.classList.remove('exiting-forward', 'exiting-backward');
-    oldEl.style.display = 'none';
-  }, 420);
+        if (!chapterInited[n]) {
+          chapterInited[n] = true;
+          setTimeout(() => initChapter(n), 100);
+        }
+      }
 
-  // enter new
-  newEl.style.display = 'flex';
-  newEl.classList.remove('active');
-  void newEl.offsetWidth; // reflow
-  newEl.classList.add('active', direction === 'forward' ? 'entering-forward' : 'entering-backward');
-  setTimeout(() => {
-    newEl.classList.remove('entering-forward', 'entering-backward');
-  }, 420);
+      function updateNav() {
+        document.querySelectorAll('.ch-pill').forEach((p) => {
+          p.classList.toggle('active', parseInt(p.dataset.ch) === currentChapter);
+        });
+        document.getElementById('btn-prev').disabled = currentChapter === 1;
+        document.getElementById('btn-next').disabled = currentChapter === TOTAL;
+      }
 
-  currentChapter = n;
-  updateNav();
-  setConsole(n);
+      // ─── Chapter Init Functions ────────────────────────────────────
 
-  if (!chapterInited[n]) {
-    chapterInited[n] = true;
-    setTimeout(() => initChapter(n), 100);
-  }
-}
+      // Ch1 — org hierarchy
+      function initChapter1() {
+        // Step 1: root card + counter
+        setTimeout(() => {
+          document.getElementById('ch1-root').classList.add('visible');
+          setTimeout(() => animateCounter(document.getElementById('ch1-emp'), 0, 750, 1100), 350);
+        }, 120);
 
-function updateNav() {
-  document.querySelectorAll('.ch-pill').forEach(p => {
-    p.classList.toggle('active', parseInt(p.dataset.ch) === currentChapter);
-  });
-  document.getElementById('btn-prev').disabled = currentChapter === 1;
-  document.getElementById('btn-next').disabled = currentChapter === TOTAL;
-}
+        // Step 2: trunk line
+        setTimeout(() => document.getElementById('ch1-trunk').classList.add('visible'), 520);
 
-// ─── Chapter Init Functions ────────────────────────────────────
+        // Step 3: crossbar
+        setTimeout(() => document.getElementById('ch1-crossbar').classList.add('visible'), 680);
 
-// Ch1 — org hierarchy
-function initChapter1() {
-  // Step 1: root card + counter
-  setTimeout(() => {
-    document.getElementById('ch1-root').classList.add('visible');
-    setTimeout(() => animateCounter(document.getElementById('ch1-emp'), 0, 750, 1100), 350);
-  }, 120);
+        // Step 4: build and stagger-in dept columns
+        const depts = document.getElementById('ch1-depts');
+        MAHALAXMI.departments.forEach((dept, di) => {
+          const col = document.createElement('div');
+          col.className = 'org-dept-col';
+          col.style.cssText = `--dc:${dept.color}`;
 
-  // Step 2: trunk line
-  setTimeout(() => document.getElementById('ch1-trunk').classList.add('visible'), 520);
-
-  // Step 3: crossbar
-  setTimeout(() => document.getElementById('ch1-crossbar').classList.add('visible'), 680);
-
-  // Step 4: build and stagger-in dept columns
-  const depts = document.getElementById('ch1-depts');
-  MAHALAXMI.departments.forEach((dept, di) => {
-    const col = document.createElement('div');
-    col.className = 'org-dept-col';
-    col.style.cssText = `--dc:${dept.color}`;
-
-    // dept header
-    const totalPeople = dept.teams.reduce((s, t) => s + t.count, 0);
-    const hdr = document.createElement('div');
-    hdr.className = 'org-dept-hdr';
-    hdr.innerHTML = `
+          // dept header
+          const totalPeople = dept.teams.reduce((s, t) => s + t.count, 0);
+          const hdr = document.createElement('div');
+          hdr.className = 'org-dept-hdr';
+          hdr.innerHTML = `
       <div class="org-dept-icon">${dept.icon}</div>
       <div class="org-dept-n">${dept.name}</div>
       <div class="org-dept-m">${dept.teams.length} team${dept.teams.length > 1 ? 's' : ''} · ${totalPeople} people</div>
     `;
-    col.appendChild(hdr);
+          col.appendChild(hdr);
 
-    // team cards
-    dept.teams.forEach((team, ti) => {
-      const tc = document.createElement('div');
-      tc.className = 'org-team-card';
-      tc.style.transitionDelay = `${ti * 55}ms`;
-      const more = team.count - team.avatars.length;
-      const avHtml = team.avatars.map(a => `<div class="org-av">${a}</div>`).join('');
-      const moreHtml = more > 0 ? `<div class="org-av more">+${more}</div>` : '';
-      tc.innerHTML = `
+          // team cards
+          dept.teams.forEach((team, ti) => {
+            const tc = document.createElement('div');
+            tc.className = 'org-team-card';
+            tc.style.transitionDelay = `${ti * 55}ms`;
+            const more = team.count - team.avatars.length;
+            const avHtml = team.avatars.map((a) => `<div class="org-av">${a}</div>`).join('');
+            const moreHtml = more > 0 ? `<div class="org-av more">+${more}</div>` : '';
+            tc.innerHTML = `
         <div class="org-team-n">${team.name}</div>
         <div class="org-team-loc">⌖ ${team.location}</div>
         <div class="org-team-cnt">${team.count} members</div>
         <div class="org-avatars">${avHtml}${moreHtml}</div>
       `;
-      col.appendChild(tc);
-    });
+            col.appendChild(tc);
+          });
 
-    depts.appendChild(col);
-    setTimeout(() => col.classList.add('visible'), 800 + di * 90);
-  });
-}
+          depts.appendChild(col);
+          setTimeout(() => col.classList.add('visible'), 800 + di * 90);
+        });
+      }
 
-// Ch2
-function initChapter2() {
-  const container = document.getElementById('ch2-levels');
-  container.innerHTML = '';
-  MAHALAXMI.levels.forEach((lvl, i) => {
-    const row = document.createElement('div');
-    row.className = 'level-row';
-    row.innerHTML = `
+      // Ch2
+      function initChapter2() {
+        const container = document.getElementById('ch2-levels');
+        container.innerHTML = '';
+        MAHALAXMI.levels.forEach((lvl, i) => {
+          const row = document.createElement('div');
+          row.className = 'level-row';
+          row.innerHTML = `
       <div class="level-rank" style="background:${lvl.color}22;color:${lvl.color};border:1px solid ${lvl.color}44">
         ${lvl.rank}
       </div>
@@ -1403,341 +2770,347 @@ function initChapter2() {
         <span class="level-icon confirm ${lvl.punchConfirm ? 'active' : ''}" title="Confirm WEB punch">✋</span>
       </div>
     `;
-    container.appendChild(row);
-    setTimeout(() => row.classList.add('visible'), 100 + i * 80);
-  });
-}
+          container.appendChild(row);
+          setTimeout(() => row.classList.add('visible'), 100 + i * 80);
+        });
+      }
 
-// Ch3
-function initChapter3() {
-  const segs = ['seg-gen', 'seg-a', 'seg-b', 'seg-c1', 'seg-c2'];
-  segs.forEach((id, i) => {
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('visible');
-    }, 300 + i * 400);
-  });
+      // Ch3
+      function initChapter3() {
+        const segs = ['seg-gen', 'seg-a', 'seg-b', 'seg-c1', 'seg-c2'];
+        segs.forEach((id, i) => {
+          setTimeout(
+            () => {
+              const el = document.getElementById(id);
+              if (el) el.classList.add('visible');
+            },
+            300 + i * 400
+          );
+        });
 
-  const chips = document.getElementById('ch3-chips');
-  chips.innerHTML = '';
-  MAHALAXMI.shifts.forEach((sh, i) => {
-    const chip = document.createElement('div');
-    chip.className = 'shift-chip';
-    chip.style.animationDelay = `${0.8 + i * 0.2}s`;
-    chip.innerHTML = `
+        const chips = document.getElementById('ch3-chips');
+        chips.innerHTML = '';
+        MAHALAXMI.shifts.forEach((sh, i) => {
+          const chip = document.createElement('div');
+          chip.className = 'shift-chip';
+          chip.style.animationDelay = `${0.8 + i * 0.2}s`;
+          chip.innerHTML = `
       <div class="shift-dot" style="background:${sh.color}"></div>
       <span style="font-weight:500;font-size:12px">${sh.name}</span>
       <span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">${sh.start}–${sh.end}</span>
       ${sh.trackOT ? '<span class="badge amber" style="font-size:9px">OT</span>' : ''}
       ${sh.crossesMidnight ? '<span class="badge red" style="font-size:9px">↻</span>' : ''}
     `;
-    chips.appendChild(chip);
-  });
-}
+          chips.appendChild(chip);
+        });
+      }
 
-// Ch4 — punch demo
-let ch4State = 'ontime';
-function initChapter4() {
-  const marker = document.getElementById('ch4-marker');
-  setTimeout(() => {
-    marker.classList.add('dropped');
-    setTimeout(() => {
-      marker.classList.remove('dropped');
-      marker.classList.add('moved');
-      marker.style.top = '-8px';
-      const badge = document.getElementById('ch4-mark-badge');
-      badge.classList.add('visible');
-    }, 700);
-  }, 300);
-
-  document.getElementById('ch4-toggle').addEventListener('click', function() {
-    const marker = document.getElementById('ch4-marker');
-    const badge = document.getElementById('ch4-mark-badge');
-    const label = document.getElementById('ch4-time-label');
-    const dot = document.getElementById('ch4-punch-dot');
-
-    if (ch4State === 'ontime') {
-      // go late
-      ch4State = 'late';
-      marker.style.left = '15.625%'; // 06:25 relative to 06:00–14:00 span = 25min/480min
-      label.textContent = '06:25';
-      dot.style.background = 'var(--amber)';
-      badge.className = 'mark-badge late visible';
-      badge.innerHTML = '<span>⚠ LATE</span>';
-      this.textContent = '↺ Reset to on-time';
-      setConsole(4, 'e');
-      document.getElementById('con-resp').textContent = '{ marks: ["LATE"], hours: 7.58, punchIn: "06:25" }';
-    } else {
-      // reset
-      ch4State = 'ontime';
-      marker.style.left = '3.125%';
-      label.textContent = '06:05';
-      dot.style.background = 'var(--blue)';
-      badge.className = 'mark-badge on-time visible';
-      badge.innerHTML = '<span>✓ ON_TIME</span>';
-      this.textContent = 'Punch in late →';
-      setConsole(4);
-    }
-  });
-}
-
-// Ch5 — OT bars
-function initChapter5() {
-  // Pune: 10.5h out of 12h max = 87.5%
-  // OT portion starts at 9h = 75%, goes to 87.5% → width = 12.5%
-  setTimeout(() => {
-    document.getElementById('pune-fill').style.width = '87.5%';
-    document.getElementById('sez-fill').style.width = '87.5%';
-    document.getElementById('pune-thresh').classList.add('visible');
-    document.getElementById('sez-thresh').classList.add('visible');
-  }, 400);
-  setTimeout(() => {
-    document.getElementById('pune-ot').style.width = '12.5%'; // 1.5/12
-    document.getElementById('sez-ot').style.width = '4.17%';  // 0.5/12
-    document.getElementById('pune-ot-label').classList.add('visible');
-    document.getElementById('sez-ot-label').classList.add('visible');
-  }, 1800);
-}
-
-// Ch6 — transfer
-let ch6Transferred = false;
-function initChapter6() {
-  document.getElementById('ch6-transfer-btn').addEventListener('click', function() {
-    if (ch6Transferred) return;
-    ch6Transferred = true;
-
-    // slide emp card
-    const emp = document.getElementById('ch6-emp');
-    emp.style.transform = 'translateX(calc(50vw - 220px))';
-
-    // flip badge
-    const otBadge = document.getElementById('ch6-ot-badge');
-    otBadge.classList.add('flipping');
-    setTimeout(() => {
-      otBadge.textContent = '10h OT';
-      otBadge.style.background = 'rgba(210,153,34,0.15)';
-      otBadge.style.color = 'var(--amber)';
-      otBadge.classList.remove('flipping');
-    }, 250);
-
-    // update location text
-    setTimeout(() => {
-      document.getElementById('ch6-location-text').textContent = 'Silvassa SEZ';
-    }, 400);
-
-    // show effective note
-    setTimeout(() => {
-      document.getElementById('ch6-effective').style.opacity = '1';
-    }, 600);
-
-    this.style.display = 'none';
-    document.getElementById('ch6-reset-btn').style.display = 'inline-flex';
-
-    setConsole(6);
-  });
-
-  document.getElementById('ch6-reset-btn').addEventListener('click', function() {
-    ch6Transferred = false;
-    const emp = document.getElementById('ch6-emp');
-    emp.style.transform = '';
-    const otBadge = document.getElementById('ch6-ot-badge');
-    otBadge.textContent = '9h OT';
-    otBadge.style.background = 'rgba(63,185,80,0.15)';
-    otBadge.style.color = 'var(--green)';
-    document.getElementById('ch6-location-text').textContent = 'Pune MIDC';
-    document.getElementById('ch6-effective').style.opacity = '0';
-    this.style.display = 'none';
-    document.getElementById('ch6-transfer-btn').style.display = 'inline-flex';
-  });
-}
-
-// Ch7 — probation
-let ch7Advanced = false;
-function initChapter7() {
-  document.getElementById('ch7-advance-btn').addEventListener('click', function() {
-    if (ch7Advanced) return;
-    ch7Advanced = true;
-
-    // fill bar to 100%
-    document.getElementById('ch7-prob-bar').style.width = '100%';
-
-    setTimeout(() => {
-      // flip status badge
-      document.getElementById('ch7-status-inner').classList.add('flipped');
-    }, 800);
-
-    setTimeout(() => {
-      // unlock
-      const lock = document.getElementById('ch7-lock');
-      lock.textContent = '🔓';
-      lock.classList.add('unlocked');
-      document.getElementById('ch7-lock-note').textContent = 'EL unlocked — 15 days accrued on completion';
-    }, 1200);
-
-    setTimeout(() => {
-      // tick EL counter
-      animateCounter(document.getElementById('ch7-el-num'), 0, 15, 800);
-    }, 1400);
-
-    this.style.display = 'none';
-    setConsole(7);
-  });
-}
-
-// Ch8 — leave approval
-let ch8Approved = false;
-function initChapter8() {
-  document.getElementById('ch8-approve-btn').addEventListener('click', function() {
-    if (ch8Approved) return;
-    ch8Approved = true;
-
-    const inbox = document.getElementById('ch8-inbox');
-    inbox.classList.add('approved-state');
-    document.getElementById('ch8-checkmark').classList.add('visible');
-    this.disabled = true;
-
-    // turn calendar days green
-    setTimeout(() => {
-      ['cal-15', 'cal-16', 'cal-17'].forEach((id, i) => {
+      // Ch4 — punch demo
+      let ch4State = 'ontime';
+      function initChapter4() {
+        const marker = document.getElementById('ch4-marker');
         setTimeout(() => {
-          const el = document.getElementById(id);
-          el.classList.remove('highlight');
-          el.classList.add('approved');
-        }, i * 200);
+          marker.classList.add('dropped');
+          setTimeout(() => {
+            marker.classList.remove('dropped');
+            marker.classList.add('moved');
+            marker.style.top = '-8px';
+            const badge = document.getElementById('ch4-mark-badge');
+            badge.classList.add('visible');
+          }, 700);
+        }, 300);
+
+        document.getElementById('ch4-toggle').addEventListener('click', function () {
+          const marker = document.getElementById('ch4-marker');
+          const badge = document.getElementById('ch4-mark-badge');
+          const label = document.getElementById('ch4-time-label');
+          const dot = document.getElementById('ch4-punch-dot');
+
+          if (ch4State === 'ontime') {
+            // go late
+            ch4State = 'late';
+            marker.style.left = '15.625%'; // 06:25 relative to 06:00–14:00 span = 25min/480min
+            label.textContent = '06:25';
+            dot.style.background = 'var(--amber)';
+            badge.className = 'mark-badge late visible';
+            badge.innerHTML = '<span>⚠ LATE</span>';
+            this.textContent = '↺ Reset to on-time';
+            setConsole(4, 'e');
+            document.getElementById('con-resp').textContent = '{ marks: ["LATE"], hours: 7.58, punchIn: "06:25" }';
+          } else {
+            // reset
+            ch4State = 'ontime';
+            marker.style.left = '3.125%';
+            label.textContent = '06:05';
+            dot.style.background = 'var(--blue)';
+            badge.className = 'mark-badge on-time visible';
+            badge.innerHTML = '<span>✓ ON_TIME</span>';
+            this.textContent = 'Punch in late →';
+            setConsole(4);
+          }
+        });
+      }
+
+      // Ch5 — OT bars
+      function initChapter5() {
+        // Pune: 10.5h out of 12h max = 87.5%
+        // OT portion starts at 9h = 75%, goes to 87.5% → width = 12.5%
+        setTimeout(() => {
+          document.getElementById('pune-fill').style.width = '87.5%';
+          document.getElementById('sez-fill').style.width = '87.5%';
+          document.getElementById('pune-thresh').classList.add('visible');
+          document.getElementById('sez-thresh').classList.add('visible');
+        }, 400);
+        setTimeout(() => {
+          document.getElementById('pune-ot').style.width = '12.5%'; // 1.5/12
+          document.getElementById('sez-ot').style.width = '4.17%'; // 0.5/12
+          document.getElementById('pune-ot-label').classList.add('visible');
+          document.getElementById('sez-ot-label').classList.add('visible');
+        }, 1800);
+      }
+
+      // Ch6 — transfer
+      let ch6Transferred = false;
+      function initChapter6() {
+        document.getElementById('ch6-transfer-btn').addEventListener('click', function () {
+          if (ch6Transferred) return;
+          ch6Transferred = true;
+
+          // slide emp card
+          const emp = document.getElementById('ch6-emp');
+          emp.style.transform = 'translateX(calc(50vw - 220px))';
+
+          // flip badge
+          const otBadge = document.getElementById('ch6-ot-badge');
+          otBadge.classList.add('flipping');
+          setTimeout(() => {
+            otBadge.textContent = '10h OT';
+            otBadge.style.background = 'rgba(210,153,34,0.15)';
+            otBadge.style.color = 'var(--amber)';
+            otBadge.classList.remove('flipping');
+          }, 250);
+
+          // update location text
+          setTimeout(() => {
+            document.getElementById('ch6-location-text').textContent = 'Silvassa SEZ';
+          }, 400);
+
+          // show effective note
+          setTimeout(() => {
+            document.getElementById('ch6-effective').style.opacity = '1';
+          }, 600);
+
+          this.style.display = 'none';
+          document.getElementById('ch6-reset-btn').style.display = 'inline-flex';
+
+          setConsole(6);
+        });
+
+        document.getElementById('ch6-reset-btn').addEventListener('click', function () {
+          ch6Transferred = false;
+          const emp = document.getElementById('ch6-emp');
+          emp.style.transform = '';
+          const otBadge = document.getElementById('ch6-ot-badge');
+          otBadge.textContent = '9h OT';
+          otBadge.style.background = 'rgba(63,185,80,0.15)';
+          otBadge.style.color = 'var(--green)';
+          document.getElementById('ch6-location-text').textContent = 'Pune MIDC';
+          document.getElementById('ch6-effective').style.opacity = '0';
+          this.style.display = 'none';
+          document.getElementById('ch6-transfer-btn').style.display = 'inline-flex';
+        });
+      }
+
+      // Ch7 — probation
+      let ch7Advanced = false;
+      function initChapter7() {
+        document.getElementById('ch7-advance-btn').addEventListener('click', function () {
+          if (ch7Advanced) return;
+          ch7Advanced = true;
+
+          // fill bar to 100%
+          document.getElementById('ch7-prob-bar').style.width = '100%';
+
+          setTimeout(() => {
+            // flip status badge
+            document.getElementById('ch7-status-inner').classList.add('flipped');
+          }, 800);
+
+          setTimeout(() => {
+            // unlock
+            const lock = document.getElementById('ch7-lock');
+            lock.textContent = '🔓';
+            lock.classList.add('unlocked');
+            document.getElementById('ch7-lock-note').textContent = 'EL unlocked — 15 days accrued on completion';
+          }, 1200);
+
+          setTimeout(() => {
+            // tick EL counter
+            animateCounter(document.getElementById('ch7-el-num'), 0, 15, 800);
+          }, 1400);
+
+          this.style.display = 'none';
+          setConsole(7);
+        });
+      }
+
+      // Ch8 — leave approval
+      let ch8Approved = false;
+      function initChapter8() {
+        document.getElementById('ch8-approve-btn').addEventListener('click', function () {
+          if (ch8Approved) return;
+          ch8Approved = true;
+
+          const inbox = document.getElementById('ch8-inbox');
+          inbox.classList.add('approved-state');
+          document.getElementById('ch8-checkmark').classList.add('visible');
+          this.disabled = true;
+
+          // turn calendar days green
+          setTimeout(() => {
+            ['cal-15', 'cal-16', 'cal-17'].forEach((id, i) => {
+              setTimeout(() => {
+                const el = document.getElementById(id);
+                el.classList.remove('highlight');
+                el.classList.add('approved');
+              }, i * 200);
+            });
+          }, 400);
+
+          // tick balance 10 → 7
+          let bal = 10;
+          const balEl = document.getElementById('ch8-balance');
+          const tick = () => {
+            if (bal <= 7) {
+              showToast('Balance updated — 7 days remaining');
+              return;
+            }
+            bal--;
+            balEl.textContent = bal;
+            balEl.classList.add('ticking');
+            setTimeout(() => balEl.classList.remove('ticking'), 300);
+            setTimeout(tick, 400);
+          };
+          setTimeout(tick, 700);
+          setConsole(8);
+        });
+      }
+
+      // Ch9 — half day
+      let ch9ConflictShown = false;
+      function initChapter9() {
+        // animate halves in
+        setTimeout(() => {
+          document.getElementById('ch9-midline').classList.add('visible');
+          setTimeout(() => {
+            document.getElementById('ch9-first').style.opacity = '1';
+            document.getElementById('ch9-second').style.opacity = '1';
+          }, 300);
+        }, 400);
+
+        document.getElementById('ch9-conflict-btn').addEventListener('click', function () {
+          if (!ch9ConflictShown) {
+            ch9ConflictShown = true;
+            const card = document.getElementById('ch9-conflict-card');
+            card.style.display = 'flex';
+            void card.offsetWidth;
+            card.classList.add('visible', 'error');
+            setTimeout(() => shake(card), 100);
+            this.style.display = 'none';
+            document.getElementById('ch9-reset-btn').style.display = 'inline-flex';
+
+            // update console
+            const conResp = document.getElementById('con-resp');
+            conResp.textContent = 'ConflictError: LEAVE_OVERLAP — FIRST_HALF already taken on 2026-06-10';
+            conResp.className = 'con-resp error';
+          }
+        });
+
+        document.getElementById('ch9-reset-btn').addEventListener('click', function () {
+          ch9ConflictShown = false;
+          const card = document.getElementById('ch9-conflict-card');
+          card.style.display = 'none';
+          card.classList.remove('visible', 'error');
+          document.getElementById('ch9-conflict-btn').style.display = 'inline-flex';
+          this.style.display = 'none';
+          setConsole(9);
+        });
+      }
+
+      // ─── API Status Check ──────────────────────────────────────────
+      async function fetchOrFallback(path, fallback) {
+        try {
+          const r = await fetch(`http://localhost:3001${path}`, { signal: AbortSignal.timeout(2000) });
+          if (!r.ok) return fallback;
+          return await r.json();
+        } catch {
+          return fallback;
+        }
+      }
+
+      async function checkApiConnection() {
+        const dot = document.getElementById('api-dot');
+        const label = document.getElementById('api-label');
+        try {
+          await fetch('http://localhost:3001/health', { signal: AbortSignal.timeout(1500) });
+          dot.className = 'connected';
+          label.textContent = 'API connected';
+        } catch {
+          dot.className = 'offline';
+          label.textContent = 'API offline · static mode';
+        }
+      }
+
+      // ─── Event Listeners ───────────────────────────────────────────
+      document.getElementById('btn-prev').addEventListener('click', () => {
+        goToChapter(currentChapter - 1, 'backward');
       });
-    }, 400);
+      document.getElementById('btn-next').addEventListener('click', () => {
+        goToChapter(currentChapter + 1, 'forward');
+      });
 
-    // tick balance 10 → 7
-    let bal = 10;
-    const balEl = document.getElementById('ch8-balance');
-    const tick = () => {
-      if (bal <= 7) { showToast('Balance updated — 7 days remaining'); return; }
-      bal--;
-      balEl.textContent = bal;
-      balEl.classList.add('ticking');
-      setTimeout(() => balEl.classList.remove('ticking'), 300);
-      setTimeout(tick, 400);
-    };
-    setTimeout(tick, 700);
-    setConsole(8);
-  });
-}
+      document.querySelectorAll('.ch-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const n = parseInt(pill.dataset.ch);
+          goToChapter(n, n > currentChapter ? 'forward' : 'backward');
+        });
+      });
 
-// Ch9 — half day
-let ch9ConflictShown = false;
-function initChapter9() {
-  // animate halves in
-  setTimeout(() => {
-    document.getElementById('ch9-midline').classList.add('visible');
-    setTimeout(() => {
-      document.getElementById('ch9-first').style.opacity = '1';
-      document.getElementById('ch9-second').style.opacity = '1';
-    }, 300);
-  }, 400);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (e.key === 'ArrowRight') goToChapter(currentChapter + 1, 'forward');
+          else goToChapter(currentChapter - 1, 'backward');
+        }
+      });
 
-  document.getElementById('ch9-conflict-btn').addEventListener('click', function() {
-    if (!ch9ConflictShown) {
-      ch9ConflictShown = true;
-      const card = document.getElementById('ch9-conflict-card');
-      card.style.display = 'flex';
-      void card.offsetWidth;
-      card.classList.add('visible', 'error');
-      setTimeout(() => shake(card), 100);
-      this.style.display = 'none';
-      document.getElementById('ch9-reset-btn').style.display = 'inline-flex';
+      // ─── Boot ──────────────────────────────────────────────────────
+      chapterInited[1] = true;
+      initChapter1();
+      checkApiConnection();
+      updateNav();
+      setConsole(1);
 
-      // update console
-      const conResp = document.getElementById('con-resp');
-      conResp.textContent = 'ConflictError: LEAVE_OVERLAP — FIRST_HALF already taken on 2026-06-10';
-      conResp.className = 'con-resp error';
-    }
-  });
+      // Wire chapter inits
+      const chapterInitMap = {
+        2: initChapter2,
+        3: initChapter3,
+        4: initChapter4,
+        5: initChapter5,
+        6: initChapter6,
+        7: initChapter7,
+        8: initChapter8,
+        9: initChapter9,
+      };
 
-  document.getElementById('ch9-reset-btn').addEventListener('click', function() {
-    ch9ConflictShown = false;
-    const card = document.getElementById('ch9-conflict-card');
-    card.style.display = 'none';
-    card.classList.remove('visible', 'error');
-    document.getElementById('ch9-conflict-btn').style.display = 'inline-flex';
-    this.style.display = 'none';
-    setConsole(9);
-  });
-}
+      function initChapter(n) {
+        if (chapterInitMap[n]) chapterInitMap[n]();
+      }
 
-// ─── API Status Check ──────────────────────────────────────────
-async function fetchOrFallback(path, fallback) {
-  try {
-    const r = await fetch(`http://localhost:3001${path}`, { signal: AbortSignal.timeout(2000) });
-    if (!r.ok) return fallback;
-    return await r.json();
-  } catch {
-    return fallback;
-  }
-}
-
-async function checkApiConnection() {
-  const dot = document.getElementById('api-dot');
-  const label = document.getElementById('api-label');
-  try {
-    await fetch('http://localhost:3001/health', { signal: AbortSignal.timeout(1500) });
-    dot.className = 'connected';
-    label.textContent = 'API connected';
-  } catch {
-    dot.className = 'offline';
-    label.textContent = 'API offline · static mode';
-  }
-}
-
-// ─── Event Listeners ───────────────────────────────────────────
-document.getElementById('btn-prev').addEventListener('click', () => {
-  goToChapter(currentChapter - 1, 'backward');
-});
-document.getElementById('btn-next').addEventListener('click', () => {
-  goToChapter(currentChapter + 1, 'forward');
-});
-
-document.querySelectorAll('.ch-pill').forEach(pill => {
-  pill.addEventListener('click', () => {
-    const n = parseInt(pill.dataset.ch);
-    goToChapter(n, n > currentChapter ? 'forward' : 'backward');
-  });
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    if (e.key === 'ArrowRight') goToChapter(currentChapter + 1, 'forward');
-    else goToChapter(currentChapter - 1, 'backward');
-  }
-});
-
-// ─── Boot ──────────────────────────────────────────────────────
-chapterInited[1] = true;
-initChapter1();
-checkApiConnection();
-updateNav();
-setConsole(1);
-
-// Wire chapter inits
-const chapterInitMap = {
-  2: initChapter2,
-  3: initChapter3,
-  4: initChapter4,
-  5: initChapter5,
-  6: initChapter6,
-  7: initChapter7,
-  8: initChapter8,
-  9: initChapter9,
-};
-
-function initChapter(n) {
-  if (chapterInitMap[n]) chapterInitMap[n]();
-}
-
-// Make ch1 chapters hidden initially (except ch1)
-document.querySelectorAll('.chapter:not(#ch1)').forEach(el => {
-  el.style.display = 'none';
-});
-</script>
-</body>
+      // Make ch1 chapters hidden initially (except ch1)
+      document.querySelectorAll('.chapter:not(#ch1)').forEach((el) => {
+        el.style.display = 'none';
+      });
+    </script>
+  </body>
 </html>

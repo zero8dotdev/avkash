@@ -144,9 +144,7 @@ describe('assertWritableFields', () => {
 
   it('rejects body with a field from an unwritable group', () => {
     const grant = makeGrant(['basic'], ['basic']);
-    expect(() =>
-      assertWritableFields(grant, sampleGroups, { name: 'Bob', salary: 9000 })
-    ).toThrow();
+    expect(() => assertWritableFields(grant, sampleGroups, { name: 'Bob', salary: 9000 })).toThrow();
   });
 
   it('error code is FORBIDDEN_FIELD', () => {
@@ -195,16 +193,12 @@ describe('assertQueryableFields', () => {
 
   it('allows sort by basic field when basic is readable', () => {
     const grant = makeGrant(['basic', 'compensation'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { sort: 'name' }, annotated)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { sort: 'name' }, annotated)).not.toThrow();
   });
 
   it('rejects sort=salary when compensation is not readable', () => {
     const grant = makeGrant(['basic'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { sort: 'salary' }, annotated)
-    ).toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { sort: 'salary' }, annotated)).toThrow();
   });
 
   it('error code is FORBIDDEN_FIELD for query gate', () => {
@@ -220,38 +214,28 @@ describe('assertQueryableFields', () => {
 
   it('rejects pan_eq param when identity is not readable', () => {
     const grant = makeGrant(['basic'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { pan_eq: 'ABCDE1234F' }, annotated)
-    ).toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { pan_eq: 'ABCDE1234F' }, annotated)).toThrow();
   });
 
   it('allows pan_eq when identity is readable', () => {
     const grant = makeGrant(['basic', 'identity'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { pan_eq: 'ABCDE1234F' }, annotated)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { pan_eq: 'ABCDE1234F' }, annotated)).not.toThrow();
   });
 
   it('field-name-as-param side channel: rejects salary param when compensation unreadable', () => {
     const grant = makeGrant(['basic'], []);
     // salary is in sampleGroups.compensation; assertQueryableFields reverse-indexes it
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { salary: '50000' }, [])
-    ).toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { salary: '50000' }, [])).toThrow();
   });
 
   it('absent params are not flagged', () => {
     const grant = makeGrant(['basic'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, {}, annotated)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, {}, annotated)).not.toThrow();
   });
 
   it('sort=name allowed when basic is readable', () => {
     const grant = makeGrant(['basic'], []);
-    expect(() =>
-      assertQueryableFields(grant, sampleGroups, { sort: 'name' }, annotated)
-    ).not.toThrow();
+    expect(() => assertQueryableFields(grant, sampleGroups, { sort: 'name' }, annotated)).not.toThrow();
   });
 });
 

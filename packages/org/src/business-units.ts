@@ -43,7 +43,10 @@ export async function createBusinessUnit(ctx: AuthContext, input: CreateBusiness
   try {
     await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: row.id });
   } catch (err) {
-    console.error('[authz-sync] publish org.business_unit.changed (create) failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish org.business_unit.changed (create) failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -102,7 +105,10 @@ export async function updateBusinessUnit(
   try {
     await publish(db, ctx, businessUnitChangedDef, { orgId: ctx.orgId, businessUnitId: id });
   } catch (err) {
-    console.error('[authz-sync] publish org.business_unit.changed (update) failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish org.business_unit.changed (update) failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -111,7 +117,12 @@ export async function archiveBusinessUnit(ctx: AuthContext, id: string): Promise
   requireRole(ctx, 'ADMIN');
   await db
     .update(schema.businessUnit)
-    .set({ isActive: false, version: sql`${schema.businessUnit.version} + 1`, updatedBy: ctx.userId, updatedAt: new Date() })
+    .set({
+      isActive: false,
+      version: sql`${schema.businessUnit.version} + 1`,
+      updatedBy: ctx.userId,
+      updatedAt: new Date(),
+    })
     .where(and(eq(schema.businessUnit.id, id), eq(schema.businessUnit.orgId, ctx.orgId)));
 }
 
@@ -129,5 +140,10 @@ export function resolveOrgBrand(
       brandColor: businessUnit.brandColor ?? null,
     };
   }
-  return { name: org.name ?? '', legalName: (org as { legalName?: string | null }).legalName ?? null, logoUrl: null, brandColor: null };
+  return {
+    name: org.name ?? '',
+    legalName: (org as { legalName?: string | null }).legalName ?? null,
+    logoUrl: null,
+    brandColor: null,
+  };
 }

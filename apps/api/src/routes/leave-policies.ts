@@ -1,7 +1,14 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { serialize, PreconditionRequiredError } from '@avkash/shared';
-import { getLeavePolicy, listLeavePolicies, createLeavePolicy, updateLeavePolicy, upsertLevelPolicy, listLevelPolicies } from '@avkash/leave';
+import {
+  getLeavePolicy,
+  listLeavePolicies,
+  createLeavePolicy,
+  updateLeavePolicy,
+  upsertLevelPolicy,
+  listLevelPolicies,
+} from '@avkash/leave';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
@@ -14,7 +21,10 @@ const etag = (version: number) => `"${version}"`;
 const probationFields = {
   probationMaxLeaves: z.number().int().nonnegative().nullish(),
   probationAccruals: z.boolean().nullish(),
-  probationAccrualRate: z.string().regex(/^\d+(\.\d+)?$/).nullish(),
+  probationAccrualRate: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/)
+    .nullish(),
   probationEncashable: z.boolean().nullish(),
 };
 
@@ -78,7 +88,10 @@ const levelPolicySchema = z.object({
   leaveTypeId: z.string().min(1),
   levelId: z.string().min(1),
   maxLeaves: z.number().nonnegative().nullish(),
-  accrualPerMonth: z.string().regex(/^\d+(\.\d+)?$/).nullish(),
+  accrualPerMonth: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/)
+    .nullish(),
   rollOverLimit: z.number().nonnegative().nullish(),
   ...probationFields,
 });
@@ -88,7 +101,9 @@ export const levelPolicies = new Hono<AppEnv>()
   .use(requireAuth)
   .get('/', validateQuery(levelListQuery), async (c) => {
     const q = c.get('query');
-    return c.json({ data: serialize(levelLeavePolicyDto.array(), await listLevelPolicies(c.get('auth'), q.leaveTypeId)) });
+    return c.json({
+      data: serialize(levelLeavePolicyDto.array(), await listLevelPolicies(c.get('auth'), q.leaveTypeId)),
+    });
   })
   .put('/', idempotency, validateBody(levelPolicySchema), async (c) => {
     const row = await upsertLevelPolicy(c.get('auth'), c.get('body'));

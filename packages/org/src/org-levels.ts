@@ -41,7 +41,11 @@ export async function listOrgLevels(ctx: AuthContext, includeInactive = false): 
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.orgLevel.orgId, ctx.orgId)];
   if (!includeInactive) conds.push(eq(schema.orgLevel.isActive, true));
-  return db.select().from(schema.orgLevel).where(and(...conds)).orderBy(schema.orgLevel.rank);
+  return db
+    .select()
+    .from(schema.orgLevel)
+    .where(and(...conds))
+    .orderBy(schema.orgLevel.rank);
 }
 
 export async function getOrgLevel(ctx: AuthContext, id: string): Promise<OrgLevel> {
@@ -97,6 +101,11 @@ export async function archiveOrgLevel(ctx: AuthContext, id: string): Promise<voi
   requireRole(ctx, 'ADMIN');
   await db
     .update(schema.orgLevel)
-    .set({ isActive: false, version: sql`${schema.orgLevel.version} + 1`, updatedBy: ctx.userId, updatedAt: new Date() })
+    .set({
+      isActive: false,
+      version: sql`${schema.orgLevel.version} + 1`,
+      updatedBy: ctx.userId,
+      updatedAt: new Date(),
+    })
     .where(and(eq(schema.orgLevel.id, id), eq(schema.orgLevel.orgId, ctx.orgId)));
 }

@@ -11,10 +11,7 @@ import { db, schema } from '@avkash/db';
  * A sustained non-zero value with a rising trend indicates a stuck relay.
  */
 export async function outboxDepth(): Promise<number> {
-  const [row] = await db
-    .select({ n: count() })
-    .from(schema.eventOutbox)
-    .where(isNull(schema.eventOutbox.publishedAt));
+  const [row] = await db.select({ n: count() }).from(schema.eventOutbox).where(isNull(schema.eventOutbox.publishedAt));
   return Number(row?.n ?? 0);
 }
 
