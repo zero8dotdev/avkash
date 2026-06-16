@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --target bun --outdir dist",
+    "build": "bun build src/index.ts --target bun --outdir dist --external @better-auth/kysely-adapter",
     "test": "bun test src/test",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
