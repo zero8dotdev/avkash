@@ -147,9 +147,7 @@ export const internal = new Hono()
     const result = await syncOrgTuples(orgId);
     const repairs = result.written + result.deleted;
     if (repairs > 0) {
-      console.error(
-        `[authz-reconcile] REPAIR for org ${orgId}: +${result.written} writes, -${result.deleted} deletes`
-      );
+      console.error(`[authz-reconcile] REPAIR for org ${orgId}: +${result.written} writes, -${result.deleted} deletes`);
     }
     return c.json({ ...result, repairs });
   })

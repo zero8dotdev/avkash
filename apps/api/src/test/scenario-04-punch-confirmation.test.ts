@@ -7,8 +7,14 @@ import { db, schema } from '@avkash/db';
 import { eq } from 'drizzle-orm';
 import { confirmPunches, listAttendance, listPendingConfirmations } from '@avkash/attendance';
 import {
-  createMahalaxmiOrg, createEmployee, insertPunch, cleanupOrg,
-  adminCtx, managerCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  insertPunch,
+  cleanupOrg,
+  adminCtx,
+  managerCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -37,18 +43,24 @@ beforeAll(async () => {
     levelId: fx.level.opr, // OPR requires punch confirmation
   });
   // Wire mgr into the team's managers array so managedTeamIds returns it.
-  await db.update(schema.team)
+  await db
+    .update(schema.team)
     .set({ managers: [mgr.userId] })
     .where(eq(schema.team.teamId, fx.team.puneWorkers));
 
   // Assign A shift
   await db.insert(schema.shiftAssignment).values({
-    orgId: fx.orgId, userId: worker.userId,
-    shiftId: fx.shift.a, fromDate: '2026-01-01', toDate: null,
+    orgId: fx.orgId,
+    userId: worker.userId,
+    shiftId: fx.shift.a,
+    fromDate: '2026-01-01',
+    toDate: null,
     createdBy: 'seed',
   });
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Punch confirmation — OPERATOR level', () => {
   let punchId: string;

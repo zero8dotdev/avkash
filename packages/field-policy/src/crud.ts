@@ -21,22 +21,19 @@ export interface UpdateFieldPolicyInput {
 
 // ── List ──────────────────────────────────────────────────────────────────────
 
-export async function listFieldPolicies(
-  ctx: AuthContext,
-  opts?: { resource?: string }
-): Promise<FieldPolicy[]> {
+export async function listFieldPolicies(ctx: AuthContext, opts?: { resource?: string }): Promise<FieldPolicy[]> {
   requireRole(ctx, 'MANAGER');
   const conditions = [eq(schema.fieldPolicy.orgId, ctx.orgId)];
   if (opts?.resource) conditions.push(eq(schema.fieldPolicy.resource, opts.resource));
-  return db.select().from(schema.fieldPolicy).where(and(...conditions));
+  return db
+    .select()
+    .from(schema.fieldPolicy)
+    .where(and(...conditions));
 }
 
 // ── Upsert (create or replace) ────────────────────────────────────────────────
 
-export async function upsertFieldPolicy(
-  ctx: AuthContext,
-  input: UpsertFieldPolicyInput
-): Promise<FieldPolicy> {
+export async function upsertFieldPolicy(ctx: AuthContext, input: UpsertFieldPolicyInput): Promise<FieldPolicy> {
   requireRole(ctx, 'MANAGER');
 
   const insert: NewFieldPolicy = {

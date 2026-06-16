@@ -205,10 +205,7 @@ describe('explain endpoint — flattenTree logic', () => {
     const tree = {
       root: {
         union: {
-          nodes: [
-            { leaf: { users: ['user:alice'] } },
-            { leaf: { users: ['user:bob'] } },
-          ],
+          nodes: [{ leaf: { users: ['user:alice'] } }, { leaf: { users: ['user:bob'] } }],
         },
       },
     };

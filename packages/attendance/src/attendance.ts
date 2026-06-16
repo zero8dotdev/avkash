@@ -81,7 +81,13 @@ function resolveDay(
       hours
     );
     // applyOvertime respects trackOvertime flag and SEZ threshold.
-    ({ marks, overtimeHours } = applyOvertime(marks, hours, shift.trackOvertime, lite.fullDayHours, overtimeThresholdHours));
+    ({ marks, overtimeHours } = applyOvertime(
+      marks,
+      hours,
+      shift.trackOvertime,
+      lite.fullDayHours,
+      overtimeThresholdHours
+    ));
   }
 
   // The calendar checks (holiday/weekly-off/leave) use the local date.
@@ -107,7 +113,11 @@ async function loadCalendar(
   userId: string
 ): Promise<{ workweek: DayName[]; pattern: WorkweekPatternRecord | null; location: string | null }> {
   const [u] = await db
-    .select({ workweek: schema.user.workweek, teamId: schema.user.teamId, workweekPatternId: schema.user.workweekPatternId })
+    .select({
+      workweek: schema.user.workweek,
+      teamId: schema.user.teamId,
+      workweekPatternId: schema.user.workweekPatternId,
+    })
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .limit(1);
@@ -116,7 +126,11 @@ async function loadCalendar(
   let location: string | null = null;
   if (u?.teamId) {
     const [t] = await db
-      .select({ workweek: schema.team.workweek, location: schema.team.location, workweekPatternId: schema.team.workweekPatternId })
+      .select({
+        workweek: schema.team.workweek,
+        location: schema.team.location,
+        workweekPatternId: schema.team.workweekPatternId,
+      })
       .from(schema.team)
       .where(eq(schema.team.teamId, u.teamId))
       .limit(1);
@@ -132,7 +146,11 @@ async function loadCalendar(
   let pattern: WorkweekPatternRecord | null = null;
   if (patternId) {
     const [p] = await db
-      .select({ cycleLength: schema.workweekPattern.cycleLength, weeks: schema.workweekPattern.weeks, referenceDate: schema.workweekPattern.referenceDate })
+      .select({
+        cycleLength: schema.workweekPattern.cycleLength,
+        weeks: schema.workweekPattern.weeks,
+        referenceDate: schema.workweekPattern.referenceDate,
+      })
       .from(schema.workweekPattern)
       .where(and(eq(schema.workweekPattern.id, patternId), eq(schema.workweekPattern.isActive, true)))
       .limit(1);

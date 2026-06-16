@@ -51,14 +51,11 @@ export function assertQueryableFields(
 
     // If this annotation targets a specific value (e.g. sort=salary), only
     // enforce when the param's value matches. Otherwise the whole param is gated.
-    const relevant =
-      annotation.value === undefined || paramValue === annotation.value;
+    const relevant = annotation.value === undefined || paramValue === annotation.value;
     if (!relevant) continue;
 
     if (!grant.read.has(annotation.group)) {
-      const label = annotation.value
-        ? `${annotation.param}=${annotation.value}`
-        : annotation.param;
+      const label = annotation.value ? `${annotation.param}=${annotation.value}` : annotation.param;
       forbidden.push(label);
     }
   }

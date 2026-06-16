@@ -59,10 +59,7 @@ describe('publish() — transactional outbox insertion', () => {
       await publish(tx, ctx, leaveApproved, payload);
     });
 
-    const rows = await db
-      .select()
-      .from(schema.eventOutbox)
-      .where(eq(schema.eventOutbox.orgId, TEST_ORG));
+    const rows = await db.select().from(schema.eventOutbox).where(eq(schema.eventOutbox.orgId, TEST_ORG));
 
     expect(rows.length).toBeGreaterThanOrEqual(1);
     const row = rows.find((r) => (r.payload as { leaveId: string }).leaveId === payload.leaveId);
@@ -88,10 +85,7 @@ describe('publish() — transactional outbox insertion', () => {
     }
     expect(threw).toBe(true);
 
-    const rows = await db
-      .select()
-      .from(schema.eventOutbox)
-      .where(eq(schema.eventOutbox.orgId, TEST_ORG));
+    const rows = await db.select().from(schema.eventOutbox).where(eq(schema.eventOutbox.orgId, TEST_ORG));
 
     // The row we inserted in the aborted tx must not be present.
     const found = rows.find((r) => (r.payload as { leaveId: string }).leaveId === uniqueLeaveId);
@@ -185,10 +179,7 @@ describe('runRelayOnce() — relay drain', () => {
     expect(result.failed).toBeGreaterThanOrEqual(1);
 
     // The row should still be unpublished and have attempts=1, lastError set.
-    const rows = await db
-      .select()
-      .from(schema.eventOutbox)
-      .where(eq(schema.eventOutbox.orgId, TEST_ORG));
+    const rows = await db.select().from(schema.eventOutbox).where(eq(schema.eventOutbox.orgId, TEST_ORG));
 
     const failedRow = rows.find(
       (r) => (r.payload as { leaveId: string }).leaveId === leaveId && r.publishedAt === null
@@ -235,10 +226,7 @@ describe('idempotent redelivery', () => {
 describe('observability helpers', () => {
   it('outboxDepth() counts unpublished rows for all orgs', async () => {
     // Clean slate: ensure no leftover unpublished rows from this suite's org.
-    await db
-      .update(schema.eventOutbox)
-      .set({ publishedAt: new Date() })
-      .where(eq(schema.eventOutbox.orgId, TEST_ORG));
+    await db.update(schema.eventOutbox).set({ publishedAt: new Date() }).where(eq(schema.eventOutbox.orgId, TEST_ORG));
 
     const depthBefore = await outboxDepth();
 
@@ -253,10 +241,7 @@ describe('observability helpers', () => {
 
   it('oldestUnpublishedAgeMs() returns 0 when no pending rows', async () => {
     // Ensure all rows for our test org are published.
-    await db
-      .update(schema.eventOutbox)
-      .set({ publishedAt: new Date() })
-      .where(eq(schema.eventOutbox.orgId, TEST_ORG));
+    await db.update(schema.eventOutbox).set({ publishedAt: new Date() }).where(eq(schema.eventOutbox.orgId, TEST_ORG));
 
     // Depending on other tests running in parallel there might be rows from
     // other orgs. We can only assert 0 if the full table is clean. Skip the

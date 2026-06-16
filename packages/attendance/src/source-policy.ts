@@ -14,12 +14,7 @@ async function getCustomPolicy(
   const [row] = await db
     .select()
     .from(schema.attendanceSourcePolicy)
-    .where(
-      and(
-        eq(schema.attendanceSourcePolicy.orgId, orgId),
-        eq(schema.attendanceSourcePolicy.levelId, levelId)
-      )
-    )
+    .where(and(eq(schema.attendanceSourcePolicy.orgId, orgId), eq(schema.attendanceSourcePolicy.levelId, levelId)))
     .limit(1);
   return row ?? null;
 }

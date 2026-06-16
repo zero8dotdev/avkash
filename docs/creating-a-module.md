@@ -5,9 +5,9 @@ A developer guide for building a new module on the Avkash open core — using a 
 courses, enrollments, and completions, reacts to core events (auto-enroll new hires), exposes a versioned
 HTTP API, and is switched on per organisation.
 
-> **Status.** The *domain conventions* in this guide (schema, ctx-first services, DTOs, validation, errors,
-> RBAC, optimistic concurrency, tests) are how Avkash works **today** — copy them verbatim. The *platform
-> seams* that make a module truly plug-and-play (the **manifest/registry**, the **event bus**, and
+> **Status.** The _domain conventions_ in this guide (schema, ctx-first services, DTOs, validation, errors,
+> RBAC, optimistic concurrency, tests) are how Avkash works **today** — copy them verbatim. The _platform
+> seams_ that make a module truly plug-and-play (the **manifest/registry**, the **event bus**, and
 > **entitlements**) are defined in [Plan 49](../plans/49-modular-core-platform.md) and
 > [Plan 50](../plans/50-repository-open-core-strategy.md) and are being implemented. Sections that depend on
 > an unbuilt seam are tagged **[Platform: Phase N]**, with the current interim wiring shown inline.
@@ -16,7 +16,7 @@ HTTP API, and is switched on per organisation.
 
 ## 1. What a module is
 
-A module is a package that adds a capability **without modifying core**. It depends only *downward* on the
+A module is a package that adds a capability **without modifying core**. It depends only _downward_ on the
 core, and core never imports it back.
 
 ```
@@ -40,7 +40,7 @@ identity (`@avkash/auth`), core domains for reads (`@avkash/users`, `@avkash/org
 The three independent levers (see [Plan 50](../plans/50-repository-open-core-strategy.md)) decide a module's
 reach: **source** (open repo vs your private repo), **build** (in this binary's module list or not), and
 **runtime** (the per-org entitlement flag). This guide builds an LMS you could contribute to the open core
-*or* keep as a private module in your own deployment — the code is identical; only registration differs
+_or_ keep as a private module in your own deployment — the code is identical; only registration differs
 (§13).
 
 ---
@@ -133,13 +133,15 @@ export const lmsCourse = pgTable(
   'LmsCourse',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    orgId: uuid('orgId').notNull().references(() => schema.organisation.orgId),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => schema.organisation.orgId),
     title: varchar('title', { length: 500 }).notNull(),
     slug: varchar('slug', { length: 255 }).notNull(),
     description: text('description'),
     status: courseStatus('status').notNull().default('DRAFT'),
     mandatory: integer('mandatory').notNull().default(0), // 1 = auto-enroll new hires (see events)
-    dbVersion: integer('dbVersion').notNull().default(0),  // optimistic concurrency (ETag/If-Match)
+    dbVersion: integer('dbVersion').notNull().default(0), // optimistic concurrency (ETag/If-Match)
     createdAt: timestamp('createdAt', { precision: 6 }).notNull().defaultNow(),
     updatedAt: timestamp('updatedAt', { precision: 6 }).notNull().defaultNow(),
     createdBy: varchar('createdBy', { length: 255 }),
@@ -152,9 +154,15 @@ export const lmsEnrollment = pgTable(
   'LmsEnrollment',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    orgId: uuid('orgId').notNull().references(() => schema.organisation.orgId),
-    courseId: uuid('courseId').notNull().references(() => lmsCourse.id, { onDelete: 'cascade' }),
-    userId: uuid('userId').notNull().references(() => schema.user.id),
+    orgId: uuid('orgId')
+      .notNull()
+      .references(() => schema.organisation.orgId),
+    courseId: uuid('courseId')
+      .notNull()
+      .references(() => lmsCourse.id, { onDelete: 'cascade' }),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => schema.user.id),
     status: enrollmentStatus('status').notNull().default('ENROLLED'),
     enrolledAt: timestamp('enrolledAt', { precision: 6 }).notNull().defaultNow(),
     completedAt: timestamp('completedAt', { precision: 6 }),
@@ -197,11 +205,19 @@ import { requireRole } from '@avkash/auth';
 import { lmsCourse } from './schema';
 import { coursePublished } from './events';
 
-export interface CreateCourseInput { title: string; slug: string; description?: string; mandatory?: boolean }
+export interface CreateCourseInput {
+  title: string;
+  slug: string;
+  description?: string;
+  mandatory?: boolean;
+}
 
 async function getCourseOrThrow(orgId: string, id: string) {
-  const [row] = await db.select().from(lmsCourse)
-    .where(and(eq(lmsCourse.id, id), eq(lmsCourse.orgId, orgId))).limit(1); // ← org-scoped read
+  const [row] = await db
+    .select()
+    .from(lmsCourse)
+    .where(and(eq(lmsCourse.id, id), eq(lmsCourse.orgId, orgId)))
+    .limit(1); // ← org-scoped read
   if (!row) throw new NotFoundError('LMS_COURSE_NOT_FOUND');
   return row;
 }
@@ -209,15 +225,18 @@ async function getCourseOrThrow(orgId: string, id: string) {
 export async function createCourse(ctx: AuthContext, input: CreateCourseInput) {
   requireRole(ctx, 'ADMIN');
   try {
-    const [row] = await db.insert(lmsCourse).values({
-      orgId: ctx.orgId,                                   // ← stamp the tenant
-      title: input.title,
-      slug: input.slug,
-      description: input.description ?? null,
-      mandatory: input.mandatory ? 1 : 0,
-      createdBy: ctx.userId,
-      updatedBy: ctx.userId,
-    }).returning();
+    const [row] = await db
+      .insert(lmsCourse)
+      .values({
+        orgId: ctx.orgId, // ← stamp the tenant
+        title: input.title,
+        slug: input.slug,
+        description: input.description ?? null,
+        mandatory: input.mandatory ? 1 : 0,
+        createdBy: ctx.userId,
+        updatedBy: ctx.userId,
+      })
+      .returning();
     return row;
   } catch (e) {
     throw mapDatabaseError(e); // unique slug → ConflictError, etc. — never leak raw PG errors
@@ -232,9 +251,11 @@ export async function publishCourse(ctx: AuthContext, id: string) {
   requireRole(ctx, 'ADMIN');
   const course = await getCourseOrThrow(ctx.orgId, id);
   if (course.status === 'PUBLISHED') throw new ConflictError('LMS_COURSE_ALREADY_PUBLISHED');
-  const [updated] = await db.update(lmsCourse)
+  const [updated] = await db
+    .update(lmsCourse)
     .set({ status: 'PUBLISHED', dbVersion: course.dbVersion + 1, updatedAt: new Date(), updatedBy: ctx.userId })
-    .where(eq(lmsCourse.id, id)).returning();
+    .where(eq(lmsCourse.id, id))
+    .returning();
   await coursePublished.publish(ctx, { courseId: id, mandatory: course.mandatory === 1 }); // §6
   return updated;
 }
@@ -253,24 +274,31 @@ import { enrollmentCompleted } from './events';
 export async function enrollUser(ctx: AuthContext, courseId: string, userId: string) {
   requireRole(ctx, 'MANAGER');
   try {
-    const [row] = await db.insert(lmsEnrollment)
+    const [row] = await db
+      .insert(lmsEnrollment)
       .values({ orgId: ctx.orgId, courseId, userId, status: 'ENROLLED' })
-      .onConflictDoNothing()         // unique(courseId,userId) → enroll is idempotent
+      .onConflictDoNothing() // unique(courseId,userId) → enroll is idempotent
       .returning();
     return row;
-  } catch (e) { throw mapDatabaseError(e); }
+  } catch (e) {
+    throw mapDatabaseError(e);
+  }
 }
 
 // The learner marks their own enrollment complete.
 export async function completeCourse(ctx: AuthContext, courseId: string) {
   if (!ctx.userId) throw new ForbiddenError('FORBIDDEN');
-  const [updated] = await db.update(lmsEnrollment)
+  const [updated] = await db
+    .update(lmsEnrollment)
     .set({ status: 'COMPLETED', completedAt: new Date() })
-    .where(and(
-      eq(lmsEnrollment.orgId, ctx.orgId),
-      eq(lmsEnrollment.courseId, courseId),
-      eq(lmsEnrollment.userId, ctx.userId),
-    )).returning();
+    .where(
+      and(
+        eq(lmsEnrollment.orgId, ctx.orgId),
+        eq(lmsEnrollment.courseId, courseId),
+        eq(lmsEnrollment.userId, ctx.userId)
+      )
+    )
+    .returning();
   if (!updated) throw new NotFoundError('LMS_NOT_ENROLLED');
   await enrollmentCompleted.publish(ctx, { courseId, userId: ctx.userId }); // §6
   return updated;
@@ -282,7 +310,7 @@ export async function completeCourse(ctx: AuthContext, courseId: string) {
 ## 6. Step 4 — React to the platform (events) **[Platform: Phase 1]**
 
 This is what makes a module a first-class citizen: it **emits** events others can react to, and **subscribes**
-to core events — *without core knowing the LMS exists*. Auto-enrolling every new hire into mandatory courses
+to core events — _without core knowing the LMS exists_. Auto-enrolling every new hire into mandatory courses
 is the canonical example: the LMS listens for `user.created`; `@avkash/users` never imports the LMS.
 
 `src/events.ts`:
@@ -296,20 +324,27 @@ import { and, eq } from 'drizzle-orm';
 import { lmsCourse, lmsEnrollment } from './schema';
 
 // --- Events this module EMITS (other modules / webhooks can subscribe) ---
-export const coursePublished = defineEvent('lms.course.published',
-  z.object({ courseId: z.string(), mandatory: z.boolean() }));
-export const enrollmentCompleted = defineEvent('lms.enrollment.completed',
-  z.object({ courseId: z.string(), userId: z.string() }));
+export const coursePublished = defineEvent(
+  'lms.course.published',
+  z.object({ courseId: z.string(), mandatory: z.boolean() })
+);
+export const enrollmentCompleted = defineEvent(
+  'lms.enrollment.completed',
+  z.object({ courseId: z.string(), userId: z.string() })
+);
 
 // --- Events this module SUBSCRIBES to ---
 // Registered by the manifest at boot; the registry only fires it for orgs that have the 'lms' entitlement.
 export function registerSubscribers() {
   subscribe(userCreated, async (e) => {
     // Auto-enroll the new user into every mandatory course in their org.
-    const mandatory = await db.select({ id: lmsCourse.id }).from(lmsCourse)
+    const mandatory = await db
+      .select({ id: lmsCourse.id })
+      .from(lmsCourse)
       .where(and(eq(lmsCourse.orgId, e.orgId), eq(lmsCourse.status, 'PUBLISHED'), eq(lmsCourse.mandatory, 1)));
     for (const c of mandatory) {
-      await db.insert(lmsEnrollment)
+      await db
+        .insert(lmsEnrollment)
         .values({ orgId: e.orgId, courseId: c.id, userId: e.payload.userId, status: 'ENROLLED' })
         .onConflictDoNothing(); // idempotent — events are at-least-once
     }
@@ -317,9 +352,9 @@ export function registerSubscribers() {
 }
 ```
 
-> **Two rules for subscribers.** (1) **Be idempotent** — the outbox relay delivers *at least once*, so a
+> **Two rules for subscribers.** (1) **Be idempotent** — the outbox relay delivers _at least once_, so a
 > handler may run twice; `onConflictDoNothing` and unique constraints make that safe. (2) **Use events for
-> reactions, not reads.** If you just need to *look up* a user's team, call `@avkash/users` directly — events
+> reactions, not reads.** If you just need to _look up_ a user's team, call `@avkash/users` directly — events
 > are for side-effects, not queries. Over-eventing is an anti-pattern.
 >
 > **Interim (until Phase 1 lands):** there is no event bus yet, and domains call `@avkash/notifications`
@@ -376,18 +411,20 @@ const createSchema = z.object({
 export const lmsRoutes = new Hono<AppEnv>()
   .use(requireAuth)
   .post('/courses', idempotency, validateBody(createSchema), async (c) =>
-    c.json({ data: serialize(courseDto, await createCourse(c.get('auth'), c.get('body'))) }, 201))
+    c.json({ data: serialize(courseDto, await createCourse(c.get('auth'), c.get('body'))) }, 201)
+  )
   .get('/courses', async (c) =>
-    c.json({ data: (await listCourses(c.get('auth'))).map((r) => serialize(courseDto, r)) }))
+    c.json({ data: (await listCourses(c.get('auth'))).map((r) => serialize(courseDto, r)) })
+  )
   .post('/courses/:id/publish', async (c) => {
     const row = await publishCourse(c.get('auth'), c.req.param('id'));
     c.header('ETag', etag(row.dbVersion));
     return c.json({ data: serialize(courseDto, row) });
   })
   .post('/courses/:id/enroll', validateBody(z.object({ userId: z.string() })), async (c) =>
-    c.json({ data: await enrollUser(c.get('auth'), c.req.param('id'), c.get('body').userId) }, 201))
-  .post('/courses/:id/complete', async (c) =>
-    c.json({ data: await completeCourse(c.get('auth'), c.req.param('id')) }));
+    c.json({ data: await enrollUser(c.get('auth'), c.req.param('id'), c.get('body').userId) }, 201)
+  )
+  .post('/courses/:id/complete', async (c) => c.json({ data: await completeCourse(c.get('auth'), c.req.param('id')) }));
 ```
 
 The registry mounts this under `/v1/lms` and wraps it in the entitlement guard (§11–12). The whole surface
@@ -420,7 +457,7 @@ localize your codes by `Accept-Language` automatically.
 
 ---
 
-## 10. Step 8 — Background work (jobs) — *optional*
+## 10. Step 8 — Background work (jobs) — _optional_
 
 If the module needs scheduled work (e.g. a daily "mandatory course overdue" reminder), declare it as a job;
 the manifest hands it to the BullMQ scheduler. Jobs iterate tenants and **must skip orgs without the
@@ -429,14 +466,16 @@ entitlement** (§11).
 ```ts
 // src/jobs.ts
 import { isModuleEnabled } from '@avkash/entitlements';
-export const lmsJobs = [{
-  name: 'lms.overdue-reminder',
-  cron: '0 9 * * *', // 9am daily
-  run: async (ctx /* system AuthContext per org */) => {
-    if (!isModuleEnabled(ctx, 'lms')) return;
-    // …find overdue mandatory enrollments, publish reminder events…
+export const lmsJobs = [
+  {
+    name: 'lms.overdue-reminder',
+    cron: '0 9 * * *', // 9am daily
+    run: async (ctx /* system AuthContext per org */) => {
+      if (!isModuleEnabled(ctx, 'lms')) return;
+      // …find overdue mandatory enrollments, publish reminder events…
+    },
   },
-}];
+];
 ```
 
 ---
@@ -474,8 +513,8 @@ import { en, hi } from './i18n';
 export const lmsModule: AvkashModule = {
   key: 'lms',
   title: 'Learning Management',
-  entitlement: 'lms',        // null would mean "core, always on"
-  dependsOn: ['users'],      // validated at boot
+  entitlement: 'lms', // null would mean "core, always on"
+  dependsOn: ['users'], // validated at boot
   basePath: '/lms',
   routes: lmsRoutes,
   subscribers: registerSubscribers,
@@ -497,7 +536,7 @@ export * from './events'; // so other modules can subscribe to lms.* events
 
 ## 13. Step 11 — Register the module
 
-Registration is **one line** — and *where* you add it is the only difference between an open and a private
+Registration is **one line** — and _where_ you add it is the only difference between an open and a private
 module (the three dials from [Plan 50](../plans/50-repository-open-core-strategy.md)):
 
 **Open-core contribution** — add to the public module list and open a PR (sign the CLA):
@@ -560,8 +599,8 @@ A core screen — the **Employee Detail** page, owned by `users` — often needs
 (an employee's courses, payslips, documents). Core must **never** import your module to get it: in the
 open-core model your module may live in a private repo (its tables aren't even in the public schema), and
 core depending on a module inverts the layering. The dependency arrow stays **module → core**, always. So you
-never reach *up* from core into the module — you **compose**. Events (§6) are how a module *reacts* to core
-(write-side); this is the read-side twin — how a module *augments* a core view.
+never reach _up_ from core into the module — you **compose**. Events (§6) are how a module _reacts_ to core
+(write-side); this is the read-side twin — how a module _augments_ a core view.
 
 **Anti-patterns** (all break the boundary): core importing `@avkash/lms`; a DB join from the core employee
 query into `LmsEnrollment`; the LMS writing a `courses` column onto the core `user` table.
@@ -583,7 +622,9 @@ Two requirements:
   // src/enrollments.ts
   export async function listEnrollmentsForUser(ctx: AuthContext, userId: string) {
     if (userId !== ctx.userId) requireRole(ctx, 'ADMIN');
-    return db.select().from(lmsEnrollment)
+    return db
+      .select()
+      .from(lmsEnrollment)
       .where(and(eq(lmsEnrollment.orgId, ctx.orgId), eq(lmsEnrollment.userId, userId)));
   }
   ```
@@ -617,7 +658,7 @@ modules and merges:
 { employee: {…}, sections: { lms: { courses: [...] }, payroll: {...}, documents: {...} } }
 ```
 
-Core depends only on the contributor *interface* (in `shared`), never on your module. Build the extension
+Core depends only on the contributor _interface_ (in `shared`), never on your module. Build the extension
 point once and every future module — payroll, documents, performance — attaches to the same employee profile
 for free.
 
@@ -630,6 +671,7 @@ for free.
 ## 16. The module contract — rules & constraints
 
 **Must:**
+
 - Take `AuthContext` as the first arg of every domain function; stamp `orgId` on writes; filter every read by
   `ctx.orgId`.
 - Guard mutations with `requireRole` / `requireScope`; carry a `dbVersion` on mutable resources and CAS on it.
@@ -638,11 +680,12 @@ for free.
 - Make event subscribers **idempotent** (delivery is at-least-once).
 
 **Must not:**
+
 - Be imported by any core package (`shared`, `db`, `auth`, `org`, `users`, the platform packages).
-- Import another module's *internal files*, or read/write tables it doesn't own. Talk to other modules via
+- Import another module's _internal files_, or read/write tables it doesn't own. Talk to other modules via
   their exported functions (for reads) or **events** (for reactions).
 - Return raw rows, hand-parse request bodies, or branch authorization on `ctx.via`.
-- Reach into `@avkash/db` for core tables to *mutate* them — call the owning domain instead.
+- Reach into `@avkash/db` for core tables to _mutate_ them — call the owning domain instead.
 
 ---
 

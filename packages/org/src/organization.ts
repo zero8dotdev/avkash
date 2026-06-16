@@ -9,10 +9,7 @@ import { notifyOrgRestricted } from './org-notify';
 
 // ── Event definitions (inline so @avkash/org doesn't import authz-sync) ──────
 // Minimal payload: orgId only. Writer is state-based — payload is not used as a delta.
-const orgCreatedDef = defineEvent(
-  ORG_GRAPH_EVENTS.ORG_CREATED,
-  z.object({ orgId: z.string().uuid() })
-);
+const orgCreatedDef = defineEvent(ORG_GRAPH_EVENTS.ORG_CREATED, z.object({ orgId: z.string().uuid() }));
 
 export const GRACE_DAYS = 14;
 export const PROVISIONAL_INVITE_CAP = 10;
@@ -51,7 +48,14 @@ export async function createOrganization(
       .returning();
     // Emit org-graph event for the tuple-writer subscriber.
     // System actor — no user exists yet (invite-then-signup bootstrap path).
-    const sysCtx = { orgId: org.orgId, userId: null, role: 'ADMIN' as const, actorType: 'system' as const, assurance: 'low' as const, via: 'system' as const };
+    const sysCtx = {
+      orgId: org.orgId,
+      userId: null,
+      role: 'ADMIN' as const,
+      actorType: 'system' as const,
+      assurance: 'low' as const,
+      via: 'system' as const,
+    };
     await publish(tx, sysCtx, orgCreatedDef, { orgId: org.orgId });
     return { org, invite };
   });

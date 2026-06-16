@@ -37,21 +37,18 @@ export async function runBackfill(): Promise<void> {
       totalDeleted += result.deleted;
       console.log(
         `[authz-backfill] org "${org.name ?? org.orgId}": ` +
-        `+${result.written} writes, -${result.deleted} deletes ` +
-        `(${result.expectedCount} expected tuples)`
+          `+${result.written} writes, -${result.deleted} deletes ` +
+          `(${result.expectedCount} expected tuples)`
       );
     } catch (err) {
       errors++;
-      console.error(
-        `[authz-backfill] ERROR for org ${org.orgId}:`,
-        err instanceof Error ? err.message : String(err)
-      );
+      console.error(`[authz-backfill] ERROR for org ${org.orgId}:`, err instanceof Error ? err.message : String(err));
     }
   }
 
   console.log(
     `[authz-backfill] done — ${orgs.length} orgs, ` +
-    `+${totalWritten} written, -${totalDeleted} deleted, ${errors} errors`
+      `+${totalWritten} written, -${totalDeleted} deleted, ${errors} errors`
   );
 
   if (errors > 0) {

@@ -56,7 +56,11 @@ export function getStoreId(): string | null {
 // Never swallow, never return false as a pass-through.
 
 function mapFgaError(cause: unknown): never {
-  throw new UnavailableError('AUTHZ_UNAVAILABLE', { cause: cause instanceof Error ? cause.message : String(cause) }, { cause });
+  throw new UnavailableError(
+    'AUTHZ_UNAVAILABLE',
+    { cause: cause instanceof Error ? cause.message : String(cause) },
+    { cause }
+  );
 }
 
 // ── AuthzClient implementation ────────────────────────────────────────────────

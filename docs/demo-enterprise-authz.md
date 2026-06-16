@@ -75,13 +75,13 @@ so the core authorization model is written automatically when the API starts.
 
 ## Personas
 
-| Name  | Role    | Team       | FGA relation |
-|-------|---------|------------|--------------|
-| Priya | ADMIN   | General    | org.hr_admin |
-| Rohan | MANAGER | Assembly   | team.manager |
-| Sara  | USER    | Assembly   | team.member  |
-| Dev   | MANAGER | Logistics  | team.manager |
-| Anita | USER    | General    | bu.hrbp (manual FGA tuple — see caveat) |
+| Name  | Role    | Team      | FGA relation                            |
+| ----- | ------- | --------- | --------------------------------------- |
+| Priya | ADMIN   | General   | org.hr_admin                            |
+| Rohan | MANAGER | Assembly  | team.manager                            |
+| Sara  | USER    | Assembly  | team.member                             |
+| Dev   | MANAGER | Logistics | team.manager                            |
+| Anita | USER    | General   | bu.hrbp (manual FGA tuple — see caveat) |
 
 ---
 
@@ -109,12 +109,14 @@ curl -s -X PATCH http://localhost:3001/leaves/$MERIDIAN_SARA_LEAVE_ID \
 ```
 
 **Expected output:**
+
 - Rohan: `{"leaveId":"...","isApproved":"APPROVED",...}` (HTTP 200)
 - Dev: `{"error":{"code":"FORBIDDEN_RELATION",...}}` (HTTP 403)
 
 **What to say while it runs:** "We didn't write a single line of 'is this the right manager?' code. The FGA model derives the approver set from the team membership tuples written when we created Rohan's manager relationship."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 1
 ```
@@ -146,12 +148,14 @@ curl -s -X PATCH http://localhost:3001/leaves/$MERIDIAN_SARA_LEAVE_ID \
 ```
 
 **Expected output:**
+
 - Delegation POST: `{"id":"...","fromManagerId":"...","toUserId":"...","startsOn":"...","endsOn":"..."}` (HTTP 201)
 - Dev approval: HTTP 200 (inside window) → HTTP 403 after `endsOn` passes
 
 **What to say:** "This is a conditioned FGA tuple — the `active_window` condition evaluates `now >= starts && now <= ends`. One write covers everything Dev could have approved as Rohan's delegate. Change the endsOn to yesterday and approve again — 403 immediately."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 2
 ```
@@ -197,6 +201,7 @@ curl -s http://localhost:3001/employees/$MERIDIAN_SARA_PROFILE_ID \
 **What to say:** "The fast-lane: when a transfer is approved, the route synchronously calls `syncOrgTuples` best-effort. The outbox event is the reliability guarantee behind it. Show the depth metric — zero means the relay cleared it. That gap is the measurable, defensible, bounded delay window."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 3
 ```
@@ -228,6 +233,7 @@ curl -s http://localhost:3001/employees/$MERIDIAN_SARA_PROFILE_ID \
 ```
 
 **Expected output:**
+
 - Rohan: no `salary` / `bankAccount` / `compensation` keys in JSON (field group absent)
 - After policy flip: Anita sees compensation fields
 - Cache is invalidated on write (no restart needed)
@@ -237,6 +243,7 @@ curl -s http://localhost:3001/employees/$MERIDIAN_SARA_PROFILE_ID \
 **Caveat:** Compensation/identity/medical schema columns (`salary`, `bankAccount`, `pan`, `aadhaar` etc.) do not exist in EmployeeProfile yet. The field-group enforcement is structurally in place; it will activate when the schema columns are added. Until then, the demo shows the absence-of-fields behaviour on the existing profile fields.
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 4
 ```
@@ -266,6 +273,7 @@ curl -s "http://localhost:3001/employees?sort=name" \
 **What to say:** "Hiding a field while allowing `?sort=field` is a classic side-channel leak. Our `assertQueryableFields` check uses the same field-group matrix: if you can't read the group, you can't sort on it. The hidden field can't be inferred by binary-search sorting."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 5
 ```
@@ -282,6 +290,7 @@ implemented, a partner API key scoped to `Plants BU` would allow `GET /attendanc
 (200) but deny `GET /attendance?bu=corporate` (403).
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 6
 # Output: ⊘ Beat 6 SKIPPED
@@ -303,6 +312,7 @@ curl -s "http://localhost:3001/internal/authz/explain?relation=viewer&object=emp
 ```
 
 **Expected output:**
+
 ```json
 {
   "relation": "viewer",
@@ -318,6 +328,7 @@ curl -s "http://localhost:3001/internal/authz/explain?relation=viewer&object=emp
 **What to say:** "This is the auditor's answer. Not a log query, not a spreadsheet — a live, queryable traversal of the authorization graph. Show the sensitive-read audit table: every time Priya reads Sara's identity or medical data, a row is written to ActivityLog."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 7
 ```
@@ -358,6 +369,7 @@ curl -s "http://localhost:3001/internal/authz/reconcile/$MERIDIAN_ORG_ID" \
 ```
 
 **Expected output:**
+
 - While FGA is stopped: `{"error":{"code":"AUTHZ_UNAVAILABLE"}}` on every guarded route
 - After restart: `{"status":"ready"}` from /health/ready
 - Reconciler: `repairs: 0` (or a non-zero count if drift was injected)
@@ -365,6 +377,7 @@ curl -s "http://localhost:3001/internal/authz/reconcile/$MERIDIAN_ORG_ID" \
 **What to say:** "Beat 8 is the trust beat. Every enterprise security questionnaire asks 'what happens if your authz service goes down?' Our answer: 503 every time, never 200. And if something went wrong while FGA was down, the reconciler finds it and fixes it. The repair count is the measurable drift window."
 
 **Smoke test:**
+
 ```bash
 pnpm demo:smoke --beat 8
 ```
@@ -407,6 +420,7 @@ docker compose up -d --force-recreate api
 **Root cause:** The HRBP tuple (`user:<anitaId> hrbp business_unit:<plantsId>`) is not derived from the DB schema (BusinessUnit has no `hrbp_user_id` column). It is written as a manual tuple by `pnpm demo:seed`. The nightly reconciler removes it because `deriveExpectedTuples` does not emit it.
 
 **Fix:**
+
 ```bash
 pnpm demo:seed   # re-seeds the HRBP tuple; idempotent
 ```
@@ -426,11 +440,13 @@ pnpm demo:seed   # re-seeds the HRBP tuple; idempotent
 **Symptom:** `/internal/authz/explain` returns `paths: []`.
 
 **Fix:** Run the backfill to sync all org tuples to FGA:
+
 ```bash
 pnpm authz:backfill
 ```
 
 Or re-run the seed (which calls `syncOrgTuples`):
+
 ```bash
 pnpm demo:seed
 ```
@@ -440,12 +456,14 @@ pnpm demo:seed
 **Symptom:** Delegation is created but Dev still gets 403 on approval.
 
 **Fix:** The outbox relay in the worker picks up the `DELEGATION_CREATED` event and calls `syncOrgTuples`. Start the worker:
+
 ```bash
 docker compose up -d worker
 # or dev: pnpm --filter @avkash/worker dev
 ```
 
 Check the outbox:
+
 ```bash
 curl -s http://localhost:3001/internal/authz/outbox \
   -H "x-internal-token: ${INTERNAL_API_TOKEN:-dev-cron-token}"
@@ -457,6 +475,7 @@ curl -s http://localhost:3001/internal/authz/outbox \
 **Symptom:** `openfga` container fails to start, logs show migration errors.
 
 **Fix:**
+
 ```bash
 # Check logs
 docker compose logs openfga-migrate
@@ -470,10 +489,10 @@ docker compose up -d openfga
 
 ## Caveats and Known Limitations
 
-| Caveat | Detail | Tracked |
-|--------|--------|---------|
-| HRBP manual tuple | No `hrbp_user_id` on `BusinessUnit`; tuple written directly, removed by reconciler | ws7.md §caveats |
-| Compensation/identity schema | `salary`, `pan`, `aadhaar` etc. not in `EmployeeProfile` schema | ws4.md #2, ws7.md |
-| Beat 6 API keys | Resource-scoped API keys not yet implemented | — |
-| Beat 2 delegation smoke | Full delegation flow requires a session token; smoke shows reconcile pre-check only | ws7.md |
-| FGA store tests (live) | `fga model test` requires `@openfga/cli` binary; authored in `core.fga.yaml` | ws2.md |
+| Caveat                       | Detail                                                                              | Tracked           |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ----------------- |
+| HRBP manual tuple            | No `hrbp_user_id` on `BusinessUnit`; tuple written directly, removed by reconciler  | ws7.md §caveats   |
+| Compensation/identity schema | `salary`, `pan`, `aadhaar` etc. not in `EmployeeProfile` schema                     | ws4.md #2, ws7.md |
+| Beat 6 API keys              | Resource-scoped API keys not yet implemented                                        | —                 |
+| Beat 2 delegation smoke      | Full delegation flow requires a session token; smoke shows reconcile pre-check only | ws7.md            |
+| FGA store tests (live)       | `fga model test` requires `@openfga/cli` binary; authored in `core.fga.yaml`        | ws2.md            |

@@ -39,10 +39,7 @@ export async function acknowledgePolicy(ctx: AuthContext, policyId: string) {
 export async function listAcknowledgements(ctx: AuthContext, policyId: string) {
   requireRole(ctx, 'ADMIN');
   await getPolicyOrThrow(ctx.orgId, policyId);
-  return db
-    .select()
-    .from(schema.policyAcknowledgement)
-    .where(eq(schema.policyAcknowledgement.policyId, policyId));
+  return db.select().from(schema.policyAcknowledgement).where(eq(schema.policyAcknowledgement.policyId, policyId));
 }
 
 // Policies the calling user has not yet acknowledged (ACTIVE, requiresAck=true).
@@ -54,22 +51,18 @@ export async function pendingAcknowledgements(ctx: AuthContext, userId?: string)
     .select()
     .from(schema.policy)
     .where(
-      and(
-        eq(schema.policy.orgId, ctx.orgId),
-        eq(schema.policy.status, 'ACTIVE'),
-        eq(schema.policy.requiresAck, true)
-      )
+      and(eq(schema.policy.orgId, ctx.orgId), eq(schema.policy.status, 'ACTIVE'), eq(schema.policy.requiresAck, true))
     );
   if (!activePolicies.length) return [];
   // Find which ones this user has already acknowledged at the current version.
   const acked = await db
-    .select({ policyId: schema.policyAcknowledgement.policyId, policyVersion: schema.policyAcknowledgement.policyVersion })
+    .select({
+      policyId: schema.policyAcknowledgement.policyId,
+      policyVersion: schema.policyAcknowledgement.policyVersion,
+    })
     .from(schema.policyAcknowledgement)
     .where(
-      and(
-        eq(schema.policyAcknowledgement.userId, targetUserId),
-        eq(schema.policyAcknowledgement.orgId, ctx.orgId)
-      )
+      and(eq(schema.policyAcknowledgement.userId, targetUserId), eq(schema.policyAcknowledgement.orgId, ctx.orgId))
     );
   const ackedMap = new Set(acked.map((a) => `${a.policyId}:${a.policyVersion}`));
   return activePolicies.filter((p) => !ackedMap.has(`${p.id}:${p.policyVersion}`));

@@ -27,10 +27,7 @@ const basePayload = z.object({ orgId: z.string().uuid() });
  * may not have signed up yet — member/owner tuples are written later via
  * team membership and role events.
  */
-export const orgCreatedEvent = defineEvent(
-  ORG_GRAPH_EVENTS.ORG_CREATED,
-  basePayload
-);
+export const orgCreatedEvent = defineEvent(ORG_GRAPH_EVENTS.ORG_CREATED, basePayload);
 
 /**
  * Emitted when a user's org-level role changes (ADMIN↔MANAGER↔USER etc.).

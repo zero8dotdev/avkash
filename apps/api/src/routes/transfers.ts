@@ -1,13 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { serialize } from '@avkash/shared';
-import {
-  initiateTransfer,
-  approveTransfer,
-  cancelTransfer,
-  listTransfers,
-  getTransfer,
-} from '@avkash/users';
+import { initiateTransfer, approveTransfer, cancelTransfer, listTransfers, getTransfer } from '@avkash/users';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { idempotency } from '../middleware/idempotency';
@@ -22,7 +16,11 @@ const createSchema = z.object({
   toDepartmentId: z.string().min(1).optional().nullable(),
   type: z.enum(['TEMPORARY', 'PERMANENT']),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .nullable(),
   notes: z.string().max(1000).optional().nullable(),
   letterUrl: z.string().max(2048).optional().nullable(),
 });

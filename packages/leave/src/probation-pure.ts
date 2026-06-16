@@ -2,13 +2,7 @@
 // when the employee's employmentStatus is 'PROBATION'. null fields mean "inherit
 // the base value unchanged". Returns a new object (does not mutate the input).
 
-export type EmploymentStatus =
-  | 'ACTIVE'
-  | 'PROBATION'
-  | 'NOTICE_PERIOD'
-  | 'RESIGNED'
-  | 'TERMINATED'
-  | 'ON_LONG_LEAVE';
+export type EmploymentStatus = 'ACTIVE' | 'PROBATION' | 'NOTICE_PERIOD' | 'RESIGNED' | 'TERMINATED' | 'ON_LONG_LEAVE';
 
 export interface ProbationOverlayFields {
   probationMaxLeaves?: number | null;

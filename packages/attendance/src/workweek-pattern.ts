@@ -118,7 +118,12 @@ export async function archiveWorkweekPattern(ctx: AuthContext, id: string) {
   requireRole(ctx, 'ADMIN');
   await db
     .update(schema.workweekPattern)
-    .set({ isActive: false, version: sql`${schema.workweekPattern.version} + 1`, updatedBy: ctx.userId, updatedAt: new Date() })
+    .set({
+      isActive: false,
+      version: sql`${schema.workweekPattern.version} + 1`,
+      updatedBy: ctx.userId,
+      updatedAt: new Date(),
+    })
     .where(and(eq(schema.workweekPattern.id, id), eq(schema.workweekPattern.orgId, ctx.orgId)));
 }
 
@@ -132,11 +137,7 @@ export async function resolveUserPattern(orgId: string, userId: string) {
   if (!usr) return null;
 
   const resolvePattern = async (patternId: string) => {
-    const [p] = await db
-      .select()
-      .from(schema.workweekPattern)
-      .where(eq(schema.workweekPattern.id, patternId))
-      .limit(1);
+    const [p] = await db.select().from(schema.workweekPattern).where(eq(schema.workweekPattern.id, patternId)).limit(1);
     return p ?? null;
   };
 

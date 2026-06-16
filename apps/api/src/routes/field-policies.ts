@@ -13,12 +13,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { serialize } from '@avkash/shared';
-import {
-  listFieldPolicies,
-  upsertFieldPolicy,
-  updateFieldPolicy,
-  deleteFieldPolicy,
-} from '@avkash/field-policy';
+import { listFieldPolicies, upsertFieldPolicy, updateFieldPolicy, deleteFieldPolicy } from '@avkash/field-policy';
 import { requireRole } from '@avkash/auth';
 import { type AppEnv, requireAuth } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validate';

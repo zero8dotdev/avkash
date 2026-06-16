@@ -164,13 +164,13 @@ tests:
         condition:
           name: active_window
           context:
-            starts: "2026-06-01T00:00:00Z"
-            ends: "2026-06-30T23:59:59Z"
+            starts: '2026-06-01T00:00:00Z'
+            ends: '2026-06-30T23:59:59Z'
     check:
       - user: user:dev
         object: leave_request:sara-lr1
         context:
-          now: "2026-06-10T09:00:00Z"
+          now: '2026-06-10T09:00:00Z'
         assertions:
           approver: true
 
@@ -184,13 +184,13 @@ tests:
         condition:
           name: active_window
           context:
-            starts: "2026-06-01T00:00:00Z"
-            ends: "2026-06-30T23:59:59Z"
+            starts: '2026-06-01T00:00:00Z'
+            ends: '2026-06-30T23:59:59Z'
     check:
       - user: user:dev
         object: leave_request:sara-lr1
         context:
-          now: "2026-07-05T09:00:00Z"
+          now: '2026-07-05T09:00:00Z'
         assertions:
           approver: false
 

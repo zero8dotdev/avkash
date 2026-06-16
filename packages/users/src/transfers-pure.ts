@@ -13,11 +13,7 @@ function filterActive(transfers: ActiveTransfer[], date: string): ActiveTransfer
 }
 
 // Effective home location on `date`. Prefers TEMPORARY over PERMANENT (last wins within type).
-export function effectiveLocation(
-  transfers: ActiveTransfer[],
-  homeLocationId: string,
-  date: string
-): string {
+export function effectiveLocation(transfers: ActiveTransfer[], homeLocationId: string, date: string): string {
   const active = filterActive(transfers, date);
   if (active.length === 0) return homeLocationId;
   const temp = active.filter((t) => t.type === 'TEMPORARY');

@@ -119,18 +119,14 @@ async function deriveDepartmentTuples(orgId: string): Promise<Tuple[]> {
       .where(and(eq(schema.team.orgId, orgId), eq(schema.team.departmentId, dept.id)));
 
     if (teamsInDept.length > 0) {
-      const _teamIds = teamsInDept.map((t) => t.teamId); void _teamIds;
+      const _teamIds = teamsInDept.map((t) => t.teamId);
+      void _teamIds;
       // Find users in these teams who have a businessUnitId set.
       // We use the first distinct BU found to associate the department.
       const buUsers = await db
         .select({ businessUnitId: schema.user.businessUnitId })
         .from(schema.user)
-        .where(
-          and(
-            eq(schema.user.orgId, orgId),
-            isNotNull(schema.user.businessUnitId),
-          )
-        )
+        .where(and(eq(schema.user.orgId, orgId), isNotNull(schema.user.businessUnitId)))
         .limit(1);
 
       // Prefer team-level BU lookup: find any user in one of these teams with a BU.
@@ -141,11 +137,7 @@ async function deriveDepartmentTuples(orgId: string): Promise<Tuple[]> {
           .select({ businessUnitId: schema.user.businessUnitId })
           .from(schema.user)
           .where(
-            and(
-              eq(schema.user.orgId, orgId),
-              eq(schema.user.teamId, t.teamId),
-              isNotNull(schema.user.businessUnitId),
-            )
+            and(eq(schema.user.orgId, orgId), eq(schema.user.teamId, t.teamId), isNotNull(schema.user.businessUnitId))
           )
           .limit(1);
         if (buUser?.businessUnitId) buIds.add(buUser.businessUnitId);
@@ -295,9 +287,7 @@ async function deriveDelegationTuples(orgId: string): Promise<Tuple[]> {
           .where(eq(schema.team.teamId, t.teamId))
           .limit(1);
         if (teamRow?.managers?.includes(d.fromManagerId)) {
-          tuples.push(
-            tuple(userRef(d.toUserId), 'delegate', objectRef(FGA_TYPES.team, t.teamId), condition)
-          );
+          tuples.push(tuple(userRef(d.toUserId), 'delegate', objectRef(FGA_TYPES.team, t.teamId), condition));
         }
       }
     }
@@ -329,12 +319,5 @@ export async function deriveExpectedTuples(orgId: string): Promise<Tuple[]> {
     deriveDelegationTuples(orgId),
   ]);
 
-  return [
-    ...orgTuples,
-    ...buTuples,
-    ...deptTuples,
-    ...teamTuples,
-    ...empTuples,
-    ...delegationTuples,
-  ];
+  return [...orgTuples, ...buTuples, ...deptTuples, ...teamTuples, ...empTuples, ...delegationTuples];
 }

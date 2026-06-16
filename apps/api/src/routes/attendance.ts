@@ -24,7 +24,12 @@ const DATE = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 const remoteContextSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('WFH') }),
   z.object({ type: z.literal('FACTORY_VISIT'), locationId: z.string().uuid() }),
-  z.object({ type: z.literal('CLIENT_SITE'), clientName: z.string(), city: z.string().optional(), country: z.string().optional() }),
+  z.object({
+    type: z.literal('CLIENT_SITE'),
+    clientName: z.string(),
+    city: z.string().optional(),
+    country: z.string().optional(),
+  }),
   z.object({ type: z.literal('FIELD'), city: z.string().optional(), country: z.string().optional() }),
 ]);
 const punchBody = z.object({
@@ -104,9 +109,7 @@ export const attendance = new Hono<AppEnv>()
   .get('/source-policy', async (c) => c.json({ data: await listSourcePolicies(c.get('auth')) }))
   .put(
     '/source-policy/:levelId',
-    validateBody(
-      z.object({ allowedSources: z.array(z.enum(['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION'])).min(1) })
-    ),
+    validateBody(z.object({ allowedSources: z.array(z.enum(['WEB', 'SLACK', 'DEVICE', 'REGULARIZATION'])).min(1) })),
     async (c) => {
       const levelId = c.req.param('levelId');
       await upsertSourcePolicy(c.get('auth'), levelId, c.get('body').allowedSources);

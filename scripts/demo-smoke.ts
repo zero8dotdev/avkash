@@ -94,7 +94,7 @@ async function internalFetch(path: string, init?: RequestInit): Promise<Response
 /** Extract error code from API error envelope. */
 async function errorCode(res: Response): Promise<string> {
   try {
-    const body = await res.json() as { error?: { code?: string } };
+    const body = (await res.json()) as { error?: { code?: string } };
     return body?.error?.code ?? `HTTP_${res.status}`;
   } catch {
     return `HTTP_${res.status}`;
@@ -122,7 +122,7 @@ async function beat1() {
     ['MERIDIAN_ORG_ID', ORG_ID],
     ['MERIDIAN_ROHAN_ID', ROHAN_ID],
     ['MERIDIAN_DEV_ID', DEV_ID],
-    ['MERIDIAN_SARA_LEAVE_ID', SARA_LEAVE_ID],
+    ['MERIDIAN_SARA_LEAVE_ID', SARA_LEAVE_ID]
   );
 
   // Attempt 1: Rohan approves Sara's leave (should succeed).
@@ -142,7 +142,7 @@ async function beat1() {
       `/internal/authz/explain?relation=approver&object=employee:${SARA_PROFILE_ID}&user=user:${ROHAN_ID}`
     );
     if (explainRes.ok) {
-      const body = await explainRes.json() as { paths?: string[] };
+      const body = (await explainRes.json()) as { paths?: string[] };
       pass(1, name, `Rohan has approver relation on Sara (paths: ${body.paths?.length ?? 0})`, Date.now() - t0);
     } else {
       const code = await errorCode(explainRes);
@@ -158,11 +158,16 @@ async function beat1() {
       `/internal/authz/explain?relation=approver&object=employee:${SARA_PROFILE_ID}&user=user:${DEV_ID}`
     );
     if (explainDevRes.ok) {
-      const body = await explainDevRes.json() as { paths?: string[] };
+      const body = (await explainDevRes.json()) as { paths?: string[] };
       // Dev should have empty or no matching paths.
       const devHasAccess = (body.paths ?? []).some((p: string) => p.includes(DEV_ID));
       if (!devHasAccess) {
-        pass(1, name, `Dev has no approver relation on Sara (correct — ${body.paths?.length ?? 0} paths, none match Dev)`, Date.now() - t1);
+        pass(
+          1,
+          name,
+          `Dev has no approver relation on Sara (correct — ${body.paths?.length ?? 0} paths, none match Dev)`,
+          Date.now() - t1
+        );
       } else {
         fail(1, name, `Dev unexpectedly has approver relation on Sara (paths: ${JSON.stringify(body.paths)})`);
       }
@@ -184,7 +189,7 @@ async function beat2() {
     ['MERIDIAN_ORG_ID', ORG_ID],
     ['MERIDIAN_ROHAN_ID', ROHAN_ID],
     ['MERIDIAN_DEV_ID', DEV_ID],
-    ['MERIDIAN_TEAM_ASSEMBLY_ID', TEAM_ASSEMBLY_ID],
+    ['MERIDIAN_TEAM_ASSEMBLY_ID', TEAM_ASSEMBLY_ID]
   );
 
   // POST /delegations — Rohan delegates to Dev for Team Assembly.
@@ -196,13 +201,20 @@ async function beat2() {
   const t0 = Date.now();
   const res = await internalFetch('/internal/authz/reconcile/' + ORG_ID);
   if (res.ok) {
-    const body = await res.json() as { repairs?: number; written?: number; deleted?: number };
-    pass(2, name, `Reconcile pre-check OK (repairs=${body.repairs ?? 0}). For delegation POST, use the Postman collection or curl from runbook beat 2.`, Date.now() - t0);
+    const body = (await res.json()) as { repairs?: number; written?: number; deleted?: number };
+    pass(
+      2,
+      name,
+      `Reconcile pre-check OK (repairs=${body.repairs ?? 0}). For delegation POST, use the Postman collection or curl from runbook beat 2.`,
+      Date.now() - t0
+    );
     console.log('  ℹ  Full delegation flow requires a session token for Rohan.');
     console.log('  ℹ  After delegation POST:');
     console.log(`     curl -X POST ${API_BASE}/delegations \\`);
     console.log(`       -H "Cookie: <rohan-session>" \\`);
-    console.log(`       -d '{"toUserId":"${DEV_ID}","teamId":"${TEAM_ASSEMBLY_ID}","startsOn":"${today}","endsOn":"${tomorrow}"}'`);
+    console.log(
+      `       -d '{"toUserId":"${DEV_ID}","teamId":"${TEAM_ASSEMBLY_ID}","startsOn":"${today}","endsOn":"${tomorrow}"}'`
+    );
     console.log('  ℹ  Then verify Dev can approve via beat 1 explain.');
   } else {
     const code = await errorCode(res);
@@ -220,7 +232,7 @@ async function beat3() {
   requireIds(
     ['MERIDIAN_ORG_ID', ORG_ID],
     ['MERIDIAN_SARA_PROFILE_ID', SARA_PROFILE_ID],
-    ['MERIDIAN_ROHAN_ID', ROHAN_ID],
+    ['MERIDIAN_ROHAN_ID', ROHAN_ID]
   );
 
   const t0 = Date.now();
@@ -234,14 +246,14 @@ async function beat3() {
     fail(3, name, `explain failed: ${await errorCode(explainRes)}`);
     return;
   }
-  const explainBody = await explainRes.json() as { paths?: string[] };
+  const explainBody = (await explainRes.json()) as { paths?: string[] };
   const rohanHasViewer = (explainBody.paths ?? []).length > 0;
 
   // Step B: check outbox lag metric.
   const outboxRes = await internalFetch('/internal/authz/outbox');
   let outboxNote = '';
   if (outboxRes.ok) {
-    const ob = await outboxRes.json() as { outboxDepth?: number; oldestUnpublishedAgeMs?: number };
+    const ob = (await outboxRes.json()) as { outboxDepth?: number; oldestUnpublishedAgeMs?: number };
     outboxNote = `outboxDepth=${ob.outboxDepth ?? '?'} oldestAgeMs=${ob.oldestUnpublishedAgeMs ?? '?'}`;
   }
 
@@ -249,16 +261,26 @@ async function beat3() {
   const reconcileRes = await internalFetch(`/internal/authz/reconcile/${ORG_ID}`);
   let reconcileNote = '';
   if (reconcileRes.ok) {
-    const rb = await reconcileRes.json() as { repairs?: number };
+    const rb = (await reconcileRes.json()) as { repairs?: number };
     reconcileNote = `repairs=${rb.repairs ?? '?'}`;
   }
 
   const elapsed = Date.now() - t0;
 
   if (rohanHasViewer) {
-    pass(3, name, `Rohan currently HAS viewer on Sara (${explainBody.paths?.length} path(s)). Transfer Sara to Logistics to revoke: POST /transfers + approve. ${outboxNote} ${reconcileNote}`, elapsed);
+    pass(
+      3,
+      name,
+      `Rohan currently HAS viewer on Sara (${explainBody.paths?.length} path(s)). Transfer Sara to Logistics to revoke: POST /transfers + approve. ${outboxNote} ${reconcileNote}`,
+      elapsed
+    );
   } else {
-    pass(3, name, `Rohan does NOT have viewer on Sara (transfer already applied, or tuples not yet seeded). ${outboxNote} ${reconcileNote}`, elapsed);
+    pass(
+      3,
+      name,
+      `Rohan does NOT have viewer on Sara (transfer already applied, or tuples not yet seeded). ${outboxNote} ${reconcileNote}`,
+      elapsed
+    );
   }
 
   console.log('  ℹ  To demonstrate live revocation:');
@@ -276,10 +298,7 @@ async function beat3() {
 async function beat4() {
   const name = 'Field-level visibility';
   console.log(`\n─── Beat 4: ${name} ───`);
-  requireIds(
-    ['MERIDIAN_ORG_ID', ORG_ID],
-    ['MERIDIAN_SARA_PROFILE_ID', SARA_PROFILE_ID],
-  );
+  requireIds(['MERIDIAN_ORG_ID', ORG_ID], ['MERIDIAN_SARA_PROFILE_ID', SARA_PROFILE_ID]);
 
   // Verify field-policy endpoint is reachable (ADMIN-guarded).
   const t0 = Date.now();
@@ -288,7 +307,12 @@ async function beat4() {
   // requireRole(ctx, 'ADMIN') from the session context. The internal token won't work here.
   // We test the endpoint is wired by checking the 401/403 (not 404).
   if (fpRes.status === 401 || fpRes.status === 403 || fpRes.status === 200) {
-    pass(4, name, `Field-policies endpoint reachable (HTTP ${fpRes.status}). For live demo: GET /employees/${SARA_PROFILE_ID || '<saraProfileId>'} as Rohan → no compensation keys. Then PATCH /field-policies to flip hrbp/compensation → read. Then GET as Anita → compensation visible.`, Date.now() - t0);
+    pass(
+      4,
+      name,
+      `Field-policies endpoint reachable (HTTP ${fpRes.status}). For live demo: GET /employees/${SARA_PROFILE_ID || '<saraProfileId>'} as Rohan → no compensation keys. Then PATCH /field-policies to flip hrbp/compensation → read. Then GET as Anita → compensation visible.`,
+      Date.now() - t0
+    );
   } else {
     fail(4, name, `Unexpected status ${fpRes.status} on /field-policies`, undefined);
   }
@@ -327,13 +351,18 @@ async function beat5() {
     if (code === 'FORBIDDEN_FIELD') {
       pass(5, name, `?sort=salary returned FORBIDDEN_FIELD for unauthenticated call (correct)`, Date.now() - t0);
     } else {
-      pass(5, name, `?sort=salary returned ${res.status}/${code} (session needed for FORBIDDEN_FIELD; see curl below)`, Date.now() - t0);
+      pass(
+        5,
+        name,
+        `?sort=salary returned ${res.status}/${code} (session needed for FORBIDDEN_FIELD; see curl below)`,
+        Date.now() - t0
+      );
     }
   } else {
     fail(5, name, `Expected 401 or 403, got ${res.status}`, undefined);
   }
 
-  console.log('  ℹ  With Dev\'s session:');
+  console.log("  ℹ  With Dev's session:");
   console.log(`     curl "${API_BASE}/employees?sort=salary" -H "Cookie: <dev-session>"`);
   console.log('     Expected: 403 {"error":{"code":"FORBIDDEN_FIELD",...}}');
 }
@@ -345,7 +374,11 @@ async function beat5() {
 async function beat6() {
   const name = 'Least-privilege API key';
   console.log(`\n─── Beat 6: ${name} ───`);
-  skip(6, name, 'API keys (resource-scoped) are NOT yet implemented. Beat 6 is marked SKIPPED. Requires scoped API keys wired into authz via requireScope + FGA resource-type tuples.');
+  skip(
+    6,
+    name,
+    'API keys (resource-scoped) are NOT yet implemented. Beat 6 is marked SKIPPED. Requires scoped API keys wired into authz via requireScope + FGA resource-type tuples.'
+  );
 }
 
 /**
@@ -358,7 +391,7 @@ async function beat7() {
   requireIds(
     ['MERIDIAN_ORG_ID', ORG_ID],
     ['MERIDIAN_PRIYA_ID', PRIYA_ID],
-    ['MERIDIAN_SARA_PROFILE_ID', SARA_PROFILE_ID],
+    ['MERIDIAN_SARA_PROFILE_ID', SARA_PROFILE_ID]
   );
 
   const t0 = Date.now();
@@ -371,17 +404,27 @@ async function beat7() {
     return;
   }
 
-  const body = await res.json() as { paths?: string[]; relation?: string; object?: string };
+  const body = (await res.json()) as { paths?: string[]; relation?: string; object?: string };
   const elapsed = Date.now() - t0;
 
   if (body.paths && body.paths.length > 0) {
-    pass(7, name, `Explain paths returned (${body.paths.length} path(s)) — relation "${body.relation}" on "${body.object}"`, elapsed);
+    pass(
+      7,
+      name,
+      `Explain paths returned (${body.paths.length} path(s)) — relation "${body.relation}" on "${body.object}"`,
+      elapsed
+    );
     console.log('  Paths:');
     for (const p of body.paths.slice(0, 5)) console.log(`    ${p}`);
     if (body.paths.length > 5) console.log(`    … ${body.paths.length - 5} more`);
   } else {
     // An empty paths array is normal when FGA store is empty / not seeded.
-    pass(7, name, `Explain endpoint reachable in ${elapsed}ms. Paths empty — run pnpm authz:backfill to populate FGA tuples first.`, elapsed);
+    pass(
+      7,
+      name,
+      `Explain endpoint reachable in ${elapsed}ms. Paths empty — run pnpm authz:backfill to populate FGA tuples first.`,
+      elapsed
+    );
     console.log('  Full tree:', JSON.stringify(body, null, 2).slice(0, 300));
   }
 }
@@ -415,7 +458,12 @@ async function beat8() {
   if (!reconcileRes.ok) {
     const code = await errorCode(reconcileRes);
     if (code === 'AUTHZ_UNAVAILABLE') {
-      pass(8, name, `FGA is DOWN — AUTHZ_UNAVAILABLE on reconcile (correct fail-closed behaviour). Start FGA to complete beat 8.`, Date.now() - t0);
+      pass(
+        8,
+        name,
+        `FGA is DOWN — AUTHZ_UNAVAILABLE on reconcile (correct fail-closed behaviour). Start FGA to complete beat 8.`,
+        Date.now() - t0
+      );
     } else {
       fail(8, name, `Reconcile failed: ${code}`);
     }
@@ -430,7 +478,7 @@ async function beat8() {
     8,
     name,
     `Reconciler ran in ${elapsed}ms — written=${body.written ?? 0} deleted=${body.deleted ?? 0} repairs=${repairs} expected=${body.expectedCount ?? '?'}`,
-    elapsed,
+    elapsed
   );
   if (repairs > 0) {
     console.log('  ⚠  Non-zero repairs — indicates drift. Upstream investigation needed.');
@@ -441,8 +489,11 @@ async function beat8() {
 
 type Beat8Body = { repairs?: number; written?: number; deleted?: number; expectedCount?: number };
 async function parseReconcileBody(res: Response): Promise<Beat8Body> {
-  try { return await res.json() as Beat8Body; }
-  catch { return {}; }
+  try {
+    return (await res.json()) as Beat8Body;
+  } catch {
+    return {};
+  }
 }
 
 // ── Run all beats ──────────────────────────────────────────────────────────────
@@ -465,9 +516,7 @@ async function main() {
   console.log(`  API: ${API_BASE}`);
   console.log(`  Org: ${ORG_ID || '(not set — run pnpm demo:seed first)'}`);
 
-  const beatsToRun = beatArg != null
-    ? ALL_BEATS.filter(([n]) => n === beatArg)
-    : ALL_BEATS;
+  const beatsToRun = beatArg != null ? ALL_BEATS.filter(([n]) => n === beatArg) : ALL_BEATS;
 
   if (beatsToRun.length === 0) {
     console.error(`No beat found for --beat ${beatArg}`);

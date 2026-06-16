@@ -33,11 +33,12 @@ export async function listBlackouts(ctx: AuthContext, opts?: { locationId?: stri
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.leaveBlackout.orgId, ctx.orgId), eq(schema.leaveBlackout.isActive, true)];
   if (opts?.locationId) {
-    conds.push(
-      or(isNull(schema.leaveBlackout.locationId), eq(schema.leaveBlackout.locationId, opts.locationId))!
-    );
+    conds.push(or(isNull(schema.leaveBlackout.locationId), eq(schema.leaveBlackout.locationId, opts.locationId))!);
   }
-  return db.select().from(schema.leaveBlackout).where(and(...conds));
+  return db
+    .select()
+    .from(schema.leaveBlackout)
+    .where(and(...conds));
 }
 
 export async function updateBlackout(ctx: AuthContext, id: string, patch: Partial<BlackoutInput>) {
@@ -89,7 +90,8 @@ export async function assertNoBlackout(
     conds.push(or(isNull(schema.leaveBlackout.locationId), eq(schema.leaveBlackout.locationId, locationId))!);
   }
 
-  const [hit] = await db.select({ id: schema.leaveBlackout.id, name: schema.leaveBlackout.name })
+  const [hit] = await db
+    .select({ id: schema.leaveBlackout.id, name: schema.leaveBlackout.name })
     .from(schema.leaveBlackout)
     .where(and(...conds))
     .limit(1);

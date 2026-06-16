@@ -21,7 +21,10 @@ const createSchema = z.object({
   punchWindowStart: TIME.nullish(),
   punchWindowEnd: TIME.nullish(),
   laborRegime: LABOR_REGIME.optional(),
-  overtimeThresholdHours: z.string().regex(/^\d+(\.\d{1,2})?$/).nullish(),
+  overtimeThresholdHours: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .nullish(),
 });
 const updateSchema = createSchema.partial().extend({ isActive: z.boolean().optional() });
 

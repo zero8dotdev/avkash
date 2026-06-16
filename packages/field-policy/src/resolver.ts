@@ -109,8 +109,7 @@ export async function resolveFieldGroups(
     for (const group of allGroups) {
       const overrideKey = `${relation}:${group}`;
       // Org override row takes precedence over manifest default.
-      const access: FieldGroupAccess =
-        overrideMap.get(overrideKey) ?? declared.defaults[relation]?.[group] ?? 'none';
+      const access: FieldGroupAccess = overrideMap.get(overrideKey) ?? declared.defaults[relation]?.[group] ?? 'none';
 
       if (access === 'write') {
         writeGroups.add(group);

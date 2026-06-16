@@ -6,8 +6,14 @@ import { applyLeave, approveLeave, getBalance, setOpeningBalance } from '@avkash
 import { db, schema } from '@avkash/db';
 import { eq } from 'drizzle-orm';
 import {
-  createMahalaxmiOrg, createEmployee, cleanupOrg,
-  adminCtx, managerCtx, userCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  cleanupOrg,
+  adminCtx,
+  managerCtx,
+  userCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -29,7 +35,8 @@ beforeAll(async () => {
   });
 
   // Wire manager into the corporate team's managers array so canApprove returns true.
-  await db.update(schema.team)
+  await db
+    .update(schema.team)
     .set({ managers: [manager.userId] })
     .where(eq(schema.team.teamId, fx.team.corporate));
 
@@ -42,7 +49,9 @@ beforeAll(async () => {
     note: 'Test opening balance',
   });
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Leave lifecycle — Corporate team', () => {
   let leaveId: string;
@@ -91,8 +100,8 @@ describe('Leave lifecycle — Corporate team', () => {
   });
 
   it('USER cannot approve their own leave (NOT_TEAM_APPROVER)', async () => {
-    await expect(
-      approveLeave(userCtx(fx.orgId, employee.userId), leaveId)
-    ).rejects.toMatchObject({ code: 'NOT_TEAM_APPROVER' });
+    await expect(approveLeave(userCtx(fx.orgId, employee.userId), leaveId)).rejects.toMatchObject({
+      code: 'NOT_TEAM_APPROVER',
+    });
   });
 });

@@ -59,7 +59,21 @@ const mockDb = {
   update: mock(() => ({
     set: mock(() => ({
       where: mock(() => ({
-        returning: mock(() => Promise.resolve([{ leaveId: 'leave-1', isApproved: 'APPROVED', userId: 'user-sara', teamId: 'team-assembly', workingDays: '1', orgId: 'org-1', leaveTypeId: 'lt-1', startDate: '2026-01-10', endDate: '2026-01-10' }])),
+        returning: mock(() =>
+          Promise.resolve([
+            {
+              leaveId: 'leave-1',
+              isApproved: 'APPROVED',
+              userId: 'user-sara',
+              teamId: 'team-assembly',
+              workingDays: '1',
+              orgId: 'org-1',
+              leaveTypeId: 'lt-1',
+              startDate: '2026-01-10',
+              endDate: '2026-01-10',
+            },
+          ])
+        ),
       })),
     })),
   })),
@@ -72,13 +86,32 @@ const mockDb = {
 };
 
 const mockSchema = {
-  leave: { leaveId: 'leave.leaveId', orgId: 'leave.orgId', teamId: 'leave.teamId', userId: 'leave.userId', isApproved: 'leave.isApproved' },
+  leave: {
+    leaveId: 'leave.leaveId',
+    orgId: 'leave.orgId',
+    teamId: 'leave.teamId',
+    userId: 'leave.userId',
+    isApproved: 'leave.isApproved',
+  },
   employeeProfile: { userId: 'ep.userId', id: 'ep.id', orgId: 'ep.orgId', version: 'ep.version' },
   team: { teamId: 'team.teamId', managers: 'team.managers' },
-  approvalDelegation: { orgId: 'ad.orgId', toUserId: 'ad.toUserId', startsOn: 'ad.startsOn', endsOn: 'ad.endsOn', teamId: 'ad.teamId' },
+  approvalDelegation: {
+    orgId: 'ad.orgId',
+    toUserId: 'ad.toUserId',
+    startsOn: 'ad.startsOn',
+    endsOn: 'ad.endsOn',
+    teamId: 'ad.teamId',
+  },
   leaveLedger: { orgId: 'll.orgId' },
   leaveComment: { orgId: 'lc.orgId' },
-  activityLog: { orgId: 'al.orgId', tableName: 'al.tableName', userId: 'al.userId', changedColumns: 'al.changedColumns', changedBy: 'al.changedBy', keyword: 'al.keyword' },
+  activityLog: {
+    orgId: 'al.orgId',
+    tableName: 'al.tableName',
+    userId: 'al.userId',
+    changedColumns: 'al.changedColumns',
+    changedBy: 'al.changedBy',
+    keyword: 'al.keyword',
+  },
 };
 
 mock.module('@avkash/db', () => ({
@@ -136,7 +169,8 @@ const _LEAVE_ROW = {
   endDate: '2026-01-10',
   updatedBy: null,
   updatedOn: null,
-}; void _LEAVE_ROW;
+};
+void _LEAVE_ROW;
 
 const PROFILE_ROW = { id: 'profile-sara', userId: 'user-sara', orgId: 'org-1', version: 1 };
 
@@ -212,17 +246,15 @@ describe('leave approval — employee-pivot model', () => {
     await mockRequireRelation(ctx, 'approver', 'employee:profile-sara');
 
     expect(mockRequireRelation).toHaveBeenCalledTimes(1);
-    expect(mockRequireRelation).toHaveBeenCalledWith(
-      ctx,
-      'approver',
-      'employee:profile-sara'
-    );
+    expect(mockRequireRelation).toHaveBeenCalledWith(ctx, 'approver', 'employee:profile-sara');
   });
 
   it('non-approver MANAGER gets FORBIDDEN_RELATION from FGA (deny)', async () => {
     // FGA returns forbidden
     const { ForbiddenError: FE } = await import('@avkash/shared');
-    mockRequireRelation.mockRejectedValueOnce(new FE('FORBIDDEN_RELATION', { relation: 'approver', object: 'employee:profile-sara' }));
+    mockRequireRelation.mockRejectedValueOnce(
+      new FE('FORBIDDEN_RELATION', { relation: 'approver', object: 'employee:profile-sara' })
+    );
 
     const ctx = makeCtx('MANAGER', 'user-dev'); // Dev is not Sara's approver
 

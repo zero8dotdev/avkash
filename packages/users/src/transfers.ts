@@ -37,7 +37,7 @@ async function getActiveTransfers(orgId: string, userId: string, date: string) {
         eq(schema.transfer.orgId, orgId),
         eq(schema.transfer.userId, userId),
         eq(schema.transfer.status, 'ACTIVE'),
-        lte(schema.transfer.startDate, date),
+        lte(schema.transfer.startDate, date)
         // open-ended (permanent) OR end date not yet passed
       )
     );
@@ -100,7 +100,13 @@ export async function approveTransfer(ctx: AuthContext, transferId: string) {
       updatedBy: ctx.userId,
       updatedAt: new Date(),
     })
-    .where(and(eq(schema.transfer.id, transferId), eq(schema.transfer.orgId, ctx.orgId), eq(schema.transfer.status, 'PENDING')))
+    .where(
+      and(
+        eq(schema.transfer.id, transferId),
+        eq(schema.transfer.orgId, ctx.orgId),
+        eq(schema.transfer.status, 'PENDING')
+      )
+    )
     .returning();
   if (!row) throw new NotFoundError('TRANSFER_NOT_FOUND');
   // Emit event for the tuple-writer. The outbox event is the reliability guarantee;
@@ -125,19 +131,18 @@ export async function cancelTransfer(ctx: AuthContext, transferId: string) {
       updatedBy: ctx.userId,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(schema.transfer.id, transferId),
-        eq(schema.transfer.orgId, ctx.orgId),
-      )
-    );
+    .where(and(eq(schema.transfer.id, transferId), eq(schema.transfer.orgId, ctx.orgId)));
 }
 
 export async function listTransfers(ctx: AuthContext, userId?: string) {
   requireRole(ctx, 'MANAGER');
   const conds = [eq(schema.transfer.orgId, ctx.orgId)];
   if (userId) conds.push(eq(schema.transfer.userId, userId));
-  return db.select().from(schema.transfer).where(and(...conds)).orderBy(desc(schema.transfer.startDate));
+  return db
+    .select()
+    .from(schema.transfer)
+    .where(and(...conds))
+    .orderBy(desc(schema.transfer.startDate));
 }
 
 export async function getTransfer(ctx: AuthContext, id: string) {

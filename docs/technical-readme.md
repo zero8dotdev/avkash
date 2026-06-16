@@ -29,21 +29,21 @@ There are no versioned migration files yet. `db:push` syncs the schema to the da
 
 ### Environment Variables
 
-| Variable | Required | Default | Notes |
-|---|---|---|---|
-| `DATABASE_URL` | yes | - | Postgres connection string |
-| `BETTER_AUTH_SECRET` | yes | - | At least 32 random bytes |
-| `REDIS_URL` | yes, for worker | `redis://localhost:6379` | BullMQ broker |
-| `FGA_API_URL` | yes | `http://localhost:8080` | OpenFGA HTTP endpoint |
-| `FGA_STORE_ID` | yes | - | Created on first boot |
-| `FGA_MODEL_ID` | yes | - | Auth model ID |
-| `CORS_ORIGIN` | no | `http://localhost:3000` | Comma-separated allowed origins |
-| `PORT` | no | `3001` | API listen port |
-| `RESEND_API_KEY` | no | - | Email delivery; console fallback if blank |
-| `MSG91_AUTH_KEY` | no | - | SMS delivery; silent if blank |
-| `SLACK_CLIENT_ID` | no | - | Slack OAuth login |
-| `SLACK_CLIENT_SECRET` | no | - | Slack OAuth login |
-| `INTERNAL_API_TOKEN` | no | `dev-cron-token` | Guards `/internal` scheduler endpoints |
+| Variable              | Required        | Default                  | Notes                                     |
+| --------------------- | --------------- | ------------------------ | ----------------------------------------- |
+| `DATABASE_URL`        | yes             | -                        | Postgres connection string                |
+| `BETTER_AUTH_SECRET`  | yes             | -                        | At least 32 random bytes                  |
+| `REDIS_URL`           | yes, for worker | `redis://localhost:6379` | BullMQ broker                             |
+| `FGA_API_URL`         | yes             | `http://localhost:8080`  | OpenFGA HTTP endpoint                     |
+| `FGA_STORE_ID`        | yes             | -                        | Created on first boot                     |
+| `FGA_MODEL_ID`        | yes             | -                        | Auth model ID                             |
+| `CORS_ORIGIN`         | no              | `http://localhost:3000`  | Comma-separated allowed origins           |
+| `PORT`                | no              | `3001`                   | API listen port                           |
+| `RESEND_API_KEY`      | no              | -                        | Email delivery; console fallback if blank |
+| `MSG91_AUTH_KEY`      | no              | -                        | SMS delivery; silent if blank             |
+| `SLACK_CLIENT_ID`     | no              | -                        | Slack OAuth login                         |
+| `SLACK_CLIENT_SECRET` | no              | -                        | Slack OAuth login                         |
+| `INTERNAL_API_TOKEN`  | no              | `dev-cron-token`         | Guards `/internal` scheduler endpoints    |
 
 ---
 
@@ -91,4 +91,3 @@ GET    /reports
 ```
 
 There is no OpenAPI spec yet. The Hono `AppType` export in `apps/api/src/app.ts` is the type-safe contract. Consume it from a TypeScript client with `hc<AppType>()`.
-

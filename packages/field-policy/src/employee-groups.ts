@@ -47,13 +47,7 @@ export const EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups = {
     ],
 
     // contact: personal contact details — visible to manager chain + HR
-    [FIELD_GROUPS.CONTACT]: [
-      'personalEmail',
-      'personalPhone',
-      'address',
-      'emergencyContact',
-      'phoneNumber',
-    ],
+    [FIELD_GROUPS.CONTACT]: ['personalEmail', 'personalPhone', 'address', 'emergencyContact', 'phoneNumber'],
 
     // employment: HR/employment record — visible to manager chain + HR
     [FIELD_GROUPS.EMPLOYMENT]: [
@@ -69,30 +63,13 @@ export const EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups = {
     ],
 
     // compensation: salary / bank details — hr_admin + subject (own read only)
-    [FIELD_GROUPS.COMPENSATION]: [
-      'salary',
-      'bankAccount',
-      'bankIfsc',
-      'bankName',
-    ],
+    [FIELD_GROUPS.COMPENSATION]: ['salary', 'bankAccount', 'bankIfsc', 'bankName'],
 
     // identity: national IDs — hr_admin only, AUDITED
-    [FIELD_GROUPS.IDENTITY]: [
-      'pan',
-      'aadhaar',
-      'passport',
-      'dateOfBirth',
-      'gender',
-      'maritalStatus',
-      'nationality',
-    ],
+    [FIELD_GROUPS.IDENTITY]: ['pan', 'aadhaar', 'passport', 'dateOfBirth', 'gender', 'maritalStatus', 'nationality'],
 
     // medical: health / disability — hr_admin only, AUDITED
-    [FIELD_GROUPS.MEDICAL]: [
-      'disability',
-      'conditions',
-      'bloodGroup',
-    ],
+    [FIELD_GROUPS.MEDICAL]: ['disability', 'conditions', 'bloodGroup'],
   },
 
   // Default visibility matrix.

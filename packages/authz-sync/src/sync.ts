@@ -35,13 +35,9 @@ import { readAllFgaTuples, tupleKeyStr } from './fga-read';
  * on Read — we match on (user, relation, object) only. Condition presence
  * (name) IS compared so a tuple that loses its condition is treated as a change.
  */
-export function diffTuples(
-  expected: Tuple[],
-  actual: Tuple[]
-): { toWrite: Tuple[]; toDelete: TupleKey[] } {
+export function diffTuples(expected: Tuple[], actual: Tuple[]): { toWrite: Tuple[]; toDelete: TupleKey[] } {
   // Use a key that includes whether a condition name is present.
-  const keyWithCondition = (t: Tuple): string =>
-    `${tupleKeyStr(t)}\n${t.condition?.name ?? ''}`;
+  const keyWithCondition = (t: Tuple): string => `${tupleKeyStr(t)}\n${t.condition?.name ?? ''}`;
 
   const actualSet = new Set(actual.map(keyWithCondition));
   const expectedSet = new Set(expected.map(keyWithCondition));
@@ -94,10 +90,7 @@ export interface SyncResult {
  * cron), and the backfill script.
  */
 export async function syncOrgTuples(orgId: string): Promise<SyncResult> {
-  const [expected, actual] = await Promise.all([
-    deriveExpectedTuples(orgId),
-    readAllFgaTuples(),
-  ]);
+  const [expected, actual] = await Promise.all([deriveExpectedTuples(orgId), readAllFgaTuples()]);
 
   // Filter actual to only tuples relevant to this org's objects.
   // Object IDs are real Postgres row UUIDs scoped to this org, so we derive
@@ -162,10 +155,10 @@ export async function reconcileAllOrgs(): Promise<ReconcileSummary> {
         // LOG EVERY REPAIR LOUDLY — a nonzero count is an upstream bug signal.
         console.error(
           `[authz-reconciler] REPAIR NEEDED for org ${orgId}: ` +
-          `+${result.written} writes, -${result.deleted} deletes ` +
-          `(expected=${result.expectedCount}, actual=${result.actualCount}). ` +
-          `This indicates a domain mutation that did not emit an org-graph event ` +
-          `or whose event subscriber failed. Investigate upstream.`
+            `+${result.written} writes, -${result.deleted} deletes ` +
+            `(expected=${result.expectedCount}, actual=${result.actualCount}). ` +
+            `This indicates a domain mutation that did not emit an org-graph event ` +
+            `or whose event subscriber failed. Investigate upstream.`
         );
       } else {
         console.log(`[authz-reconciler] org ${orgId} OK (${result.expectedCount} tuples)`);

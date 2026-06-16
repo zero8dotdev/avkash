@@ -75,15 +75,13 @@ export async function listPolicies(ctx: AuthContext, opts?: { status?: PolicySta
     userOnly = true;
   }
   if (!userOnly && opts?.status) conds.push(eq(schema.policy.status, opts.status));
-  return db.select().from(schema.policy).where(and(...conds));
+  return db
+    .select()
+    .from(schema.policy)
+    .where(and(...conds));
 }
 
-export async function updatePolicy(
-  ctx: AuthContext,
-  id: string,
-  patch: UpdatePolicyInput,
-  expectedVersion?: number
-) {
+export async function updatePolicy(ctx: AuthContext, id: string, patch: UpdatePolicyInput, expectedVersion?: number) {
   requireRole(ctx, 'ADMIN');
   const existing = await getOrThrow(ctx.orgId, id);
   if (existing.status === 'ARCHIVED') throw new ConflictError('POLICY_ARCHIVED');
@@ -155,8 +153,5 @@ export async function archivePolicy(ctx: AuthContext, id: string) {
 export async function getPolicyVersionHistory(ctx: AuthContext, id: string) {
   requireRole(ctx, 'ADMIN');
   await getOrThrow(ctx.orgId, id); // ensure belongs to org
-  return db
-    .select()
-    .from(schema.policyVersionHistory)
-    .where(eq(schema.policyVersionHistory.policyId, id));
+  return db.select().from(schema.policyVersionHistory).where(eq(schema.policyVersionHistory.policyId, id));
 }

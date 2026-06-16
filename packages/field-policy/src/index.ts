@@ -9,12 +9,7 @@
 //   - EMPLOYEE_FIELD_GROUPS: ResourceFieldGroups pilot declaration for 'employee'
 
 export { resolveFieldGroups, invalidateFieldPolicy } from './resolver';
-export {
-  listFieldPolicies,
-  upsertFieldPolicy,
-  updateFieldPolicy,
-  deleteFieldPolicy,
-} from './crud';
+export { listFieldPolicies, upsertFieldPolicy, updateFieldPolicy, deleteFieldPolicy } from './crud';
 export type { UpsertFieldPolicyInput, UpdateFieldPolicyInput } from './crud';
 export { assertWritableFields } from './write-gate';
 export { assertQueryableFields } from './query-gate';

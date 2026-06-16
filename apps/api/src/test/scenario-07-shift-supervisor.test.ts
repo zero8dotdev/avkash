@@ -12,8 +12,14 @@ import {
   listShiftSupervisors,
 } from '@avkash/attendance';
 import {
-  createMahalaxmiOrg, createEmployee, cleanupOrg,
-  adminCtx, managerCtx, userCtx, type OrgFixture, type TestEmployee,
+  createMahalaxmiOrg,
+  createEmployee,
+  cleanupOrg,
+  adminCtx,
+  managerCtx,
+  userCtx,
+  type OrgFixture,
+  type TestEmployee,
 } from './helpers';
 
 let fx: OrgFixture;
@@ -37,7 +43,9 @@ beforeAll(async () => {
     locationId: fx.loc.nashik,
   });
 });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Shift supervisor authority', () => {
   let supervisorId: string;
@@ -54,11 +62,7 @@ describe('Shift supervisor authority', () => {
   });
 
   it('isShiftSupervisor returns true for the assigned scope', async () => {
-    const result = await isShiftSupervisor(
-      userCtx(fx.orgId, supervisor.userId),
-      fx.shift.a,
-      fx.loc.pune
-    );
+    const result = await isShiftSupervisor(userCtx(fx.orgId, supervisor.userId), fx.shift.a, fx.loc.pune);
     expect(result).toBe(true);
   });
 
@@ -114,11 +118,7 @@ describe('Shift supervisor authority', () => {
 
   it('removeShiftSupervisor deactivates the record', async () => {
     await removeShiftSupervisor(adminCtx(fx.orgId, supervisor.userId), supervisorId);
-    const result = await isShiftSupervisor(
-      userCtx(fx.orgId, supervisor.userId),
-      fx.shift.a,
-      fx.loc.pune
-    );
+    const result = await isShiftSupervisor(userCtx(fx.orgId, supervisor.userId), fx.shift.a, fx.loc.pune);
     expect(result).toBe(false);
   });
 });

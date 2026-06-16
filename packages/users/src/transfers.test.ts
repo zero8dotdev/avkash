@@ -43,7 +43,9 @@ describe('effectiveDepartment', () => {
   });
 
   it('returns toDepartmentId for active transfer', () => {
-    const t = [{ toLocationId: home, toDepartmentId: dept2, type: 'PERMANENT', startDate: '2024-01-01', endDate: null }];
+    const t = [
+      { toLocationId: home, toDepartmentId: dept2, type: 'PERMANENT', startDate: '2024-01-01', endDate: null },
+    ];
     expect(effectiveDepartment(t, dept1, '2024-06-01')).toBe(dept2);
   });
 

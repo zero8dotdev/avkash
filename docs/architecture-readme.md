@@ -6,15 +6,15 @@ This document describes the technical shape of the Avkash open core: stack, work
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Runtime | Bun |
-| HTTP | Hono |
-| ORM | Drizzle + PostgreSQL 16 |
-| Auth | Better Auth with email/password, Slack OAuth, and API keys |
-| AuthZ | OpenFGA for relationship-based and field-level authorisation |
-| Background jobs | BullMQ + Redis |
-| Tooling | Turborepo + pnpm workspaces |
+| Layer           | Choice                                                       |
+| --------------- | ------------------------------------------------------------ |
+| Runtime         | Bun                                                          |
+| HTTP            | Hono                                                         |
+| ORM             | Drizzle + PostgreSQL 16                                      |
+| Auth            | Better Auth with email/password, Slack OAuth, and API keys   |
+| AuthZ           | OpenFGA for relationship-based and field-level authorisation |
+| Background jobs | BullMQ + Redis                                               |
+| Tooling         | Turborepo + pnpm workspaces                                  |
 
 ---
 

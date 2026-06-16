@@ -13,4 +13,4 @@ export * from './source-policy'; // per-level attendance source enforcement
 export * from './workweek-pattern'; // rotating workweek patterns (alternate Saturdays)
 export * from './workweek-pure'; // effectiveWorkdays, isWorkday, countWorkdays (pure, tested)
 export * from './confirmation'; // confirmPunches, listPendingConfirmations
-export * from './supervisor';   // shift supervisor assignment + guards
+export * from './supervisor'; // shift supervisor assignment + guards

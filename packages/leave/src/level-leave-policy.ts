@@ -27,11 +27,7 @@ export async function upsertLevelPolicy(ctx: AuthContext, input: LevelLeavePolic
       updatedBy: ctx.userId,
     })
     .onConflictDoUpdate({
-      target: [
-        schema.levelLeavePolicy.orgId,
-        schema.levelLeavePolicy.leaveTypeId,
-        schema.levelLeavePolicy.levelId,
-      ],
+      target: [schema.levelLeavePolicy.orgId, schema.levelLeavePolicy.leaveTypeId, schema.levelLeavePolicy.levelId],
       set: {
         maxLeaves: input.maxLeaves ?? null,
         accrualPerMonth: input.accrualPerMonth ?? null,

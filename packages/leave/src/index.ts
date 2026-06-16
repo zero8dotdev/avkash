@@ -21,4 +21,4 @@ export * from './reports'; // balanceSummary, utilization
 export * from './blackout'; // createBlackout, listBlackouts, assertNoBlackout
 export * from './level-leave-policy'; // upsertLevelPolicy, getEffectiveLevelPolicy
 export * from './probation-pure'; // applyProbationOverlay, probationAccrualsEnabled, effectiveAccrualRate
-export * from './probation';      // runProbationCompletion
+export * from './probation'; // runProbationCompletion

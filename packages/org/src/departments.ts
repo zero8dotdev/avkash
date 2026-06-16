@@ -34,7 +34,10 @@ export async function createDepartment(ctx: AuthContext, input: CreateDepartment
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: row.id });
   } catch (err) {
-    console.error('[authz-sync] publish org.department.changed (create) failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish org.department.changed (create) failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -53,17 +56,18 @@ export async function listDepartments(
       .select({ departmentId: schema.departmentLocation.departmentId })
       .from(schema.departmentLocation)
       .where(
-        and(
-          eq(schema.departmentLocation.orgId, ctx.orgId),
-          eq(schema.departmentLocation.locationId, opts.locationId)
-        )
+        and(eq(schema.departmentLocation.orgId, ctx.orgId), eq(schema.departmentLocation.locationId, opts.locationId))
       );
     const ids = locationDepts.map((r) => r.departmentId);
     if (ids.length === 0) return [];
     conds.push(inArray(schema.department.id, ids));
   }
 
-  return db.select().from(schema.department).where(and(...conds)).orderBy(schema.department.name);
+  return db
+    .select()
+    .from(schema.department)
+    .where(and(...conds))
+    .orderBy(schema.department.name);
 }
 
 export async function getDepartment(ctx: AuthContext, id: string): Promise<Department> {
@@ -120,7 +124,10 @@ export async function updateDepartment(
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId: id });
   } catch (err) {
-    console.error('[authz-sync] publish org.department.changed (update) failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish org.department.changed (update) failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -216,7 +223,10 @@ export async function setDepartmentHead(
   try {
     await publish(db, ctx, departmentChangedDef, { orgId: ctx.orgId, departmentId });
   } catch (err) {
-    console.error('[authz-sync] publish org.department.changed (setHead) failed:', err instanceof Error ? err.message : err);
+    console.error(
+      '[authz-sync] publish org.department.changed (setHead) failed:',
+      err instanceof Error ? err.message : err
+    );
   }
   return row;
 }
@@ -241,28 +251,18 @@ export async function getDepartmentHead(
 }
 
 // Predicate: is this user the department head at the given location?
-export async function isDepartmentHead(
-  ctx: AuthContext,
-  departmentId: string,
-  locationId: string
-): Promise<boolean> {
+export async function isDepartmentHead(ctx: AuthContext, departmentId: string, locationId: string): Promise<boolean> {
   const headId = await getDepartmentHead(ctx.orgId, departmentId, locationId);
   return headId === ctx.userId;
 }
 
 // List of locations a department is assigned to, with head info.
-export async function getDepartmentLocations(
-  ctx: AuthContext,
-  departmentId: string
-): Promise<DepartmentLocation[]> {
+export async function getDepartmentLocations(ctx: AuthContext, departmentId: string): Promise<DepartmentLocation[]> {
   requireRole(ctx, 'MANAGER');
   return db
     .select()
     .from(schema.departmentLocation)
     .where(
-      and(
-        eq(schema.departmentLocation.departmentId, departmentId),
-        eq(schema.departmentLocation.orgId, ctx.orgId)
-      )
+      and(eq(schema.departmentLocation.departmentId, departmentId), eq(schema.departmentLocation.orgId, ctx.orgId))
     );
 }

@@ -9,8 +9,12 @@ import { createMahalaxmiOrg, cleanupOrg, type OrgFixture } from './helpers';
 
 let fx: OrgFixture;
 
-beforeAll(async () => { fx = await createMahalaxmiOrg(); });
-afterAll(async () => { await cleanupOrg(fx.orgId); });
+beforeAll(async () => {
+  fx = await createMahalaxmiOrg();
+});
+afterAll(async () => {
+  await cleanupOrg(fx.orgId);
+});
 
 describe('Org structure — Mahalaxmi Precision Plastics', () => {
   it('creates 5 locations including 1 SEZ', async () => {
@@ -77,12 +81,7 @@ describe('Org structure — Mahalaxmi Precision Plastics', () => {
     const [policy] = await db
       .select()
       .from(schema.leavePolicy)
-      .where(
-        and(
-          eq(schema.leavePolicy.teamId, fx.team.puneWorkers),
-          eq(schema.leavePolicy.leaveTypeId, fx.lt.el)
-        )
-      );
+      .where(and(eq(schema.leavePolicy.teamId, fx.team.puneWorkers), eq(schema.leavePolicy.leaveTypeId, fx.lt.el)));
     expect(policy?.maxLeaves).toBe(15);
     expect(policy?.probationMaxLeaves).toBe(0);
     expect(policy?.probationAccruals).toBe(false);

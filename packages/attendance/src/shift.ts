@@ -92,26 +92,26 @@ export async function createShift(ctx: AuthContext, input: ShiftInput): Promise<
 }
 
 // Replace the full set of level restrictions for a shift. Empty array = open to all.
-export async function setShiftLevelRestrictions(
-  ctx: AuthContext,
-  shiftId: string,
-  levelIds: string[]
-): Promise<void> {
+export async function setShiftLevelRestrictions(ctx: AuthContext, shiftId: string, levelIds: string[]): Promise<void> {
   requireRole(ctx, 'ADMIN');
   await db
     .delete(schema.shiftLevelRestriction)
     .where(and(eq(schema.shiftLevelRestriction.orgId, ctx.orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
   if (levelIds.length === 0) return;
-  await db.insert(schema.shiftLevelRestriction).values(
-    levelIds.map((levelId) => ({ orgId: ctx.orgId, shiftId, levelId, createdBy: ctx.userId }))
-  );
+  await db
+    .insert(schema.shiftLevelRestriction)
+    .values(levelIds.map((levelId) => ({ orgId: ctx.orgId, shiftId, levelId, createdBy: ctx.userId })));
 }
 
 // Read the current level restrictions for a shift.
 export async function getShiftLevelRestrictions(ctx: AuthContext, shiftId: string) {
   requireRole(ctx, 'MANAGER');
   return db
-    .select({ id: schema.shiftLevelRestriction.id, levelId: schema.shiftLevelRestriction.levelId, levelName: schema.orgLevel.name })
+    .select({
+      id: schema.shiftLevelRestriction.id,
+      levelId: schema.shiftLevelRestriction.levelId,
+      levelName: schema.orgLevel.name,
+    })
     .from(schema.shiftLevelRestriction)
     .leftJoin(schema.orgLevel, eq(schema.orgLevel.id, schema.shiftLevelRestriction.levelId))
     .where(and(eq(schema.shiftLevelRestriction.orgId, ctx.orgId), eq(schema.shiftLevelRestriction.shiftId, shiftId)));
@@ -296,8 +296,10 @@ export async function assignShift(ctx: AuthContext, input: AssignShiftInput, for
   // Level warnings can be forced (policy, not law).
   const levelConflicts = warnings.filter((w) => w.code === 'LEVEL_RESTRICTED');
   const hardConflicts = conflicts.filter((c) => c.code !== 'GENDER_RESTRICTED');
-  if (hardConflicts.length && !force) throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: hardConflicts, warnings });
-  if (levelConflicts.length && !force) throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: levelConflicts, warnings });
+  if (hardConflicts.length && !force)
+    throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: hardConflicts, warnings });
+  if (levelConflicts.length && !force)
+    throw new ConflictError('ASSIGNMENT_CONFLICT', { conflicts: levelConflicts, warnings });
   const [row] = await db
     .insert(schema.shiftAssignment)
     .values({

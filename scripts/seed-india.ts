@@ -77,7 +77,10 @@ async function findOrCreateLocation(
     .from(schema.location)
     .where(and(eq(schema.location.orgId, ORG_ID), eq(schema.location.name, name)))
     .limit(1);
-  if (ex) { log('location', ex.id, `${name} existing`); return ex.id; }
+  if (ex) {
+    log('location', ex.id, `${name} existing`);
+    return ex.id;
+  }
   const row = await createLocation(adminCtx(), { name, timezone, address, laborRegime });
   log('location', row.id, `${name} created`);
   return row.id;
@@ -94,7 +97,10 @@ async function findOrCreateLeaveType(
     .from(schema.leaveType)
     .where(and(eq(schema.leaveType.orgId, ORG_ID), eq(schema.leaveType.name, name)))
     .limit(1);
-  if (ex) { log('leave-type', ex.leaveTypeId, `${name} existing`); return ex.leaveTypeId; }
+  if (ex) {
+    log('leave-type', ex.leaveTypeId, `${name} existing`);
+    return ex.leaveTypeId;
+  }
   const row = await createLeaveType(adminCtx(), { name, kind, isPaid, color });
   log('leave-type', row.leaveTypeId, `${name} created`);
   return row.leaveTypeId;
@@ -133,7 +139,10 @@ async function findOrCreateLeavePolicy(
       )
     )
     .limit(1);
-  if (ex) { log('leave-policy', ex.leavePolicyId, 'existing'); return ex.leavePolicyId; }
+  if (ex) {
+    log('leave-policy', ex.leavePolicyId, 'existing');
+    return ex.leavePolicyId;
+  }
   const row = await createLeavePolicy(adminCtx(), { leaveTypeId, teamId, ...opts });
   log('leave-policy', row.leavePolicyId, 'created');
   return row.leavePolicyId;
@@ -150,29 +159,27 @@ async function findOrCreateWorkweekPattern(
     .from(schema.workweekPattern)
     .where(and(eq(schema.workweekPattern.orgId, ORG_ID), eq(schema.workweekPattern.name, name)))
     .limit(1);
-  if (ex) { log('workweek', ex.id, `${name} existing`); return ex.id; }
+  if (ex) {
+    log('workweek', ex.id, `${name} existing`);
+    return ex.id;
+  }
   const row = await createWorkweekPattern(adminCtx(), { name, cycleLength, weeks, referenceDate });
   log('workweek', row.id, `${name} created`);
   return row.id;
 }
 
-async function upsertHoliday(
-  name: string,
-  date: string,
-  isRecurring: boolean,
-  location?: string
-): Promise<string> {
-  const conds: ReturnType<typeof eq>[] = [
-    eq(schema.holiday.orgId, ORG_ID),
-    eq(schema.holiday.name, name),
-  ];
+async function upsertHoliday(name: string, date: string, isRecurring: boolean, location?: string): Promise<string> {
+  const conds: ReturnType<typeof eq>[] = [eq(schema.holiday.orgId, ORG_ID), eq(schema.holiday.name, name)];
   if (location) conds.push(eq(schema.holiday.location, location));
   const [ex] = await db
     .select({ holidayId: schema.holiday.holidayId })
     .from(schema.holiday)
     .where(and(...conds))
     .limit(1);
-  if (ex) { log('holiday', ex.holidayId, `${name} existing`); return ex.holidayId; }
+  if (ex) {
+    log('holiday', ex.holidayId, `${name} existing`);
+    return ex.holidayId;
+  }
   const row = await addCustomHoliday(adminCtx(), { name, date, location, isRecurring });
   log('holiday', row.holidayId, `${name}${location ? ' [' + location.slice(0, 8) + '…]' : ''} created`);
   return row.holidayId;
@@ -212,10 +219,7 @@ async function main() {
   );
 
   // Assign Coimbatore to Assembly team (the factory floor team)
-  await db
-    .update(schema.team)
-    .set({ locationId: locCoimbatoreId })
-    .where(eq(schema.team.teamId, TEAM_ASSEMBLY_ID));
+  await db.update(schema.team).set({ locationId: locCoimbatoreId }).where(eq(schema.team.teamId, TEAM_ASSEMBLY_ID));
   log('team→location', TEAM_ASSEMBLY_ID, 'Assembly → Coimbatore Plant');
 
   // ── 2. Leave Types ────────────────────────────────────────────────────
@@ -349,10 +353,7 @@ async function main() {
   );
 
   // Assign Alternate-Saturday pattern to Assembly (factory) team
-  await db
-    .update(schema.team)
-    .set({ workweekPatternId: altSatId })
-    .where(eq(schema.team.teamId, TEAM_ASSEMBLY_ID));
+  await db.update(schema.team).set({ workweekPatternId: altSatId }).where(eq(schema.team.teamId, TEAM_ASSEMBLY_ID));
   log('team→pattern', TEAM_ASSEMBLY_ID, 'Assembly → Alternate Saturday');
 
   // ── 6. Comp-off: Sara worked Sunday 2026-06-07 ────────────────────────
@@ -391,12 +392,7 @@ async function main() {
   const [existingBL] = await db
     .select({ id: schema.leaveBlackout.id })
     .from(schema.leaveBlackout)
-    .where(
-      and(
-        eq(schema.leaveBlackout.orgId, ORG_ID),
-        eq(schema.leaveBlackout.name, 'Q2 FY2027 Quarter-End Freeze')
-      )
-    )
+    .where(and(eq(schema.leaveBlackout.orgId, ORG_ID), eq(schema.leaveBlackout.name, 'Q2 FY2027 Quarter-End Freeze')))
     .limit(1);
 
   let blackoutId: string;
@@ -408,7 +404,7 @@ async function main() {
       name: 'Q2 FY2027 Quarter-End Freeze',
       startDate: '2026-09-25',
       endDate: '2026-09-30',
-      leaveTypeId: null,       // all leave types blocked
+      leaveTypeId: null, // all leave types blocked
       locationId: locCoimbatoreId, // Coimbatore factory only
     });
     blackoutId = bl.id;
@@ -443,8 +439,8 @@ async function main() {
         userId: SARA_ID,
         teamId: TEAM_ASSEMBLY_ID,
         date: '2026-06-05',
-        requestedIn: new Date('2026-06-05T03:00:00Z'),   // 8:30am IST = UTC+5:30
-        requestedOut: new Date('2026-06-05T12:00:00Z'),  // 5:30pm IST
+        requestedIn: new Date('2026-06-05T03:00:00Z'), // 8:30am IST = UTC+5:30
+        requestedOut: new Date('2026-06-05T12:00:00Z'), // 5:30pm IST
         reason: 'Badge reader offline at factory gate — forgot to tap out',
         status: 'PENDING',
         createdBy: 'seed-india',
